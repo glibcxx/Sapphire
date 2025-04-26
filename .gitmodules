@@ -1,0 +1,6 @@
+[submodule "external/minhook"]
+	path = external/minhook
+	url = https://github.com/TsudaKageyu/minhook
+[submodule "external/kiero"]
+	path = external/kiero
+	url = https://github.com/Rebzzel/kiero
