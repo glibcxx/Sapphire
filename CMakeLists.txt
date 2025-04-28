@@ -30,12 +30,13 @@ include_directories(
     external/soundtouch/include
 )
 
+add_compile_definitions(-DKIERO_INCLUDE_D3D12=1 -DKIERO_USE_MINHOOK=1)
+
 add_library(kiero STATIC
     external/kiero/kiero.cpp
 )
 
 add_subdirectory(external/imgui)
-# add_subdirectory(external/soundtouch)
 add_subdirectory(src/functions)
 add_subdirectory(src/injector)
 add_subdirectory(src/SDK)

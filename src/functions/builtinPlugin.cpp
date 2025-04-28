@@ -7,14 +7,15 @@
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved)
-{
-    switch (reason)
-    {
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
+    switch (reason) {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hModule);
         hook::init();
-        std::thread{[]() { InstallDX12Hook(); }}.detach();
+        std::thread{[]() {
+            if (!InstallDX12Hook())
+                LogBox::Error(L"DX12 Hook 安装失败！");
+        }}.detach();
         installTickRate();
         installSmoothPiston();
         break;
