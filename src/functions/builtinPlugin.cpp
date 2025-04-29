@@ -1,5 +1,6 @@
+#include "builtinPlugin.h"
+
 #include <thread>
-#include <Windows.h>
 
 #include "SDK/core/Core.h"
 
@@ -7,10 +8,17 @@
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"
 
+namespace builtinPluginInfo {
+
+    HMODULE hModule = nullptr;
+
+} // namespace builtinPluginInfo
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hModule);
+        builtinPluginInfo::hModule = hModule;
         hook::init();
         std::thread{[]() {
             if (!InstallDX12Hook())

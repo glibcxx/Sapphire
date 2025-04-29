@@ -1,9 +1,19 @@
 #include "DX12Hook.h"
 
+#include <Windows.h>
+
+#include <winrt/Windows.UI.Core.h>
+#include <winrt/Windows.UI.Input.h>
+#include <winrt/Windows.Foundation.h>
+
 #include <kiero/kiero.h>
 
 #include "SDK/core/Core.h"
 #include "GuiOverlay.h"
+
+#include "../builtinPlugin.h"
+
+using namespace winrt::Windows::UI;
 
 static const int APP_NUM_BACK_BUFFERS = 3;
 
@@ -18,12 +28,9 @@ typedef HRESULT(STDMETHODCALLTYPE *ResizeBuffers_t)(
     UINT            SwapChainFlags);
 
 // Global Variables
-WNDPROC             oWndProc = nullptr;
 Present12T          oPresent12 = nullptr;
 ExecuteCommandLists oExecuteCommandLists = nullptr;
 ResizeBuffers_t     oResizeBuffers = nullptr;
-
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static ID3D12Device *g_pd3dDevice = nullptr;
 
@@ -35,6 +42,297 @@ static ID3D12DescriptorHeap *g_pd3dRtvDescHeap = nullptr;
 static ID3D12DescriptorHeap *g_pd3dSrvDescHeap = nullptr;
 
 static ID3D12Resource *g_mainRenderTargetResource[APP_NUM_BACK_BUFFERS] = {};
+
+Core::CoreWindow g_coreWindow{nullptr};
+
+Core::CoreWindow::PointerPressed_revoker  g_pointerPressedRevoker;
+Core::CoreWindow::PointerReleased_revoker g_pointerReleasedRevoker;
+// Core::CoreWindow::PointerMoved_revoker        g_pointerMovedRevoker;
+Core::CoreWindow::PointerWheelChanged_revoker g_pointerWheelRevoker;
+Core::CoreWindow::Activated_revoker           g_activatedRevoker;
+
+Core::CoreDispatcher                                  g_coreDispatcher{nullptr};
+Core::CoreDispatcher::AcceleratorKeyActivated_revoker g_acceleratorRevoker;
+
+ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
+    switch (wParam) {
+    case VK_TAB: return ImGuiKey_Tab;
+    case VK_LEFT: return ImGuiKey_LeftArrow;
+    case VK_RIGHT: return ImGuiKey_RightArrow;
+    case VK_UP: return ImGuiKey_UpArrow;
+    case VK_DOWN: return ImGuiKey_DownArrow;
+    case VK_PRIOR: return ImGuiKey_PageUp;
+    case VK_NEXT: return ImGuiKey_PageDown;
+    case VK_HOME: return ImGuiKey_Home;
+    case VK_END: return ImGuiKey_End;
+    case VK_INSERT: return ImGuiKey_Insert;
+    case VK_DELETE: return ImGuiKey_Delete;
+    case VK_BACK: return ImGuiKey_Backspace;
+    case VK_SPACE: return ImGuiKey_Space;
+    case VK_RETURN: return ImGuiKey_Enter;
+    case VK_ESCAPE: return ImGuiKey_Escape;
+    case VK_OEM_7: return ImGuiKey_Apostrophe;
+    case VK_OEM_COMMA: return ImGuiKey_Comma;
+    case VK_OEM_MINUS: return ImGuiKey_Minus;
+    case VK_OEM_PERIOD: return ImGuiKey_Period;
+    case VK_OEM_2: return ImGuiKey_Slash;
+    case VK_OEM_1: return ImGuiKey_Semicolon;
+    case VK_OEM_PLUS: return ImGuiKey_Equal;
+    case VK_OEM_4: return ImGuiKey_LeftBracket;
+    case VK_OEM_5: return ImGuiKey_Backslash;
+    case VK_OEM_6: return ImGuiKey_RightBracket;
+    case VK_OEM_3: return ImGuiKey_GraveAccent;
+    case VK_CAPITAL: return ImGuiKey_CapsLock;
+    case VK_SCROLL: return ImGuiKey_ScrollLock;
+    case VK_NUMLOCK: return ImGuiKey_NumLock;
+    case VK_SNAPSHOT: return ImGuiKey_PrintScreen;
+    case VK_PAUSE: return ImGuiKey_Pause;
+    case VK_NUMPAD0: return ImGuiKey_Keypad0;
+    case VK_NUMPAD1: return ImGuiKey_Keypad1;
+    case VK_NUMPAD2: return ImGuiKey_Keypad2;
+    case VK_NUMPAD3: return ImGuiKey_Keypad3;
+    case VK_NUMPAD4: return ImGuiKey_Keypad4;
+    case VK_NUMPAD5: return ImGuiKey_Keypad5;
+    case VK_NUMPAD6: return ImGuiKey_Keypad6;
+    case VK_NUMPAD7: return ImGuiKey_Keypad7;
+    case VK_NUMPAD8: return ImGuiKey_Keypad8;
+    case VK_NUMPAD9: return ImGuiKey_Keypad9;
+    case VK_DECIMAL: return ImGuiKey_KeypadDecimal;
+    case VK_DIVIDE: return ImGuiKey_KeypadDivide;
+    case VK_MULTIPLY: return ImGuiKey_KeypadMultiply;
+    case VK_SUBTRACT: return ImGuiKey_KeypadSubtract;
+    case VK_ADD: return ImGuiKey_KeypadAdd;
+    case VK_LSHIFT: return ImGuiKey_LeftShift;
+    case VK_LCONTROL: return ImGuiKey_LeftCtrl;
+    case VK_LMENU: return ImGuiKey_LeftAlt;
+    case VK_LWIN: return ImGuiKey_LeftSuper;
+    case VK_RSHIFT: return ImGuiKey_RightShift;
+    case VK_RCONTROL: return ImGuiKey_RightCtrl;
+    case VK_RMENU: return ImGuiKey_RightAlt;
+    case VK_RWIN: return ImGuiKey_RightSuper;
+    case VK_APPS: return ImGuiKey_Menu;
+    case '0': return ImGuiKey_0;
+    case '1': return ImGuiKey_1;
+    case '2': return ImGuiKey_2;
+    case '3': return ImGuiKey_3;
+    case '4': return ImGuiKey_4;
+    case '5': return ImGuiKey_5;
+    case '6': return ImGuiKey_6;
+    case '7': return ImGuiKey_7;
+    case '8': return ImGuiKey_8;
+    case '9': return ImGuiKey_9;
+    case 'A': return ImGuiKey_A;
+    case 'B': return ImGuiKey_B;
+    case 'C': return ImGuiKey_C;
+    case 'D': return ImGuiKey_D;
+    case 'E': return ImGuiKey_E;
+    case 'F': return ImGuiKey_F;
+    case 'G': return ImGuiKey_G;
+    case 'H': return ImGuiKey_H;
+    case 'I': return ImGuiKey_I;
+    case 'J': return ImGuiKey_J;
+    case 'K': return ImGuiKey_K;
+    case 'L': return ImGuiKey_L;
+    case 'M': return ImGuiKey_M;
+    case 'N': return ImGuiKey_N;
+    case 'O': return ImGuiKey_O;
+    case 'P': return ImGuiKey_P;
+    case 'Q': return ImGuiKey_Q;
+    case 'R': return ImGuiKey_R;
+    case 'S': return ImGuiKey_S;
+    case 'T': return ImGuiKey_T;
+    case 'U': return ImGuiKey_U;
+    case 'V': return ImGuiKey_V;
+    case 'W': return ImGuiKey_W;
+    case 'X': return ImGuiKey_X;
+    case 'Y': return ImGuiKey_Y;
+    case 'Z': return ImGuiKey_Z;
+    case VK_F1: return ImGuiKey_F1;
+    case VK_F2: return ImGuiKey_F2;
+    case VK_F3: return ImGuiKey_F3;
+    case VK_F4: return ImGuiKey_F4;
+    case VK_F5: return ImGuiKey_F5;
+    case VK_F6: return ImGuiKey_F6;
+    case VK_F7: return ImGuiKey_F7;
+    case VK_F8: return ImGuiKey_F8;
+    case VK_F9: return ImGuiKey_F9;
+    case VK_F10: return ImGuiKey_F10;
+    case VK_F11: return ImGuiKey_F11;
+    case VK_F12: return ImGuiKey_F12;
+    case VK_F13: return ImGuiKey_F13;
+    case VK_F14: return ImGuiKey_F14;
+    case VK_F15: return ImGuiKey_F15;
+    case VK_F16: return ImGuiKey_F16;
+    case VK_F17: return ImGuiKey_F17;
+    case VK_F18: return ImGuiKey_F18;
+    case VK_F19: return ImGuiKey_F19;
+    case VK_F20: return ImGuiKey_F20;
+    case VK_F21: return ImGuiKey_F21;
+    case VK_F22: return ImGuiKey_F22;
+    case VK_F23: return ImGuiKey_F23;
+    case VK_F24: return ImGuiKey_F24;
+    case VK_BROWSER_BACK: return ImGuiKey_AppBack;
+    case VK_BROWSER_FORWARD: return ImGuiKey_AppForward;
+    default: return ImGuiKey_None;
+    }
+}
+
+static bool g_isWindowActive = false;
+
+void OnWindowActivated(const Core::CoreWindow &sender, const Core::WindowActivatedEventArgs &args) {
+    bool isActive = (args.WindowActivationState() != Core::CoreWindowActivationState::Deactivated);
+    g_isWindowActive = isActive; // Update our state tracking (still useful)
+
+    if (!isActive) {
+        // When deactivated, clear ImGui input state to avoid stuck keys/buttons
+        ImGuiIO &io = ImGui::GetIO();
+        // TODO: Thread Safety: This should ideally happen via the input queue
+        // or with proper locking if accessing io directly.
+        io.ClearInputKeys();
+        io.ClearInputMouse();
+        ShowCursor(TRUE);
+    } else {
+        // --- Attempt to force cursor visible on activation ---
+        // This might help if the game incorrectly hides it after MessageBox
+        ShowCursor(TRUE);
+    }
+    // LogBox::Info(L"Window Activation Changed: {}", isActive);
+}
+
+void OnAcceleratorKeyActivated(const Core::CoreDispatcher &sender, const Core::AcceleratorKeyEventArgs &args) {
+    winrt::Windows::System::VirtualKey vk = args.VirtualKey();
+    Core::CoreAcceleratorKeyEventType  eventType = args.EventType();
+    Core::CorePhysicalKeyStatus        keyStatus = args.KeyStatus();
+
+    const bool extendedkey = keyStatus.IsExtendedKey;
+
+    bool isPressed = (eventType == Core::CoreAcceleratorKeyEventType::KeyDown || eventType == Core::CoreAcceleratorKeyEventType::SystemKeyDown); // 明确包含 SystemKeyDown
+
+    ImGuiIO &io = ImGui::GetIO();
+    switch (vk) {
+    case winrt::Windows::System::VirtualKey::Menu:
+        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftAlt : ImGuiKey::ImGuiKey_RightAlt, isPressed);
+        break;
+    case winrt::Windows::System::VirtualKey::Control:
+        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftCtrl : ImGuiKey::ImGuiKey_RightCtrl, isPressed);
+        break;
+    case winrt::Windows::System::VirtualKey::Shift:
+        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftShift : ImGuiKey::ImGuiKey_RightShift, isPressed);
+        break;
+    default:
+        if (ImGuiKey imguiKey = KeyEventToImGuiKey(static_cast<WPARAM>(vk)); imguiKey != ImGuiKey_None) {
+            io.AddKeyEvent(imguiKey, isPressed);
+        }
+        break;
+    }
+
+    if (io.WantCaptureKeyboard) {
+        args.Handled(true);
+    }
+}
+
+void OnPointerPressed(const Core::CoreWindow &sender, const Core::PointerEventArgs &args) {
+    ImGuiIO                      &io = ImGui::GetIO();
+    Input::PointerPoint           point = args.CurrentPoint();
+    Input::PointerPointProperties props = point.Properties();
+
+    Input::PointerUpdateKind updateKind = props.PointerUpdateKind();
+    int                      button = -1;
+    switch (updateKind) {
+    case Input::PointerUpdateKind::LeftButtonPressed: button = 0; break;
+    case Input::PointerUpdateKind::RightButtonPressed: button = 1; break;
+    case Input::PointerUpdateKind::MiddleButtonPressed: button = 2; break;
+    case Input::PointerUpdateKind::XButton1Pressed: button = 3; break;
+    case Input::PointerUpdateKind::XButton2Pressed: button = 4; break;
+    default: break;
+    }
+
+    if (button != -1) {
+        io.AddMouseButtonEvent(button, true);
+    }
+    if (io.WantCaptureMouse) {
+        args.Handled(true);
+    }
+}
+
+void OnPointerReleased(const Core::CoreWindow &sender, const Core::PointerEventArgs &args) {
+    ImGuiIO                      &io = ImGui::GetIO();
+    Input::PointerPoint           point = args.CurrentPoint();
+    Input::PointerPointProperties props = point.Properties();
+
+    Input::PointerUpdateKind updateKind = props.PointerUpdateKind();
+    int                      button = -1;
+    switch (updateKind) {
+    case Input::PointerUpdateKind::LeftButtonReleased: button = 0; break;
+    case Input::PointerUpdateKind::RightButtonReleased: button = 1; break;
+    case Input::PointerUpdateKind::MiddleButtonReleased: button = 2; break;
+    case Input::PointerUpdateKind::XButton1Released: button = 3; break;
+    case Input::PointerUpdateKind::XButton2Released: button = 4; break;
+    default: break;
+    }
+    if (button != -1) {
+        io.AddMouseButtonEvent(button, false);
+    }
+    if (io.WantCaptureMouse) {
+        args.Handled(true);
+    }
+}
+
+// void OnPointerMoved(const Core::CoreWindow &sender, const Core::PointerEventArgs &args) {
+//     ImGuiIO &io = ImGui::GetIO();
+//     if (io.WantCaptureMouse) {
+//         args.Handled(true);
+//     }
+// }
+
+void OnPointerWheelChanged(const Core::CoreWindow &sender, const Core::PointerEventArgs &args) {
+    using namespace Input;
+    ImGuiIO               &io = ImGui::GetIO();
+    PointerPoint           point = args.CurrentPoint();
+    PointerPointProperties props = point.Properties();
+
+    int32_t wheelDelta = props.MouseWheelDelta();
+    if (wheelDelta != 0) {
+        float wheelAmount = (float)wheelDelta / (float)WHEEL_DELTA;
+        float wheel_y = 0.0f;
+        float wheel_x = 0.0f;
+        (props.IsHorizontalMouseWheel() ? wheel_x : wheel_y) = wheelAmount;
+        io.AddMouseWheelEvent(wheel_x, wheel_y);
+    }
+    if (io.WantCaptureMouse) {
+        args.Handled(true);
+    }
+}
+
+void SubscribeCoreWindowEvents() {
+    if (!g_coreWindow) return;
+    try {
+        g_pointerPressedRevoker = g_coreWindow.PointerPressed(winrt::auto_revoke, &OnPointerPressed);
+        g_pointerReleasedRevoker = g_coreWindow.PointerReleased(winrt::auto_revoke, &OnPointerReleased);
+        // g_pointerMovedRevoker = g_coreWindow.PointerMoved(winrt::auto_revoke, &OnPointerMoved); // 多余的
+        g_pointerWheelRevoker = g_coreWindow.PointerWheelChanged(winrt::auto_revoke, &OnPointerWheelChanged);
+        g_activatedRevoker = g_coreWindow.Activated(winrt::auto_revoke, &OnWindowActivated);
+    } catch (winrt::hresult_error const &ex) {
+        LogBox::Error(L"订阅 CoreWindowEvents 失败: {}", ex.message().c_str());
+    }
+}
+
+void UnsubscribeCoreWindowEvents() {
+    g_coreWindow = nullptr;
+}
+
+void SubscribeAcceleratorEvents() {
+    if (!g_coreDispatcher) return;
+    try {
+        g_acceleratorRevoker = g_coreDispatcher.AcceleratorKeyActivated(winrt::auto_revoke, &OnAcceleratorKeyActivated);
+    } catch (winrt::hresult_error const &ex) {
+        LogBox::Error(L"订阅 AcceleratorKeyActivated 失败: {}", ex.message().c_str());
+    }
+}
+
+void UnsubscribeAcceleratorEvents() {
+    g_coreDispatcher = nullptr;
+}
 
 // Helper Functions
 void CreateRenderTarget(IDXGISwapChain *pSwapChain) {
@@ -98,30 +396,6 @@ HWND FindChildWindowByClass(HWND parent, const wchar_t *className) {
     return nullptr;
 }
 
-bool IsGameCapturingMouse() {
-    CURSORINFO ci = {sizeof(ci)};
-    GetCursorInfo(&ci);
-    return (ci.flags == 0);
-}
-
-LRESULT APIENTRY hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
-        return true;
-
-    if (uMsg == WM_INPUT) {
-        RAWINPUT raw;
-        UINT     size = sizeof(raw);
-        GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &raw, &size, sizeof(RAWINPUTHEADER));
-
-        if (IsGameCapturingMouse() && raw.header.dwType == RIM_TYPEMOUSE) {
-            ImGuiIO &io = ImGui::GetIO();
-            io.MouseDelta.x += raw.data.mouse.lLastX;
-            io.MouseDelta.y += raw.data.mouse.lLastY;
-        }
-    }
-    return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
-}
-
 void hkExecuteCommandLists(ID3D12CommandQueue *queue, UINT NumCommandLists, ID3D12CommandList *const *ppCommandLists) {
     if (!g_commandQueue)
         g_commandQueue = queue;
@@ -148,73 +422,16 @@ HRESULT STDMETHODCALLTYPE hkResizeBuffers(
 
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
+    ImGuiIO &io = ImGui::GetIO();
+    io.DisplaySize = ImVec2((float)desc.BufferDesc.Width, (float)desc.BufferDesc.Height);
+
     CreateRenderTarget(pSwapChain);
 
     return hr;
 }
 
-static HHOOK g_hMouseHook = nullptr;
-static HHOOK g_hKeyboardHook = nullptr;
-
-// 鼠标钩子
-LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
-    // if (nCode >= HC_ACTION)
-    // {
-    //     MSLLHOOKSTRUCT *pMouse = (MSLLHOOKSTRUCT *)lParam;
-    //     // 处理按钮事件
-    //     ImGuiIO &io = ImGui::GetIO();
-    //     switch (wParam)
-    //     {
-    //     case WM_LBUTTONDOWN: io.MouseDown[0] = true; break;
-    //     case WM_LBUTTONUP: io.MouseDown[0] = false; break;
-    //     case WM_RBUTTONDOWN: io.MouseDown[1] = true; break;
-    //     case WM_RBUTTONUP: io.MouseDown[1] = false; break;
-    //     case WM_MBUTTONDOWN: io.MouseDown[2] = true; break;
-    //     case WM_MBUTTONUP: io.MouseDown[2] = false; break;
-    //     case WM_MOUSEWHEEL:
-    //         io.MouseWheel += GET_WHEEL_DELTA_WPARAM(pMouse->mouseData) / (float)WHEEL_DELTA;
-    //         break;
-    //     case WM_MOUSEHWHEEL:
-    //         io.MouseWheelH += GET_WHEEL_DELTA_WPARAM(pMouse->mouseData) / (float)WHEEL_DELTA;
-    //         break;
-    //     }
-    // }
-    return CallNextHookEx(g_hMouseHook, nCode, wParam, lParam);
-}
-
-ImGuiKey ImGui_ImplWin32_KeyEventToImGuiKey(WPARAM wParam, LPARAM lParam);
-
-// 键盘钩子
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
-    if (nCode >= HC_ACTION) {
-        KBDLLHOOKSTRUCT *pKey = (KBDLLHOOKSTRUCT *)lParam;
-        ImGuiIO         &io = ImGui::GetIO();
-        const ImGuiKey   key = ImGui_ImplWin32_KeyEventToImGuiKey(pKey->vkCode, lParam);
-        if (key != ImGuiKey_None) {
-            const bool is_key_down = (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN);
-
-            // 添加按键事件
-            io.AddKeyEvent(key, is_key_down);
-
-            io.AddKeyEvent(ImGuiKey_ModCtrl, (GetAsyncKeyState(VK_CONTROL) & 0x8000));
-            io.AddKeyEvent(ImGuiKey_ModShift, (GetAsyncKeyState(VK_SHIFT) & 0x8000));
-            io.AddKeyEvent(ImGuiKey_ModAlt, (GetAsyncKeyState(VK_MENU) & 0x8000));
-        }
-
-        if (wParam == WM_KEYDOWN && io.WantTextInput) {
-            BYTE keyboardState[256] = {0};
-            GetKeyboardState(keyboardState);
-            WCHAR charBuf[2] = {0};
-            if (ToUnicode(pKey->vkCode, pKey->scanCode, keyboardState, charBuf, 1, 0) > 0) {
-                io.AddInputCharacterUTF16(charBuf[0]);
-            }
-        }
-
-        // 阻止事件传递
-        if (io.WantCaptureKeyboard) return 1;
-    }
-    return CallNextHookEx(g_hKeyboardHook, nCode, wParam, lParam);
-}
+static INT64 g_Time = 0;
+static INT64 g_TicksPerSecond = 0;
 
 HRESULT __stdcall hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UINT Flags) {
     // 初始化阶段
@@ -225,9 +442,6 @@ HRESULT __stdcall hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UI
         pSwapChain->GetDesc(&desc);
         desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
         desc.OutputWindow = moduleInfo::gMainWindow = FindChildWindowByClass(moduleInfo::gMainWindow, L"Windows.UI.Core.CoreWindow");
-
-        // g_hMouseHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, GetModuleHandle(NULL), 0); // 有bug，以后再解决
-        g_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, GetModuleHandle(NULL), 0);
 
         if (FAILED(pSwapChain->GetDevice(IID_PPV_ARGS(&g_pd3dDevice))))
             return oPresent12(pSwapChain, SyncInterval, Flags);
@@ -253,19 +467,54 @@ HRESULT __stdcall hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UI
         if (FAILED(g_pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&g_pd3dSrvDescHeap))))
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
+        // LogBox::Info(L"test");
+        try {
+            g_coreWindow = Core::CoreWindow::GetForCurrentThread();
+        } catch (const winrt::hresult_error &ex) {
+            LogBox::Error(L"获取 CoreWindow 失败: {} ({:X})", ex.message().c_str(), (int32_t)ex.code());
+        }
+        if (g_coreWindow) {
+            // LogBox::Info(L"成功获取 CoreWindow 对象！");
+            SubscribeCoreWindowEvents();
+            g_coreDispatcher = g_coreWindow.Dispatcher();
+            SubscribeAcceleratorEvents();
+        } else {
+            LogBox::Warn(L"CoreWindow::GetForCurrentThread() 返回 nullptr。可能不在 UI 线程?");
+            // todo: 回退方案
+        }
+
         GuiOverlay::initImGui(moduleInfo::gMainWindow, g_pd3dDevice, g_pd3dSrvDescHeap, APP_NUM_BACK_BUFFERS);
+
+        ImGuiIO &io = ImGui::GetIO();
+        io.DisplaySize = ImVec2((float)desc.BufferDesc.Width, (float)desc.BufferDesc.Height);
+        if (!QueryPerformanceFrequency((LARGE_INTEGER *)&g_TicksPerSecond))
+            g_TicksPerSecond = 1000; // Fallback if QPF fails
+        if (!QueryPerformanceCounter((LARGE_INTEGER *)&g_Time))
+            g_Time = GetTickCount64(); // Fallback if QPC fails
 
         CreateRenderTarget(pSwapChain);
 
-        // Hook内容窗口的窗口过程
-        oWndProc = (WNDPROC)SetWindowLongPtr(moduleInfo::gMainWindow, GWLP_WNDPROC, (LONG_PTR)hkWndProc);
         GuiOverlay::sInitialized = true;
     }
+    ImGuiIO &io = ImGui::GetIO();
+    POINT    mousePos;
+    if (GetCursorPos(&mousePos)) {
+        ScreenToClient(moduleInfo::gMainWindow, &mousePos);
+        io.AddMousePosEvent((float)mousePos.x, (float)mousePos.y);
+    }
+    INT64 currentTime;
+    if (!QueryPerformanceCounter((LARGE_INTEGER *)&currentTime))
+        currentTime = GetTickCount64(); // Use fallback if QPC fails
+    io.DeltaTime = (float)(currentTime - g_Time) / g_TicksPerSecond;
+    g_Time = currentTime;
+    // Ensure DeltaTime is positive and reasonable
+    if (io.DeltaTime <= 0.0f)
+        io.DeltaTime = 0.00001f;
 
     GuiOverlay::handleKeyPress();
 
     ImGui_ImplDX12_NewFrame();
-    ImGui_ImplWin32_NewFrame();
+    // ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
     // 绘制窗口
@@ -294,11 +543,6 @@ HRESULT __stdcall hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UI
 
     ImGui::Render();
 
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-    }
-
     ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), g_pd3dCommandList);
 
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -312,6 +556,7 @@ HRESULT __stdcall hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UI
 }
 
 bool InstallDX12Hook() {
+    winrt::init_apartment(winrt::apartment_type::multi_threaded);
     return kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success
         && kiero::bind(140, (void **)&oPresent12, hkPresent12) == kiero::Status::Success
         && kiero::bind(54, (void **)&oExecuteCommandLists, hkExecuteCommandLists) == kiero::Status::Success
@@ -319,18 +564,10 @@ bool InstallDX12Hook() {
 }
 
 void UninstallDX12Hook() {
-    LogBox::Info(L"Uninstalling DX12 Hook...");
+    UnsubscribeAcceleratorEvents();
+    UnsubscribeCoreWindowEvents();
+
     GuiOverlay::shutdownImGui();
-
-    if (g_hMouseHook) {
-        UnhookWindowsHookEx(g_hMouseHook);
-        g_hMouseHook = nullptr;
-    }
-
-    if (g_hKeyboardHook) {
-        UnhookWindowsHookEx(g_hKeyboardHook);
-        g_hKeyboardHook = nullptr;
-    }
 
     if (g_pd3dCommandList) {
         g_pd3dCommandList->Release();
@@ -358,4 +595,6 @@ void UninstallDX12Hook() {
     }
 
     kiero::shutdown();
+
+    winrt::uninit_apartment();
 }

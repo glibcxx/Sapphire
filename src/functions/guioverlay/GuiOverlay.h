@@ -18,7 +18,7 @@ class GuiOverlay {
 
 public:
     inline static bool sInitialized = false;
-    inline static bool sShowOverlay = false;
+    inline static bool sShowOverlay = true;
 
     inline static float sTimeScale = 1.0f;
     inline static bool  sEnableSmoothPiston = true;

@@ -8,10 +8,12 @@
 
 using namespace std::chrono_literals;
 
+ImGuiKey ImGui_ImplWin32_KeyEventToImGuiKey(WPARAM wParam, LPARAM lParam);
+
 void GuiOverlay::initImGui(HWND mainWindow, ID3D12Device *device, ID3D12DescriptorHeap *srvDescHeap, UINT bufferCount) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui_ImplWin32_Init(mainWindow);
+    // ImGui_ImplWin32_Init(mainWindow);
     ImGui_ImplDX12_Init(device, bufferCount,
                         DXGI_FORMAT_R8G8B8A8_UNORM, srvDescHeap,
                         srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
@@ -21,15 +23,8 @@ void GuiOverlay::initImGui(HWND mainWindow, ID3D12Device *device, ID3D12Descript
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     [[maybe_unused]] ImFont *font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/msyh.ttc", 27.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
-
-    ImGuiStyle &style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1;
-    }
 }
 
 void GuiOverlay::shutdownImGui() {
@@ -40,11 +35,10 @@ void GuiOverlay::shutdownImGui() {
 }
 
 void GuiOverlay::drawMainOverlay() {
-    // static bool show_demo = false;
-    // if (show_demo)
-    //     ImGui::ShowDemoWindow(&show_demo);
+    static bool show_demo = true;
+    if (show_demo)
+        ImGui::ShowDemoWindow(&show_demo);
 
-    // 先这么写着
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 45));
     if (ImGui::Begin("TickScale Setting", nullptr,
@@ -52,8 +46,8 @@ void GuiOverlay::drawMainOverlay() {
                          | ImGuiWindowFlags_NoNav
                          | ImGuiWindowFlags_NoTitleBar)) {
         auto now = std::chrono::steady_clock::now();
-        if (now - sLastShowGuiTimePoint > 2s)
-            GuiOverlay::sShowOverlay = false;
+        // if (now - sLastShowGuiTimePoint > 2s)
+        //     GuiOverlay::sShowOverlay = false;
         ImGui::Text("TickRate: %.1f Tps", sTimeScale * 20.0f);
         ImGui::Text("SmoothPiston: %s", sEnableSmoothPiston ? "ON" : "OFF");
     }

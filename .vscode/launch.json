@@ -8,26 +8,6 @@
             "name": "(Windows) 附加",
             "type": "cppvsdbg",
             "request": "attach",
-        },
-        {
-            "name": "(gdb) 附加",
-            "type": "cppdbg",
-            "request": "attach",
-            "program": "${workspaceFolder}/build/bin/Debug/core.dll",
-            "MIMode": "gdb",
-            "miDebuggerPath": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
         }
     ]
 }
