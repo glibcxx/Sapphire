@@ -98,7 +98,7 @@ void GuiOverlay::drawGUI() {
     if (GuiOverlay::sShowToast)
         GuiOverlay::drawToast();
     if (GuiOverlay::sShowPannel)
-        GuiOverlay::drawPannel();
+        GuiOverlay::drawPanel();
 }
 
 void GuiOverlay::refreshCursorPos() {
@@ -144,7 +144,7 @@ void GuiOverlay::drawToast() {
     ImGui::PopStyleColor();
 }
 
-void GuiOverlay::drawPannel() {
+void GuiOverlay::drawPanel() {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
@@ -158,6 +158,13 @@ void GuiOverlay::drawPannel() {
             | ImGuiWindowFlags_NoBringToFrontOnFocus
     );
     ImGui::Columns(2, "PluginLayout", true);
+
+    static bool columns_initialized = false;
+    if (!columns_initialized) {
+        ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.25f);
+        columns_initialized = true;
+    }
+
     drawPluginList();
 
     ImGui::NextColumn();

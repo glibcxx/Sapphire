@@ -68,7 +68,7 @@ private:
     static void initInputManager(std::unique_ptr<InputManager> inputManager);
 
     static void drawToast();
-    static void drawPannel();
+    static void drawPanel();
     static void drawPluginList();
     static void drawPluginDetails();
 };
