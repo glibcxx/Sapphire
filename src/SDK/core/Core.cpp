@@ -34,6 +34,27 @@ uintptr_t ScanSignature(uintptr_t start, size_t size, const char *sig, size_t si
 }
 
 namespace core {
+    class CoreInfo {
+    public:
+        HMODULE    mMainModule = GetModuleHandleW(nullptr);
+        MODULEINFO mMainModuleInfo;
+
+        std::unordered_map<uintptr_t, uintptr_t> ApiAddrToOriginAddr;
+        CoreInfo() {
+            gApiToOriginMap = &ApiAddrToOriginAddr;
+            GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
+        }
+
+        static CoreInfo &getInstance() {
+            static CoreInfo instance;
+            return instance;
+        }
+    };
+
+    SDK_API uintptr_t getImagebase() {
+        return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
+    }
+
     uintptr_t getOrigin(uintptr_t api) {
         if (!gApiToOriginMap) return 0;
         if (auto it = gApiToOriginMap->find(api); it != gApiToOriginMap->end())
@@ -48,17 +69,7 @@ namespace core {
             SDK内头文件声明接口，而对应cpp文件实现为转发调用原始函数的指针。
             而指针在静态初始化期间完成扫描，所有函数接口的特征码直接写在对应函数体内。
         */
-        static class CoreInfo {
-        public:
-            HMODULE    mMainModule = GetModuleHandleW(nullptr);
-            MODULEINFO mMainModuleInfo;
-
-            std::unordered_map<uintptr_t, uintptr_t> ApiAddrToOriginAddr;
-            CoreInfo() {
-                gApiToOriginMap = &ApiAddrToOriginAddr;
-                GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
-            }
-        } coreInfo{};
+        CoreInfo &coreInfo = CoreInfo::getInstance();
         /*
             coreInfo用于保存主模块句柄，主模块大小等信息。
             不写成全局变量的原因是，不同编译单元的静态存储期对象初始化顺序是未知的，
@@ -67,8 +78,11 @@ namespace core {
         uintptr_t res = ScanSignature(
             reinterpret_cast<uintptr_t>(coreInfo.mMainModule),
             coreInfo.mMainModuleInfo.SizeOfImage,
-            sig, sigLength);
-        coreInfo.ApiAddrToOriginAddr.emplace(api, res);
+            sig,
+            sigLength
+        );
+        if (api)
+            coreInfo.ApiAddrToOriginAddr.emplace(api, res);
         return res;
     }
 
@@ -83,7 +97,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
         moduleInfo::gStartTime = util::getTimeMs();
         moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
         if (!moduleInfo::gMainWindow) {
-            LogBox::Error(L"未找到 Minecraft 窗口！");
+            Logger::Error("未找到 Minecraft 窗口！");
             return false;
         }
         break;

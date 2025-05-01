@@ -161,12 +161,13 @@ void setEnableSmoothPiston(bool enable) {
 
 void installSmoothPiston() {
     if (!SmoothMovingBlockHook::hook())
-        LogBox::Error(L"SmoothMovingBlockHook 安装失败！");
+        Logger::ErrorBox(L"SmoothMovingBlockHook 安装失败！");
     if (!SmoothPistonArmHook::hook())
-        LogBox::Error(L"SmoothPistonArmHook 安装失败！");
+        Logger::ErrorBox(L"SmoothPistonArmHook 安装失败！");
     if (!PistonSeparatorHook::hook())
-        LogBox::Error(L"PistonSeparatorHook 安装失败！");
+        Logger::ErrorBox(L"PistonSeparatorHook 安装失败！");
 }
+
 void uninstallSmoothPiston() {
     SmoothMovingBlockHook::unhook();
     SmoothPistonArmHook::unhook();

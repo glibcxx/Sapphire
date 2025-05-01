@@ -52,10 +52,10 @@ AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
 
 # 开括号(开圆括号、开尖括号、开方括号)后的对齐: Align, DontAlign, AlwaysBreak(总是在开括号后换行), BlockIndent
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: BlockIndent
 
 # true表示函数实参都在同一行，反之都各自一行
-BinPackArguments: true
+BinPackArguments: false
 
 # true表示所有形参都在同一行，反之都各自一行
 BinPackParameters: false

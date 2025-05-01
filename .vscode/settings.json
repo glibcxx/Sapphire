@@ -1,4 +1,4 @@
 {
     "cmake.generator": "Ninja Multi-Config",
-    "C_Cpp.codeAnalysis.clangTidy.path": ""
+    // "C_Cpp.codeAnalysis.clangTidy.path": ""
 }

@@ -80,7 +80,7 @@ namespace hook {
         static bool hook() {                                                                      \
             if (sdkOriginal = core::getOrigin<FuncPtrType>(&targetAddr))                          \
                 return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);               \
-            LogBox::Error(L"Target addr [" #targetAddr "] not found!");                           \
+            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                        \
             return false;                                                                         \
         }                                                                                         \
                                                                                                   \
@@ -110,7 +110,7 @@ namespace hook {
         static bool hook() {                                                                      \
             if (sdkOriginal = core::getOrigin<FuncPtrType>(&targetAddr))                          \
                 return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);               \
-            LogBox::Error(L"Target addr [" #targetAddr "] not found!");                           \
+            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                        \
             return false;                                                                         \
         }                                                                                         \
                                                                                                   \
@@ -140,7 +140,7 @@ namespace hook {
         static bool hook() {                                                                      \
             if (sdkOriginal = core::getOrigin<FuncPtrType>(&targetAddr))                          \
                 return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);               \
-            LogBox::Error(L"Target addr [" #targetAddr "] not found!");                           \
+            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                        \
             return false;                                                                         \
         }                                                                                         \
                                                                                                   \

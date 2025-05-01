@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include "logger/LogBox.hpp"
+#include "logger/Logger.hpp"
 #include "util/ScopeGuard.hpp"
 
 #include <AccCtrl.h>
@@ -16,7 +16,7 @@
 #endif
 
 namespace fs = std::filesystem;
-using namespace LogBox;
+using namespace Logger;
 
 typedef LONG(NTAPI *NtResumeProcess_t)(HANDLE ProcessHandle);
 NtResumeProcess_t NtResumeProcess = (NtResumeProcess_t)GetProcAddress(GetModuleHandle(TEXT("ntdll")), "NtResumeProcess");
@@ -139,7 +139,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
     SetPermissions(dllPath);
     AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid)};
     if (!hProcess && hProcess.get() == INVALID_HANDLE_VALUE) {
-        LogBox::Error(L"[UWPinjector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[UWPinjector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -151,7 +151,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
         MEM_COMMIT | MEM_RESERVE,
         PAGE_READWRITE)};
     if (!pRemotePath) {
-        LogBox::Error(L"[UWPinjector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[UWPinjector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -162,7 +162,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
             dllPathStr.c_str(),
             (dllPathStr.size() + 1) * sizeof(wchar_t),
             nullptr)) {
-        LogBox::Error(L"[UWPinjector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[UWPinjector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -171,7 +171,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
                                                (LPTHREAD_START_ROUTINE)LoadLibraryW,
                                                pRemotePath.get(), 0, nullptr)};
     if (!hThread) {
-        LogBox::Error(L"[UWPinjector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[UWPinjector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
     // 等待线程结束
@@ -180,7 +180,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
     DWORD exitCode;
     GetExitCodeThread(hThread.get(), &exitCode);
     if (exitCode == STILL_ACTIVE)
-        LogBox::Warn(L"[UWPinjector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
+        Logger::WarnBox(L"[UWPinjector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
 
     return true;
 }
@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
     HRESULT hResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hResult)) {
-        LogBox::Error(L"[UWPinjector] CoInitializeEx 失败 (错误码: {})", hResult);
+        Logger::ErrorBox(L"[UWPinjector] CoInitializeEx 失败 (错误码: {})", hResult);
         return 1;
     }
 
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"UWPinjector.exe");
     } else {
-        // LogBox::Info(L"[UWPinjector] 目标进程ID: {}", dwProcessId);
+        // Logger::Info(L"[UWPinjector] 目标进程ID: {}", dwProcessId);
         util::ScopeGuard autoResume{
             [dwProcessId]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
@@ -227,12 +227,12 @@ int main(int argc, char **argv) {
             currentDir = fs::path{argv[0]}.parent_path();
             llPath = currentDir / L"sapphire_core.dll";
             if (!fs::exists(llPath)) {
-                LogBox::Error(L"[UWPinjector] 未找到dll内核：{}", llPath.c_str());
+                Logger::ErrorBox(L"[UWPinjector] 未找到dll内核：{}", llPath.c_str());
                 return 1;
             }
         }
         if (!injectDll(dwProcessId, llPath)) {
-            LogBox::Error(L"[UWPinjector] sapphire_core.dll 注入失败！");
+            Logger::ErrorBox(L"[UWPinjector] sapphire_core.dll 注入失败！");
             return 1;
         }
         std::wcout.imbue(std::locale("chs"));

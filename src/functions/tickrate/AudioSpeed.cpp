@@ -5,7 +5,7 @@
 #include <fmod/fmod.hpp>
 
 #include "hook/Hook.hpp"
-#include "logger/LogBox.hpp"
+#include "logger/Logger.hpp"
 
 #include "../guioverlay/GuiOverlay.h"
 
@@ -115,15 +115,15 @@ void installFMODHooks() {
 
     auto createAddr = (PFN_FMOD_System_Init)GetProcAddress(hFMOD, "?init@System@FMOD@@QEAA?AW4FMOD_RESULT@@HIPEAX@Z");
     if (!createAddr)
-        LogBox::Error(L"FMOD::System::init 未找到!");
+        Logger::ErrorBox(L"FMOD::System::init 未找到!");
     auto playSoundAddr = (PFN_FMOD_System_Init)GetProcAddress(hFMOD, "?playSound@System@FMOD@@QEAA?AW4FMOD_RESULT@@PEAVSound@2@PEAVChannelGroup@2@_NPEAPEAVChannel@2@@Z");
     if (!playSoundAddr)
-        LogBox::Error(L"FMOD::System::playSound 未找到!");
+        Logger::ErrorBox(L"FMOD::System::playSound 未找到!");
 
     oSystemInit = hook::hookFunc((PFN_FMOD_System_Init)createAddr, hkSystemInit);
     oPlaySound = hook::hookFunc((PFN_FMOD_System_playSound)playSoundAddr, hkPlaySound);
     if (!oSystemInit || !oPlaySound) {
-        LogBox::Error(L"FMOD Hook 安装失败!");
+        Logger::ErrorBox(L"FMOD Hook 安装失败!");
         hook::unhookFunc(createAddr);
         hook::unhookFunc(playSoundAddr);
         return;
