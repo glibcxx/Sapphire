@@ -5,6 +5,8 @@
 #include <mutex>
 #include <imgui.h>
 
+#include "LogBox.hpp"
+
 class GameLogger {
 public:
     std::mutex      logMutex;
@@ -64,3 +66,25 @@ public:
         ImGui::PopStyleVar();
     }
 };
+
+namespace Logger {
+    template <typename... Args>
+    inline void Debug(std::format_string<Args...> fmt, Args &&...args) {
+        GameLogger::getInstance().addLog(GameLogger::Type::Debug, std::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    inline void Info(std::format_string<Args...> fmt, Args &&...args) {
+        GameLogger::getInstance().addLog(GameLogger::Type::Info, std::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    inline void Error(std::format_string<Args...> fmt, Args &&...args) {
+        GameLogger::getInstance().addLog(GameLogger::Type::Error, std::format(fmt, std::forward<Args>(args)...));
+    }
+
+    template <typename... Args>
+    inline void Warn(std::format_string<Args...> fmt, Args &&...args) {
+        GameLogger::getInstance().addLog(GameLogger::Type::Warn, std::format(fmt, std::forward<Args>(args)...));
+    }
+} // namespace Logger

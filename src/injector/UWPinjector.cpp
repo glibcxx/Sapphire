@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include "logger/Logger.hpp"
+#include "logger/LogBox.hpp"
 #include "util/ScopeGuard.hpp"
 
 #include <AccCtrl.h>

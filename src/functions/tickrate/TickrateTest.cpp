@@ -3,28 +3,33 @@
 #include "SDK/core/Core.h"
 
 #include "SDK/api/src/common/util/Timer.h"
+#include "SDK/api/sapphire/GUI/GUI.h"
 
-#include "../guioverlay/GuiOverlay.h"
 #include "AudioSpeed.h"
 
-static float gTimeScale = 1.0f;
+constexpr float TimeScaleList[] = {0.00625f, 0.05f, 0.1f, 0.2f, 0.25f, 0.5f, 1.0f, 2.0f, 5.0f, 10.0f};
+
+static float   gTimeScale = 1.0f;
+static uint8_t sSelectedTps = 6;
 
 HOOK_TYPE(TickRateTest, Timer, Timer::advanceTime, void, float preferredFrameStep) {
     this->origin(preferredFrameStep);
-    this->mTimeScale = GuiOverlay::sTimeScale; // 就这么写，很随意2333
+    this->mTimeScale = gTimeScale; // 就这么写，很随意2333
 }
 
 void addSettingGUI() {
-    PluginSettings myPluginSettings;
-    myPluginSettings.name = "Tick Rate";
-    myPluginSettings.description = "Change game Speed!";
-    myPluginSettings.drawSettings = []() {
-        ImGui::SliderFloat("TickSpeed", &gTimeScale, 0.0f, 10.0f);
-        if (ImGui::Button("Apply Settings")) {
-            GuiOverlay::sTimeScale = gTimeScale;
+    static float   timeScale = gTimeScale;
+    PluginSettings myPluginSettings{
+        "Tick Rate",
+        "Change game Speed!",
+        []() {
+            ImGui::SliderFloat("TickSpeed", &timeScale, 0.0f, 10.0f);
+            if (ImGui::Button("Apply Settings")) {
+                gTimeScale = timeScale;
+            }
         }
     };
-    GuiOverlay::registerPluginSettings(myPluginSettings);
+    GuiOverlay::registerPluginSettings(std::move(myPluginSettings));
 }
 
 void installTickRate() {

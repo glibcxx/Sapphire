@@ -2,7 +2,7 @@
 
 #include "Version.h"
 #include "hook/Hook.hpp"
-#include "logger/Logger.hpp"
+#include "logger/LogBox.hpp"
 
 namespace moduleInfo {
     SDK_API extern HWND     gMainWindow;

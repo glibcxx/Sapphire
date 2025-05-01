@@ -11,4 +11,4 @@ add_library(builtin_plugin SHARED
     ${smoothpiston_src}
 )
 
-target_link_libraries(builtin_plugin PUBLIC sapphire_core kiero fmod_vc)
+target_link_libraries(builtin_plugin PUBLIC sapphire_core fmod_vc)

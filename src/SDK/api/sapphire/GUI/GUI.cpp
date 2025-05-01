@@ -1,16 +1,24 @@
-#include "GuiOverlay.h"
-
-#include "logger/Logger.hpp"
-
-#include "../tickrate/AudioSpeed.h"
-#include "../tickrate/TickRateTest.h"
-#include "../smoothpiston/SmoothPiston.h"
+#include "GUI.h"
 
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
+#include "logger/GameLogger.hpp"
+
+#include <backends/imgui_impl_dx12.h>
+#include <backends/imgui_impl_win32.h>
+
 using namespace std::chrono_literals;
 
-void GuiOverlay::initImGui(HWND mainWindow, ID3D12Device *device, ID3D12DescriptorHeap *srvDescHeap, UINT bufferCount) {
+std::unique_ptr<InputManager> GuiOverlay::sInputManager = nullptr;
+std::vector<PluginSettings>   GuiOverlay::sPluginSettings{};
+
+void GuiOverlay::initImGui(
+    HWND                  mainWindow,
+    ID3D12Device         *device,
+    ID3D12DescriptorHeap *srvDescHeap,
+    DXGI_SWAP_CHAIN_DESC &swapChainDesc,
+    UINT                  bufferCount
+) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     // ImGui_ImplWin32_Init(mainWindow);
@@ -29,6 +37,12 @@ void GuiOverlay::initImGui(HWND mainWindow, ID3D12Device *device, ID3D12Descript
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     [[maybe_unused]] ImFont *font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/msyh.ttc", 27.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+
+    io.DisplaySize = ImVec2((float)swapChainDesc.BufferDesc.Width, (float)swapChainDesc.BufferDesc.Height);
+    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&GuiOverlay::sTicksPerSecond))
+        GuiOverlay::sTicksPerSecond = 1000;
+    if (!QueryPerformanceCounter((LARGE_INTEGER *)&GuiOverlay::sTime))
+        GuiOverlay::sTime = GetTickCount64();
 }
 
 void GuiOverlay::shutdownImGui() {
@@ -38,45 +52,41 @@ void GuiOverlay::shutdownImGui() {
     ImGui::DestroyContext();
 }
 
-void GuiOverlay::handleKeyPress() {
+void GuiOverlay::handleHotkey() {
     if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_P)) {
         GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
         if (ClientInstance::primaryClientInstance) {
             if (GuiOverlay::sShowPannel)
                 ClientInstance::primaryClientInstance->releaseMouse();
-            else if (!ClientInstance::primaryClientInstance->isShowingMenu())
+            else if (!ClientInstance::primaryClientInstance->isShowingMenu()) {
                 ClientInstance::primaryClientInstance->grabMouse();
+                ImGui::GetIO().WantCaptureMouse = false;
+                ImGui::GetIO().WantCaptureKeyboard = false;
+            }
+        } else {
+            Logger::Warn("ClientInstance not found!");
         }
     }
 
-    if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadAdd) && sSelectedTps < 9) {
-        GuiOverlay::sShowToast = true;
-        sLastShowToastTimePoint = std::chrono::steady_clock::now();
-        sTimeScale = TimeScaleList[++sSelectedTps];
-        UpdateAudioSpeed(sTimeScale);
-    }
+    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadAdd) && sSelectedTps < 9) {
+    //     GuiOverlay::sShowToast = true;
+    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
+    // }
 
-    if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadSubtract) && sSelectedTps > 0) {
-        GuiOverlay::sShowToast = true;
-        sLastShowToastTimePoint = std::chrono::steady_clock::now();
-        sTimeScale = TimeScaleList[--sSelectedTps];
-        UpdateAudioSpeed(sTimeScale);
-    }
+    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadSubtract) && sSelectedTps > 0) {
+    //     GuiOverlay::sShowToast = true;
+    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
+    // }
 
-    if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadDecimal)) {
-        GuiOverlay::sShowToast = true;
-        sLastShowToastTimePoint = std::chrono::steady_clock::now();
-        sSelectedTps = 6;
-        sTimeScale = TimeScaleList[sSelectedTps];
-        UpdateAudioSpeed(sTimeScale);
-    }
+    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadDecimal)) {
+    //     GuiOverlay::sShowToast = true;
+    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
+    // }
 
-    if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_Backslash)) {
-        GuiOverlay::sShowToast = true;
-        GuiOverlay::sEnableSmoothPiston = !GuiOverlay::sEnableSmoothPiston;
-        setEnableSmoothPiston(GuiOverlay::sEnableSmoothPiston);
-        sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    }
+    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_Backslash)) {
+    //     GuiOverlay::sShowToast = true;
+    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
+    // }
 }
 
 void GuiOverlay::drawGUI() {
@@ -93,6 +103,26 @@ void GuiOverlay::drawGUI() {
         GuiOverlay::drawPannel();
 }
 
+void GuiOverlay::refreshCursorPos() {
+    ImGuiIO &io = ImGui::GetIO();
+    POINT    mousePos;
+    if (GetCursorPos(&mousePos)) {
+        ScreenToClient(moduleInfo::gMainWindow, &mousePos);
+        io.AddMousePosEvent((float)mousePos.x, (float)mousePos.y);
+    }
+    INT64 currentTime;
+    if (!QueryPerformanceCounter((LARGE_INTEGER *)&currentTime))
+        currentTime = GetTickCount64();
+    io.DeltaTime = (float)(currentTime - GuiOverlay::sTime) / GuiOverlay::sTicksPerSecond;
+    GuiOverlay::sTime = currentTime;
+    if (io.DeltaTime <= 0.0f)
+        io.DeltaTime = 0.00001f;
+}
+
+void GuiOverlay::initInputManager(std::unique_ptr<InputManager> inputManager) {
+    GuiOverlay::sInputManager = std::move(inputManager);
+}
+
 void GuiOverlay::drawToast() {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 45));
@@ -104,8 +134,8 @@ void GuiOverlay::drawToast() {
                 | ImGuiWindowFlags_NoNav
                 | ImGuiWindowFlags_NoTitleBar
         )) {
-        ImGui::Text("TickRate: %.1f Tps", sTimeScale * 20.0f);
-        ImGui::Text("SmoothPiston: %s", sEnableSmoothPiston ? "ON" : "OFF");
+        // ImGui::Text("TickRate: %.1f Tps", sTimeScale * 20.0f);
+        // ImGui::Text("SmoothPiston: %s", sEnableSmoothPiston ? "ON" : "OFF");
 
         auto now = std::chrono::steady_clock::now();
         if (now - sLastShowToastTimePoint > 2s)
@@ -120,23 +150,22 @@ void GuiOverlay::drawPannel() {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->Pos);
     ImGui::SetNextWindowSize(viewport->Size);
-    if (ImGui::Begin(
-            "Main Panel",
-            &GuiOverlay::sShowPannel,
-            ImGuiWindowFlags_NoDecoration
-                | ImGuiWindowFlags_NoMove
-                | ImGuiWindowFlags_NoResize
-                | ImGuiWindowFlags_NoSavedSettings
-                | ImGuiWindowFlags_NoBringToFrontOnFocus
-        )) {
-        ImGui::Columns(2, "PluginLayout", true);
-        drawPluginList();
+    ImGui::Begin(
+        "Main Panel",
+        nullptr,
+        ImGuiWindowFlags_NoDecoration
+            | ImGuiWindowFlags_NoMove
+            | ImGuiWindowFlags_NoResize
+            | ImGuiWindowFlags_NoSavedSettings
+            | ImGuiWindowFlags_NoBringToFrontOnFocus
+    );
+    ImGui::Columns(2, "PluginLayout", true);
+    drawPluginList();
 
-        ImGui::NextColumn();
-        drawPluginDetails();
+    ImGui::NextColumn();
+    drawPluginDetails();
 
-        ImGui::Columns(1);
-    }
+    ImGui::Columns(1);
     ImGui::End();
 }
 
@@ -168,6 +197,7 @@ void GuiOverlay::drawPluginDetails() {
         ImGui::TextWrapped("Description: %s", plugin.description.c_str());
         ImGui::Separator();
 
+        ImGui::GetIO();
         if (plugin.drawSettings) {
             plugin.drawSettings();
         } else {
@@ -180,6 +210,6 @@ void GuiOverlay::drawPluginDetails() {
     ImGui::EndChild();
 }
 
-void GuiOverlay::registerPluginSettings(const PluginSettings &settings) {
-    sPluginSettings.push_back(settings);
+void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
+    sPluginSettings.push_back(std::move(settings));
 }

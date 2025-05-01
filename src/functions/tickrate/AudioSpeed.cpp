@@ -5,9 +5,7 @@
 #include <fmod/fmod.hpp>
 
 #include "hook/Hook.hpp"
-#include "logger/Logger.hpp"
-
-#include "../guioverlay/GuiOverlay.h"
+#include "logger/LogBox.hpp"
 
 /*
     这坨东西用于实现音频变速，核心思路就是：

@@ -1,8 +1,11 @@
 #include "Core.h"
 
 #include <unordered_map>
+#include <thread>
 
 #include "util/time.h"
+
+#include "DX12Hook.h"
 
 #include <Psapi.h> // for MODULEINFO
 
@@ -97,12 +100,17 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
         moduleInfo::gStartTime = util::getTimeMs();
         moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
         if (!moduleInfo::gMainWindow) {
-            Logger::Error("未找到 Minecraft 窗口！");
+            Logger::ErrorBox(L"未找到 Minecraft 窗口！");
             return false;
         }
+        std::thread{[]() {
+            if (!DX12Hook::install())
+                Logger::ErrorBox(L"DX12 Hook 安装失败！");
+        }}.detach();
         break;
     }
     case DLL_PROCESS_DETACH:
+        DX12Hook::uninstall();
         hook::uninit();
         FreeLibraryAndExitThread(hModule, TRUE);
         break;

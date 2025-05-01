@@ -2,10 +2,14 @@
 
 #ifdef DLLEXPORT
 #    define SDK_API __declspec(dllexport)
-#    define SDK_VAPI __declspec(dllexport)
 #else
 #    define SDK_API __declspec(dllimport)
-#    define SDK_VAPI __declspec(dllimport)
+#endif
+
+#define SDK_VAPI SDK_API
+
+#ifndef IMGUI_API
+#    define IMGUI_API SDK_API
 #endif
 
 #define VA_EXPAND(...) __VA_ARGS__
