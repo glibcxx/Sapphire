@@ -5,6 +5,8 @@
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
 #include "SDK/api/src-client/common/client/renderer/PistonBlockActorRenerer.h"
 
+#include "SDK/api/sapphire/GUI/GUI.h"
+
 static bool gEnableSmoothPiston = true;
 static bool gEnablePistonTickOrderSeparator = true;
 
@@ -36,10 +38,12 @@ constexpr void twoStageLerp(float &alpha, PistonBlockActor &piston, Fn lerpFn, A
         (isSecondStage ? lastProgress : progress) = (expanding ? midPoint : (1.0f - midPoint));
         float globalT = isSecondStage ? (0.5f + alpha * 0.5f) : (alpha * 0.5f);
         float range = progress - lastProgress;
-        alpha = std::min(isSecondStage
-                             ? (lerpFn(globalT, args...) - midPoint) / (1.0f - midPoint + std::numeric_limits<float>::epsilon())
-                             : lerpFn(globalT, args...) / (midPoint + std::numeric_limits<float>::epsilon()),
-                         1.0f);
+        alpha = std::min(
+            isSecondStage
+                ? (lerpFn(globalT, args...) - midPoint) / (1.0f - midPoint + std::numeric_limits<float>::epsilon())
+                : lerpFn(globalT, args...) / (midPoint + std::numeric_limits<float>::epsilon()),
+            1.0f
+        );
     }
 }
 
@@ -166,6 +170,22 @@ void installSmoothPiston() {
         Logger::ErrorBox(L"SmoothPistonArmHook 安装失败！");
     if (!PistonSeparatorHook::hook())
         Logger::ErrorBox(L"PistonSeparatorHook 安装失败！");
+
+    GuiOverlay::registerPluginSettings(
+        {
+            .name = "Better Piston & MovingBlock",
+            .description = "Smooth Piston & MovingBlock, Visualize Tick Order",
+            .drawSettings = []() {
+                // todo
+            },
+        }
+    );
+
+    GuiOverlay::registerHotkey(
+        {.keyChord = ImGuiMod_Alt | ImGuiKey_Backslash, .action = []() {
+             // todo
+         }}
+    );
 }
 
 void uninstallSmoothPiston() {

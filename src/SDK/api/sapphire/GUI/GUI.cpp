@@ -9,8 +9,17 @@
 
 using namespace std::chrono_literals;
 
-std::unique_ptr<InputManager> GuiOverlay::sInputManager = nullptr;
-std::vector<PluginSettings>   GuiOverlay::sPluginSettings{};
+std::unique_ptr<InputManager>           GuiOverlay::sInputManager = nullptr;
+std::vector<GuiOverlay::PluginSettings> GuiOverlay::sPluginSettings{};
+std::vector<GuiOverlay::Hotkey>         GuiOverlay::sRegisteredHotkeys{};
+
+void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
+    sPluginSettings.push_back(std::move(settings));
+}
+
+void GuiOverlay::registerHotkey(Hotkey &&hotkey) {
+    sRegisteredHotkeys.push_back(std::move(hotkey));
+}
 
 void GuiOverlay::initImGui(
     HWND                  mainWindow,
@@ -43,6 +52,24 @@ void GuiOverlay::initImGui(
         GuiOverlay::sTicksPerSecond = 1000;
     if (!QueryPerformanceCounter((LARGE_INTEGER *)&GuiOverlay::sTime))
         GuiOverlay::sTime = GetTickCount64();
+
+    GuiOverlay::registerHotkey(
+        {
+            ImGuiMod_Alt | ImGuiKey_P,
+            "Toggle Main Panel",
+            []() {
+            GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
+            if (ClientInstance::primaryClientInstance) {
+                if (GuiOverlay::sShowPannel) {
+                    ClientInstance::primaryClientInstance->releaseMouse();
+                } else if (!ClientInstance::primaryClientInstance->isShowingMenu()) {
+                    ClientInstance::primaryClientInstance->grabMouse();
+                }
+            } else {
+                Logger::Warn("ClientInstance not found!");
+            } },
+        }
+    );
 }
 
 void GuiOverlay::shutdownImGui() {
@@ -53,40 +80,11 @@ void GuiOverlay::shutdownImGui() {
 }
 
 void GuiOverlay::handleHotkey() {
-    if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_P)) {
-        GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
-        if (ClientInstance::primaryClientInstance) {
-            if (GuiOverlay::sShowPannel)
-                ClientInstance::primaryClientInstance->releaseMouse();
-            else if (!ClientInstance::primaryClientInstance->isShowingMenu()) {
-                ClientInstance::primaryClientInstance->grabMouse();
-                ImGui::GetIO().WantCaptureMouse = false;
-                ImGui::GetIO().WantCaptureKeyboard = false;
-            }
-        } else {
-            Logger::Warn("ClientInstance not found!");
+    for (const auto &hotkey : sRegisteredHotkeys) {
+        if (ImGui::IsKeyChordPressed(hotkey.keyChord)) {
+            hotkey.action();
         }
     }
-
-    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadAdd) && sSelectedTps < 9) {
-    //     GuiOverlay::sShowToast = true;
-    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    // }
-
-    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadSubtract) && sSelectedTps > 0) {
-    //     GuiOverlay::sShowToast = true;
-    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    // }
-
-    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_KeypadDecimal)) {
-    //     GuiOverlay::sShowToast = true;
-    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    // }
-
-    // if (ImGui::IsKeyChordPressed(ImGuiKey::ImGuiMod_Alt | ImGuiKey::ImGuiKey_Backslash)) {
-    //     GuiOverlay::sShowToast = true;
-    //     sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    // }
 }
 
 void GuiOverlay::drawGUI() {
@@ -208,8 +206,4 @@ void GuiOverlay::drawPluginDetails() {
     }
 
     ImGui::EndChild();
-}
-
-void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
-    sPluginSettings.push_back(std::move(settings));
 }

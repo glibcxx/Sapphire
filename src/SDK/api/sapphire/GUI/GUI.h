@@ -11,15 +11,23 @@
 
 #include "../input/InputManager.h"
 
-struct PluginSettings {
-    std::string           name;         // 插件名称
-    std::string           description;  // 插件描述
-    std::function<void()> drawSettings; // 绘制设置界面的函数
-};
-
 class GuiOverlay {
 public:
+    struct PluginSettings {
+        std::string           name;
+        std::string           description;
+        std::function<void()> drawSettings; // 绘制设置界面的函数
+    };
+
+    struct Hotkey {
+        ImGuiKeyChord         keyChord; // ImGuiKeyChord (e.g., ImGuiMod_Alt | ImGuiKey_P)
+        std::string           description;
+        std::function<void()> action;
+    };
+
     SDK_API static void registerPluginSettings(PluginSettings &&settings);
+
+    SDK_API static void registerHotkey(Hotkey &&hotkey);
 
 private:
     friend class DX12Hook;
@@ -28,6 +36,7 @@ private:
 
     static std::unique_ptr<InputManager> sInputManager;
     static std::vector<PluginSettings>   sPluginSettings;
+    static std::vector<Hotkey>           sRegisteredHotkeys;
 
     inline static int sSelectedPluginIndex = -1;
 
