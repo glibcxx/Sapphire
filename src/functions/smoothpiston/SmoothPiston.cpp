@@ -176,15 +176,10 @@ void installSmoothPiston() {
             .name = "Better Piston & MovingBlock",
             .description = "Smooth Piston & MovingBlock, Visualize Tick Order",
             .drawSettings = []() {
-                // todo
+                ImGui::Checkbox("Smooth Piston & MovingBlock", &gEnableSmoothPiston);
+                ImGui::Checkbox("Visualize Tick Order", &gEnablePistonTickOrderSeparator);
             },
         }
-    );
-
-    GuiOverlay::registerHotkey(
-        {.keyChord = ImGuiMod_Alt | ImGuiKey_Backslash, .action = []() {
-             // todo
-         }}
     );
 }
 
