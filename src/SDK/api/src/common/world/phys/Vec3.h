@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "Vec2.h"
 
 class Vec3 {
 public:

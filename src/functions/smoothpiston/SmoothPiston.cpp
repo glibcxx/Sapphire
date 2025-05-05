@@ -3,7 +3,7 @@
 #include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
-#include "SDK/api/src-client/common/client/renderer/PistonBlockActorRenerer.h"
+#include "SDK/api/src-client/common/client/renderer/actor/PistonBlockActorRenerer.h"
 
 #include "SDK/api/sapphire/GUI/GUI.h"
 
@@ -81,13 +81,20 @@ HOOK_TYPE(PistonSeparatorHook, PistonBlockActor, PistonBlockActor::tick, void, B
     }
 }
 
-HOOK_TYPE(SmoothMovingBlockHook, MovingBlockActorRenderer, MovingBlockActorRenderer::renderFrame, uint64_t, uint64_t a2, uint64_t a3) {
-    auto region = *(const IConstBlockSource **)a3;
-    auto movingBlock = *(MovingBlockActor **)(uintptr_t)(a3 + 8);
+HOOK_TYPE(
+    SmoothMovingBlockHook,
+    MovingBlockActorRenderer,
+    MovingBlockActorRenderer::render,
+    void,
+    BaseActorRenderContext &context,
+    BlockActorRenderData   &renderData
+) {
+    auto region = renderData.mRegion;
+    auto movingBlock = (MovingBlockActor *)renderData.mBlockActor;
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    float &alpha = *(float *)(a2 + 208);
+    float &alpha = memory::getField<float>(context._fill, 208);
 #elif MC_VERSION == v1_21_2
-    float &alpha = *(float *)(a2 + 168);
+    float &alpha = memory::getField<float>(context._fill, 168);
 #endif
     if (gEnableSmoothPiston) {
         /*
@@ -97,15 +104,15 @@ HOOK_TYPE(SmoothMovingBlockHook, MovingBlockActorRenderer, MovingBlockActorRende
         if (movingBlock->mPreserved == true) {
             if (!movingBlock->mBlockEntity || movingBlock->mBlockEntity->mType != BlockActorType::PistonArm) {
                 if (movingBlock->mPreservedLifespan <= 4 || alpha > 0.25f)
-                    return 0;
+                    return;
             } else if (movingBlock->mPreservedLifespan <= 4)
-                return 0;
+                return;
         }
     }
     auto getBlockEntity = (const BlockActor *(*)(const IConstBlockSource *, const BlockPos &))region->vtable[4];
     auto ownerPistonBlockActor = (PistonBlockActor *)(getBlockEntity(region, movingBlock->mPistonPos));
     if (!ownerPistonBlockActor) // 这个的确可能是nullptr
-        return this->origin(a2, a3);
+        return this->origin(context, renderData);
 
     /*
         错时渲染的核心代码，newX表示活塞应该在什么时候开始伸出。
@@ -123,21 +130,28 @@ HOOK_TYPE(SmoothMovingBlockHook, MovingBlockActorRenderer, MovingBlockActorRende
         // 如果同时想要缓入缓出，可以这么写：
         // twoStageLerp(alpha, *ownerPistonBlockActor, [](float a, float newX) { return easeInOut(newStartX(a, newX)); }, newX);
     }
-    auto res = this->origin(a2, a3);
+    this->origin(context, renderData);
     alpha = oldAlpha;
     ownerPistonBlockActor->mLastProgress = oldLastProgress;
     ownerPistonBlockActor->mProgress = oldProgress;
-    return res;
+    return;
 }
 
-HOOK_TYPE(SmoothPistonArmHook, PistonBlockActorRenderer, PistonBlockActorRenderer::renderFrame, uint64_t, uint64_t a2, uint64_t a3) {
-    auto  region = *(const class IConstBlockSource **)a3;
-    auto  pistonActor = *(PistonBlockActor **)(uintptr_t)(a3 + 8);
-    auto &pistonPos = **(Vec3 **)(uintptr_t)(a3 + 24);
+HOOK_TYPE(
+    SmoothPistonArmHook,
+    PistonBlockActorRenderer,
+    PistonBlockActorRenderer::render,
+    void,
+    BaseActorRenderContext &context,
+    BlockActorRenderData   &renderData
+) {
+    auto  region = renderData.mRegion;
+    auto  pistonActor = (PistonBlockActor *)renderData.mBlockActor;
+    auto &pistonPos = *renderData.mPos;
 #if MC_VERSION == v1_21_2
-    float &alpha = *(float *)(a2 + 168);
+    float &alpha = memory::getField<float>(context._fill, 168);
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    float &alpha = *(float *)(a2 + 208);
+    float &alpha = memory::getField<float>(context._fill, 208);
 #endif
 
     if (gRenderThread == std::thread::id{})
@@ -152,11 +166,11 @@ HOOK_TYPE(SmoothPistonArmHook, PistonBlockActorRenderer, PistonBlockActorRendere
         float    newX = (float)gapReuseTickOrder / gTotalTicked * (gTotalTicked < 4 ? 0.45f : 0.65f);
         twoStageLerp(alpha, *pistonActor, newStartX, newX);
     }
-    auto res = this->origin(a2, a3);
+    this->origin(context, renderData);
     alpha = oldAlpha;
     pistonActor->mLastProgress = oldLastProgress;
     pistonActor->mProgress = oldProgress;
-    return res;
+    return;
 }
 
 void setEnableSmoothPiston(bool enable) {
