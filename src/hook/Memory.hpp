@@ -1,11 +1,32 @@
 #pragma once
 
+#include <bit>
 #include <cstdint>
+#include <type_traits>
 
 namespace memory {
     template <typename T>
     T &getField(void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
+    }
+
+    template <typename T>
+        requires(std::is_reference_v<T>)
+    T &&getField(void *obj, uintptr_t offset) {
+        using T_ = std::remove_reference_t<T>;
+        return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
+    }
+
+    template <typename T>
+    const T &getField(const void *obj, uintptr_t offset) {
+        return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
+    }
+
+    template <typename T>
+        requires(std::is_reference_v<T>)
+    const T &&getField(const void *obj, uintptr_t offset) {
+        using T_ = std::remove_reference_t<T>;
+        return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T = void **>

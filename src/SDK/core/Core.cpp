@@ -6,6 +6,7 @@
 #include "util/time.h"
 
 #include "DX12Hook.h"
+#include "SDK/api/sapphire/util/DrawUtils.h"
 
 #include <Psapi.h> // for MODULEINFO
 
@@ -66,7 +67,7 @@ namespace core {
             return 0;
     }
 
-    uintptr_t registryApi(const char *sig, size_t sigLength, uintptr_t api) {
+    uintptr_t scanApi(const char *sig, size_t sigLength) {
         /*
             目前api设计如下：
             SDK内头文件声明接口，而对应cpp文件实现为转发调用原始函数的指针。
@@ -78,15 +79,18 @@ namespace core {
             不写成全局变量的原因是，不同编译单元的静态存储期对象初始化顺序是未知的，
             而api库创建接口就是完成于静态初始化期间，此时访问core的全局变量是未定义行为。
         */
-        uintptr_t res = ScanSignature(
+        return ScanSignature(
             reinterpret_cast<uintptr_t>(coreInfo.mMainModule),
             coreInfo.mMainModuleInfo.SizeOfImage,
             sig,
             sigLength
         );
+    }
+
+    void addToMap(uintptr_t api, uintptr_t origin) {
+        CoreInfo &coreInfo = CoreInfo::getInstance();
         if (api)
-            coreInfo.ApiAddrToOriginAddr.emplace(api, res);
-        return res;
+            coreInfo.ApiAddrToOriginAddr.emplace(api, origin);
     }
 
 } // namespace core
@@ -107,6 +111,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
             if (!DX12Hook::install())
                 Logger::ErrorBox(L"DX12 Hook 安装失败！");
         }}.detach();
+        DrawUtils::getInstance();
         break;
     }
     case DLL_PROCESS_DETACH:

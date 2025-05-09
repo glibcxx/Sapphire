@@ -20,6 +20,8 @@ build/
 !.vscode/extensions.json
 !.vscode/*.code-snippets
 
+.data/
+
 # Local History for Visual Studio Code
 .history/
 
@@ -433,7 +435,8 @@ FodyWeavers.xsd
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
