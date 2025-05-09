@@ -37,7 +37,7 @@ add_library(kiero STATIC
 )
 
 add_subdirectory(external/imgui)
-add_subdirectory(src/functions)
+add_subdirectory(src/plugins)
 add_subdirectory(src/injector)
 add_subdirectory(src/SDK)
 
