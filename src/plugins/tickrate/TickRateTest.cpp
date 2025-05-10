@@ -1,6 +1,6 @@
 #include "TickRateTest.h"
 
-#include "SDK/core/Core.h"
+#include "hook/Hook.hpp"
 
 #include "SDK/api/src/common/util/Timer.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
@@ -27,6 +27,19 @@ static float gTimeScaleBuffer = gTimeScale;
 static int sSelectedTps = 6;
 
 static bool changeAudioSpeed = true;
+
+static const std::array sResamplerMethodNames = {
+    "DEFAULT", "NOINTERP", "LINEAR", "CUBIC", "SPLINE"
+};
+
+static std::array sResamplerMethods = {
+    FMOD_DSP_RESAMPLER_DEFAULT,
+    FMOD_DSP_RESAMPLER_NOINTERP,
+    FMOD_DSP_RESAMPLER_LINEAR,
+    FMOD_DSP_RESAMPLER_CUBIC,
+    FMOD_DSP_RESAMPLER_SPLINE
+};
+static int sSelectedResamplerMethod = 2;
 
 static void clampSelectedIndex() {
     if (gTimeScaleList.empty()) {
@@ -199,8 +212,16 @@ static void settingGUI() {
     }
     ImGui::SeparatorText("Audio Setting");
 
-    if (ImGui::Checkbox("Change Audio Speed", &changeAudioSpeed)) {
+    bool audioSpeedChanged = ImGui::Checkbox("Change Audio Speed", &changeAudioSpeed);
+    if (audioSpeedChanged) {
         UpdateAudioSpeed(changeAudioSpeed ? gTimeScale : 1.0f);
+    }
+
+    // 设置重采样算法
+    if (ImGui::Combo("Resampler Method", &sSelectedResamplerMethod, sResamplerMethodNames.data(), sResamplerMethodNames.size())) {
+        if (sSelectedResamplerMethod >= 0 && sSelectedResamplerMethod < sResamplerMethods.size()) {
+            UpdateResamplerMethod(sResamplerMethods[sSelectedResamplerMethod]);
+        }
     }
 }
 
@@ -232,7 +253,7 @@ HOOK_TYPE(
     const std::chrono::nanoseconds &dtIn,
     float                           a
 ) {
-    Logger::Debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
+    // Logger::Debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
     this->origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * gTimeScale), a);
 }
 
@@ -247,11 +268,12 @@ void installTickRate() {
         clampSelectedIndex();
         gTimeScale = gTimeScaleBuffer;
         UpdateAudioSpeed(gTimeScale);
+        UpdateResamplerMethod(sResamplerMethods[sSelectedResamplerMethod]);
         gInputValid = true;
         gInputErrorMsg.clear();
         gInputChangedSinceLastApply = false;
     } else {
-        Logger::ErrorBox(L"Tickrate 安装失败！");
+        Logger::Error("[Tickrate] Tickrate 安装失败！");
     }
 }
 

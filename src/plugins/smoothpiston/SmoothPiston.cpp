@@ -1,5 +1,8 @@
 #include "SmoothPiston.h"
 
+#include "hook/Hook.hpp"
+
+#include "logger/GameLogger.hpp"
 #include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
@@ -179,11 +182,11 @@ void setEnableSmoothPiston(bool enable) {
 
 void installSmoothPiston() {
     if (!SmoothMovingBlockHook::hook())
-        Logger::ErrorBox(L"SmoothMovingBlockHook 安装失败！");
+        Logger::Error("[Better Piston & MovingBlock] SmoothMovingBlockHook 安装失败!");
     if (!SmoothPistonArmHook::hook())
-        Logger::ErrorBox(L"SmoothPistonArmHook 安装失败！");
+        Logger::Error("[Better Piston & MovingBlock] SmoothPistonArmHook 安装失败!");
     if (!PistonSeparatorHook::hook())
-        Logger::ErrorBox(L"PistonSeparatorHook 安装失败！");
+        Logger::Error("[Better Piston & MovingBlock] PistonSeparatorHook 安装失败!");
 
     GuiOverlay::registerPluginSettings(
         {

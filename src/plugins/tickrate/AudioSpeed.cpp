@@ -5,65 +5,69 @@
 #include <fmod/fmod.hpp>
 
 #include "hook/Hook.hpp"
-#include "logger/LogBox.hpp"
+#include "logger/GameLogger.hpp"
 
 /*
     这坨东西用于实现音频变速，核心思路就是：
     mcbe使用了fmod库，剩下的交给AI
 */
 
-static FMOD::System *gSystem = nullptr;
-static FMOD::DSP    *gPitchDSP = nullptr;
-static std::mutex    gDspMutex;
+static FMOD::System      *gSystem = nullptr;
+static FMOD_DSP_RESAMPLER currentResamplerMethod = FMOD_DSP_RESAMPLER_LINEAR;
 
-float gSpeedFactor = 1.0f;
-float gLastSpeedFactor = 1.0f;
+static float gSpeedFactor = 1.0f;
+static float gLastSpeedFactor = 1.0f;
 
-typedef FMOD_RESULT(F_CALL *PFN_FMOD_System_Init)(FMOD::System *system, int maxchannels, FMOD_INITFLAGS flags, void *extradriverdata);
-PFN_FMOD_System_Init oSystemInit = nullptr;
-typedef FMOD_RESULT(F_CALL *PFN_FMOD_System_playSound)(
-    FMOD::System       *self,
-    FMOD::Sound        *sound,
-    FMOD::ChannelGroup *group,
-    bool                paused,
-    FMOD::Channel     **channel);
-PFN_FMOD_System_playSound oPlaySound = nullptr;
+static void setResamplerMethod(FMOD::System &sys, FMOD_DSP_RESAMPLER resampler) {
+    FMOD_ADVANCEDSETTINGS advSettings = {};
+    advSettings.cbSize = sizeof(FMOD_ADVANCEDSETTINGS);
+    FMOD_RESULT getAdvRes = sys.getAdvancedSettings(&advSettings);
+    if (getAdvRes != FMOD_OK) {
+        Logger::Warn("[Tickrate][AudioSpeed] Failed to get original FMOD advanced settings: {}", (int)getAdvRes);
+    }
+    Logger::Debug("[Tickrate][AudioSpeed] resamplerMethod changed from {} to {}", (int)advSettings.resamplerMethod, (int)resampler);
+    advSettings.resamplerMethod = resampler;
+    FMOD_RESULT setAdvRes = sys.setAdvancedSettings(&advSettings);
+    if (setAdvRes != FMOD_OK) {
+        Logger::Warn("[Tickrate][AudioSpeed] Failed to set FMOD advanced resampling method: {}. This might ignore the setting.", (int)setAdvRes);
+    }
+}
 
-FMOD_RESULT F_CALL hkSystemInit(FMOD::System *ppSystem, int maxchannels, FMOD_INITFLAGS flags, void *extradata) {
-    FMOD_RESULT res = oSystemInit(ppSystem, maxchannels, flags, extradata);
-    if (res == FMOD_OK && ppSystem) {
-        std::lock_guard<std::mutex> lk(gDspMutex);
-        gSystem = ppSystem;
+HOOK_RAW_TYPE(
+    FMODSystemInitHook,
+    FMOD::System,
+    FMOD::System::init,
+    FMOD_RESULT,
+    int            maxchannels,
+    FMOD_INITFLAGS flags,
+    void          *extradriverdata
+) {
+    setResamplerMethod(*this, currentResamplerMethod);
 
-        // 1. 创建 PitchShift DSP
-        if (!gPitchDSP) {
-            gSystem->createDSPByType(FMOD_DSP_TYPE_PITCHSHIFT, &gPitchDSP);
-            gPitchDSP->setParameterFloat(FMOD_DSP_PITCHSHIFT_PITCH, 1.0f);
-
-            // 2. 把 DSP 挂到 Master Channel Group
-            FMOD::ChannelGroup *masterGroup = nullptr;
-            gSystem->getMasterChannelGroup(&masterGroup);
-            masterGroup->addDSP(0, gPitchDSP);
-        }
+    FMOD_RESULT res = this->origin(maxchannels, flags, extradriverdata);
+    if (res == FMOD_OK) {
+        gSystem = this;
     }
     return res;
 }
 
-FMOD_RESULT F_CALL hkPlaySound(
-    FMOD::System       *self,
+HOOK_RAW_TYPE(
+    FMODSystemPlaySoundHook,
+    FMOD::System,
+    FMOD::System::playSound,
+    FMOD_RESULT,
     FMOD::Sound        *sound,
-    FMOD::ChannelGroup *group,
+    FMOD::ChannelGroup *channelgroup,
     bool                paused,
-    FMOD::Channel     **channel) {
-    FMOD_RESULT res = oPlaySound(self, sound, group, paused, channel);
-
+    FMOD::Channel     **channel
+) {
+    FMOD_RESULT res = this->origin(sound, channelgroup, paused, channel);
     if (res == FMOD_OK && channel && *channel) {
         float freq = 0.0f;
         if ((*channel)->getFrequency(&freq) == FMOD_OK) {
             (*channel)->setFrequency(freq * gSpeedFactor);
         }
     }
-
     return res;
 }
 
@@ -96,9 +100,15 @@ void ApplySpeedToGroup(FMOD::ChannelGroup *group) {
     }
 }
 
-void UpdateAudioSpeed(float speed) {
-    gSpeedFactor = speed;
+void UpdateResamplerMethod(FMOD_DSP_RESAMPLER resampler) {
     if (!gSystem) return;
+    currentResamplerMethod = resampler;
+    setResamplerMethod(*gSystem, currentResamplerMethod);
+}
+
+void UpdateAudioSpeed(float speed) {
+    if (!gSystem) return;
+    gSpeedFactor = speed;
     FMOD::ChannelGroup *masterGroup = nullptr;
     if (gSystem->getMasterChannelGroup(&masterGroup) != FMOD_OK || !masterGroup)
         return;
@@ -108,22 +118,10 @@ void UpdateAudioSpeed(float speed) {
 
 // 安装 Hook
 void installFMODHooks() {
-    HMODULE hFMOD = GetModuleHandleW(L"fmod.dll");
-    if (!hFMOD) return;
-
-    auto createAddr = (PFN_FMOD_System_Init)GetProcAddress(hFMOD, "?init@System@FMOD@@QEAA?AW4FMOD_RESULT@@HIPEAX@Z");
-    if (!createAddr)
-        Logger::ErrorBox(L"FMOD::System::init 未找到!");
-    auto playSoundAddr = (PFN_FMOD_System_Init)GetProcAddress(hFMOD, "?playSound@System@FMOD@@QEAA?AW4FMOD_RESULT@@PEAVSound@2@PEAVChannelGroup@2@_NPEAPEAVChannel@2@@Z");
-    if (!playSoundAddr)
-        Logger::ErrorBox(L"FMOD::System::playSound 未找到!");
-
-    oSystemInit = hook::hookFunc((PFN_FMOD_System_Init)createAddr, hkSystemInit);
-    oPlaySound = hook::hookFunc((PFN_FMOD_System_playSound)playSoundAddr, hkPlaySound);
-    if (!oSystemInit || !oPlaySound) {
-        Logger::ErrorBox(L"FMOD Hook 安装失败!");
-        hook::unhookFunc(createAddr);
-        hook::unhookFunc(playSoundAddr);
+    if (!FMODSystemInitHook::hook() || !FMODSystemPlaySoundHook::hook()) {
+        Logger::Error("[Tickrate][AudioSpeed] FMOD Hook 安装失败!");
+        FMODSystemInitHook::unhook();
+        FMODSystemPlaySoundHook::unhook();
         return;
     }
 }

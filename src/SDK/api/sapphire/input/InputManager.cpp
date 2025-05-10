@@ -3,6 +3,7 @@
 #include <winrt/Windows.UI.Input.h>
 #include <winrt/Windows.Foundation.h>
 
+#include "hook/Hook.hpp"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
 
 #include <imgui/imgui.h>

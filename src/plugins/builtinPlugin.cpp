@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "SDK/core/Core.h"
+#include "hook/Hook.hpp"
 
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"

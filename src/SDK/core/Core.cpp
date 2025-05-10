@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <thread>
 
+#include "hook/Hook.hpp"
 #include "util/time.h"
 
 #include "DX12Hook.h"

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Version.h"
-#include "hook/Hook.hpp"
+#include "hook/Macros.h"
 #include "logger/LogBox.hpp"
 #include "util/StringLiteral.hpp"
+#include "util/ApiUniqueId.hpp"
+#include "util/Memory.hpp"
 
 namespace moduleInfo {
     SDK_API extern HWND     gMainWindow;

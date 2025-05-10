@@ -30,7 +30,7 @@
 #ifdef DLL_EXPORTS
     #define F_API F_EXPORT F_CALL
 #else
-    #define F_API F_CALL
+    #define F_API __declspec(dllimport) F_CALL
 #endif
 
 #define F_CALLBACK F_CALL

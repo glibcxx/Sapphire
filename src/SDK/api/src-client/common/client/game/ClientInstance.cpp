@@ -1,5 +1,6 @@
 #include "ClientInstance.h"
 
+#include "hook/Hook.hpp"
 #include "util/ScopeGuard.hpp"
 
 void *const *ClientInstance::__vftable0 = reinterpret_cast<void *const *>(

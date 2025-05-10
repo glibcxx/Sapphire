@@ -2,11 +2,12 @@
 
 #include <MinHook.h>
 
-#include "util/ApiUniqueId.hpp"
-#include "Memory.hpp"
-#include "Macros.h"
+#include "SDK/core/Core.h"
+#include "util/TypeTraits.hpp"
 
 namespace hook {
+    using namespace type_traits;
+
     inline bool init() {
         return MH_Initialize() == MH_OK;
     }
@@ -14,9 +15,6 @@ namespace hook {
     inline void uninit() {
         MH_Uninitialize();
     }
-
-    template <typename T>
-    constexpr bool is_func_ptr = std::is_pointer_v<T> && std::is_function_v<std::remove_pointer_t<T>> || std::is_member_function_pointer_v<T>;
 
     template <typename T>
     constexpr uintptr_t funcToAddr(T fn) {
@@ -49,102 +47,78 @@ namespace hook {
     bool unhookFunc(Target targetAddr) {
         return targetAddr && MH_DisableHook((LPVOID)funcToAddr(targetAddr)) == MH_OK;
     }
+
+    class DummyClass {};
 } // namespace hook
 
-/**
- * @brief 创建一个hook，通过 `HookName::hook()` 激活hook，`HookName::unhook()` 取消hook
- *
- * @param HookName (自定义) Hook名称
- * @param targetAddr 目标函数地址
- * @param RetType 目标函数返回类型
- * @param ... 形参类型与形参名
- */
-#define HOOK_STATIC(HookName, targetAddr, RetType, ...)                                             \
-    class HookName {                                                                                \
-        using FuncPtrType = RetType (*)(__VA_ARGS__);                                               \
-        static_assert(hook::is_func_ptr<FuncPtrType>, #targetAddr " should be function pointer");   \
-                                                                                                    \
-        inline static FuncPtrType sdkOriginal = nullptr;                                            \
-        inline static FuncPtrType trampoline = nullptr;                                             \
-                                                                                                    \
-        template <typename... Args>                                                                 \
-        static RetType origin(Args &&...args)                                                       \
-            requires(std::is_invocable_v<FuncPtrType, Args...>)                                     \
-        {                                                                                           \
-            return trampoline(std::forward<Args>(args)...);                                         \
-        }                                                                                           \
-        static RetType detour(__VA_ARGS__);                                                         \
-                                                                                                    \
-    public:                                                                                         \
-        static bool hook() {                                                                        \
-            if (sdkOriginal = core::getOrigin<FuncPtrType>(util::ApiUniqueId::make<&targetAddr>())) \
-                return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);                 \
-            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                          \
-            return false;                                                                           \
-        }                                                                                           \
-                                                                                                    \
-        static void unhook() {                                                                      \
-            hook::unhookFunc(sdkOriginal);                                                          \
-        }                                                                                           \
-    };                                                                                              \
-    inline RetType HookName::detour(__VA_ARGS__)
+#define IMPL_HOOK_TYPE(Static, Const, FPtr, Call, HookName, TypeName, targetAddr, RetType, ...)                 \
+    class HookName : public TypeName {                                                                          \
+        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                    \
+        inline static FuncPtrType   sdkOriginal = nullptr;                                                      \
+        inline static FuncPtrType   trampoline = nullptr;                                                       \
+                                                                                                                \
+        template <typename... Args>                                                                             \
+        Static RetType origin(Args &&...args) Const {                                                           \
+            return Call(std::forward<Args>(args)...);                                                           \
+        }                                                                                                       \
+        Static RetType detour(__VA_ARGS__) Const;                                                               \
+                                                                                                                \
+    public:                                                                                                     \
+        static bool hook() {                                                                                    \
+            if (sdkOriginal = core::getOrigin<FuncPtrType>(                                                     \
+                    util::ApiUniqueId::make<(FuncPtrType) & targetAddr>()                                       \
+                ))                                                                                              \
+                return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);                             \
+            Logger::ErrorBox(L"[HookError] Target addr [" #targetAddr "] not found! The SDK might be broken."); \
+            return false;                                                                                       \
+        }                                                                                                       \
+                                                                                                                \
+        static void unhook() {                                                                                  \
+            hook::unhookFunc(sdkOriginal);                                                                      \
+        }                                                                                                       \
+    };                                                                                                          \
+    inline RetType HookName::detour(__VA_ARGS__) Const
 
-#define HOOK_TYPE(HookName, TypeName, targetAddr, RetType, ...)                                     \
-    class HookName : public TypeName {                                                              \
-        using FuncPtrType = RetType (TypeName::*)(__VA_ARGS__);                                     \
-        static_assert(hook::is_func_ptr<FuncPtrType>, #targetAddr " should be function pointer");   \
-                                                                                                    \
-        inline static FuncPtrType sdkOriginal = nullptr;                                            \
-        inline static FuncPtrType trampoline = nullptr;                                             \
-                                                                                                    \
-        template <typename... Args>                                                                 \
-        RetType origin(Args &&...args)                                                              \
-            requires(std::is_invocable_v<FuncPtrType, TypeName, Args...>)                           \
-        {                                                                                           \
-            return (this->*trampoline)(std::forward<Args>(args)...);                                \
-        }                                                                                           \
-        RetType detour(__VA_ARGS__);                                                                \
-                                                                                                    \
-    public:                                                                                         \
-        static bool hook() {                                                                        \
-            if (sdkOriginal = core::getOrigin<FuncPtrType>(util::ApiUniqueId::make<&targetAddr>())) \
-                return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);                 \
-            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                          \
-            return false;                                                                           \
-        }                                                                                           \
-                                                                                                    \
-        static void unhook() {                                                                      \
-            hook::unhookFunc(sdkOriginal);                                                          \
-        }                                                                                           \
-    };                                                                                              \
-    inline RetType HookName::detour(__VA_ARGS__)
+// Hook SDK内的函数，用下面3个
 
-#define HOOK_TYPE_CONST(HookName, TypeName, targetAddr, RetType, ...)                               \
+#define HOOK_STATIC(HookName, targetAddr, RetType, ...) \
+    IMPL_HOOK_TYPE(static, , (*), trampoline, HookName, hook::DummyClass, targetAddr, RetType, __VA_ARGS__)
+
+#define HOOK_TYPE(HookName, TypeName, targetAddr, RetType, ...) \
+    IMPL_HOOK_TYPE(, , (TypeName::*), (this->*trampoline), HookName, TypeName, targetAddr, RetType, __VA_ARGS__)
+
+#define HOOK_TYPE_CONST(HookName, TypeName, targetAddr, RetType, ...) \
+    IMPL_HOOK_TYPE(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, targetAddr, RetType, __VA_ARGS__)
+
+#define IMPL_HOOK_RAW_TYPE(Static, Const, FPtr, Call, HookName, TypeName, targetAddr, RetType, ...) \
     class HookName : public TypeName {                                                              \
-        using FuncPtrType = RetType (TypeName::*)(__VA_ARGS__) const;                               \
-        static_assert(hook::is_func_ptr<FuncPtrType>, #targetAddr " should be function pointer");   \
-                                                                                                    \
-        inline static FuncPtrType sdkOriginal = nullptr;                                            \
-        inline static FuncPtrType trampoline = nullptr;                                             \
+        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                        \
+        inline static FuncPtrType   trampoline = nullptr;                                           \
                                                                                                     \
         template <typename... Args>                                                                 \
-        RetType origin(Args &&...args) const                                                        \
-            requires(std::is_invocable_v<FuncPtrType, TypeName, Args...>)                           \
-        {                                                                                           \
-            return (this->*trampoline)(std::forward<Args>(args)...);                                \
+        Static RetType origin(Args &&...args) Const {                                               \
+            return Call(std::forward<Args>(args)...);                                               \
         }                                                                                           \
-        RetType detour(__VA_ARGS__);                                                                \
+        Static RetType detour(__VA_ARGS__) Const;                                                   \
                                                                                                     \
     public:                                                                                         \
         static bool hook() {                                                                        \
-            if (sdkOriginal = core::getOrigin<FuncPtrType>(util::ApiUniqueId::make<&targetAddr>())) \
-                return trampoline = hook::hookFunc(sdkOriginal, &HookName::detour);                 \
-            Logger::ErrorBox(L"Target addr [" #targetAddr "] not found!");                          \
-            return false;                                                                           \
+            return trampoline = hook::hookFunc((FuncPtrType) & targetAddr, &HookName::detour);      \
         }                                                                                           \
                                                                                                     \
         static void unhook() {                                                                      \
-            hook::unhookFunc(sdkOriginal);                                                          \
+            hook::unhookFunc((FuncPtrType) & targetAddr);                                           \
         }                                                                                           \
     };                                                                                              \
-    inline RetType HookName::detour(__VA_ARGS__)
+    inline RetType HookName::detour(__VA_ARGS__) Const
+
+// Hook 非 SDK 内的函数，用下面3个
+
+#define HOOK_RAW_STATIC(HookName, targetAddr, RetType, ...) \
+    IMPL_HOOK_RAW_TYPE(static, , (*), trampoline, HookName, hook::DummyClass, targetAddr, RetType, __VA_ARGS__)
+
+#define HOOK_RAW_TYPE(HookName, TypeName, targetAddr, RetType, ...) \
+    IMPL_HOOK_RAW_TYPE(, , (TypeName::*), (this->*trampoline), HookName, TypeName, targetAddr, RetType, __VA_ARGS__)
+
+#define HOOK_RAW_TYPE_CONST(HookName, TypeName, targetAddr, RetType, ...) \
+    IMPL_HOOK_RAW_TYPE(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, targetAddr, RetType, __VA_ARGS__)
