@@ -4,6 +4,9 @@
 
 #include "SDK/api/src/common/util/Timer.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
+#include "SDK/api/src-client/common/client/particlesystem/particle/ParticleEmitter.h"
+
+#include "logger/GameLogger.hpp"
 
 #include "AudioSpeed.h"
 
@@ -221,8 +224,20 @@ HOOK_TYPE(TickRateTest, Timer, Timer::advanceTime, void, float preferredFrameSte
     this->mTimeScale = gTimeScale;
 }
 
+HOOK_TYPE(
+    TickRateTest2,
+    ParticleSystem::ParticleEmitterActual,
+    ParticleSystem::ParticleEmitterActual::tick,
+    void,
+    const std::chrono::nanoseconds &dtIn,
+    float                           a
+) {
+    Logger::Debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
+    this->origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * gTimeScale), a);
+}
+
 void installTickRate() {
-    if (TickRateTest::hook()) {
+    if (TickRateTest::hook() && TickRateTest2::hook()) {
         installFMODHooks();
         addSettingGUI();
         addHotkeys();
@@ -242,4 +257,5 @@ void installTickRate() {
 
 void uninstallTickRate() {
     TickRateTest::unhook();
+    TickRateTest2::unhook();
 }
