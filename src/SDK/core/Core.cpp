@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-static std::unordered_map<uintptr_t, uintptr_t> *gApiToOriginMap = nullptr;
+static std::unordered_map<util::ApiUniqueId, uintptr_t> *gApiToOriginMap = nullptr;
 
 namespace moduleInfo {
     HWND     gMainWindow = nullptr;
@@ -43,7 +43,7 @@ namespace core {
         HMODULE    mMainModule = GetModuleHandleW(nullptr);
         MODULEINFO mMainModuleInfo;
 
-        std::unordered_map<uintptr_t, uintptr_t> ApiAddrToOriginAddr;
+        std::unordered_map<util::ApiUniqueId, uintptr_t> ApiAddrToOriginAddr;
         CoreInfo() {
             gApiToOriginMap = &ApiAddrToOriginAddr;
             GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
@@ -59,7 +59,7 @@ namespace core {
         return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
     }
 
-    uintptr_t getOrigin(uintptr_t api) {
+    uintptr_t getOrigin(util::ApiUniqueId api) {
         if (!gApiToOriginMap) return 0;
         if (auto it = gApiToOriginMap->find(api); it != gApiToOriginMap->end())
             return it->second;
@@ -87,10 +87,9 @@ namespace core {
         );
     }
 
-    void addToMap(uintptr_t api, uintptr_t origin) {
+    void addToMap(util::ApiUniqueId api, uintptr_t origin) {
         CoreInfo &coreInfo = CoreInfo::getInstance();
-        if (api)
-            coreInfo.ApiAddrToOriginAddr.emplace(api, origin);
+        coreInfo.ApiAddrToOriginAddr.emplace(api, origin);
     }
 
 } // namespace core

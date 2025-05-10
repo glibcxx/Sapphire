@@ -6,7 +6,7 @@
 #    define SDK_API __declspec(dllimport)
 #endif
 
-#define SDK_VAPI SDK_API
+#define SDK_VAPI SDK_API virtual
 
 #ifndef IMGUI_API
 #    define IMGUI_API SDK_API

@@ -14,8 +14,8 @@ struct TextureUVCoordinateSet {
     uint16_t          _texSizeH;
     ResourceLocation  sourceFileLocation;
     IsotropicFaceData mIsotropicFaceData;
-    uint16_t          mUnk1;
-    uint16_t          mUnk2;
+    int16_t           textureSetTranslationIndex;
+    uint16_t          mPBRTextureDataHandle;
 
     float width() const { return this->_u1 - this->_u0; }
     float height() const { return this->_v1 - this->_v0; }

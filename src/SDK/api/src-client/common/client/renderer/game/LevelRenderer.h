@@ -7,6 +7,8 @@ class LevelRenderer {
 public:
     SDK_API void renderLevel(ScreenContext &screenCtx, const class FrameRenderObject &frameRenderObj);
 
+    SDK_API void preRenderUpdate(ScreenContext &screenCtx, class LevelRenderPreRenderUpdateParameters &params);
+
     LevelRendererPlayer &getLevelRendererPlayer() {
 #if MC_VERSION == v1_21_2
         return memory::getField<LevelRendererPlayer &>(this, 776);

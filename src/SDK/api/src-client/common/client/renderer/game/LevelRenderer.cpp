@@ -14,3 +14,18 @@ void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObjec
         }>;
     (this->*Hook::origin)(screenCtx, frameRenderObj);
 }
+
+void LevelRenderer::preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRenderUpdateParameters &params) {
+    using Hook = core::ApiLoader<
+#if MC_VERSION == v1_21_2
+        "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x4D\x00\x48\x8B\xCE"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x4C\x24\x00\x48\x8B\xCE"_sig,
+#endif
+        &LevelRenderer::preRenderUpdate,
+        [](uintptr_t addr) -> uintptr_t {
+            auto a = memory::deRef(addr, memory::AsmOperation::CALL);
+            return a;
+        }>;
+    (this->*Hook::origin)(screenCtx, params);
+}

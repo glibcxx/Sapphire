@@ -1,18 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include "ActorShaderManager.h"
 
-class Actor;
-
-class BaseActorRenderer {
+class BaseActorRenderer : public ActorShaderManager {
 public:
-    void **vtable;
-
-    BaseActorRenderer() = delete;
-
     // vtb+0
-    SDK_VAPI ~BaseActorRenderer();
-
-    // vtb+1
-    SDK_VAPI uint64_t _getOverlayColor(Actor &, float) const;
+    virtual ~BaseActorRenderer() = 0;
 };

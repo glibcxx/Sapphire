@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vec2.h"
+#include "SDK/api/src/common/world/level/BlockPos.h"
 
 class Vec3 {
 public:

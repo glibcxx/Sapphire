@@ -3,6 +3,7 @@
 #include "Version.h"
 #include "hook/Hook.hpp"
 #include "logger/LogBox.hpp"
+#include "util/StringLiteral.hpp"
 
 namespace moduleInfo {
     SDK_API extern HWND     gMainWindow;
@@ -24,17 +25,16 @@ consteval auto operator""_sig() {
 namespace core {
     SDK_API uintptr_t getImagebase();
 
-    SDK_API uintptr_t getOrigin(uintptr_t api);
+    SDK_API uintptr_t getOrigin(util::ApiUniqueId api);
 
-    template <typename T, typename U>
-        requires(!std::is_same_v<T, uintptr_t>)
-    T getOrigin(U api) {
-        return std::bit_cast<T>(getOrigin(std::bit_cast<uintptr_t>(api)));
+    template <typename T>
+    T getOrigin(util::ApiUniqueId api) {
+        return std::bit_cast<T>(getOrigin(api));
     }
 
     SDK_API uintptr_t scanApi(const char *sig, size_t sigLength);
 
-    SDK_API void addToMap(uintptr_t api, uintptr_t origin);
+    SDK_API void addToMap(util::ApiUniqueId api, uintptr_t origin);
 
     template <typename Ret = uintptr_t, size_t N>
     Ret scanApi(const char (&sig)[N]) {
@@ -52,14 +52,16 @@ namespace core {
         if constexpr (std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
             origin = Callback(origin);
         if (storeToMap)
-            addToMap(std::bit_cast<uintptr_t>(Api), origin);
+            addToMap(util::ApiUniqueId::make<Api>(), origin);
         return origin;
     }
 
     template <StringLiteral Sig, auto Api, auto Callback = nullptr>
         requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
-    struct ApiLoader {
+    class ApiLoader {
         using ApiType = decltype(Api);
+
+    public:
         inline static ApiType origin = std::bit_cast<ApiType>(registryApi<Api, Callback>(Sig.value));
     };
 
