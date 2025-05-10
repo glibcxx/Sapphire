@@ -8,11 +8,11 @@
 #include "LogBox.hpp"
 
 class GameLogger {
-public:
     std::mutex      logMutex;
     ImGuiTextBuffer logBuffer;
     bool            scrollToBottom = true;
 
+public:
     enum class Type {
         Debug,
         Info,
@@ -20,7 +20,7 @@ public:
         Error
     };
 
-    static GameLogger &getInstance() {
+    SDK_API static GameLogger &getInstance() {
         static GameLogger gameLogger;
         return gameLogger;
     }
