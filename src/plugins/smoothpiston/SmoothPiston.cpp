@@ -11,7 +11,7 @@
 #include "SDK/api/sapphire/GUI/GUI.h"
 
 static bool gEnableSmoothPiston = true;
-static bool gEnablePistonTickOrderSeparator = true;
+static bool gEnablePistonTickOrderSeparator = false;
 
 float easeInOut(float t) {
     return t < 0.5f ? 4.0f * t * t * t : 1.0f - std::pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
