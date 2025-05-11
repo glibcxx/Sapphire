@@ -1,6 +1,6 @@
 #include "SmoothPiston.h"
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 
 #include "logger/GameLogger.hpp"
 #include "SDK/api/src/common/world/level/Level.h"
@@ -56,7 +56,14 @@ static std::thread::id gRenderThread{};
 static uint32_t gCurrentOrder = 0;
 static uint32_t gTotalTicked = 0;
 
-HOOK_TYPE(PistonSeparatorHook, PistonBlockActor, PistonBlockActor::tick, void, BlockSource &region) {
+HOOK_TYPE(
+    PistonSeparatorHook,
+    PistonBlockActor,
+    hook::HookPriority::Normal,
+    PistonBlockActor::tick,
+    void,
+    BlockSource &region
+) {
     this->origin(region);
     if (gEnablePistonTickOrderSeparator) {
         // 复用一个gap用来存储本活塞的更新顺序
@@ -87,6 +94,7 @@ HOOK_TYPE(PistonSeparatorHook, PistonBlockActor, PistonBlockActor::tick, void, B
 HOOK_TYPE(
     SmoothMovingBlockHook,
     MovingBlockActorRenderer,
+    hook::HookPriority::Normal,
     MovingBlockActorRenderer::render,
     void,
     BaseActorRenderContext &context,
@@ -143,6 +151,7 @@ HOOK_TYPE(
 HOOK_TYPE(
     SmoothPistonArmHook,
     PistonBlockActorRenderer,
+    hook::HookPriority::Normal,
     PistonBlockActorRenderer::render,
     void,
     BaseActorRenderContext &context,

@@ -4,7 +4,7 @@
 
 #include <fmod/fmod.hpp>
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 #include "logger/GameLogger.hpp"
 
 /*
@@ -36,6 +36,7 @@ static void setResamplerMethod(FMOD::System &sys, FMOD_DSP_RESAMPLER resampler) 
 HOOK_RAW_TYPE(
     FMODSystemInitHook,
     FMOD::System,
+    hook::HookPriority::Normal,
     FMOD::System::init,
     FMOD_RESULT,
     int            maxchannels,
@@ -54,6 +55,7 @@ HOOK_RAW_TYPE(
 HOOK_RAW_TYPE(
     FMODSystemPlaySoundHook,
     FMOD::System,
+    hook::HookPriority::Normal,
     FMOD::System::playSound,
     FMOD_RESULT,
     FMOD::Sound        *sound,

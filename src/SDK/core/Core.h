@@ -1,11 +1,9 @@
 #pragma once
 
 #include "Version.h"
-#include "hook/Macros.h"
-#include "logger/LogBox.hpp"
 #include "util/StringLiteral.hpp"
-#include "util/ApiUniqueId.hpp"
 #include "util/Memory.hpp"
+#include "src/SDK/api/sapphire/hook/Hook.h"
 
 namespace moduleInfo {
     SDK_API extern HWND     gMainWindow;
@@ -36,8 +34,6 @@ namespace core {
 
     SDK_API uintptr_t scanApi(const char *sig, size_t sigLength);
 
-    SDK_API void addToMap(util::ApiUniqueId api, uintptr_t origin);
-
     template <typename Ret = uintptr_t, size_t N>
     Ret scanApi(const char (&sig)[N]) {
         return std::bit_cast<Ret>(scanApi(sig, N - 1));
@@ -54,7 +50,7 @@ namespace core {
         if constexpr (std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
             origin = Callback(origin);
         if (storeToMap)
-            addToMap(util::ApiUniqueId::make<Api>(), origin);
+            hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<Api>(), origin);
         return origin;
     }
 

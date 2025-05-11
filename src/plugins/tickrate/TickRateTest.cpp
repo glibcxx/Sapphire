@@ -1,6 +1,6 @@
 #include "TickRateTest.h"
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 
 #include "SDK/api/src/common/util/Timer.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
@@ -240,7 +240,7 @@ void addHotkeys() {
     GuiOverlay::registerHotkey({.keyChord = ImGuiMod_Alt | ImGuiKey_KeypadDecimal, .action = resetTimeScale});
 }
 
-HOOK_TYPE(TickRateTest, Timer, Timer::advanceTime, void, float preferredFrameStep) {
+HOOK_TYPE(TickRateTest, Timer, hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
     this->origin(preferredFrameStep);
     this->mTimeScale = gTimeScale;
 }
@@ -248,6 +248,7 @@ HOOK_TYPE(TickRateTest, Timer, Timer::advanceTime, void, float preferredFrameSte
 HOOK_TYPE(
     TickRateTest2,
     ParticleSystem::ParticleEmitterActual,
+    hook::HookPriority::Normal,
     ParticleSystem::ParticleEmitterActual::tick,
     void,
     const std::chrono::nanoseconds &dtIn,

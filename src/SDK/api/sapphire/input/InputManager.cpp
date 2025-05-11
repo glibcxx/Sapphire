@@ -3,7 +3,7 @@
 #include <winrt/Windows.UI.Input.h>
 #include <winrt/Windows.Foundation.h>
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
 
 #include <imgui/imgui.h>
@@ -138,6 +138,7 @@ static constexpr ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
 HOOK_TYPE(
     CanncelMouseEvent,
     MouseDevice,
+    hook::HookPriority::Normal,
     MouseDevice::feed,
     void,
     MouseAction::ActionType action,

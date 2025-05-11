@@ -1,6 +1,5 @@
 #include "DrawUtils.h"
 
-#include "hook/Hook.hpp"
 #include "SDK/api/src-client/common/client/renderer/MeshHelpers.h"
 #include "SDK/api/src-deps/Coregraphics/RenderMaterialGroup.h"
 #include "logger/GameLogger.hpp"
@@ -12,7 +11,7 @@ mce::MaterialPtr DrawUtils::sDrawMat{};
 
 static DrawUtils *drawUtils = nullptr;
 
-NEW_HOOK_TYPE(
+HOOK_TYPE(
     RenderLevelMainFuncHook,
     LevelRenderer,
     hook::HookPriority::Normal,
@@ -30,8 +29,8 @@ NEW_HOOK_TYPE(
 #endif
     this->origin(ctx, obj);
 
-    drawUtils->drawLine({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f, 10.0f});
-    drawUtils->flush();
+    // drawUtils->drawLine({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f, 10.0f});
+    // drawUtils->flush();
 }
 
 DrawUtils::DrawUtils(Tessellator *tess) :

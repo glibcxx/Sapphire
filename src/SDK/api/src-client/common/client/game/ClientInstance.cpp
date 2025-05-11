@@ -1,6 +1,6 @@
 #include "ClientInstance.h"
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 #include "util/ScopeGuard.hpp"
 
 void *const *ClientInstance::__vftable0 = reinterpret_cast<void *const *>(
@@ -65,6 +65,7 @@ static void makeClientInstance(
 
 HOOK_STATIC(
     GetClientInstance,
+    hook::HookPriority::Normal,
     makeClientInstance,
     void,
     ClientInstance *ret,
@@ -84,12 +85,10 @@ HOOK_STATIC(
 
 static util::ScopeGuard gard{
     []() {
-        hook::init();
         if (!GetClientInstance::hook())
             Logger::InfoBox(L"Error at GetClientInstance!!");
     },
     []() {
         GetClientInstance::unhook();
-        hook::uninit();
     }
 };

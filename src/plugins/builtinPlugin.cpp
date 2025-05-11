@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"
@@ -18,14 +18,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hModule);
         builtinPluginInfo::hModule = hModule;
-        hook::init();
         installTickRate();
         installSmoothPiston();
         break;
     case DLL_PROCESS_DETACH:
         uninstallSmoothPiston();
         uninstallTickRate();
-        hook::uninit();
         FreeLibraryAndExitThread(hModule, TRUE);
         break;
     default:

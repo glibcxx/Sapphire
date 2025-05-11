@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <thread>
 
-#include "hook/Hook.hpp"
+#include "SDK/api/sapphire/hook/Hook.h"
 #include "util/time.h"
 
 #include "DX12Hook.h"
@@ -12,8 +12,6 @@
 #include <Psapi.h> // for MODULEINFO
 
 namespace fs = std::filesystem;
-
-static std::unordered_map<util::ApiUniqueId, uintptr_t> *gApiToOriginMap = nullptr;
 
 namespace moduleInfo {
     HWND     gMainWindow = nullptr;
@@ -44,9 +42,7 @@ namespace core {
         HMODULE    mMainModule = GetModuleHandleW(nullptr);
         MODULEINFO mMainModuleInfo;
 
-        std::unordered_map<util::ApiUniqueId, uintptr_t> ApiAddrToOriginAddr;
         CoreInfo() {
-            gApiToOriginMap = &ApiAddrToOriginAddr;
             GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
         }
 
@@ -58,14 +54,6 @@ namespace core {
 
     SDK_API uintptr_t getImagebase() {
         return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
-    }
-
-    uintptr_t getOrigin(util::ApiUniqueId api) {
-        if (!gApiToOriginMap) return 0;
-        if (auto it = gApiToOriginMap->find(api); it != gApiToOriginMap->end())
-            return it->second;
-        else
-            return 0;
     }
 
     uintptr_t scanApi(const char *sig, size_t sigLength) {
@@ -88,11 +76,6 @@ namespace core {
         );
     }
 
-    void addToMap(util::ApiUniqueId api, uintptr_t origin) {
-        CoreInfo &coreInfo = CoreInfo::getInstance();
-        coreInfo.ApiAddrToOriginAddr.emplace(api, origin);
-    }
-
 } // namespace core
 
 // 整个库的入口
@@ -100,7 +83,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH: {
         DisableThreadLibraryCalls(hModule);
-        hook::init();
         moduleInfo::gStartTime = util::getTimeMs();
         moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
         if (!moduleInfo::gMainWindow) {
@@ -116,7 +98,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     }
     case DLL_PROCESS_DETACH:
         DX12Hook::uninstall();
-        hook::uninit();
         FreeLibraryAndExitThread(hModule, TRUE);
         break;
     default:
