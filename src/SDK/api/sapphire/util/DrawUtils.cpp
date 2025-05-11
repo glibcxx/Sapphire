@@ -6,11 +6,21 @@
 #include "logger/GameLogger.hpp"
 #include "util/ScopeGuard.hpp"
 
+#include "SDK/api/sapphire/hook/Hook.h"
+
 mce::MaterialPtr DrawUtils::sDrawMat{};
 
 static DrawUtils *drawUtils = nullptr;
 
-HOOK_TYPE(GetScreenCtx, LevelRenderer, LevelRenderer::renderLevel, void, ScreenContext &ctx, const FrameRenderObject &obj) {
+NEW_HOOK_TYPE(
+    RenderLevelMainFuncHook,
+    LevelRenderer,
+    hook::HookPriority::Normal,
+    LevelRenderer::renderLevel,
+    void,
+    ScreenContext           &ctx,
+    const FrameRenderObject &obj
+) {
     drawUtils->mLevelRenderer = this;
     drawUtils->mScreenCtx = &ctx;
 #if MC_VERSION == v1_21_2
@@ -20,20 +30,26 @@ HOOK_TYPE(GetScreenCtx, LevelRenderer, LevelRenderer::renderLevel, void, ScreenC
 #endif
     this->origin(ctx, obj);
 
-    // drawUtils->drawLine({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f, 10.0f});
-    // drawUtils->flush();
+    drawUtils->drawLine({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f, 10.0f});
+    drawUtils->flush();
 }
 
 DrawUtils::DrawUtils(Tessellator *tess) :
     mTess(tess) {
-    GetScreenCtx::hook();
+    if (!RenderLevelMainFuncHook::hook())
+        Logger::Error("[DrawUtils] RenderLevelMainFuncHook::hook failed!");
+    Logger::Debug("[DrawUtils] initialized!");
 }
 
 DrawUtils::~DrawUtils() {
-    GetScreenCtx::unhook();
+    RenderLevelMainFuncHook::unhook();
 }
 
 void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color) {
+    if (!this->mLevelRenderer) {
+        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        return;
+    }
     this->mTess->begin(mce::PrimitiveMode::Lines, 1, false);
     Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPosition();
     this->mTess->color(color);
@@ -42,12 +58,20 @@ void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &col
 }
 
 void DrawUtils::flush() {
+    if (!this->mLevelRenderer) {
+        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        return;
+    }
+
     if (!sDrawMat.mRenderMaterialInfoPtr && mce::RenderMaterialGroup::common) {
         mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("selection_box");
         if (matInfo.mPtr)
             sDrawMat.mRenderMaterialInfoPtr = matInfo.shared_from_this();
         if (!sDrawMat.mRenderMaterialInfoPtr)
-            Logger::Warn("Material `selection_box` not found! mce::RenderMaterialGroup::common is {}", (void *)mce::RenderMaterialGroup::common);
+            Logger::Warn(
+                "Material `selection_box` not found! mce::RenderMaterialGroup::common is {}",
+                (void *)mce::RenderMaterialGroup::common
+            );
     }
 
     char a4[64] = {};

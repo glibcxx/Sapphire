@@ -5,7 +5,7 @@
 #include "SDK/api/src-client/common/client/renderer/game/LevelRenderer.h"
 
 class DrawUtils {
-    friend class GetScreenCtx;
+    friend class RenderLevelMainFuncHook;
 
     Tessellator   *mTess = nullptr;
     ScreenContext *mScreenCtx = nullptr;

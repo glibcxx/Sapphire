@@ -1,5 +1,7 @@
 #include "LevelRenderer.h"
 
+#include "SDK/api/sapphire/hook/Hook.h"
+
 void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObject &frameRenderObj) {
     using Hook = core::ApiLoader<
 #if MC_VERSION == v1_21_2
@@ -10,6 +12,7 @@ void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObjec
         &LevelRenderer::renderLevel,
         [](uintptr_t addr) -> uintptr_t {
             auto a = memory::deRef(addr, memory::AsmOperation::CALL);
+            hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<&LevelRenderer::renderLevel>(), a);
             return a;
         }>;
     (this->*Hook::origin)(screenCtx, frameRenderObj);
@@ -25,6 +28,8 @@ void LevelRenderer::preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRend
         &LevelRenderer::preRenderUpdate,
         [](uintptr_t addr) -> uintptr_t {
             auto a = memory::deRef(addr, memory::AsmOperation::CALL);
+            hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<&LevelRenderer::preRenderUpdate>(), a);
+            Logger::InfoBox(L"Info");
             return a;
         }>;
     (this->*Hook::origin)(screenCtx, params);
