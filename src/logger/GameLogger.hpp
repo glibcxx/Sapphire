@@ -29,7 +29,9 @@ public:
         std::lock_guard lock(logMutex);
         switch (logType) {
         case Type::Debug:
+#ifndef NDEBUG
             logBuffer.appendf("[DEBUG] %s\n", str.c_str());
+#endif
             break;
         case Type::Info:
             logBuffer.appendf("[INFO] %s\n", str.c_str());
@@ -70,7 +72,9 @@ public:
 namespace Logger {
     template <typename... Args>
     inline void Debug(std::format_string<Args...> fmt, Args &&...args) {
+#ifndef NDEBUG
         GameLogger::getInstance().addLog(GameLogger::Type::Debug, std::format(fmt, std::forward<Args>(args)...));
+#endif
     }
 
     template <typename... Args>
