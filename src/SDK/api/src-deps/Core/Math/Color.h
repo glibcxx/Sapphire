@@ -24,8 +24,8 @@ namespace mce {
         constexpr Color GREEN{0.0f, 1.0f, 0.0f, 1.0f};
         constexpr Color BLUE{0.0f, 0.0f, 1.0f, 1.0f};
         constexpr Color YELLOW{1.0f, 1.0f, 0.0f, 1.0f};
-        constexpr Color ORANGE{1.0f, 0.5f, 0.0f, 1.0f};
-        constexpr Color PURPLE{0.5f, 0.0f, 0.5f, 1.0f};
+        constexpr Color ORANGE{0.85f, 0.5f, 0.2f, 1.0f};
+        constexpr Color PURPLE{1.0f, 0.0f, 1.0f, 1.0f};
         constexpr Color CYAN{0.0f, 1.0f, 1.0f, 1.0f};
         constexpr Color PINK{1.0f, 0.0f, 1.0f, 1.0f};
         constexpr Color NIL{0.0f, 0.0f, 0.0f, 0.0f};
