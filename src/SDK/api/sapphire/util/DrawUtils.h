@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include "SDK/api/src-client/common/client/renderer/Tessellator.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src-client/common/client/renderer/game/LevelRenderer.h"
@@ -10,6 +11,8 @@ class DrawUtils {
     Tessellator   *mTess = nullptr;
     ScreenContext *mScreenCtx = nullptr;
     LevelRenderer *mLevelRenderer = nullptr;
+
+    std::mutex mMutex;
 
     DrawUtils(Tessellator *tess = nullptr);
 

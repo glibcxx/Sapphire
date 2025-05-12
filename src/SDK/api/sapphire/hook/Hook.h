@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "hook/Macros.h"
+#include "macros/Macros.h"
 #include "util/ApiUniqueId.hpp"
 #include "util/TypeTraits.hpp"
 #include "logger/LogBox.hpp"

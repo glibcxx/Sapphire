@@ -100,8 +100,8 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto region = renderData.mRegion;
-    auto movingBlock = (MovingBlockActor *)renderData.mBlockActor;
+    auto region = renderData.renderSource;
+    auto movingBlock = (MovingBlockActor *)renderData.entity;
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     float &alpha = memory::getField<float>(context._fill, 208);
 #elif MC_VERSION == v1_21_2
@@ -157,9 +157,8 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto  region = renderData.mRegion;
-    auto  pistonActor = (PistonBlockActor *)renderData.mBlockActor;
-    auto &pistonPos = *renderData.mPos;
+    auto  region = renderData.renderSource;
+    auto  pistonActor = (PistonBlockActor *)renderData.entity;
 #if MC_VERSION == v1_21_2
     float &alpha = memory::getField<float>(context._fill, 168);
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60

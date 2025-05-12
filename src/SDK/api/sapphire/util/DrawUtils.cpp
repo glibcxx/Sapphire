@@ -5,6 +5,9 @@
 #include "logger/GameLogger.hpp"
 #include "util/ScopeGuard.hpp"
 
+#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
+
 #include "SDK/api/sapphire/hook/Hook.h"
 
 mce::MaterialPtr DrawUtils::sDrawMat{};
@@ -29,15 +32,17 @@ HOOK_TYPE(
 #endif
     this->origin(ctx, obj);
 
-    // drawUtils->drawLine({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f, 10.0f});
-    // drawUtils->flush();
+    EventManager::getInstance().dispatchEvent(RenderLevelEvent{ctx});
+
+    drawUtils->flush();
 }
 
 DrawUtils::DrawUtils(Tessellator *tess) :
     mTess(tess) {
     if (!RenderLevelMainFuncHook::hook())
         Logger::Error("[DrawUtils] RenderLevelMainFuncHook::hook failed!");
-    Logger::Debug("[DrawUtils] initialized!");
+    else
+        Logger::Debug("[DrawUtils] initialized!");
 }
 
 DrawUtils::~DrawUtils() {
@@ -49,6 +54,7 @@ void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &col
         Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
         return;
     }
+    std::lock_guard guard{this->mMutex};
     this->mTess->begin(mce::PrimitiveMode::Lines, 1, false);
     Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPosition();
     this->mTess->color(color);
@@ -62,6 +68,7 @@ void DrawUtils::flush() {
         return;
     }
 
+    std::lock_guard guard{this->mMutex};
     if (!sDrawMat.mRenderMaterialInfoPtr && mce::RenderMaterialGroup::common) {
         mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("selection_box");
         if (matInfo.mPtr)

@@ -12,6 +12,8 @@ public:
         x(a), y(a), z(a) {}
     constexpr Vec3(float x, float y, float z) :
         x(x), y(y), z(z) {}
+    constexpr Vec3(const BlockPos &b) :
+        x(b.x), y(b.y), z(b.z) {}
 
     constexpr Vec3 operator+(const Vec3 &other) const {
         return Vec3(x + other.x, y + other.y, z + other.z);

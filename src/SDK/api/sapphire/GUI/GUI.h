@@ -7,7 +7,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-#include "hook/Macros.h"
+#include "macros/Macros.h"
 
 #include "../input/InputManager.h"
 
