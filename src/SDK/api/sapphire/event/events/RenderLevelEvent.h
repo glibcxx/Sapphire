@@ -2,12 +2,13 @@
 
 #include "../Event.h"
 
-#include "SDK/api/src-client/common/client/gui/screen/ScreenContext.h"
+#include "SDK/api/src-client/common/client/renderer/game/LevelRenderer.h"
 
 class RenderLevelEvent : public Event {
 public:
     ScreenContext *mScreen;
+    LevelRenderer *mLevelRenderer;
 
-    RenderLevelEvent(ScreenContext &screen) :
-        mScreen(&screen) {}
+    RenderLevelEvent(LevelRenderer *levelRenderer, ScreenContext &screen) :
+        mLevelRenderer(levelRenderer), mScreen(&screen) {}
 };

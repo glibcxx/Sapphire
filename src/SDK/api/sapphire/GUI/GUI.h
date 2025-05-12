@@ -20,7 +20,8 @@ public:
     };
 
     struct Hotkey {
-        ImGuiKeyChord         keyChord; // ImGuiKeyChord (e.g., ImGuiMod_Alt | ImGuiKey_P)
+        std::vector<ImGuiKey> keysDown;   // Keys that must be held down (can be ImGuiKey_xxx or ImGuiMod_xxx)
+        ImGuiKey              triggerKey; // The single key that must be tapped (ImGuiKey_xxx)
         std::string           description;
         std::function<void()> action;
     };
@@ -29,14 +30,18 @@ public:
 
     SDK_API static void registerHotkey(Hotkey &&hotkey);
 
+    SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
+
 private:
     friend class DX12Hook;
 
     inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
+    inline static std::chrono::steady_clock::duration   sToastShowingDuration{};
 
     static std::unique_ptr<InputManager> sInputManager;
     static std::vector<PluginSettings>   sPluginSettings;
     static std::vector<Hotkey>           sRegisteredHotkeys;
+    static std::vector<std::string>      sToastMessages;
 
     inline static int sSelectedPluginIndex = -1;
 

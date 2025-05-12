@@ -12,6 +12,7 @@ using namespace std::chrono_literals;
 std::unique_ptr<InputManager>           GuiOverlay::sInputManager = nullptr;
 std::vector<GuiOverlay::PluginSettings> GuiOverlay::sPluginSettings{};
 std::vector<GuiOverlay::Hotkey>         GuiOverlay::sRegisteredHotkeys{};
+std::vector<std::string>                GuiOverlay::sToastMessages{};
 
 void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
     sPluginSettings.push_back(std::move(settings));
@@ -19,6 +20,13 @@ void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
 
 void GuiOverlay::registerHotkey(Hotkey &&hotkey) {
     sRegisteredHotkeys.push_back(std::move(hotkey));
+}
+
+void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::duration duration) {
+    GuiOverlay::sShowToast = true;
+    GuiOverlay::sLastShowToastTimePoint = std::chrono::steady_clock::now();
+    if (sToastShowingDuration < duration) sToastShowingDuration = duration;
+    sToastMessages.emplace_back(std::move(message));
 }
 
 void GuiOverlay::initImGui(
@@ -53,11 +61,11 @@ void GuiOverlay::initImGui(
     if (!QueryPerformanceCounter((LARGE_INTEGER *)&GuiOverlay::sTime))
         GuiOverlay::sTime = GetTickCount64();
 
-    GuiOverlay::registerHotkey(
-        {
-            ImGuiMod_Alt | ImGuiKey_P,
-            "Toggle Main Panel",
-            []() {
+    GuiOverlay::registerHotkey({
+        {ImGuiMod_Alt},
+        ImGuiKey_P,
+        "Toggle Main Panel",
+        []() {
             GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
             if (ClientInstance::primaryClientInstance) {
                 if (GuiOverlay::sShowPannel) {
@@ -68,8 +76,7 @@ void GuiOverlay::initImGui(
             } else {
                 Logger::Warn("ClientInstance not found!");
             } },
-        }
-    );
+    });
 }
 
 void GuiOverlay::shutdownImGui() {
@@ -80,9 +87,30 @@ void GuiOverlay::shutdownImGui() {
 }
 
 void GuiOverlay::handleHotkey() {
+    ImGuiIO &io = ImGui::GetIO();
     for (const auto &hotkey : sRegisteredHotkeys) {
-        if (ImGui::IsKeyChordPressed(hotkey.keyChord)) {
-            hotkey.action();
+        // Check if the trigger key was just pressed (not held)
+        if (ImGui::IsKeyPressed(hotkey.triggerKey, false)) {
+            bool allRequiredDown = true;
+            // Check if all other required keys are down
+            for (ImGuiKey key : hotkey.keysDown) {
+                // ImGuiKey enum values >= (1 << 12) are modifier flags
+                if (key >= (1 << 12)) {        // It's a modifier flag (ImGuiMod_xxx)
+                    if (!(io.KeyMods & key)) { // Check if the modifier is NOT down
+                        allRequiredDown = false;
+                        break;
+                    }
+                } else {                          // It's a key code (ImGuiKey_xxx)
+                    if (!ImGui::IsKeyDown(key)) { // Check if the normal key is held down
+                        allRequiredDown = false;
+                        break;
+                    }
+                }
+            }
+
+            if (allRequiredDown) {
+                hotkey.action();
+            }
         }
     }
 }
@@ -122,25 +150,30 @@ void GuiOverlay::initInputManager(std::unique_ptr<InputManager> inputManager) {
 }
 
 void GuiOverlay::drawToast() {
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.45f));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 45));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6);
     if (ImGui::Begin(
-            "TickScale Setting",
+            "Toasts",
             nullptr,
             ImGuiWindowFlags_NoResize
                 | ImGuiWindowFlags_NoDocking
                 | ImGuiWindowFlags_NoNav
                 | ImGuiWindowFlags_NoTitleBar
+                | ImGuiWindowFlags_AlwaysAutoResize
         )) {
-        // ImGui::Text("TickRate: %.1f Tps", sTimeScale * 20.0f);
-        // ImGui::Text("SmoothPiston: %s", sEnableSmoothPiston ? "ON" : "OFF");
-
+        for (auto &&i : sToastMessages) {
+            ImGui::Text(i.c_str());
+        }
         auto now = std::chrono::steady_clock::now();
-        if (now - sLastShowToastTimePoint > 2s)
+        if (now - sLastShowToastTimePoint >= sToastShowingDuration) {
             GuiOverlay::sShowToast = false;
+            sToastMessages.clear();
+            sToastShowingDuration = 0s;
+        }
     }
     ImGui::End();
-    ImGui::PopStyleVar();
+    ImGui::PopStyleVar(2);
     ImGui::PopStyleColor();
 }
 

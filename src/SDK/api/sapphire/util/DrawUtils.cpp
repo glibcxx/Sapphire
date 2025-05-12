@@ -32,7 +32,7 @@ HOOK_TYPE(
 #endif
     this->origin(ctx, obj);
 
-    EventManager::getInstance().dispatchEvent(RenderLevelEvent{ctx});
+    EventManager::getInstance().dispatchEvent(RenderLevelEvent{this, ctx});
 
     drawUtils->flush();
 }

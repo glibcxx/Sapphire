@@ -6,6 +6,7 @@
 
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"
+#include "chunkborder/ChunkBorderRenderer.h"
 
 namespace builtinPluginInfo {
 
@@ -20,6 +21,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
         builtinPluginInfo::hModule = hModule;
         installTickRate();
         installSmoothPiston();
+        installChunkBorderRender();
         break;
     case DLL_PROCESS_DETACH:
         uninstallSmoothPiston();

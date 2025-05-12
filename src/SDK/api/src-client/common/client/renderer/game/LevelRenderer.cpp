@@ -29,7 +29,6 @@ void LevelRenderer::preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRend
         [](uintptr_t addr) -> uintptr_t {
             auto a = memory::deRef(addr, memory::AsmOperation::CALL);
             hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<&LevelRenderer::preRenderUpdate>(), a);
-            Logger::InfoBox(L"Info");
             return a;
         }>;
     (this->*Hook::origin)(screenCtx, params);

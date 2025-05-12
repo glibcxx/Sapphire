@@ -121,6 +121,7 @@ static void selectNextTimeScale() {
         sSelectedTps = gTimeScaleList.size() - 1;
     gTimeScaleBuffer = gTimeScale = TimeScaleList[sSelectedTps];
     UpdateAudioSpeed(gTimeScale);
+    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
 }
 
 static void selectLastTimeScale() {
@@ -129,6 +130,7 @@ static void selectLastTimeScale() {
     gTimeScaleBuffer = gTimeScale = TimeScaleList[sSelectedTps];
     if (changeAudioSpeed)
         UpdateAudioSpeed(gTimeScale);
+    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
 }
 
 static void resetTimeScale() {
@@ -144,6 +146,7 @@ static void resetTimeScale() {
     gTimeScaleBuffer = gTimeScale = gTimeScaleList.empty() ? 1.0f : gTimeScaleList[sSelectedTps];
     if (changeAudioSpeed)
         UpdateAudioSpeed(gTimeScale);
+    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
 }
 
 static void settingGUI() {
@@ -235,9 +238,9 @@ void addSettingGUI() {
 }
 
 void addHotkeys() {
-    GuiOverlay::registerHotkey({.keyChord = ImGuiMod_Alt | ImGuiKey_KeypadAdd, .action = selectNextTimeScale});
-    GuiOverlay::registerHotkey({.keyChord = ImGuiMod_Alt | ImGuiKey_KeypadSubtract, .action = selectLastTimeScale});
-    GuiOverlay::registerHotkey({.keyChord = ImGuiMod_Alt | ImGuiKey_KeypadDecimal, .action = resetTimeScale});
+    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadAdd, .action = selectNextTimeScale});
+    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadSubtract, .action = selectLastTimeScale});
+    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadDecimal, .action = resetTimeScale});
 }
 
 HOOK_TYPE(TickRateTest, Timer, hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {

@@ -19,6 +19,10 @@ public:
         return Vec3(x + other.x, y + other.y, z + other.z);
     }
 
+    constexpr Vec3 operator+(float s) const {
+        return Vec3(x + s, y + s, z + s);
+    }
+
     constexpr Vec3 operator-(const Vec3 &other) const {
         return Vec3(x - other.x, y - other.y, z - other.z);
     }
@@ -29,6 +33,31 @@ public:
 
     constexpr Vec3 operator*(const Vec3 &other) const {
         return Vec3(x * other.x, y * other.y, z * other.z);
+    }
+
+    constexpr Vec3 &operator+=(const Vec3 &other) {
+        x += other.x, y += other.y, z += other.z;
+        return *this;
+    }
+
+    constexpr Vec3 &operator+=(int s) {
+        x += s, y += s, z += s;
+        return *this;
+    }
+
+    constexpr Vec3 &operator-=(const Vec3 &other) {
+        x -= other.x, y -= other.y, z -= other.z;
+        return *this;
+    }
+
+    constexpr Vec3 &operator-=(int s) {
+        x -= s, y -= s, z -= s;
+        return *this;
+    }
+
+    constexpr Vec3 &operator*=(const Vec3 &other) {
+        x *= other.x, y *= other.y, z *= other.z;
+        return *this;
     }
 
     std::string toString() const {
