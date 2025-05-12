@@ -70,12 +70,12 @@ void DrawUtils::flush() {
 
     std::lock_guard guard{this->mMutex};
     if (!sDrawMat.mRenderMaterialInfoPtr && mce::RenderMaterialGroup::common) {
-        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("selection_box");
+        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("wireframe");
         if (matInfo.mPtr)
             sDrawMat.mRenderMaterialInfoPtr = matInfo.shared_from_this();
         if (!sDrawMat.mRenderMaterialInfoPtr)
             Logger::Warn(
-                "Material `selection_box` not found! mce::RenderMaterialGroup::common is {}",
+                "Material `wireframe` not found! mce::RenderMaterialGroup::common is {}",
                 (void *)mce::RenderMaterialGroup::common
             );
     }
