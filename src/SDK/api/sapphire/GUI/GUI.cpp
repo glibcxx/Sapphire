@@ -93,22 +93,17 @@ void GuiOverlay::handleHotkey() {
         if (ImGui::IsKeyPressed(hotkey.triggerKey, false)) {
             bool allRequiredDown = true;
             // Check if all other required keys are down
+            ImGuiKeyChord mods = ImGuiMod_None;
             for (ImGuiKey key : hotkey.keysDown) {
-                // ImGuiKey enum values >= (1 << 12) are modifier flags
-                if (key >= (1 << 12)) {        // It's a modifier flag (ImGuiMod_xxx)
-                    if (!(io.KeyMods & key)) { // Check if the modifier is NOT down
-                        allRequiredDown = false;
-                        break;
-                    }
-                } else {                          // It's a key code (ImGuiKey_xxx)
-                    if (!ImGui::IsKeyDown(key)) { // Check if the normal key is held down
-                        allRequiredDown = false;
-                        break;
-                    }
+                if (key & ImGuiMod_Mask_) { // It's a modifier flag (ImGuiMod_xxx)
+                    mods |= (key & ImGuiMod_Mask_);
+                } else if (!ImGui::IsKeyDown(key)) { // It's a key code (ImGuiKey_xxx), Check if the normal key is held down
+                    allRequiredDown = false;
+                    break;
                 }
             }
 
-            if (allRequiredDown) {
+            if (mods == io.KeyMods && allRequiredDown) {
                 hotkey.action();
             }
         }
