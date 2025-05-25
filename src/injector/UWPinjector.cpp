@@ -85,10 +85,13 @@ std::wstring PackageFullNameFromFamilyName(const std::wstring &familyName) {
 DWORD launchUWP(const std::wstring &appUserModelId) {
     CComPtr<IApplicationActivationManager> manager;
 
-    HRESULT result = CoCreateInstance(CLSID_ApplicationActivationManager,
-                                      NULL, CLSCTX_LOCAL_SERVER,
-                                      IID_IApplicationActivationManager,
-                                      (LPVOID *)&manager);
+    HRESULT result = CoCreateInstance(
+        CLSID_ApplicationActivationManager,
+        NULL,
+        CLSCTX_LOCAL_SERVER,
+        IID_IApplicationActivationManager,
+        (LPVOID *)&manager
+    );
     if (!SUCCEEDED(result)) return result;
 
     result = CoAllowSetForegroundWindow(manager, NULL);
@@ -149,7 +152,8 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
         nullptr,
         (dllPathStr.size() + 1) * sizeof(wchar_t),
         MEM_COMMIT | MEM_RESERVE,
-        PAGE_READWRITE)};
+        PAGE_READWRITE
+    )};
     if (!pRemotePath) {
         Logger::ErrorBox(L"[UWPinjector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
@@ -161,15 +165,16 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
             pRemotePath.get(),
             dllPathStr.c_str(),
             (dllPathStr.size() + 1) * sizeof(wchar_t),
-            nullptr)) {
+            nullptr
+        )) {
         Logger::ErrorBox(L"[UWPinjector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
     // 创建远程线程调用LoadLibraryW
-    AutoCloseHandle hThread{CreateRemoteThread(hProcess.get(), nullptr, 0,
-                                               (LPTHREAD_START_ROUTINE)LoadLibraryW,
-                                               pRemotePath.get(), 0, nullptr)};
+    AutoCloseHandle hThread{
+        CreateRemoteThread(hProcess.get(), nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
+    };
     if (!hThread) {
         Logger::ErrorBox(L"[UWPinjector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
@@ -183,6 +188,12 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
         Logger::WarnBox(L"[UWPinjector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
 
     return true;
+}
+
+fs::path getCurrentPath() {
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(nullptr, buffer, MAX_PATH);
+    return fs::path{buffer}.parent_path();
 }
 
 int main(int argc, char **argv) {
@@ -212,7 +223,7 @@ int main(int argc, char **argv) {
             dwProcessId = atoi(argv[i + 1]);
     }
 
-    fs::path currentDir = fs::current_path();
+    fs::path currentDir = getCurrentPath();
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"UWPinjector.exe");
     } else {
@@ -221,7 +232,8 @@ int main(int argc, char **argv) {
             [dwProcessId]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
                 NtResumeProcess(OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId));
-            }};
+            }
+        };
         fs::path llPath = currentDir / L"sapphire_core.dll";
         if (!fs::exists(llPath)) {
             currentDir = fs::path{argv[0]}.parent_path();
