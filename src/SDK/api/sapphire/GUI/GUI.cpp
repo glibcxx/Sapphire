@@ -143,9 +143,11 @@ void GuiOverlay::handleHotkey() {
 }
 
 void GuiOverlay::drawGUI() {
+#ifndef NDEBUG
     static bool show_demo = true;
     if (show_demo)
         ImGui::ShowDemoWindow(&show_demo);
+#endif
 
     if (GuiOverlay::sShowLogWindow)
         GameLogger::getInstance().draw("Log Window", &GuiOverlay::sShowLogWindow);

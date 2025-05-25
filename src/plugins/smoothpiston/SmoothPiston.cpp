@@ -105,7 +105,6 @@ HOOK_TYPE(
 #elif MC_VERSION == v1_21_2
     float &alpha = memory::getField<float>(context._fill, 168);
 #endif
-    Logger::Debug("{}: preserved: {}, a: {}", movingBlock->mPosition.toString(), movingBlock->mPreserved, alpha);
     if (plugin->mEnableSmoothPiston) {
         /*
             提前返回可以终止本帧渲染。
