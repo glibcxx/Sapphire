@@ -47,7 +47,7 @@ add_library(kiero STATIC
 )
 # kiero库的两个参数
 target_compile_definitions(kiero PRIVATE
-    KIERIO_INCLUDE_D3D12=1
+    KIERO_INCLUDE_D3D12=1
     KIERO_USE_MINHOOK=1
 )
 # kiero 头文件目录
