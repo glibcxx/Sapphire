@@ -13,7 +13,7 @@ CMakeUserPresets.json
 
 build/
 
-.vscode/*
+.vscode/
 
 .data/
 
