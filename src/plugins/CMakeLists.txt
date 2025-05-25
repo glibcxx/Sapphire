@@ -13,4 +13,4 @@ add_library(builtin_plugin SHARED
     ${chunkborder_src}
 )
 
-target_link_libraries(builtin_plugin PUBLIC sapphire_core fmod_vc)
+target_link_libraries(builtin_plugin PUBLIC SapphireCommon sapphire_core fmod_vc)
