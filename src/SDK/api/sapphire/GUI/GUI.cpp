@@ -72,11 +72,43 @@ void GuiOverlay::initImGui(
                     ClientInstance::primaryClientInstance->releaseMouse();
                 } else if (!ClientInstance::primaryClientInstance->isShowingMenu()) {
                     ClientInstance::primaryClientInstance->grabMouse();
+                    ImGui::SetWindowFocus(NULL);
                 }
             } else {
                 Logger::Warn("ClientInstance not found!");
             } },
     });
+
+    GuiOverlay::registerHotkey({
+        {},
+        ImGuiKey_Escape,
+        "Close Main Panel",
+        []() {
+            GuiOverlay::sShowPannel = false;
+            if (!ClientInstance::primaryClientInstance->isShowingMenu())
+                ClientInstance::primaryClientInstance->grabMouse();
+            ImGui::SetWindowFocus(NULL);
+        },
+    });
+
+    GuiOverlay::registerPluginSettings(
+        {"Appearance",
+         "Customize the style of the GUI.",
+         []() {
+             ImGui::TextUnformatted("Panel Style");
+             ImGui::SliderFloat2("Window Padding", reinterpret_cast<float *>(&GuiOverlay::sPanelPadding), 5.0f, 30.0f, "%.0f px");
+             ImGui::SliderFloat("Window Rounding", &GuiOverlay::sPanelRounding, 0.0f, 20.0f, "%.0f px");
+             ImGui::ColorEdit4("Background Color", reinterpret_cast<float *>(&GuiOverlay::sPanelBgColor), ImGuiColorEditFlags_AlphaBar);
+
+             ImGui::Separator();
+             ImGui::TextUnformatted("Panel Size (relative to main window)");
+             ImGui::SliderFloat("Window Width", &GuiOverlay::sPanelDefaultWidthRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+             ImGui::SliderFloat("Window Height", &GuiOverlay::sPanelDefaultHeightRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+
+             ImGui::Separator();
+             ImGui::TextUnformatted("Note: Panel size and position are remembered after the first adjustment.");
+         }}
+    );
 }
 
 void GuiOverlay::shutdownImGui() {
@@ -174,32 +206,45 @@ void GuiOverlay::drawToast() {
 
 void GuiOverlay::drawPanel() {
     ImGuiViewport *viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
-    ImGui::Begin(
-        "Main Panel",
-        nullptr,
-        ImGuiWindowFlags_NoDecoration
-            | ImGuiWindowFlags_NoMove
-            | ImGuiWindowFlags_NoResize
-            | ImGuiWindowFlags_NoSavedSettings
-            | ImGuiWindowFlags_NoBringToFrontOnFocus
+
+    ImVec2 defaultPanelSize = ImVec2(viewport->WorkSize.x * sPanelDefaultWidthRatio, viewport->WorkSize.y * sPanelDefaultHeightRatio);
+    ImVec2 defaultPanelPos = ImVec2(
+        viewport->WorkPos.x + (viewport->WorkSize.x - defaultPanelSize.x) * 0.5f,
+        viewport->WorkPos.y + (viewport->WorkSize.y - defaultPanelSize.y) * 0.5f
     );
-    ImGui::Columns(2, "PluginLayout", true);
 
-    static bool columns_initialized = false;
-    if (!columns_initialized) {
-        ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.25f);
-        columns_initialized = true;
+    ImGui::SetNextWindowPos(defaultPanelPos);
+    ImGui::SetNextWindowSize(defaultPanelSize);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, sPanelPadding);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, sPanelRounding);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, sPanelBgColor);
+
+    const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse
+                                        | ImGuiWindowFlags_NoMove
+                                        | ImGuiWindowFlags_NoResize
+                                        | ImGuiWindowFlags_NoBringToFrontOnFocus
+                                        | ImGuiWindowFlags_NoTitleBar
+                                        | ImGuiWindowFlags_NoDocking;
+
+    if (ImGui::Begin("Main Panel", &sShowPannel, window_flags)) {
+        ImGui::Columns(2, "PluginLayout", true);
+
+        static bool initColWidth = false;
+        if (initColWidth) {
+            ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.25f);
+            initColWidth = true;
+        }
+        drawPluginList();
+        ImGui::NextColumn();
+        drawPluginDetails();
+
+        ImGui::Columns(1);
     }
-
-    drawPluginList();
-
-    ImGui::NextColumn();
-    drawPluginDetails();
-
-    ImGui::Columns(1);
     ImGui::End();
+
+    ImGui::PopStyleColor();
+    ImGui::PopStyleVar(2);
 }
 
 void GuiOverlay::drawPluginList() {
@@ -230,7 +275,6 @@ void GuiOverlay::drawPluginDetails() {
         ImGui::TextWrapped("Description: %s", plugin.description.c_str());
         ImGui::Separator();
 
-        ImGui::GetIO();
         if (plugin.drawSettings) {
             plugin.drawSettings();
         } else {

@@ -6,53 +6,11 @@
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-client/common/client/particlesystem/particle/ParticleEmitter.h"
 
+#include "../smoothpiston/SmoothPiston.h"
+
 #include "logger/GameLogger.hpp"
 
-#include "AudioSpeed.h"
-
-constexpr float TimeScaleList[] = {0.00625f, 0.05f, 0.1f, 0.2f, 0.25f, 0.5f, 1.0f, 2.0f, 5.0f, 10.0f};
-
-static std::vector<float> gTimeScaleList = {
-    0.00625f, 0.05f, 0.1f, 0.2f, 0.25f, 0.5f, 1.0f, 2.0f, 5.0f, 10.0f
-};
-static std::vector<float> gParsedTimeScaleList;                // 从输入框解析出的列表 (临时)
-static char               gTimeScaleListInputBuffer[1024];     // 输入框的缓冲区
-static std::string        gInputErrorMsg = "";                 // 输入错误信息
-static bool               gInputValid = true;                  // 输入是否有效
-static bool               gInputChangedSinceLastApply = false; // 输入框内容是否已更改
-
-static float gTimeScale = 1.0f;
-static float gTimeScaleBuffer = gTimeScale;
-
-static int sSelectedTps = 6;
-
-static bool changeAudioSpeed = true;
-
-static const std::array sResamplerMethodNames = {
-    "DEFAULT", "NOINTERP", "LINEAR", "CUBIC", "SPLINE"
-};
-
-static std::array sResamplerMethods = {
-    FMOD_DSP_RESAMPLER_DEFAULT,
-    FMOD_DSP_RESAMPLER_NOINTERP,
-    FMOD_DSP_RESAMPLER_LINEAR,
-    FMOD_DSP_RESAMPLER_CUBIC,
-    FMOD_DSP_RESAMPLER_SPLINE
-};
-static int sSelectedResamplerMethod = 2;
-
-static void clampSelectedIndex() {
-    if (gTimeScaleList.empty()) {
-        sSelectedTps = 0;
-    } else {
-        sSelectedTps = std::clamp<int>(sSelectedTps, 0, gTimeScaleList.size() - 1);
-    }
-    if (!gTimeScaleList.empty()) {
-        gTimeScaleBuffer = gTimeScaleList[sSelectedTps];
-    } else {
-        gTimeScaleBuffer = 1.0f;
-    }
-}
+static TickRatePlugin *plugin = nullptr;
 
 static void convertListToString(const std::vector<float> &list, char *out_buf, size_t buf_size) {
     if (list.empty()) {
@@ -116,96 +74,98 @@ static bool parseTimeScaleString(const char *input, std::vector<float> &out_list
     return true;
 }
 
-static void selectNextTimeScale() {
-    if (++sSelectedTps > gTimeScaleList.size() - 1)
-        sSelectedTps = gTimeScaleList.size() - 1;
-    gTimeScaleBuffer = gTimeScale = TimeScaleList[sSelectedTps];
-    UpdateAudioSpeed(gTimeScale);
-    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
-}
-
-static void selectLastTimeScale() {
-    if (sSelectedTps > 0)
-        --sSelectedTps;
-    gTimeScaleBuffer = gTimeScale = TimeScaleList[sSelectedTps];
-    if (changeAudioSpeed)
-        UpdateAudioSpeed(gTimeScale);
-    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
-}
-
-static void resetTimeScale() {
-    auto it = std::find(gTimeScaleList.begin(), gTimeScaleList.end(), 1.0f);
-    if (it != gTimeScaleList.end()) {
-        sSelectedTps = static_cast<uint8_t>(std::distance(gTimeScaleList.begin(), it));
-    } else if (!gTimeScaleList.empty()) {
-        sSelectedTps = (uint8_t)(gTimeScaleList.size() / 2);
+void TickRatePlugin::clampSelectedIndex() {
+    if (mTimeScaleList.empty()) {
+        mSelectedTps = 0;
     } else {
-        sSelectedTps = 0;
+        mSelectedTps = std::clamp<int>(mSelectedTps, 0, mTimeScaleList.size() - 1);
     }
-    clampSelectedIndex();
-    gTimeScaleBuffer = gTimeScale = gTimeScaleList.empty() ? 1.0f : gTimeScaleList[sSelectedTps];
-    if (changeAudioSpeed)
-        UpdateAudioSpeed(gTimeScale);
-    GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", gTimeScale * 20, gTimeScale));
+    if (!mTimeScaleList.empty()) {
+        mTimeScaleBuffer = mTimeScaleList[mSelectedTps];
+    } else {
+        mTimeScaleBuffer = 1.0f;
+    }
 }
 
-static void settingGUI() {
+void TickRatePlugin::setTimeScale(float scale, bool showToast) {
+    mTimeScaleBuffer = mTimeScale = scale;
+    if (mChangeAudioSpeed)
+        UpdateAudioSpeed(mTimeScale);
+    SmoothPistonPlugin::getInstance().mTimeScale = mTimeScale;
+    if (showToast)
+        GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", mTimeScale * 20, mTimeScale));
+}
+
+void TickRatePlugin::resetTimeScale() {
+    auto it = std::find(mTimeScaleList.begin(), mTimeScaleList.end(), 1.0f);
+    if (it != mTimeScaleList.end()) {
+        mSelectedTps = static_cast<uint8_t>(std::distance(mTimeScaleList.begin(), it));
+    } else if (!mTimeScaleList.empty()) {
+        mSelectedTps = (uint8_t)(mTimeScaleList.size() / 2);
+    } else {
+        mSelectedTps = 0;
+    }
+    this->clampSelectedIndex();
+    this->setTimeScale(mTimeScaleList.empty() ? 1.0f : mTimeScaleList[mSelectedTps]);
+}
+
+void TickRatePlugin::_renderSettingGUI() {
     bool changed = false;
-    if (gTimeScaleList.empty()) {
+    if (mTimeScaleList.empty()) {
         ImGui::BeginDisabled(true);
         ImGui::SliderInt("##TickSpeedSetting", nullptr, 0, 0, "TimeScale list is empty!");
         ImGui::EndDisabled();
     } else if (changed = ImGui::SliderInt(
                    "##TickSpeedSetting",
-                   &sSelectedTps,
+                   &mSelectedTps,
                    0,
-                   gTimeScaleList.size() - 1,
+                   mTimeScaleList.size() - 1,
                    std::format(
                        "TickSpeed: {} Tps (x{})",
-                       gTimeScaleList[sSelectedTps] * 20,
-                       gTimeScaleList[sSelectedTps]
+                       mTimeScaleList[mSelectedTps] * 20,
+                       mTimeScaleList[mSelectedTps]
                    )
                        .data()
                )) {
-        gTimeScaleBuffer = gTimeScaleList[sSelectedTps];
+        mTimeScaleBuffer = mTimeScaleList[mSelectedTps];
     }
 
     ImGui::SeparatorText("Edit Speed List");
 
-    bool oldInvalid = gInputValid;
-    if (!gInputValid) {
+    bool oldInvalid = mInputValid;
+    if (!mInputValid) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
     }
-    if (ImGui::InputText("##SpeedListInput", gTimeScaleListInputBuffer, sizeof(gTimeScaleListInputBuffer))) {
-        gInputChangedSinceLastApply = true;
-        if (gInputValid = parseTimeScaleString(gTimeScaleListInputBuffer, gParsedTimeScaleList, gInputErrorMsg)) {
-            auto it = std::find(gParsedTimeScaleList.begin(), gParsedTimeScaleList.end(), gTimeScaleBuffer);
-            if (it != gParsedTimeScaleList.end()) {
-                sSelectedTps = static_cast<int>(std::distance(gParsedTimeScaleList.begin(), it));
+    if (ImGui::InputText("##SpeedListInput", mTimeScaleListInputBuffer.data(), mTimeScaleListInputBuffer.size())) {
+        mInputChangedSinceLastApply = true;
+        if (mInputValid = parseTimeScaleString(mTimeScaleListInputBuffer.data(), mParsedTimeScaleList, mInputErrorMsg)) {
+            auto it = std::find(mParsedTimeScaleList.begin(), mParsedTimeScaleList.end(), mTimeScaleBuffer);
+            if (it != mParsedTimeScaleList.end()) {
+                mSelectedTps = static_cast<int>(std::distance(mParsedTimeScaleList.begin(), it));
             } else {
                 // 原来的值不在新列表里
-                sSelectedTps = std::clamp(sSelectedTps, 0, static_cast<int>(gParsedTimeScaleList.size() - 1));
-                gTimeScaleBuffer = gParsedTimeScaleList[sSelectedTps];
+                mSelectedTps = std::clamp(mSelectedTps, 0, static_cast<int>(mParsedTimeScaleList.size() - 1));
+                mTimeScaleBuffer = mParsedTimeScaleList[mSelectedTps];
             }
         }
     }
     if (!oldInvalid) {
         ImGui::PopStyleColor();
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error: %s", gInputErrorMsg.c_str());
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Error: %s", mInputErrorMsg.c_str());
     }
-    bool list_content_changed = gInputValid && (gParsedTimeScaleList != gTimeScaleList);
-    bool buffer_changed = std::fabs(gTimeScale - gTimeScaleBuffer) > 1e-6f;
-    bool can_apply = gInputValid && ((gInputChangedSinceLastApply && list_content_changed) || changed || buffer_changed);
+    bool list_content_changed = mInputValid && (mParsedTimeScaleList != mTimeScaleList);
+    bool buffer_changed = std::fabs(mTimeScale - mTimeScaleBuffer) > 1e-6f;
+    bool can_apply = mInputValid && ((mInputChangedSinceLastApply && list_content_changed) || changed || buffer_changed);
     ImGui::BeginDisabled(!can_apply);
     if (ImGui::Button("Apply")) {
-        if (gInputChangedSinceLastApply && list_content_changed) {
-            gTimeScaleList = gParsedTimeScaleList;
+        if (mInputChangedSinceLastApply && list_content_changed) {
+            mTimeScaleList = mParsedTimeScaleList;
             clampSelectedIndex();
-            gInputChangedSinceLastApply = false;
+            mInputChangedSinceLastApply = false;
         }
-        gTimeScale = gTimeScaleBuffer;
-        if (changeAudioSpeed)
-            UpdateAudioSpeed(gTimeScale);
+        mTimeScale = mTimeScaleBuffer;
+        if (mChangeAudioSpeed)
+            UpdateAudioSpeed(mTimeScale);
     }
     ImGui::EndDisabled();
 
@@ -215,41 +175,65 @@ static void settingGUI() {
     }
     ImGui::SeparatorText("Audio Setting");
 
-    bool audioSpeedChanged = ImGui::Checkbox("Change Audio Speed", &changeAudioSpeed);
+    bool audioSpeedChanged = ImGui::Checkbox("Change Audio Speed", &mChangeAudioSpeed);
     if (audioSpeedChanged) {
-        UpdateAudioSpeed(changeAudioSpeed ? gTimeScale : 1.0f);
+        UpdateAudioSpeed(mChangeAudioSpeed ? mTimeScale : 1.0f);
     }
 
     // 设置重采样算法
-    if (ImGui::Combo("Resampler Method", &sSelectedResamplerMethod, sResamplerMethodNames.data(), sResamplerMethodNames.size())) {
-        if (sSelectedResamplerMethod >= 0 && sSelectedResamplerMethod < sResamplerMethods.size()) {
-            UpdateResamplerMethod(sResamplerMethods[sSelectedResamplerMethod]);
+    if (ImGui::Combo("Resampler Method", &mSelectedResamplerMethod, sResamplerMethodNames.data(), sResamplerMethodNames.size())) {
+        if (mSelectedResamplerMethod >= 0 && mSelectedResamplerMethod < sResamplerMethods.size()) {
+            UpdateResamplerMethod(sResamplerMethods[mSelectedResamplerMethod]);
         }
     }
 }
 
-void addSettingGUI() {
+void TickRatePlugin::_setupSettingGUI() {
     GuiOverlay::PluginSettings tickrateSettings{
         "Tick Rate",
         "Change game Speed!",
-        settingGUI
+        [this]() {
+            _renderSettingGUI();
+        }
     };
     GuiOverlay::registerPluginSettings(std::move(tickrateSettings));
 }
 
-void addHotkeys() {
-    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadAdd, .action = selectNextTimeScale});
-    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadSubtract, .action = selectLastTimeScale});
-    GuiOverlay::registerHotkey({.keysDown = {ImGuiMod_Alt}, .triggerKey = ImGuiKey_KeypadDecimal, .action = resetTimeScale});
+void TickRatePlugin::_setupHotkeys() {
+    GuiOverlay::registerHotkey(
+        {.keysDown = {ImGuiMod_Alt},
+         .triggerKey = ImGuiKey_KeypadAdd,
+         .action = [this]() {
+             if (++mSelectedTps > mTimeScaleList.size() - 1)
+                 mSelectedTps = mTimeScaleList.size() - 1;
+             this->setTimeScale(mTimeScaleList[mSelectedTps]);
+         }}
+    );
+    GuiOverlay::registerHotkey(
+        {.keysDown = {ImGuiMod_Alt},
+         .triggerKey = ImGuiKey_KeypadSubtract,
+         .action = [this]() {
+             if (mSelectedTps > 0)
+                 --mSelectedTps;
+             this->setTimeScale(mTimeScaleList[mSelectedTps]);
+         }}
+    );
+    GuiOverlay::registerHotkey(
+        {.keysDown = {ImGuiMod_Alt},
+         .triggerKey = ImGuiKey_KeypadDecimal,
+         .action = [this]() {
+             this->resetTimeScale();
+         }}
+    );
 }
 
-HOOK_TYPE(TickRateTest, Timer, hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
-    this->origin(preferredFrameStep);
-    this->mTimeScale = gTimeScale;
+HOOK_TYPE(TickRatePlugin::NormalTickRateHook, Timer, hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
+    origin(preferredFrameStep);
+    mTimeScale = plugin->mTimeScale;
 }
 
 HOOK_TYPE(
-    TickRateTest2,
+    TickRatePlugin::ParticleTickRateHook2,
     ParticleSystem::ParticleEmitterActual,
     hook::HookPriority::Normal,
     ParticleSystem::ParticleEmitterActual::tick,
@@ -258,30 +242,36 @@ HOOK_TYPE(
     float                           a
 ) {
     // Logger::Debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
-    this->origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * gTimeScale), a);
+    origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * plugin->mTimeScale), a);
 }
 
-void installTickRate() {
-    if (TickRateTest::hook() && TickRateTest2::hook()) {
+TickRatePlugin::TickRatePlugin() {
+    plugin = this;
+    if (NormalTickRateHook::hook() && ParticleTickRateHook2::hook()) {
         installFMODHooks();
-        addSettingGUI();
-        addHotkeys();
+        this->_setupSettingGUI();
+        this->_setupHotkeys();
 
-        convertListToString(gTimeScaleList, gTimeScaleListInputBuffer, sizeof(gTimeScaleListInputBuffer));
-        gParsedTimeScaleList = gTimeScaleList;
-        clampSelectedIndex();
-        gTimeScale = gTimeScaleBuffer;
-        UpdateAudioSpeed(gTimeScale);
-        UpdateResamplerMethod(sResamplerMethods[sSelectedResamplerMethod]);
-        gInputValid = true;
-        gInputErrorMsg.clear();
-        gInputChangedSinceLastApply = false;
+        convertListToString(mTimeScaleList, mTimeScaleListInputBuffer.data(), mTimeScaleListInputBuffer.size());
+        mParsedTimeScaleList = mTimeScaleList;
+        this->clampSelectedIndex();
+        mTimeScale = mTimeScaleBuffer;
+        UpdateAudioSpeed(mTimeScale);
+        UpdateResamplerMethod(sResamplerMethods[mSelectedResamplerMethod]);
+        mInputValid = true;
+        mInputErrorMsg.clear();
+        mInputChangedSinceLastApply = false;
     } else {
         Logger::Error("[Tickrate] Tickrate 安装失败！");
     }
 }
 
-void uninstallTickRate() {
-    TickRateTest::unhook();
-    TickRateTest2::unhook();
+TickRatePlugin::~TickRatePlugin() {
+    NormalTickRateHook::unhook();
+    ParticleTickRateHook2::unhook();
+}
+
+TickRatePlugin &TickRatePlugin::getInstance() {
+    static TickRatePlugin t{};
+    return t;
 }

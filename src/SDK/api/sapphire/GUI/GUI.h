@@ -16,7 +16,7 @@ public:
     struct PluginSettings {
         std::string           name;
         std::string           description;
-        std::function<void()> drawSettings; // 绘制设置界面的函数
+        std::function<void()> drawSettings;
     };
 
     struct Hotkey {
@@ -53,6 +53,13 @@ private:
     inline static bool sShowToast = false;
     inline static bool sShowPannel = false;
     inline static bool sShowLogWindow = true;
+
+    // Style settings for the main panel
+    inline static ImVec2 sPanelPadding = ImVec2(15.0f, 15.0f);
+    inline static float  sPanelRounding = 10.0f;
+    inline static ImVec4 sPanelBgColor = ImVec4(0.08f, 0.08f, 0.10f, 0.92f);
+    inline static float  sPanelDefaultWidthRatio = 0.7f;
+    inline static float  sPanelDefaultHeightRatio = 0.8f;
 
     static void initImGui(
         HWND                  mainWindow,

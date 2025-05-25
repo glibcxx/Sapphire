@@ -55,7 +55,7 @@ void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &col
         return;
     }
     std::lock_guard guard{this->mMutex};
-    this->mTess->begin(mce::PrimitiveMode::Lines, 1, false);
+    this->mTess->begin(mce::PrimitiveMode::LineList, 1, false);
     Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPosition();
     this->mTess->color(color);
     this->mTess->vertex(from - camPos);

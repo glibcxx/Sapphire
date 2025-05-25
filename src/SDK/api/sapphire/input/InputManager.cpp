@@ -4,10 +4,12 @@
 #include <winrt/Windows.Foundation.h>
 
 #include "SDK/api/sapphire/hook/Hook.h"
+#include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
+#include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
 #include <imgui/imgui.h>
-#include "logger/LogBox.hpp"
+#include "logger/GameLogger.hpp"
 
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Core;
@@ -149,7 +151,7 @@ HOOK_TYPE(
     short                   dy,
     uint8_t                 a8
 ) {
-    if (ImGui::GetIO().WantCaptureMouse)
+    if (ImGui::GetIO().WantCaptureMouse && !ClientInstance::primaryClientInstance->getMouseGrabbed())
         return;
     this->origin(action, buttonData, x, y, dx, dy, a8);
 }
@@ -227,6 +229,12 @@ void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const
 }
 
 void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
+    if (ClientInstance::primaryClientInstance) {
+        if (ClientInstance::primaryClientInstance->getMouseGrabbed())
+            return;
+    } else {
+        Logger::Warn("primaryClientInstance not found");
+    }
     ImGuiIO                      &io = ImGui::GetIO();
     Input::PointerPoint           point = args.CurrentPoint();
     Input::PointerPointProperties props = point.Properties();
@@ -274,6 +282,13 @@ void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEven
 }
 
 void InputManager::onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
+    if (ClientInstance::primaryClientInstance) {
+        if (ClientInstance::primaryClientInstance->getMouseGrabbed())
+            return;
+    } else {
+        Logger::Warn("primaryClientInstance not found");
+    }
+
     using namespace Input;
     ImGuiIO               &io = ImGui::GetIO();
     PointerPoint           point = args.CurrentPoint();

@@ -5,14 +5,17 @@
 
 class Timer {
 public:
-    float                mTicksPerSecond = 0.0f;
-    int                  mTicks = 0;
-    float                mAlpha = 0;
-    float                mTimeScale = 1.0f;
-    float                mPassedTime = 0.0f;
-    float                mFrameStepAlignmentRemainder = 0.0f;
-    float                mLastTimeSeconds;
-    float                mLastTimestep = 0.0f;
+    float mTicksPerSecond = 0.0f;
+    int   mTicks = 0;
+    float mAlpha = 0;
+    float mTimeScale = 1.0f;
+    float mPassedTime = 0.0f;
+    float mFrameStepAlignmentRemainder = 0.0f;
+    float mLastTimeSeconds;
+    float mLastTimestep = 0.0f;
+#if MC_VERSION >= v1_21_60
+    float mOverflowTime;
+#endif
     int64_t              mLastMs;
     int64_t              mLastMsSysTime;
     float                mAdjustTime = 1.0f;
