@@ -12,12 +12,7 @@ public:
     using OwnerStackRef = typename Traits::OwnerStackRef;
 
     OwnerPtrT() :
-        Traits::OwnerStorage(Traits::OwnerStorage::EmptyInit::NoValue) {}
-
-    template <typename... Args>
-    static OwnerPtrT make(Args &&...args) {
-        return OwnerPtrT{Traits::OwnerStorage::VariadicInit::NonAmbiguous, std::forward<Args>(args)...};
-    }
+        Traits::OwnerStorage(nullptr) {}
 
     OwnerPtrT(const OwnerPtrT &other) :
         Traits::OwnerStorage(other) {}

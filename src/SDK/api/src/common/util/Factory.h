@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <string>
-#include "SDK/api/sapphire/gamerefs/OwnerPtr.h"
+#include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 
 template <typename Type, typename... Args>
 class OwnerPtrFactory {
