@@ -92,3 +92,13 @@ static util::ScopeGuard gard{
         GetClientInstance::unhook();
     }
 };
+
+RenderCameraComponent *ClientInstance::getRenderCameraComponent() {
+    using Hook = core::ApiLoader<
+        "\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x00\xF3\x0F\x10\x58\x00\xF3\x0F\x10\x05"_sig,
+        &ClientInstance::getRenderCameraComponent,
+        [](uintptr_t addr) {
+            return memory::deRef(addr, memory::AsmOperation::CALL);
+        }>;
+    return (this->*Hook::origin)();
+}

@@ -17,11 +17,20 @@ add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# --- FetchContent 模块 ---
+include(FetchContent)
+
 # --- 输出目录 ---
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) # 静态库
 
+# --- GLM 数学库 (通过 FetchContent 从网络获取) ---
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 1.0.1 # 你可以选择一个适合你项目的 GLM 版本
+)
 # --- 项目版本与兼容性 ---
 # 允许从 CMake 命令行设置 MC_VERSION, 例如: cmake -DMC_VERSION=vX_Y_Z .. 
 # 默认为 "v1_21_60"
@@ -40,6 +49,7 @@ add_compile_definitions(
 # --- 外部依赖 ---
 add_subdirectory(external/minhook)
 add_subdirectory(external/imgui)
+FetchContent_MakeAvailable(glm)
 
 # --- Kiero 库 (没有CMakeLists，手动添加) ---
 add_library(kiero STATIC
@@ -70,6 +80,7 @@ target_include_directories(SapphireCommon INTERFACE
 target_link_directories(SapphireCommon INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/libs
 )
+target_link_libraries(SapphireCommon INTERFACE glm)
 
 add_subdirectory(src/plugins)
 add_subdirectory(src/injector)

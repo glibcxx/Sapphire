@@ -1,11 +1,8 @@
 #pragma once
 
-#include "SDK/api/src/common/world/phys/Vec3.h"
 #include "LevelRendererCamera.h"
-
-namespace mce {
-    class Camera;
-}
+#include "SDK/api/src/common/world/phys/Vec3.h"
+#include "SDK/api/src-deps/Renderer/Camera.h"
 
 class LevelRendererPlayer : public LevelRendererCamera {
 public:

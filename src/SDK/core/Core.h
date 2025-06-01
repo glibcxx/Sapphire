@@ -63,14 +63,16 @@ namespace core {
         inline static ApiType origin = memory::toMemberFunc<ApiType>(registryApi<Api, Callback>(Sig.value));
     };
 
-    template <StringLiteral Sig, auto Api, auto Callback = nullptr>
+    constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
+
+    template <StringLiteral Sig, auto Api, auto Callback = deRefLea>
         requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
     uintptr_t loadStatic() {
         return registryApi<Api, Callback>(Sig.value, false);
     };
 
-    template <StringLiteral Sig, auto Api, auto Callback = nullptr>
-        requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
+    template <StringLiteral Sig, auto Api, auto Callback = deRefLea>
+    requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
     void *const *loadVftable() {
         return reinterpret_cast<void *const *>(loadStatic<Sig, Api, Callback>());
     };

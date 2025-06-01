@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/glm.hpp>
 #include "Vec2.h"
 #include "SDK/api/src/common/world/level/BlockPos.h"
 
@@ -14,6 +15,8 @@ public:
         x(x), y(y), z(z) {}
     constexpr Vec3(const BlockPos &b) :
         x(b.x), y(b.y), z(b.z) {}
+    constexpr Vec3(const glm::tvec3<float> &glm) :
+        x(glm.x), y(glm.y), z(glm.z) {}
 
     constexpr Vec3 operator+(const Vec3 &other) const {
         return Vec3(x + other.x, y + other.y, z + other.z);

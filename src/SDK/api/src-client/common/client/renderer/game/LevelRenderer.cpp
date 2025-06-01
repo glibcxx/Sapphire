@@ -11,9 +11,7 @@ void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObjec
 #endif
         &LevelRenderer::renderLevel,
         [](uintptr_t addr) -> uintptr_t {
-            auto a = memory::deRef(addr, memory::AsmOperation::CALL);
-            hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<&LevelRenderer::renderLevel>(), a);
-            return a;
+            return memory::deRef(addr, memory::AsmOperation::CALL);
         }>;
     (this->*Hook::origin)(screenCtx, frameRenderObj);
 }
@@ -27,9 +25,7 @@ void LevelRenderer::preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRend
 #endif
         &LevelRenderer::preRenderUpdate,
         [](uintptr_t addr) -> uintptr_t {
-            auto a = memory::deRef(addr, memory::AsmOperation::CALL);
-            hook::HookManager::getInstance().resitryApi(util::ApiUniqueId::make<&LevelRenderer::preRenderUpdate>(), a);
-            return a;
+            return memory::deRef(addr, memory::AsmOperation::CALL);
         }>;
     (this->*Hook::origin)(screenCtx, params);
 }

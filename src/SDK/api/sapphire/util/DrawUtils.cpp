@@ -8,8 +8,6 @@
 #include "SDK/api/sapphire/event/EventManager.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
 
-#include "SDK/api/sapphire/hook/Hook.h"
-
 mce::MaterialPtr DrawUtils::sDrawMat{};
 
 static DrawUtils *drawUtils = nullptr;
@@ -31,7 +29,6 @@ HOOK_TYPE(
     drawUtils->mTess = memory::getField<Tessellator *>(&ctx, 200);
 #endif
     this->origin(ctx, obj);
-
     EventManager::getInstance().dispatchEvent(RenderLevelEvent{this, ctx});
 
     drawUtils->flush();
@@ -56,7 +53,7 @@ void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &col
     }
     std::lock_guard guard{this->mMutex};
     this->mTess->begin(mce::PrimitiveMode::LineList, 1, false);
-    Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPosition();
+    Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
     this->mTess->color(color);
     this->mTess->vertex(from - camPos);
     this->mTess->vertex(to - camPos);

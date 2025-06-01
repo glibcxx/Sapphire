@@ -6,6 +6,7 @@
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src-deps/Core/File/StorageAreaStateListener.h"
 #include "SDK/api/src/common/world/actor/player/PlayerListener.h"
+#include "SDK/api/src/common/entity/components/RenderCameraComponent.h"
 
 class ClientInstance : public IClientInstance,
                        public ::Core::StorageAreaStateListener,
@@ -50,6 +51,8 @@ public:
         memory::vCall(this, 333);
 #endif
     }
+
+    RenderCameraComponent *getRenderCameraComponent();
 
     SDK_API static void *const *__vftable0;
     SDK_API static void *const *__vftable1;
