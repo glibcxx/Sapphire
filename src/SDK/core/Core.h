@@ -60,7 +60,7 @@ namespace core {
         using ApiType = decltype(Api);
 
     public:
-        inline static ApiType origin = std::bit_cast<ApiType>(registryApi<Api, Callback>(Sig.value));
+        inline static ApiType origin = memory::toMemberFunc<ApiType>(registryApi<Api, Callback>(Sig.value));
     };
 
     template <StringLiteral Sig, auto Api, auto Callback = nullptr>

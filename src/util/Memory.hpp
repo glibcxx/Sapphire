@@ -39,6 +39,38 @@ namespace memory {
         return std::bit_cast<T>(*reinterpret_cast<void ***>(const_cast<void *>(obj)));
     }
 
+    template <typename Fn>
+        requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == 2 * sizeof(uintptr_t))
+    uintptr_t toRawFunc(Fn addr) {
+        struct member_func_ptr {
+            uintptr_t addr;
+            uintptr_t offset;
+        };
+        return std::bit_cast<member_func_ptr>(addr).addr;
+    }
+
+    template <typename Fn>
+        requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == sizeof(uintptr_t) || std::is_function_v<std::remove_pointer_t<Fn>>)
+    uintptr_t toRawFunc(Fn addr) {
+        return std::bit_cast<uintptr_t>(addr);
+    }
+
+    template <typename Fn>
+        requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == 2 * sizeof(uintptr_t))
+    Fn toMemberFunc(uintptr_t addr) {
+        struct member_func_ptr {
+            uintptr_t addr;
+            uintptr_t offset;
+        };
+        return std::bit_cast<Fn>(member_func_ptr{addr, 0});
+    }
+
+    template <typename Fn>
+        requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == sizeof(uintptr_t) || std::is_function_v<std::remove_pointer_t<Fn>>)
+    Fn toMemberFunc(uintptr_t addr) {
+        return std::bit_cast<Fn>(addr);
+    }
+
     template <typename Ret = void, typename... Args>
     Ret vCall(void *obj, size_t fnIdx, Args &&...args) {
         return reinterpret_cast<Ret (*)(void *, Args &&...)>(

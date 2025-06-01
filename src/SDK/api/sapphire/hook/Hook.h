@@ -9,6 +9,7 @@
 #include "macros/Macros.h"
 #include "util/ApiUniqueId.hpp"
 #include "util/TypeTraits.hpp"
+#include "util/Memory.hpp"
 #include "logger/LogBox.hpp"
 
 namespace hook {
@@ -51,12 +52,12 @@ namespace hook {
 
         template <typename T, typename U, typename Trampline>
         bool hook(T target, U detour, HookPriority priority, Trampline &trampoline) {
-            return this->hook(std::bit_cast<uintptr_t>(target), std::bit_cast<uintptr_t>(detour), priority, *(uintptr_t *)(&trampoline));
+            return this->hook(std::bit_cast<uintptr_t>(target), memory::toRawFunc(detour), priority, *(uintptr_t *)(&trampoline));
         }
 
         template <typename T, typename U>
         void unhook(T target, U detour, HookPriority priority) {
-            this->unhook(std::bit_cast<uintptr_t>(target), std::bit_cast<uintptr_t>(detour), priority);
+            this->unhook(std::bit_cast<uintptr_t>(target), memory::toRawFunc(detour), priority);
         }
     };
 
