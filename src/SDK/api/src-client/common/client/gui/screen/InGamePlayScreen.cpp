@@ -1,7 +1,7 @@
 #include "InGamePlayScreen.h"
 
 void *const *InGamePlayScreen::__vftable = core::loadVftable<
-    "\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\xC7\x41\x00\x00\x00\x00\x00\x4C\x89\x69"_sig,
+    "\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\xC7\x41\x00\x00\x00\x00\x00\x4C\x89"_sig,
     &InGamePlayScreen::__vftable>();
 
 void InGamePlayScreen::prepareFrame(ScreenContext &screenContext) {

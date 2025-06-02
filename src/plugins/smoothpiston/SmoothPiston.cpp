@@ -100,11 +100,7 @@ HOOK_TYPE(
 ) {
     auto region = renderData.renderSource;
     auto movingBlock = (MovingBlockActor *)renderData.entity;
-#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    float &alpha = memory::getField<float>(context._fill, 208);
-#elif MC_VERSION == v1_21_2
-    float &alpha = memory::getField<float>(context._fill, 168);
-#endif
+    float &alpha = context.mFrameAlpha;
     if (plugin->mEnableSmoothPiston) {
         /*
             提前返回可以终止本帧渲染。
@@ -158,12 +154,7 @@ HOOK_TYPE(
 ) {
     auto region = renderData.renderSource;
     auto pistonActor = (PistonBlockActor *)renderData.entity;
-#if MC_VERSION == v1_21_2
-    float &alpha = memory::getField<float>(context._fill, 168);
-#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    float &alpha = memory::getField<float>(context._fill, 208);
-#endif
-
+    float &alpha = context.mFrameAlpha;
     if (plugin->mRenderThread == std::thread::id{})
         plugin->mRenderThread = region->mOwnerThreadID;
 

@@ -1,13 +1,16 @@
 #pragma once
 
 #include "SDK/api/src-client/common/client/gui/screen/ScreenContext.h"
+#include "SDK/api/src/common/world/level/LevelListener.h"
+#include "SDK/api/src/common/AppPlatformListener.h"
 #include "LevelRendererPlayer.h"
+#include "LevelRenderPreRenderUpdateParameters.h"
 
-class LevelRenderer {
+class LevelRenderer : public LevelListener, public AppPlatformListener {
 public:
-    SDK_API void renderLevel(ScreenContext &screenCtx, const class FrameRenderObject &frameRenderObj);
+    SDK_API void renderLevel(ScreenContext &screenCtx, const FrameRenderObject &frameRenderObj);
 
-    SDK_API void preRenderUpdate(ScreenContext &screenCtx, class LevelRenderPreRenderUpdateParameters &params);
+    SDK_API void preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRenderUpdateParameters &params);
 
     LevelRendererPlayer &getLevelRendererPlayer() {
 #if MC_VERSION == v1_21_2

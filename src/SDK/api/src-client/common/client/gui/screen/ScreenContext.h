@@ -5,6 +5,7 @@
 #include "SDK/api/src-deps/MinecraftRenderer/Renderer/Meshcontext.h"
 #include "SDK/api/src-deps/Core/Memory/LinearAllocator.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
+#include "SDK/api/src-deps/MinecraftRenderer/Objects/FrameRenderObject.h"
 
 namespace mce {
     class RenderDevice;
@@ -19,7 +20,6 @@ class MinecraftGraphicsPipeline;
 class MinecraftGraphics;
 class UIProfanityContext;
 class CommandListQueue;
-class FrameRenderObject;
 
 #if MC_VERSION == v1_21_2
 // size: 264
@@ -36,7 +36,7 @@ public:
     MinecraftGraphicsPipeline                         &minecraftGraphicsPipeline; // off+200
     Bedrock::NonOwnerPointer<MinecraftGraphics>        minecraftGraphics;         // off+208
     Bedrock::NonOwnerPointer<const UIProfanityContext> uiProfanityContext;        // off+224
-    void                                              *mUnk264;                   // off+240
+    void                                              *mUnk240;                   // off+240
     CommandListQueue                                  &commandListQueue;          // off+248
     LinearAllocator<FrameRenderObject>                &frameAllocator;            // off+256
 };
