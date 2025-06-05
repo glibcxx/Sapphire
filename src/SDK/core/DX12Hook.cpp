@@ -5,7 +5,7 @@
 #include <winrt/Windows.Foundation.h>
 
 #include <kiero/kiero.h>
-#include <backends/imgui_impl_dx12.h>
+#include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
 
 #include "SDK/api/sapphire/GUI/GUI.h"
@@ -16,33 +16,40 @@
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Core;
 
-void DX12Hook::CreateRenderTarget(IDXGISwapChain *pSwapChain) {
+bool DX12Hook::CreateRenderTargetResources(IDXGISwapChain *pSwapChain) {
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
-
-    D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {
-        .Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-        .NumDescriptors = desc.BufferCount,
-        .Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE
-    };
-    pd3dDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&pd3dRtvDescHeap));
-
-    const SIZE_T                rtvDescriptorSize = pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = pd3dRtvDescHeap->GetCPUDescriptorHandleForHeapStart();
-
-    for (UINT i = 0; i < desc.BufferCount; ++i) {
-        pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pd3dMainRenderTargetResource[i]));
-        pd3dDevice->CreateRenderTargetView(pd3dMainRenderTargetResource[i], nullptr, rtvHandle);
-        rtvHandle.ptr += rtvDescriptorSize;
-    }
-}
-
-void DX12Hook::CleanupRenderTarget(IDXGISwapChain *pSwapChain) {
-    DXGI_SWAP_CHAIN_DESC desc;
-    pSwapChain->GetDesc(&desc);
-    const UINT bufferCount = desc.BufferCount;
+    const UINT bufferCount = desc.BufferCount > APP_NUM_BACK_BUFFERS ? APP_NUM_BACK_BUFFERS : desc.BufferCount;
 
     for (UINT i = 0; i < bufferCount; ++i) {
+        if (FAILED(pSwapChain->GetBuffer(i, IID_PPV_ARGS(&pd3dMainRenderTargetResource[i]))))
+            return false;
+
+        D3D11_RESOURCE_FLAGS d3d11Flags = {D3D11_BIND_RENDER_TARGET};
+        if (FAILED(pd3d11On12Device->CreateWrappedResource(
+                pd3dMainRenderTargetResource[i],
+                &d3d11Flags,
+                D3D12_RESOURCE_STATE_RENDER_TARGET,
+                D3D12_RESOURCE_STATE_PRESENT,
+                IID_PPV_ARGS(&pd3d11WrappedBackBuffer[i])
+            ))) return false;
+
+        if (FAILED(pd3d11Device->CreateRenderTargetView(pd3d11WrappedBackBuffer[i], nullptr, &pd3d11RenderTargetView[i])))
+            return false;
+    }
+    return true;
+}
+
+void DX12Hook::CleanupRenderTargetResources() {
+    for (UINT i = 0; i < APP_NUM_BACK_BUFFERS; ++i) {
+        if (pd3d11RenderTargetView[i]) {
+            pd3d11RenderTargetView[i]->Release();
+            pd3d11RenderTargetView[i] = nullptr;
+        }
+        if (pd3d11WrappedBackBuffer[i]) {
+            pd3d11WrappedBackBuffer[i]->Release();
+            pd3d11WrappedBackBuffer[i] = nullptr;
+        }
         if (pd3dMainRenderTargetResource[i]) {
             pd3dMainRenderTargetResource[i]->Release();
             pd3dMainRenderTargetResource[i] = nullptr;
@@ -51,17 +58,22 @@ void DX12Hook::CleanupRenderTarget(IDXGISwapChain *pSwapChain) {
 }
 
 void DX12Hook::WaitForGPU() {
+    if (!pd3dDevice && !pd3dCommandQueue)
+        return;
     ID3D12Fence *fence;
-    pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
-    const UINT64 fenceValue = 1;
-    pd3dCommandQueue->Signal(fence, fenceValue);
-    if (fence->GetCompletedValue() < fenceValue) {
-        HANDLE event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        fence->SetEventOnCompletion(fenceValue, event);
-        WaitForSingleObject(event, INFINITE);
-        CloseHandle(event);
+    if (SUCCEEDED(pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)))) {
+        const UINT64 fenceValue = 1;
+        pd3dCommandQueue->Signal(fence, fenceValue);
+        if (fence->GetCompletedValue() < fenceValue) {
+            HANDLE event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+            if (event) {
+                fence->SetEventOnCompletion(fenceValue, event);
+                WaitForSingleObject(event, INFINITE);
+                CloseHandle(event);
+            }
+        }
+        fence->Release();
     }
-    fence->Release();
 }
 
 HWND DX12Hook::FindChildWindowByClass(HWND parent, const wchar_t *className) {
@@ -94,11 +106,7 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
     UINT            SwapChainFlags
 ) {
     WaitForGPU();
-    CleanupRenderTarget(pSwapChain);
-    if (pd3dRtvDescHeap) {
-        pd3dRtvDescHeap->Release();
-        pd3dRtvDescHeap = nullptr;
-    }
+    CleanupRenderTargetResources();
 
     HRESULT hr = oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
     if (FAILED(hr)) return hr;
@@ -108,7 +116,7 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
     ImGuiIO &io = ImGui::GetIO();
     io.DisplaySize = ImVec2((float)desc.BufferDesc.Width, (float)desc.BufferDesc.Height);
 
-    CreateRenderTarget(pSwapChain);
+    CreateRenderTargetResources(pSwapChain);
 
     return hr;
 }
@@ -116,8 +124,6 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
 HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UINT Flags) {
     // 初始化阶段
     if (!GuiOverlay::sInitialized) {
-        // SetThreadDescription(GetCurrentThread(), L"hkPresent12 Thread!!!!"); // 方便调试
-
         DXGI_SWAP_CHAIN_DESC desc;
         pSwapChain->GetDesc(&desc);
         desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -126,24 +132,28 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
         if (FAILED(pSwapChain->GetDevice(IID_PPV_ARGS(&pd3dDevice))))
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
-        if (FAILED(pd3dDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&pd3dCommandAllocator))))
+        if (!pd3dCommandQueue)
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
-        if (FAILED(pd3dDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, pd3dCommandAllocator, nullptr, IID_PPV_ARGS(&pd3dCommandList))))
-            return oPresent12(pSwapChain, SyncInterval, Flags);
-        pd3dCommandList->Close();
+        UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#ifdef _DEBUG
+        d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+        ID3D12CommandQueue *ppCommandQueues[] = {pd3dCommandQueue};
+        if (FAILED(D3D11On12CreateDevice(
+                pd3dDevice,
+                d3d11DeviceFlags,
+                nullptr,
+                0,
+                reinterpret_cast<IUnknown **>(ppCommandQueues),
+                1,
+                0,
+                &pd3d11Device,
+                &pd3d11DeviceContext,
+                nullptr
+            ))) return oPresent12(pSwapChain, SyncInterval, Flags);
 
-        D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-        rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        rtvHeapDesc.NumDescriptors = APP_NUM_BACK_BUFFERS;
-        if (FAILED(pd3dDevice->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&pd3dRtvDescHeap))))
-            return oPresent12(pSwapChain, SyncInterval, Flags);
-
-        D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-        srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        srvHeapDesc.NumDescriptors = APP_NUM_BACK_BUFFERS;
-        srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        if (FAILED(pd3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&pd3dSrvDescHeap))))
+        if (FAILED(pd3d11Device->QueryInterface(IID_PPV_ARGS(&pd3d11On12Device))))
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
         try {
@@ -158,9 +168,10 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
             Logger::ErrorBox(L"获取 CoreWindow 失败: {} ({:X})", ex.message().c_str(), (int32_t)ex.code());
         }
 
-        GuiOverlay::initImGui(moduleInfo::gMainWindow, pd3dDevice, pd3dSrvDescHeap, desc, APP_NUM_BACK_BUFFERS);
+        GuiOverlay::initImGui(moduleInfo::gMainWindow, pd3d11Device, pd3d11DeviceContext, desc);
 
-        CreateRenderTarget(pSwapChain);
+        if (!CreateRenderTargetResources(pSwapChain))
+            return oPresent12(pSwapChain, SyncInterval, Flags);
 
         GuiOverlay::sInitialized = true;
     }
@@ -168,43 +179,25 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
     GuiOverlay::refreshCursorPos();
     GuiOverlay::handleHotkey();
 
-    ImGui_ImplDX12_NewFrame();
+    ImGui_ImplDX11_NewFrame();
     // ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
     // 绘制窗口
     GuiOverlay::drawGUI();
 
-    const UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex();
-
-    D3D12_RESOURCE_BARRIER barrier = {};
-    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource = pd3dMainRenderTargetResource[backBufferIdx];
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
-    pd3dCommandAllocator->Reset();
-    pd3dCommandList->Reset(pd3dCommandAllocator, nullptr);
-    pd3dCommandList->ResourceBarrier(1, &barrier);
-
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle =
-        pd3dRtvDescHeap->GetCPUDescriptorHandleForHeapStart();
-    rtvHandle.ptr += backBufferIdx * pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    pd3dCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-
-    pd3dCommandList->SetDescriptorHeaps(1, &pd3dSrvDescHeap);
-
     ImGui::Render();
 
-    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), pd3dCommandList);
+    const UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex();
 
-    barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-    barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-    pd3dCommandList->ResourceBarrier(1, &barrier);
-    pd3dCommandList->Close();
+    pd3d11On12Device->AcquireWrappedResources(&pd3d11WrappedBackBuffer[backBufferIdx], 1);
+    pd3d11DeviceContext->OMSetRenderTargets(1, &pd3d11RenderTargetView[backBufferIdx], nullptr);
 
-    pd3dCommandQueue->ExecuteCommandLists(1, (ID3D12CommandList *const *)&pd3dCommandList);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    pd3d11On12Device->ReleaseWrappedResources(&pd3d11WrappedBackBuffer[backBufferIdx], 1);
+
+    pd3d11DeviceContext->Flush();
 
     return oPresent12(pSwapChain, SyncInterval, Flags);
 }
@@ -220,6 +213,22 @@ bool DX12Hook::install() {
 void DX12Hook::uninstall() {
     GuiOverlay::shutdownImGui();
 
+    WaitForGPU();
+    CleanupRenderTargetResources();
+
+    if (pd3d11On12Device) {
+        pd3d11On12Device->Release();
+        pd3d11On12Device = nullptr;
+    }
+    if (pd3d11DeviceContext) {
+        pd3d11DeviceContext->Release();
+        pd3d11DeviceContext = nullptr;
+    }
+    if (pd3d11Device) {
+        pd3d11Device->Release();
+        pd3d11Device = nullptr;
+    }
+
     if (pd3dCommandList) {
         pd3dCommandList->Release();
         pd3dCommandList = nullptr;
@@ -233,16 +242,6 @@ void DX12Hook::uninstall() {
     if (pd3dDevice) {
         pd3dDevice->Release();
         pd3dDevice = nullptr;
-    }
-
-    if (pd3dRtvDescHeap) {
-        pd3dRtvDescHeap->Release();
-        pd3dRtvDescHeap = nullptr;
-    }
-
-    if (pd3dSrvDescHeap) {
-        pd3dSrvDescHeap->Release();
-        pd3dSrvDescHeap = nullptr;
     }
 
     kiero::shutdown();

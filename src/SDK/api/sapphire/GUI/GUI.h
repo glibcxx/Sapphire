@@ -5,6 +5,7 @@
 
 #include <imgui.h>
 #include <d3d12.h>
+#include <d3d11.h>
 #include <dxgi1_6.h>
 
 #include "macros/Macros.h"
@@ -63,10 +64,9 @@ private:
 
     static void initImGui(
         HWND                  mainWindow,
-        ID3D12Device         *device,
-        ID3D12DescriptorHeap *srvDescHeap,
-        DXGI_SWAP_CHAIN_DESC &swapChainDesc,
-        UINT                  bufferCount
+        ID3D11Device*         device,
+        ID3D11DeviceContext*  deviceContext,
+        DXGI_SWAP_CHAIN_DESC& swapChainDesc
     );
 
     static void shutdownImGui();

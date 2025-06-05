@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <d3d12.h>
 #include <dxgi1_6.h>
+#include <d3d11on12.h>
+#include <d3d11.h>
 
 class DX12Hook {
 public:
@@ -25,9 +27,9 @@ private:
 
     // Helper Functions
 
-    static void CreateRenderTarget(IDXGISwapChain *pSwapChain);
+    static bool CreateRenderTargetResources(IDXGISwapChain *pSwapChain);
 
-    static void CleanupRenderTarget(IDXGISwapChain *pSwapChain);
+    static void CleanupRenderTargetResources();
 
     static void WaitForGPU();
 
@@ -61,7 +63,12 @@ private:
     inline static ID3D12CommandQueue        *pd3dCommandQueue = nullptr;
 
     inline static ID3D12DescriptorHeap *pd3dRtvDescHeap = nullptr;
-    inline static ID3D12DescriptorHeap *pd3dSrvDescHeap = nullptr;
 
     inline static ID3D12Resource *pd3dMainRenderTargetResource[APP_NUM_BACK_BUFFERS] = {};
+
+    inline static ID3D11Device*           pd3d11Device = nullptr;
+    inline static ID3D11DeviceContext*    pd3d11DeviceContext = nullptr;
+    inline static ID3D11On12Device*       pd3d11On12Device = nullptr;
+    inline static ID3D11Resource*         pd3d11WrappedBackBuffer[APP_NUM_BACK_BUFFERS] = {};
+    inline static ID3D11RenderTargetView* pd3d11RenderTargetView[APP_NUM_BACK_BUFFERS] = {};
 };

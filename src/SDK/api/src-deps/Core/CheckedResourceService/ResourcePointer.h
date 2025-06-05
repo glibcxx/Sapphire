@@ -4,10 +4,10 @@
 
 namespace mce {
 
-    template <typename Resource, typename Block, typename Ptr = std::shared_ptr<Block>>
+    template <typename Resource, typename Block, template <typename T = Block> class Ptr = std::shared_ptr>
     class ResourcePointer {
     public:
-        Ptr ptr;
+        Ptr<Block> ptr;
 
         virtual ~ResourcePointer() {}
     };

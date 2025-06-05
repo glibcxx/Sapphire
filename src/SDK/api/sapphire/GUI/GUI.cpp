@@ -4,7 +4,7 @@
 
 #include "logger/GameLogger.hpp"
 
-#include <backends/imgui_impl_dx12.h>
+#include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
 
 using namespace std::chrono_literals;
@@ -31,22 +31,14 @@ void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::durati
 
 void GuiOverlay::initImGui(
     HWND                  mainWindow,
-    ID3D12Device         *device,
-    ID3D12DescriptorHeap *srvDescHeap,
-    DXGI_SWAP_CHAIN_DESC &swapChainDesc,
-    UINT                  bufferCount
+    ID3D11Device         *device,
+    ID3D11DeviceContext  *deviceContext,
+    DXGI_SWAP_CHAIN_DESC &swapChainDesc
 ) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     // ImGui_ImplWin32_Init(mainWindow);
-    ImGui_ImplDX12_Init(
-        device,
-        bufferCount,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
-        srvDescHeap,
-        srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-        srvDescHeap->GetGPUDescriptorHandleForHeapStart()
-    );
+    ImGui_ImplDX11_Init(device, deviceContext);
 
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -113,7 +105,7 @@ void GuiOverlay::initImGui(
 
 void GuiOverlay::shutdownImGui() {
     GuiOverlay::sInitialized = false;
-    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
