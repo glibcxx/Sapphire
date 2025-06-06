@@ -2,7 +2,6 @@
 
 #include "SDK/api/sapphire/hook/Hook.h"
 
-#include "logger/GameLogger.hpp"
 #include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"

@@ -10,7 +10,7 @@
 #include "util/ApiUniqueId.hpp"
 #include "util/TypeTraits.hpp"
 #include "util/Memory.hpp"
-#include "logger/LogBox.hpp"
+#include "../logger/Logger.h"
 
 namespace hook {
 
@@ -64,33 +64,33 @@ namespace hook {
 } // namespace hook
 
 #define IMPL_HOOK_TYPE(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...)   \
-    class HookName : public TypeName {                                                                          \
-        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                    \
-        inline static uintptr_t     sdkOriginal = 0;                                                            \
-        inline static FuncPtrType   trampoline = nullptr;                                                       \
-                                                                                                                \
-        template <typename... Args>                                                                             \
-        Static RetType origin(Args &&...args) Const {                                                           \
-            return Call(std::forward<Args>(args)...);                                                           \
-        }                                                                                                       \
-                                                                                                                \
-    public:                                                                                                     \
-        Static RetType detour(__VA_ARGS__) Const;                                                               \
-                                                                                                                \
-        static bool hook() {                                                                                    \
-            auto &hookMgr = hook::HookManager::getInstance();                                                   \
-            if (sdkOriginal = hookMgr.findTarget(                                                               \
-                    util::ApiUniqueId::make<(FuncPtrType) & targetAddr>(), Priority                             \
-                ))                                                                                              \
-                return hookMgr.hook(sdkOriginal, &HookName::detour, Priority, trampoline);                      \
-            Logger::ErrorBox(L"[HookError] Target addr [" #targetAddr "] not found! The SDK might be broken."); \
-            return false;                                                                                       \
-        }                                                                                                       \
-                                                                                                                \
-        static void unhook() {                                                                                  \
-            hook::HookManager::getInstance().unhook(sdkOriginal, &HookName::detour, Priority);                  \
-        }                                                                                                       \
-    };                                                                                                          \
+    class HookName : public TypeName {                                                                      \
+        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                \
+        inline static uintptr_t     sdkOriginal = 0;                                                        \
+        inline static FuncPtrType   trampoline = nullptr;                                                   \
+                                                                                                            \
+        template <typename... Args>                                                                         \
+        Static RetType origin(Args &&...args) Const {                                                       \
+            return Call(std::forward<Args>(args)...);                                                       \
+        }                                                                                                   \
+                                                                                                            \
+    public:                                                                                                 \
+        Static RetType detour(__VA_ARGS__) Const;                                                           \
+                                                                                                            \
+        static bool hook() {                                                                                \
+            auto &hookMgr = hook::HookManager::getInstance();                                               \
+            if (sdkOriginal = hookMgr.findTarget(                                                           \
+                    util::ApiUniqueId::make<(FuncPtrType) & targetAddr>(), Priority                         \
+                ))                                                                                          \
+                return hookMgr.hook(sdkOriginal, &HookName::detour, Priority, trampoline);                  \
+            Logger::Error("[HookError] Target addr [" #targetAddr "] not found! The SDK might be broken."); \
+            return false;                                                                                   \
+        }                                                                                                   \
+                                                                                                            \
+        static void unhook() {                                                                              \
+            hook::HookManager::getInstance().unhook(sdkOriginal, &HookName::detour, Priority);              \
+        }                                                                                                   \
+    };                                                                                                      \
     inline RetType HookName::detour(__VA_ARGS__) Const
 
 // Hook SDK内的函数，用下面3个
@@ -105,27 +105,27 @@ namespace hook {
     IMPL_HOOK_TYPE(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
 
 #define IMPL_HOOK_RAW_TYPE(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
-    class HookName : public TypeName {                                                                            \
-        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                      \
-        inline static FuncPtrType   trampoline = nullptr;                                                         \
-                                                                                                                  \
-        template <typename... Args>                                                                               \
-        Static RetType origin(Args &&...args) Const {                                                             \
-            return Call(std::forward<Args>(args)...);                                                             \
-        }                                                                                                         \
-                                                                                                                  \
-    public:                                                                                                       \
-        Static RetType detour(__VA_ARGS__) Const;                                                                 \
-                                                                                                                  \
-        static bool hook() {                                                                                      \
-            auto &hookMgr = hook::HookManager::getInstance();                                                     \
-            return hookMgr.hook((FuncPtrType) & targetAddr, &HookName::detour, Priority, trampoline);             \
-        }                                                                                                         \
-                                                                                                                  \
-        static void unhook() {                                                                                    \
-            hook::HookManager::getInstance().unhook((FuncPtrType) & targetAddr, &HookName::detour, Priority);     \
-        }                                                                                                         \
-    };                                                                                                            \
+    class HookName : public TypeName {                                                                        \
+        using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                  \
+        inline static FuncPtrType   trampoline = nullptr;                                                     \
+                                                                                                              \
+        template <typename... Args>                                                                           \
+        Static RetType origin(Args &&...args) Const {                                                         \
+            return Call(std::forward<Args>(args)...);                                                         \
+        }                                                                                                     \
+                                                                                                              \
+    public:                                                                                                   \
+        Static RetType detour(__VA_ARGS__) Const;                                                             \
+                                                                                                              \
+        static bool hook() {                                                                                  \
+            auto &hookMgr = hook::HookManager::getInstance();                                                 \
+            return hookMgr.hook((FuncPtrType) & targetAddr, &HookName::detour, Priority, trampoline);         \
+        }                                                                                                     \
+                                                                                                              \
+        static void unhook() {                                                                                \
+            hook::HookManager::getInstance().unhook((FuncPtrType) & targetAddr, &HookName::detour, Priority); \
+        }                                                                                                     \
+    };                                                                                                        \
     inline RetType HookName::detour(__VA_ARGS__) Const
 
 // Hook 非 SDK 内的函数，用下面3个

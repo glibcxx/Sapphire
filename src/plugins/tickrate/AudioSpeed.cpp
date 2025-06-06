@@ -1,11 +1,13 @@
 #include "AudioSpeed.h"
 
 #include <mutex>
-
+#ifdef F_API
+#    undef F_API
+#endif
+#define F_API __declspec(dllimport) F_CALL
 #include <fmod/fmod.hpp>
 
 #include "SDK/api/sapphire/hook/Hook.h"
-#include "logger/GameLogger.hpp"
 
 /*
     这坨东西用于实现音频变速，核心思路就是：

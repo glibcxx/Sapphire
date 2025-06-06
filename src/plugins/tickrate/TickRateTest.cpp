@@ -8,8 +8,6 @@
 
 #include "../smoothpiston/SmoothPiston.h"
 
-#include "logger/GameLogger.hpp"
-
 static TickRatePlugin *plugin = nullptr;
 
 static void convertListToString(const std::vector<float> &list, char *out_buf, size_t buf_size) {

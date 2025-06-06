@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include "logger/LogBox.hpp"
+#include "SDK/api/sapphire/logger/LogBox.hpp"
 #include "util/ScopeGuard.hpp"
 
 #include <AccCtrl.h>
@@ -22,7 +22,7 @@ typedef LONG(NTAPI *NtResumeProcess_t)(HANDLE ProcessHandle);
 NtResumeProcess_t NtResumeProcess = (NtResumeProcess_t)GetProcAddress(GetModuleHandle(TEXT("ntdll")), "NtResumeProcess");
 
 // https://www.unknowncheats.me/forum/general-programming-and-reversing/177183-basic-intermediate-techniques-uwp-app-modding.html
-DWORD SetPermissions(const std::wstring &wstrFilePath) {
+DWORD SetPermissions(const std::wstring &wstrFilePath, DWORD permission = GENERIC_READ | GENERIC_EXECUTE) {
     PACL                 pOldDACL = NULL, pNewDACL = NULL;
     PSECURITY_DESCRIPTOR pSD = NULL;
     EXPLICIT_ACCESS      eaAccess;
@@ -41,7 +41,7 @@ DWORD SetPermissions(const std::wstring &wstrFilePath) {
         goto Cleanup;
 
     ZeroMemory(&eaAccess, sizeof(EXPLICIT_ACCESS));
-    eaAccess.grfAccessPermissions = GENERIC_READ | GENERIC_EXECUTE;
+    eaAccess.grfAccessPermissions = permission;
     eaAccess.grfAccessMode = SET_ACCESS;
     eaAccess.grfInheritance = SUB_CONTAINERS_AND_OBJECTS_INHERIT;
     eaAccess.Trustee.TrusteeForm = TRUSTEE_IS_SID;
@@ -227,11 +227,12 @@ int main(int argc, char **argv) {
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"UWPinjector.exe");
     } else {
-        // Logger::Info(L"[UWPinjector] 目标进程ID: {}", dwProcessId);
         util::ScopeGuard autoResume{
             [dwProcessId]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
-                NtResumeProcess(OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId));
+                HANDLE hTargetProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
+                NtResumeProcess(hTargetProcess);
+                CloseHandle(hTargetProcess);
             }
         };
         fs::path llPath = currentDir / L"sapphire_core.dll";
@@ -243,6 +244,10 @@ int main(int argc, char **argv) {
                 return 1;
             }
         }
+        fs::path homePath = currentDir / L"sapphire";
+        if (!std::filesystem::exists(homePath))
+            std::filesystem::create_directories(homePath);
+        SetPermissions(homePath, GENERIC_READ | GENERIC_WRITE);
         if (!injectDll(dwProcessId, llPath)) {
             Logger::ErrorBox(L"[UWPinjector] sapphire_core.dll 注入失败！");
             return 1;

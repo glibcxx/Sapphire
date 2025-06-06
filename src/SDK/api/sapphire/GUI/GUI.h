@@ -35,6 +35,8 @@ public:
 
 private:
     friend class DX12Hook;
+    friend class InputManager;
+    friend class CanncelMouseEventHook;
 
     inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
     inline static std::chrono::steady_clock::duration   sToastShowingDuration{};

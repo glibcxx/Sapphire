@@ -7,9 +7,9 @@
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "util/String.hpp"
 
 #include <imgui/imgui.h>
-#include "logger/GameLogger.hpp"
 
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Core;
@@ -138,7 +138,7 @@ static constexpr ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
 }
 
 HOOK_TYPE(
-    CanncelMouseEvent,
+    CanncelMouseEventHook,
     MouseDevice,
     hook::HookPriority::Normal,
     MouseDevice::feed,
@@ -151,7 +151,7 @@ HOOK_TYPE(
     short                   dy,
     uint8_t                 a8
 ) {
-    if (ImGui::GetIO().WantCaptureMouse && !ClientInstance::primaryClientInstance->getMouseGrabbed())
+    if (GuiOverlay::sShowPannel || ImGui::GetIO().WantCaptureMouse)
         return;
     this->origin(action, buttonData, x, y, dx, dy, a8);
 }
@@ -163,21 +163,21 @@ void InputManager::init() {
         this->mPointerReleasedRevoker = this->mCoreWindow.PointerReleased(winrt::auto_revoke, &InputManager::onPointerReleased);
         this->mPointerWheelRevoker = this->mCoreWindow.PointerWheelChanged(winrt::auto_revoke, &InputManager::onPointerWheelChanged);
     } catch (const winrt::hresult_error &ex) {
-        Logger::ErrorBox(L"订阅 CoreWindowEvents 失败: {}", ex.message().c_str());
+        Logger::Error("订阅 CoreWindowEvents 失败: {}", util::wstringToString(ex.message().c_str()));
         return;
     }
     this->mCoreDispatcher = this->mCoreWindow.Dispatcher();
     try {
         this->mAcceleratorRevoker = this->mCoreDispatcher.AcceleratorKeyActivated(winrt::auto_revoke, &InputManager::onAcceleratorKeyActivated);
     } catch (const winrt::hresult_error &ex) {
-        Logger::ErrorBox(L"订阅 AcceleratorKeyActivated 失败: {}", (const wchar_t *)ex.message().c_str());
+        Logger::Error("订阅 AcceleratorKeyActivated 失败: {}", util::wstringToString(ex.message().c_str()));
         return;
     }
-    CanncelMouseEvent::hook();
+    CanncelMouseEventHook::hook();
 }
 
 InputManager::~InputManager() {
-    CanncelMouseEvent::unhook();
+    CanncelMouseEventHook::unhook();
     this->mCoreDispatcher = nullptr;
     this->mCoreWindow = nullptr;
 }
@@ -253,7 +253,7 @@ void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEvent
     if (button != -1) {
         io.AddMouseButtonEvent(button, true);
     }
-    if (io.WantCaptureMouse) {
+    if (GuiOverlay::sShowPannel) {
         args.Handled(true);
     }
 }
@@ -276,7 +276,7 @@ void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEven
     if (button != -1) {
         io.AddMouseButtonEvent(button, false);
     }
-    if (io.WantCaptureMouse) {
+    if (GuiOverlay::sShowPannel) {
         args.Handled(true);
     }
 }
@@ -302,7 +302,7 @@ void InputManager::onPointerWheelChanged(const CoreWindow &sender, const Pointer
         (props.IsHorizontalMouseWheel() ? wheel_x : wheel_y) = wheelAmount;
         io.AddMouseWheelEvent(wheel_x, wheel_y);
     }
-    if (io.WantCaptureMouse) {
+    if (GuiOverlay::sShowPannel) {
         args.Handled(true);
     }
 }

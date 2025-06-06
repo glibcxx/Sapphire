@@ -1,10 +1,11 @@
 #pragma once
 
+#include <string>
 #include <Windows.h>
-
 #include <format>
 
 namespace Logger {
+
     template <typename... Args>
     inline void InfoBox(std::wformat_string<Args...> fmt, Args &&...args) {
         MessageBox(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Info", MB_ICONINFORMATION);

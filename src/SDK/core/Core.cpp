@@ -52,6 +52,21 @@ namespace core {
         }
     };
 
+    SapphireModuleInfo::SapphireModuleInfo() :
+        sapphireModuleHandle(GetModuleHandleW(L"sapphire_core.dll")) {
+        GetModuleInformation(GetCurrentProcess(), this->sapphireModuleHandle, &sapphireModuleInfo, sizeof(MODULEINFO));
+        wchar_t modulePathBuf[MAX_PATH] = {0};
+        if (GetModuleFileNameW(sapphireModuleHandle, modulePathBuf, MAX_PATH) != 0) {
+            sapphireHome = modulePathBuf;
+            sapphireHome = sapphireHome.parent_path() / HOME_FOLDER_NAME;
+        }
+    }
+
+    SDK_API SapphireModuleInfo &getSapphireInfo() {
+        static SapphireModuleInfo info{};
+        return info;
+    }
+
     SDK_API uintptr_t getImagebase() {
         return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
     }
@@ -82,23 +97,28 @@ namespace core {
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH: {
+        winrt::init_apartment(winrt::apartment_type::single_threaded);
         DisableThreadLibraryCalls(hModule);
         moduleInfo::gStartTime = util::getTimeMs();
         moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
         if (!moduleInfo::gMainWindow) {
+            Logger::Error("未找到 Minecraft 窗口！");
             Logger::ErrorBox(L"未找到 Minecraft 窗口！");
+            winrt::uninit_apartment();
             return false;
         }
         std::thread{[]() {
-            if (!DX12Hook::install())
+            if (!DX12Hook::install()) {
+                Logger::Error("未找到 Minecraft 窗口！");
                 Logger::ErrorBox(L"DX12 Hook 安装失败！");
+            }
         }}.detach();
         DrawUtils::getInstance();
         break;
     }
     case DLL_PROCESS_DETACH:
         DX12Hook::uninstall();
-        FreeLibraryAndExitThread(hModule, TRUE);
+        winrt::uninit_apartment();
         break;
     default:
         break;

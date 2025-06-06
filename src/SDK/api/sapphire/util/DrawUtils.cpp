@@ -2,7 +2,6 @@
 
 #include "SDK/api/src-client/common/client/renderer/MeshHelpers.h"
 #include "SDK/api/src-deps/Coregraphics/RenderMaterialGroup.h"
-#include "logger/GameLogger.hpp"
 #include "util/ScopeGuard.hpp"
 
 #include "SDK/api/sapphire/event/EventManager.h"

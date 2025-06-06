@@ -2,8 +2,6 @@
 
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
-#include "logger/GameLogger.hpp"
-
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
 
@@ -142,7 +140,7 @@ void GuiOverlay::drawGUI() {
 #endif
 
     if (GuiOverlay::sShowLogWindow)
-        GameLogger::getInstance().draw("Log Window", &GuiOverlay::sShowLogWindow);
+        Logger::Loggers::getInstance().getGameLogger().draw("Log Window", &GuiOverlay::sShowLogWindow);
 
     if (GuiOverlay::sShowToast)
         GuiOverlay::drawToast();

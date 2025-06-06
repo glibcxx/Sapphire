@@ -1,9 +1,13 @@
 #pragma once
 
+#include <string>
 #include "Version.h"
 #include "util/StringLiteral.hpp"
 #include "util/Memory.hpp"
 #include "src/SDK/api/sapphire/hook/Hook.h"
+
+#include <Windows.h>
+#include <Psapi.h>
 
 namespace moduleInfo {
     SDK_API extern HWND     gMainWindow;
@@ -23,7 +27,18 @@ consteval auto operator""_sig() {
 }
 
 namespace core {
+    class SapphireModuleInfo {
+    public:
+        HMODULE               sapphireModuleHandle = nullptr;
+        MODULEINFO            sapphireModuleInfo;
+        std::filesystem::path sapphireHome;
+
+        SapphireModuleInfo();
+    };
+
     SDK_API uintptr_t getImagebase();
+
+    SDK_API SapphireModuleInfo &getSapphireInfo();
 
     SDK_API uintptr_t getOrigin(util::ApiUniqueId api);
 
@@ -72,7 +87,7 @@ namespace core {
     };
 
     template <StringLiteral Sig, auto Api, auto Callback = deRefLea>
-    requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
+        requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
     void *const *loadVftable() {
         return reinterpret_cast<void *const *>(loadStatic<Sig, Api, Callback>());
     };
