@@ -7,10 +7,11 @@
 
 using namespace std::chrono_literals;
 
-std::unique_ptr<InputManager>           GuiOverlay::sInputManager = nullptr;
-std::vector<GuiOverlay::PluginSettings> GuiOverlay::sPluginSettings{};
-std::vector<GuiOverlay::Hotkey>         GuiOverlay::sRegisteredHotkeys{};
-std::vector<std::string>                GuiOverlay::sToastMessages{};
+std::unique_ptr<InputManager>             GuiOverlay::sInputManager = nullptr;
+std::vector<GuiOverlay::PluginSettings>   GuiOverlay::sPluginSettings{};
+std::vector<GuiOverlay::Hotkey>           GuiOverlay::sRegisteredHotkeys{};
+std::vector<std::string>                  GuiOverlay::sToastMessages{};
+std::shared_ptr<sapphire::config::Config> GuiOverlay::sConfig{};
 
 void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
     sPluginSettings.push_back(std::move(settings));
@@ -39,6 +40,9 @@ void GuiOverlay::initImGui(
     ImGui_ImplDX11_Init(device, deviceContext);
 
     ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = nullptr;
+    sConfig = sapphire::ConfigManager::getInstance()["imgui.json"].shared_from_this();
+    GuiOverlay::loadConfig();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -164,6 +168,48 @@ void GuiOverlay::refreshCursorPos() {
         io.DeltaTime = 0.00001f;
 }
 
+void GuiOverlay::saveConfig() {
+    if (ImGui::GetIO().WantSaveIniSettings) {
+        if (ImGui::GetCurrentContext() == nullptr) {
+            Logger::Warn("[GuiOverlay] ImGui context not available for saveConfig.");
+            return;
+        }
+
+        size_t      imgui_ini_size = 0;
+        const char *imgui_ini_data = ImGui::SaveIniSettingsToMemory(&imgui_ini_size);
+        if (imgui_ini_data && imgui_ini_size > 0) {
+            try {
+                sConfig->set("imgui", std::string{imgui_ini_data, imgui_ini_size});
+                sConfig->save();
+                Logger::Info("[GuiOverlay] ImGui settings Saved.");
+            } catch (const nlohmann::json::exception &e) {
+                Logger::Error("[GuiOverlay] Error saving ImGui settings: {}", e.what());
+            }
+        } else {
+            Logger::Info("[GuiOverlay] No ImGui settings to save.");
+        }
+        ImGui::GetIO().WantSaveIniSettings = false;
+    }
+}
+
+void GuiOverlay::loadConfig() {
+    if (ImGui::GetCurrentContext() == nullptr) {
+        Logger::Warn("[GuiOverlay] ImGui context not available for LoadImGuiSettings.");
+        return;
+    }
+    try {
+        std::string imguiIni = sConfig->get<std::string>("imgui");
+        if (!imguiIni.empty()) {
+            ImGui::LoadIniSettingsFromMemory(imguiIni.c_str(), imguiIni.length());
+            Logger::Info("[GuiOverlay] Loaded ImGui settings from config file.");
+        } else {
+            Logger::Info("[GuiOverlay] No ImGui settings in config file.");
+        }
+    } catch (const nlohmann::json::exception &e) {
+        Logger::Error("[GuiOverlay] Error loading ImGui settings: {}", e.what());
+    }
+}
+
 void GuiOverlay::initInputManager(std::unique_ptr<InputManager> inputManager) {
     GuiOverlay::sInputManager = std::move(inputManager);
 }
@@ -215,23 +261,22 @@ void GuiOverlay::drawPanel() {
     const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse
                                         | ImGuiWindowFlags_NoMove
                                         | ImGuiWindowFlags_NoResize
-                                        | ImGuiWindowFlags_NoBringToFrontOnFocus
                                         | ImGuiWindowFlags_NoTitleBar
                                         | ImGuiWindowFlags_NoDocking;
 
     if (ImGui::Begin("Main Panel", &sShowPannel, window_flags)) {
-        ImGui::Columns(2, "PluginLayout", true);
+        if (ImGui::BeginTable("PluginLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
+            ImGui::TableSetupColumn("PluginList", ImGuiTableColumnFlags_WidthStretch, 0.25f);
+            ImGui::TableSetupColumn("PluginDetails", ImGuiTableColumnFlags_WidthStretch, 0.75f);
 
-        static bool initColWidth = false;
-        if (initColWidth) {
-            ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.25f);
-            initColWidth = true;
+            ImGui::TableNextColumn();
+            drawPluginList();
+
+            ImGui::TableNextColumn();
+            drawPluginDetails();
+
+            ImGui::EndTable();
         }
-        drawPluginList();
-        ImGui::NextColumn();
-        drawPluginDetails();
-
-        ImGui::Columns(1);
     }
     ImGui::End();
 

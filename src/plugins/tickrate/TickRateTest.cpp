@@ -259,6 +259,7 @@ TickRatePlugin::TickRatePlugin() {
         mInputValid = true;
         mInputErrorMsg.clear();
         mInputChangedSinceLastApply = false;
+        Logger::Debug("[Tickrate] Tickrate 安装成功！");
     } else {
         Logger::Error("[Tickrate] Tickrate 安装失败！");
     }

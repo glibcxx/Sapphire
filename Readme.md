@@ -37,6 +37,7 @@
 -   [ImGui](https://github.com/ocornut/imgui) Gui 库，好用
 -   [MinHook](https://github.com/TsudaKageyu/minhook) Hook 库，好用
 -   [kiero](https://github.com/Rebzzel/kiero) 一个 DX hook 库，好用
+-   [json](https://github.com/nlohmann/json) 天下第一 Json 库
 -   [fmod](https://www.fmod.com/download) 游戏用了，所以我用了
 
 ## Credits

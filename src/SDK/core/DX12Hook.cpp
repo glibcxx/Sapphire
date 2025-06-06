@@ -105,6 +105,7 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
     DXGI_FORMAT     NewFormat,
     UINT            SwapChainFlags
 ) {
+    Logger::Debug("[ResizeBuffers] w: {}, h: {}", Width, Height);
     WaitForGPU();
     CleanupRenderTargetResources();
 
@@ -136,7 +137,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
         UINT d3d11DeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-#ifdef _DEBUG
+#ifdef SPHR_DEBUG
         d3d11DeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
         ID3D12CommandQueue *ppCommandQueues[] = {pd3dCommandQueue};
@@ -161,11 +162,11 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
             if (coreWindow) {
                 GuiOverlay::initInputManager(std::make_unique<InputManager>(coreWindow));
             } else {
-                Logger::WarnBox(L"CoreWindow::GetForCurrentThread() 返回 nullptr。可能不在 UI 线程?");
+                Logger::Warn("[DX12Hook] CoreWindow::GetForCurrentThread() 返回 nullptr。可能不在 UI 线程?");
                 // todo: 回退方案
             }
         } catch (const winrt::hresult_error &ex) {
-            Logger::ErrorBox(L"获取 CoreWindow 失败: {} ({:X})", ex.message().c_str(), (int32_t)ex.code());
+            Logger::ErrorBox(L"[DX12Hook] 获取 CoreWindow 失败: {} ({:X})", ex.message().c_str(), (int32_t)ex.code());
         }
 
         GuiOverlay::initImGui(moduleInfo::gMainWindow, pd3d11Device, pd3d11DeviceContext, desc);
@@ -178,6 +179,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
 
     GuiOverlay::refreshCursorPos();
     GuiOverlay::handleHotkey();
+    GuiOverlay::saveConfig();
 
     ImGui_ImplDX11_NewFrame();
     // ImGui_ImplWin32_NewFrame();
@@ -203,6 +205,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
 }
 
 bool DX12Hook::install() {
+    Logger::Debug("DX12Hook::install");
     winrt::init_apartment(winrt::apartment_type::multi_threaded);
     return kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success
         && kiero::bind(140, (void **)&oPresent12, hkPresent12) == kiero::Status::Success
@@ -211,6 +214,7 @@ bool DX12Hook::install() {
 }
 
 void DX12Hook::uninstall() {
+    Logger::Debug("DX12Hook::uninstall");
     GuiOverlay::shutdownImGui();
 
     WaitForGPU();

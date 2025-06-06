@@ -97,8 +97,8 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto region = renderData.renderSource;
-    auto movingBlock = (MovingBlockActor *)renderData.entity;
+    auto   region = renderData.renderSource;
+    auto   movingBlock = (MovingBlockActor *)renderData.entity;
     float &alpha = context.mFrameAlpha;
     if (plugin->mEnableSmoothPiston) {
         /*
@@ -151,8 +151,8 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto region = renderData.renderSource;
-    auto pistonActor = (PistonBlockActor *)renderData.entity;
+    auto   region = renderData.renderSource;
+    auto   pistonActor = (PistonBlockActor *)renderData.entity;
     float &alpha = context.mFrameAlpha;
     if (plugin->mRenderThread == std::thread::id{})
         plugin->mRenderThread = region->mOwnerThreadID;
@@ -180,10 +180,18 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
     plugin = this;
     if (!SmoothMovingBlockHook::hook())
         Logger::Error("[Better Piston & MovingBlock] SmoothMovingBlockHook 安装失败!");
+    else
+        Logger::Debug("[Better Piston & MovingBlock] SmoothMovingBlockHook 安装成功！");
+
     if (!SmoothPistonArmHook::hook())
         Logger::Error("[Better Piston & MovingBlock] SmoothPistonArmHook 安装失败!");
+    else
+        Logger::Debug("[Better Piston & MovingBlock] SmoothPistonArmHook 安装成功！");
+
     if (!PistonActorTickHook::hook())
         Logger::Error("[Better Piston & MovingBlock] PistonSeparatorHook 安装失败!");
+    else
+        Logger::Debug("[Better Piston & MovingBlock] PistonSeparatorHook 安装成功！");
 
     GuiOverlay::registerPluginSettings(
         {

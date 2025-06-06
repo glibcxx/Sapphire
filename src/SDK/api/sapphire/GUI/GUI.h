@@ -11,6 +11,7 @@
 #include "macros/Macros.h"
 
 #include "../input/InputManager.h"
+#include "SDK/api/sapphire/config/Config.h"
 
 class GuiOverlay {
 public:
@@ -46,6 +47,8 @@ private:
     static std::vector<Hotkey>           sRegisteredHotkeys;
     static std::vector<std::string>      sToastMessages;
 
+    static std::shared_ptr<sapphire::config::Config> sConfig;
+
     inline static int sSelectedPluginIndex = -1;
 
     inline static int64_t sTime = 0;
@@ -66,9 +69,9 @@ private:
 
     static void initImGui(
         HWND                  mainWindow,
-        ID3D11Device*         device,
-        ID3D11DeviceContext*  deviceContext,
-        DXGI_SWAP_CHAIN_DESC& swapChainDesc
+        ID3D11Device         *device,
+        ID3D11DeviceContext  *deviceContext,
+        DXGI_SWAP_CHAIN_DESC &swapChainDesc
     );
 
     static void shutdownImGui();
@@ -78,6 +81,9 @@ private:
     static void drawGUI();
 
     static void refreshCursorPos();
+
+    static void saveConfig();
+    static void loadConfig();
 
     static void initInputManager(std::unique_ptr<InputManager> inputManager);
 

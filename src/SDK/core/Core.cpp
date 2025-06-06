@@ -8,6 +8,7 @@
 
 #include "DX12Hook.h"
 #include "SDK/api/sapphire/util/DrawUtils.h"
+#include "SDK/api/sapphire/config/Config.h"
 
 #include <Psapi.h> // for MODULEINFO
 
@@ -62,12 +63,12 @@ namespace core {
         }
     }
 
-    SDK_API SapphireModuleInfo &getSapphireInfo() {
+    SapphireModuleInfo &getSapphireInfo() {
         static SapphireModuleInfo info{};
         return info;
     }
 
-    SDK_API uintptr_t getImagebase() {
+    uintptr_t getImagebase() {
         return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
     }
 
@@ -102,14 +103,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
         moduleInfo::gStartTime = util::getTimeMs();
         moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
         if (!moduleInfo::gMainWindow) {
-            Logger::Error("未找到 Minecraft 窗口！");
+            Logger::Error("[core] 未找到 Minecraft 窗口！");
             Logger::ErrorBox(L"未找到 Minecraft 窗口！");
             winrt::uninit_apartment();
             return false;
         }
         std::thread{[]() {
             if (!DX12Hook::install()) {
-                Logger::Error("未找到 Minecraft 窗口！");
+                Logger::Error("[core] DX12 Hook 安装失败！");
                 Logger::ErrorBox(L"DX12 Hook 安装失败！");
             }
         }}.detach();

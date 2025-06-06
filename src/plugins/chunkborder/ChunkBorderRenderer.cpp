@@ -106,6 +106,7 @@ void setupSettings() {
 }
 
 void installChunkBorderRender() {
+    Logger::Debug("installChunkBorderRender()");
     drawUtils = &DrawUtils::getInstance();
     renderListener = EventManager::getInstance().registerAutoListener<RenderLevelEvent>(onRenderLevel);
     setupSettings();
