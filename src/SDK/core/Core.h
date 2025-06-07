@@ -58,8 +58,8 @@ namespace core {
     uintptr_t registryApi(const char (&sig)[N], bool storeToMap = true) {
         uintptr_t origin = scanApi(sig, N - 1);
         if (!origin) {
-            constexpr std::wstring_view msg = &CONCAT(L, __FUNCSIG__)[44];
-            Logger::ErrorBox(L"registryApi failed:\n {}", msg.substr(0, msg.rfind(L",0x"))); // 没扫到函数？弹个Error
+            constexpr std::string_view msg = &__FUNCSIG__[44];
+            Logger::Error("registryApi failed:\n {}", msg.substr(0, msg.rfind(",0x"))); // 没扫到函数？弹个Error
             return 0;
         }
         if constexpr (std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
@@ -79,6 +79,7 @@ namespace core {
     };
 
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
+    constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };
 
     template <StringLiteral Sig, auto Api, auto Callback = deRefLea>
         requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)

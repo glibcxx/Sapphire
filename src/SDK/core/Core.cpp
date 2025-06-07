@@ -9,6 +9,7 @@
 #include "DX12Hook.h"
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/config/Config.h"
+#include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
 
 #include <Psapi.h> // for MODULEINFO
 
@@ -114,10 +115,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
                 Logger::ErrorBox(L"DX12 Hook 安装失败！");
             }
         }}.detach();
+        Logger::InfoBox(L"Test");
         DrawUtils::getInstance();
+        EventHooks::init();
         break;
     }
     case DLL_PROCESS_DETACH:
+        EventHooks::uninit();
         DX12Hook::uninstall();
         winrt::uninit_apartment();
         break;
