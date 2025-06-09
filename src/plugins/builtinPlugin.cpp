@@ -5,6 +5,7 @@
 #include "tickrate/TickRateTest.h"
 #include "smoothpiston/SmoothPiston.h"
 #include "chunkborder/ChunkBorderRenderer.h"
+#include "freecamera/FreeCamera.h"
 
 #include "SDK/api/src-client/common/client/renderer/rendergraph/PlayerRenderView.h"
 
@@ -21,6 +22,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
         builtinPluginInfo::hModule = hModule;
         TickRatePlugin::getInstance();
         SmoothPistonPlugin::getInstance();
+        FreeCameraPlugin::getInstance();
         installChunkBorderRender();
         break;
     case DLL_PROCESS_DETACH:

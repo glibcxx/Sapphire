@@ -3,6 +3,7 @@ file(GLOB_RECURSE
     gui_src guioverlay/*.cpp
     smoothpiston_src smoothpiston/*.cpp
     chunkborder_src chunkborder/*.cpp
+    freecamera_src freecamera/*.cpp
 )
 
 add_library(builtin_plugin SHARED
@@ -11,6 +12,7 @@ add_library(builtin_plugin SHARED
     ${gui_src}
     ${smoothpiston_src}
     ${chunkborder_src}
+    ${freecamera_src}
 )
 
 target_link_libraries(builtin_plugin PRIVATE sapphire_core fmod)
