@@ -28,6 +28,10 @@ void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::durati
     sToastMessages.emplace_back(std::move(message));
 }
 
+InputManager &GuiOverlay::getInputManager() {
+    return *sInputManager;
+}
+
 void GuiOverlay::initImGui(
     HWND                  mainWindow,
     ID3D11Device         *device,

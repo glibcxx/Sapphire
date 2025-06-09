@@ -25,7 +25,7 @@ public:
         short                   y,
         short                   dx,
         short                   dy,
-        uint8_t                 a8
+        bool                    forceMotionlessPointer
     );
 };
 

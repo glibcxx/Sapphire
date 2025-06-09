@@ -137,6 +137,8 @@ static constexpr ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
     }
 }
 
+InputManager *instance = nullptr;
+
 HOOK_TYPE(
     CanncelMouseEventHook,
     MouseDevice,
@@ -149,30 +151,53 @@ HOOK_TYPE(
     short                   y,
     short                   dx,
     short                   dy,
-    uint8_t                 a8
+    bool                    forceMotionlessPointer
 ) {
     if (GuiOverlay::sShowPannel || ImGui::GetIO().WantCaptureMouse)
         return;
-    this->origin(action, buttonData, x, y, dx, dy, a8);
+    if (instance->mDisableGameMouseMoveInput)
+        dx = dy = 0;
+    this->origin(action, buttonData, x, y, dx, dy, forceMotionlessPointer);
 }
 
 void InputManager::init() {
     if (!this->mCoreWindow) return;
     try {
-        this->mPointerPressedRevoker = this->mCoreWindow.PointerPressed(winrt::auto_revoke, &InputManager::onPointerPressed);
-        this->mPointerReleasedRevoker = this->mCoreWindow.PointerReleased(winrt::auto_revoke, &InputManager::onPointerReleased);
-        this->mPointerWheelRevoker = this->mCoreWindow.PointerWheelChanged(winrt::auto_revoke, &InputManager::onPointerWheelChanged);
+        this->mPointerPressedRevoker = this->mCoreWindow.PointerPressed(
+            winrt::auto_revoke,
+            [this](const CoreWindow &sender, const PointerEventArgs &args) {
+                this->onPointerPressed(sender, args);
+            }
+        );
+        this->mPointerReleasedRevoker = this->mCoreWindow.PointerReleased(
+            winrt::auto_revoke,
+            [this](const CoreWindow &sender, const PointerEventArgs &args) {
+                this->onPointerReleased(sender, args);
+            }
+        );
+        this->mPointerWheelRevoker = this->mCoreWindow.PointerWheelChanged(
+            winrt::auto_revoke,
+            [this](const CoreWindow &sender, const PointerEventArgs &args) {
+                this->onPointerWheelChanged(sender, args);
+            }
+        );
     } catch (const winrt::hresult_error &ex) {
         Logger::Error("订阅 CoreWindowEvents 失败: {}", util::wstringToString(ex.message().c_str()));
         return;
     }
     this->mCoreDispatcher = this->mCoreWindow.Dispatcher();
     try {
-        this->mAcceleratorRevoker = this->mCoreDispatcher.AcceleratorKeyActivated(winrt::auto_revoke, &InputManager::onAcceleratorKeyActivated);
+        this->mAcceleratorRevoker = this->mCoreDispatcher.AcceleratorKeyActivated(
+            winrt::auto_revoke,
+            [this](const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
+                this->onAcceleratorKeyActivated(sender, args);
+            }
+        );
     } catch (const winrt::hresult_error &ex) {
         Logger::Error("订阅 AcceleratorKeyActivated 失败: {}", util::wstringToString(ex.message().c_str()));
         return;
     }
+    instance = this;
     CanncelMouseEventHook::hook();
 }
 
@@ -223,7 +248,7 @@ void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const
         }
     }
 
-    if (io.WantCaptureKeyboard) {
+    if (io.WantCaptureKeyboard || mDisableGameKeyBoardInput) {
         args.Handled(true);
     }
 }
@@ -253,7 +278,7 @@ void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEvent
     if (button != -1) {
         io.AddMouseButtonEvent(button, true);
     }
-    if (GuiOverlay::sShowPannel) {
+    if (GuiOverlay::sShowPannel || mDisableGamePointerInput) {
         args.Handled(true);
     }
 }
@@ -276,7 +301,7 @@ void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEven
     if (button != -1) {
         io.AddMouseButtonEvent(button, false);
     }
-    if (GuiOverlay::sShowPannel) {
+    if (GuiOverlay::sShowPannel || mDisableGamePointerInput) {
         args.Handled(true);
     }
 }
@@ -302,7 +327,7 @@ void InputManager::onPointerWheelChanged(const CoreWindow &sender, const Pointer
         (props.IsHorizontalMouseWheel() ? wheel_x : wheel_y) = wheelAmount;
         io.AddMouseWheelEvent(wheel_x, wheel_y);
     }
-    if (GuiOverlay::sShowPannel) {
+    if (GuiOverlay::sShowPannel || mDisableGameMouseWheelInput) {
         args.Handled(true);
     }
 }

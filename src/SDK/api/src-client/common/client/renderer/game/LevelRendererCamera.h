@@ -25,8 +25,8 @@ public:
 #endif
     }
 
-    /*virtual*/ void preRenderUpdate(
+    SDK_API /*virtual*/ void preRenderUpdate(
         ScreenContext                        &screenContext,
         LevelRenderPreRenderUpdateParameters &levelRenderPreRenderUpdateParameters
-    ) /*override*/;
+    );
 };

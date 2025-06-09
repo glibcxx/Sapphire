@@ -6,5 +6,7 @@
 
 class LevelRendererPlayer : public LevelRendererCamera {
 public:
-    /*virtual*/ SDK_API void setupCamera(mce::Camera &camera, const float a);
+    SDK_API /*virtual*/ void setupCamera(mce::Camera &camera, const float a);
+
+    SDK_API /*virtual*/ void queueRenderEntities(LevelRenderPreRenderUpdateParameters &levelRenderPreRenderUpdateParameters);
 };

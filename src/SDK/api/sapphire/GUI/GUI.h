@@ -3,12 +3,13 @@
 #include <chrono>
 #include <functional>
 
+#include "macros/Macros.h"
+
 #include <imgui.h>
 #include <d3d12.h>
 #include <d3d11.h>
 #include <dxgi1_6.h>
 
-#include "macros/Macros.h"
 
 #include "../input/InputManager.h"
 #include "SDK/api/sapphire/config/Config.h"
@@ -22,7 +23,7 @@ public:
     };
 
     struct Hotkey {
-        std::vector<ImGuiKey> keysDown;   // Keys that must be held down (can be ImGuiKey_xxx or ImGuiMod_xxx)
+        std::vector<ImGuiKey> keysDown;   // [optinal] Keys that must be held down (can be ImGuiKey_xxx or ImGuiMod_xxx)
         ImGuiKey              triggerKey; // The single key that must be tapped (ImGuiKey_xxx)
         std::string           description;
         std::function<void()> action;
@@ -33,6 +34,8 @@ public:
     SDK_API static void registerHotkey(Hotkey &&hotkey);
 
     SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
+
+    SDK_API static InputManager &getInputManager();
 
 private:
     friend class DX12Hook;

@@ -10,21 +10,22 @@
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/config/Config.h"
 #include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
+#include "SDK/api/sapphire/service/Service.h"
 
 #include <Psapi.h> // for MODULEINFO
+#include <winnt.h> // For PE header structures
 
 namespace fs = std::filesystem;
 
 namespace moduleInfo {
     HWND     gMainWindow = nullptr;
     uint64_t gStartTime = 0;
-
 } // namespace moduleInfo
 
 // 扫描特征码
 uintptr_t ScanSignature(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
     const char *data = reinterpret_cast<const char *>(start);
-    for (uintptr_t i = 0; i < size - sigLength; ++i) {
+    for (uintptr_t i = 0; i <= size - sigLength; ++i) {
         bool match = true;
         for (uintptr_t j = 0; j < sigLength; ++j) {
             if (sig[j] != 0x00 && data[i + j] != sig[j]) // 0x00表示通配符
@@ -43,9 +44,50 @@ namespace core {
     public:
         HMODULE    mMainModule = GetModuleHandleW(nullptr);
         MODULEINFO mMainModuleInfo;
+        uintptr_t  mTextSectionStart = 0;
+        size_t     mTextSectionSize = 0;
 
         CoreInfo() {
             GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
+            uintptr_t moduleBase = reinterpret_cast<uintptr_t>(mMainModule);
+
+            if (!moduleBase) {
+                Logger::Error("[CoreInfo] Failed to get main module handle.");
+                return;
+            }
+
+            PIMAGE_DOS_HEADER dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase);
+            if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
+                Logger::Error("[CoreInfo] Invalid DOS signature for main module.");
+                return;
+            }
+
+            PIMAGE_NT_HEADERS ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(moduleBase + dosHeader->e_lfanew);
+            if (ntHeaders->Signature != IMAGE_NT_SIGNATURE) {
+                Logger::Error("[CoreInfo] Invalid NT signature for main module.");
+                return;
+            }
+
+            PIMAGE_SECTION_HEADER section = IMAGE_FIRST_SECTION(ntHeaders);
+            bool                  foundTextSection = false;
+            for (WORD i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i, ++section) {
+                if (memcmp(section->Name, ".text", 5) == 0 && section->Name[5] == '\0') {
+                    mTextSectionStart = moduleBase + section->VirtualAddress;
+                    mTextSectionSize = section->Misc.VirtualSize;
+                    if (mTextSectionSize == 0) {
+                        mTextSectionSize = section->SizeOfRawData;
+                    }
+                    foundTextSection = true;
+                    Logger::Debug("[CoreInfo] Found .text section in main module: Address=0x{:X}, Size=0x{:X}", mTextSectionStart, mTextSectionSize);
+                    break;
+                }
+            }
+
+            if (!foundTextSection || mTextSectionStart == 0 || mTextSectionSize == 0) {
+                Logger::Error("[CoreInfo] .text section not found or invalid in main module. Signature scanning for main module will fail.");
+                mTextSectionStart = 0; // Ensure these are zero if not found
+                mTextSectionSize = 0;
+            }
         }
 
         static CoreInfo &getInstance() {
@@ -115,12 +157,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
                 Logger::ErrorBox(L"DX12 Hook 安装失败！");
             }
         }}.detach();
-        Logger::InfoBox(L"Test");
         DrawUtils::getInstance();
         EventHooks::init();
+        sapphire::service::init();
         break;
     }
     case DLL_PROCESS_DETACH:
+        sapphire::service::uninit();
         EventHooks::uninit();
         DX12Hook::uninstall();
         winrt::uninit_apartment();

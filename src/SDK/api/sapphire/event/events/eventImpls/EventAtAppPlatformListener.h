@@ -8,9 +8,7 @@ class SapphireEventAppPlatformListener : public AppPlatformListener {
 public:
     SapphireEventAppPlatformListener();
 
-    virtual ~SapphireEventAppPlatformListener() {
-        Logger::InfoBox(L"SapphireEventAppPlatformListener::~SapphireEventAppPlatformListener()");
-    }
+    virtual ~SapphireEventAppPlatformListener() {}
 
     virtual void onLowMemory() {}
     virtual void onAppPaused() {}

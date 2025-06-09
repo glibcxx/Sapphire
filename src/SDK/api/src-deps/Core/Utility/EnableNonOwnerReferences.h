@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include "SDK/core/Core.h"
 
 namespace Bedrock {
 
