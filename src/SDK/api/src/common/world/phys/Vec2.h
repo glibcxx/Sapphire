@@ -7,13 +7,19 @@ class Vec2 {
 public:
     float x, y;
 
-    constexpr Vec2() {}
+    constexpr Vec2() :
+        Vec2(0.0f) {}
     constexpr Vec2(float a) :
         x(a), y(a) {}
     constexpr Vec2(float x, float y) :
         x(x), y(y) {}
     constexpr Vec2(const glm::tvec2<float> &glm) :
         x(glm.x), y(glm.y) {}
+
+    constexpr Vec2 &operator=(const Vec2 &other) {
+        x = other.x, y = other.y;
+        return *this;
+    }
 
     constexpr Vec2 operator+(const Vec2 &other) const {
         return Vec2(x + other.x, y + other.y);

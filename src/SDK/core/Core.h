@@ -58,8 +58,8 @@ namespace core {
     uintptr_t registryApi(const char (&sig)[N], bool storeToMap = true) {
         uintptr_t origin = scanApi(sig, N - 1);
         if (!origin) {
-            constexpr std::string_view msg = &__FUNCSIG__[44];
-            Logger::Error("registryApi failed:\n {}", msg.substr(0, msg.rfind(",0x"))); // 没扫到函数？弹个Error
+            constexpr std::string_view msg = &__FUNCSIG__[43];
+            Logger::Error("registryApi failed: {}", msg.substr(0, msg.rfind(",0x"))); // 没扫到函数？弹个Error
             return 0;
         }
         if constexpr (std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)

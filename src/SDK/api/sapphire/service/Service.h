@@ -17,6 +17,8 @@ namespace sapphire::inline service {
 
     SDK_API inline ServerInstance *getServerInstance();
 
+    SDK_API inline LocalPlayer *getLocalPlayer();
+
     void init();
     void uninit();
 

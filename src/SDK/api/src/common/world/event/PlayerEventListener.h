@@ -56,7 +56,7 @@ public:
     virtual EventResult onPlayerTurn(Player &player, Vec2 &turnDelta) { return EventResult::KeepGoing; }
 
     // vtb+11
-    virtual EventResult onCameraSetPlayerRot(Player &, const Vec2 &) { return EventResult::KeepGoing; }
+    virtual EventResult onCameraSetPlayerRot(Player &player, const Vec2 &rot) { return EventResult::KeepGoing; }
 
     // vtb+12
     virtual EventResult onStartDestroyBlock(Player &player, const BlockPos &pos, FacingID &face) { return EventResult::KeepGoing; }

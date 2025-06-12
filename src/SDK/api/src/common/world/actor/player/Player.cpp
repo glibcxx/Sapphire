@@ -1,0 +1,6 @@
+#include "Player.h"
+
+void *const *Player::__vftable = core::loadVftable<
+    "\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x89\x9E\x00\x00\x00\x00\x48\x8D\x05"_sig,
+    &Player::__vftable
+>();

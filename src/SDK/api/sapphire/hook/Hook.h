@@ -63,7 +63,7 @@ namespace hook {
 
 } // namespace hook
 
-#define IMPL_HOOK_TYPE(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
+#define IMPL_HOOK(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
     class HookName : public TypeName {                                                                    \
         using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                              \
         inline static uintptr_t     sdkOriginal = 0;                                                      \
@@ -98,15 +98,15 @@ namespace hook {
 // Hook SDK内的函数，用下面3个
 
 #define HOOK_STATIC(HookName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_TYPE(static, , (*), trampoline, HookName, hook::DummyClass2, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK(static, , (*), trampoline, HookName, hook::DummyClass2, Priority, targetAddr, RetType, __VA_ARGS__)
 
 #define HOOK_TYPE(HookName, TypeName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_TYPE(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
 
 #define HOOK_TYPE_CONST(HookName, TypeName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_TYPE(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
 
-#define IMPL_HOOK_RAW_TYPE(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
+#define IMPL_HOOK_RAW(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
     class HookName : public TypeName {                                                                        \
         using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                                  \
         inline static FuncPtrType   trampoline = nullptr;                                                     \
@@ -133,10 +133,10 @@ namespace hook {
 // Hook 非 SDK 内的函数，用下面3个
 
 #define HOOK_RAW_STATIC(HookName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_RAW_TYPE(static, , (*), trampoline, HookName, hook::DummyClass2, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK_RAW(static, , (*), trampoline, HookName, hook::DummyClass2, Priority, targetAddr, RetType, __VA_ARGS__)
 
 #define HOOK_RAW_TYPE(HookName, TypeName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_RAW_TYPE(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK_RAW(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
 
 #define HOOK_RAW_TYPE_CONST(HookName, TypeName, Priority, targetAddr, RetType, ...) \
-    IMPL_HOOK_RAW_TYPE(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
+    IMPL_HOOK_RAW(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetAddr, RetType, __VA_ARGS__)
