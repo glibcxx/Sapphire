@@ -5,6 +5,7 @@
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-client/common/client/player/LocalPlayer.h"
+#include "SDK/api/src/common/entity/systems/ClientInputUpdateSystem.h"
 
 FreeCameraPlugin *freeCam = nullptr;
 
@@ -16,6 +17,20 @@ HOOK_TYPE_CONST(
     bool
 ) {
     return freeCam->mEnabled || this->origin();
+}
+
+HOOK_TYPE(
+    ClientInputUpdateSystemTickHook,
+    ClientInputUpdateSystemInternal,
+    hook::HookPriority::Normal,
+    ClientInputUpdateSystemInternal::tick,
+    void,
+    void *context
+) {
+    if (freeCam->mEnabled) {
+        return;
+    }
+    this->origin(context);
 }
 
 HOOK_TYPE(
@@ -34,6 +49,29 @@ HOOK_TYPE(
         glm::quat yawQuat = glm::angleAxis(glm::radians(freeCam->mYaw), glm::vec3(0.0f, 1.0f, 0.0f));
         glm::quat pitchQuat = glm::angleAxis(glm::radians(freeCam->mPitch), glm::vec3(1.0f, 0.0f, 0.0f));
         freeCam->mFreeCamOrientation = yawQuat * pitchQuat;
+
+        auto *moveInput = sapphire::getLocalPlayer()->getMoveInputComponent();
+        if (moveInput) {
+            float forward = moveInput->mRawInputState.mUp - moveInput->mRawInputState.mDown;
+            float right = moveInput->mRawInputState.mRight - moveInput->mRawInputState.mLeft;
+            float up = moveInput->mRawInputState.mJumpDown - moveInput->mRawInputState.mSneakDown;
+            float baseMoveSpeed = 10.0f;
+            if (moveInput->mRawInputState.mSprintDown) {
+                baseMoveSpeed *= 5.0f;
+            }
+
+            float deltaTime = ImGui::GetIO().DeltaTime;
+            float moveSpeed = baseMoveSpeed * deltaTime;
+            if (right == 0 && forward == 0) {
+                freeCam->mFreeCamPos += glm::vec3(0, up * moveSpeed, 0);
+            } else {
+                glm::vec3 camera3DForward = freeCam->mFreeCamOrientation * glm::vec3(right, 0.0f, -forward);
+
+                glm::vec3 horiNorm = glm::normalize(glm::vec3(camera3DForward.x, 0.0f, camera3DForward.z));
+                glm::vec3 upDir = glm::vec3(0, up, 0);
+                freeCam->mFreeCamPos += (horiNorm + upDir) * moveSpeed;
+            }
+        }
         return;
     }
     return this->origin(deltaRot);
@@ -49,28 +87,8 @@ HOOK_TYPE(
     const float  a
 ) {
     if (freeCam->mEnabled) {
-        float forward = ImGui::IsKeyDown(ImGuiKey_W) - ImGui::IsKeyDown(ImGuiKey_S);
-        float right = ImGui::IsKeyDown(ImGuiKey_D) - ImGui::IsKeyDown(ImGuiKey_A);
-        float up = ImGui::IsKeyDown(ImGuiKey_Space) - ImGui::IsKeyDown(ImGuiKey_ModShift);
         auto *camComp = ClientInstance::primaryClientInstance->getRenderCameraComponent();
-
         if (camComp) {
-            float baseMoveSpeed = 5.0f;
-            if (ImGui::IsKeyDown(ImGuiKey_ModCtrl)) {
-                baseMoveSpeed *= 5.0f;
-            }
-
-            float deltaTime = ImGui::GetIO().DeltaTime;
-            float moveSpeed = baseMoveSpeed * deltaTime;
-            if (right == 0 && forward == 0) {
-                freeCam->mFreeCamPos += glm::vec3(0, up * moveSpeed, 0);
-            } else {
-                glm::vec3 camera3DForward = freeCam->mFreeCamOrientation * glm::vec3(right, 0.0f, -forward);
-
-                glm::vec3 horiNorm = glm::normalize(glm::vec3(camera3DForward.x, 0.0f, camera3DForward.z));
-                glm::vec3 upDir = glm::vec3(0, up, 0);
-                freeCam->mFreeCamPos += (horiNorm + upDir) * moveSpeed;
-            }
             camComp->mCamera.mPosition = freeCam->mFreeCamPos;
             camComp->mCamera.mOrientation = freeCam->mFreeCamOrientation;
         }
@@ -98,9 +116,16 @@ FreeCameraPlugin::FreeCameraPlugin() {
         Logger::Debug("[FreeCameraPlugin] OnPlayerTurnHook initialized!");
     else
         Logger::Error("[FreeCameraPlugin] OnPlayerTurnHook::hook failed!");
+    if (!ClientInputUpdateSystemTickHook::hook())
+        Logger::Error("[FreeCameraPlugin] ClientInputUpdateSystemTickHook::hook failed!");
+    else
+        Logger::Debug("[FreeCameraPlugin] ClientInputUpdateSystemTickHook initialized!");
 }
 
 FreeCameraPlugin::~FreeCameraPlugin() {
+    ClientInputUpdateSystemTickHook::unhook();
+    OnPlayerTurnHook::unhook();
+    SetCameraPosHook::unhook();
     ForceDrawPlayerHook::unhook();
 }
 
@@ -115,15 +140,13 @@ void FreeCameraPlugin::_setupSettingGui() {
         {.triggerKey = ImGuiKey_O,
          .description = "Toggle Free Camera",
          .action = [this]() {
-             Level *level = sapphire::getMultiPlayerLevel();
+             if (ClientInstance::primaryClientInstance->isShowingMenu())
+                 return;
              this->mEnabled = !this->mEnabled;
-             GuiOverlay::getInputManager().disableGameKeyBoardInput(this->mEnabled);
-             GuiOverlay::getInputManager().disableGameMouseWheelInput(this->mEnabled);
              if (this->mEnabled) {
                  auto &cam = ClientInstance::primaryClientInstance->getRenderCameraComponent()->mCamera;
                  this->mFreeCamPos = cam.mPosition;
                  this->mFreeCamOrientation = cam.mOrientation;
-                 glm::vec3 eulerAngles = glm::eulerAngles(this->mFreeCamOrientation);
                  glm::vec3 forward = freeCam->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
                  mPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
                  glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitch), glm::vec3(1, 0, 0));
