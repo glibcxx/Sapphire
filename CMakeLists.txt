@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
     add_compile_options("/utf-8")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 else()
     message(FATAL_ERROR "[ERROR] Currently do not support other compilers. Please use MSVC.")
 endif()
@@ -39,6 +40,20 @@ FetchContent_Declare(
     GIT_TAG v3.12.0
 )
 
+# --- EnTT库 ---
+FetchContent_Declare(
+    entt
+    GIT_REPOSITORY https://github.com/skypjack/entt.git
+    GIT_TAG v3.14.0
+)
+
+# --- GSL库 ---
+FetchContent_Declare(
+    gsl
+    GIT_REPOSITORY https://github.com/microsoft/GSL.git
+    GIT_TAG v4.0.0
+)
+
 # --- 项目版本与兼容性 ---
 # 允许从 CMake 命令行设置 MC_VERSION, 例如: cmake -DMC_VERSION=vX_Y_Z .. 
 # 默认为 "v1_21_60"
@@ -59,6 +74,8 @@ add_subdirectory(external/minhook)
 add_subdirectory(external/imgui)
 FetchContent_MakeAvailable(glm)
 FetchContent_MakeAvailable(nlohmann)
+FetchContent_MakeAvailable(entt)
+FetchContent_MakeAvailable(gsl)
 
 # --- Kiero 库 (没有CMakeLists，手动添加) ---
 add_library(kiero STATIC
@@ -89,7 +106,12 @@ target_include_directories(SapphireCommon INTERFACE
 target_link_directories(SapphireCommon INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/libs
 )
-target_link_libraries(SapphireCommon INTERFACE glm nlohmann_json)
+target_link_libraries(SapphireCommon INTERFACE glm nlohmann_json EnTT::EnTT Microsoft.GSL::GSL)
+
+target_compile_definitions(SapphireCommon INTERFACE
+    ENTT_SPARSE_PAGE=2048
+    ENTT_PACKED_PAGE=128
+)
 
 add_subdirectory(src/plugins)
 add_subdirectory(src/injector)
