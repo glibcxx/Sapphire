@@ -3,8 +3,10 @@
 #include "SDK/api/src/common/world/actor/player/PlayerListener.h"
 #include "SDK/api/src/common/world/level/LevelListener.h"
 #include "SDK/api/src-client/common/client/gui/screen/ScreenContext.h"
+#include "SDK/api/src-client/common/client/renderer/actor/BaseActorRenderContext.h"
+#include "LevelRenderPreRenderUpdateParameters.h"
 
-class LevelRenderPreRenderUpdateParameters;
+struct LevelRendererCommandListInit;
 
 class LevelRendererCamera : public PlayerListener,
                             public LevelListener {
@@ -28,5 +30,12 @@ public:
     SDK_API /*virtual*/ void preRenderUpdate(
         ScreenContext                        &screenContext,
         LevelRenderPreRenderUpdateParameters &levelRenderPreRenderUpdateParameters
+    );
+
+    SDK_API /*virtual*/ void render(
+        BaseActorRenderContext       &baseEntityRenderContext,
+        const ViewRenderObject       &renderObj,
+        IClientInstance              &ci,
+        LevelRendererCommandListInit &levelRendererCommandListInit
     );
 };
