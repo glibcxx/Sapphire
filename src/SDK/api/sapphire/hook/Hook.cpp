@@ -113,20 +113,22 @@ namespace hook {
         if (found == this->mHookedFunctions.end()) {
             MH_STATUS res = MH_CreateHook((LPVOID)target, (LPVOID)detour, (LPVOID *)&trampoline);
             if (res != MH_STATUS::MH_OK) return false;
-            res = MH_EnableHook((LPVOID)target);
-            if (res != MH_OK) return false;
             found = this->mHookedFunctions.emplace(target, PrioritizedHookFuncList{}).first;
         } else if (priority == HookPriority{0} && found->second[HookPriority{0}].empty()) {
             MH_RemoveHook((LPVOID)target);
             MH_STATUS res = MH_CreateHook((LPVOID)target, (LPVOID)detour, (LPVOID *)&trampoline);
             if (res != MH_STATUS::MH_OK) return false;
-            res = MH_EnableHook((LPVOID)target);
-            if (res != MH_OK) return false;
             FuncHookInfo &last = found->second.back();
             *last.mTrampoline = trampoline;
             trampoline = 0;
         }
         found->second.insert(priority, {detour, &trampoline});
+        MH_STATUS res = MH_EnableHook((LPVOID)target);
+        if (res != MH_OK) {
+            unhook(target, detour, priority);
+            return false;
+        }
+
         return true;
     }
 
