@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/Core.h"
 #include "SDK/api/src-deps/Coregraphics/ResourceManager.h"
 #include "CompiledMaterialDefinition.h"
 #include "Material.h"

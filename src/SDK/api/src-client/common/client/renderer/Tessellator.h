@@ -16,9 +16,9 @@ public:
 
     void vertexUV(const Vec3 &pos, const Vec2 &);
 
-    void vertexUV(const Vec3 &pos, float, float);
+    void vertexUV(const Vec3 &pos, float u, float v);
 
-    void vertexUV(float x, float y, float z, float, float);
+    void vertexUV(float x, float y, float z, float u, float v);
 
     SDK_API void color(float r, float g, float b, float a);
 

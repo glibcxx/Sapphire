@@ -7,6 +7,6 @@ namespace mce {
 
     // size: 24
     template <typename Resource>
-    class ServerResourcePointer : public ResourcePointer<Resource> {};
+    class ClientResourcePointer : public ResourcePointer<Resource> {};
 
 } // namespace mce

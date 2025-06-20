@@ -26,23 +26,16 @@ namespace mce {
     public:
         using SubClientId = uint8_t;
 
-        mce::RenderContext               &renderContext;          // off+0
-        mce::Camera                      &camera;                 // off+8
-        mce::GlobalConstantBuffers       &constantBuffers;        // off+16
-        mce::GlobalConstantBufferManager &constantBufferManager;  // off+24
-        ShaderColor                      &currentShaderColor;     // off+32
-        ShaderColor                      &currentShaderDarkColor; // off+40
-        mce::BufferResourceService       &bufferResourceService;  // off+48
-        mce::QuadIndexBuffer             &currentQuadIndexBuffer; // off+56
-        mce::ServerResourcePointer<
-            mce::ResourcePointer<
-                mce::ImmediateBuffer,
-                mce::ResourceBlockTemplate<
-                    mce::ImmediateBuffer,
-                    mce::PerFrameHandleTracker,
-                    dragon::BufferDescription>>>
-                                         immediateBuffer;      // off+64
-        std::optional<glm::tvec4<float>> normalizedClipRegion; // off+88
+        mce::RenderContext                              &renderContext;          // off+0
+        mce::Camera                                     &camera;                 // off+8
+        mce::GlobalConstantBuffers                      &constantBuffers;        // off+16
+        mce::GlobalConstantBufferManager                &constantBufferManager;  // off+24
+        ShaderColor                                     &currentShaderColor;     // off+32
+        ShaderColor                                     &currentShaderDarkColor; // off+40
+        mce::BufferResourceService                      &bufferResourceService;  // off+48
+        mce::QuadIndexBuffer                            &currentQuadIndexBuffer; // off+56
+        mce::ServerResourcePointer<mce::ImmediateBuffer> immediateBuffer;        // off+64
+        std::optional<glm::tvec4<float>>                 normalizedClipRegion;   // off+88
 
         SubClientId subClientId; // off+108
 

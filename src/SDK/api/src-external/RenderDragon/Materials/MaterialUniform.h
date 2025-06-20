@@ -35,6 +35,7 @@ namespace dragon::materials {
         const UniformType mType;     // off+0
         const std::string mName;     // off+8
         const uint64_t    mNameHash; // off+40
+        const uint16_t    mCount;    // off+48
     };
 
 } // namespace dragon::materials

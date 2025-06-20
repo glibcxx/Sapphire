@@ -1,13 +1,22 @@
 #pragma once
 
 #include "ResourceBlockTemplate.h"
+#include "SDK/api/src-external/RenderDragon/Resource/DragonBufferResourceService.h"
 
 namespace mce {
 
-    template <typename Resource, typename Block, template <typename T = Block> class Ptr = std::shared_ptr>
+    class PerFrameHandleTracker;
+
+    // size: 24
+    template <typename Resource>
     class ResourcePointer {
     public:
-        Ptr<Block> ptr;
+        std::shared_ptr<
+            ResourceBlockTemplate<
+                Resource,
+                mce::PerFrameHandleTracker,
+                dragon::BufferDescription>>
+            mResourcePointerBlock;
 
         virtual ~ResourcePointer() {}
     };
