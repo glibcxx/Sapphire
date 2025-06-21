@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDK/api/src-external/RenderDragon/Rendering/ClipSpaceOrigin.h"
-#include "SDK/api/src-external/RenderDragon/Rendering/GraphicsTasks.h"
+#include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexDeclManager.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialResourceManager.h"
@@ -34,7 +34,7 @@ namespace mce::framebuilder {
 
         class BgfxFrameExtractor {
         public:
-            void _insert(
+            SDK_API void _insert(
                 const EntityCreationContext &entityContext,
                 const RenderSkyDescription  &description
             );

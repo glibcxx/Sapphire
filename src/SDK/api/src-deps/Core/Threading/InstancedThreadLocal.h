@@ -19,6 +19,7 @@ namespace Bedrock::Threading {
     class InstancedThreadLocalBase {
     };
 
+    // size: 168
     template <typename T, typename Allocator = std::allocator<T>>
     class InstancedThreadLocal : public InstancedThreadLocalBase {
     public:
