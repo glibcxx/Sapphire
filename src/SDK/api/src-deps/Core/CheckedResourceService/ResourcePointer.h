@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ResourceBlockTemplate.h"
-#include "SDK/api/src-external/RenderDragon/Resource/DragonBufferResourceService.h"
+#include "SDK/api/src-external/RenderDragon/Resource/DragonBufferDescription.h"
 
 namespace mce {
 

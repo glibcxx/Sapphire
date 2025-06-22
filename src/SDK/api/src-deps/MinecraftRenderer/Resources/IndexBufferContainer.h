@@ -20,8 +20,8 @@ namespace mce {
             std::variant<
                 std::monostate,
                 mce::Buffer,
-                mce::ClientResourcePointer<dragon::mesh::ResolvedVertexBufferResource>,
-                mce::ClientResourcePointer<dragon::mesh::ResolvedIndexBufferResource>>>
+                mce::ClientResourcePointer<dragon::ResolvedVertexBufferResource>,
+                mce::ClientResourcePointer<dragon::ResolvedIndexBufferResource>>>
                  mIndexBuffer; // off+0
         uint32_t mIndexCount;  // off+24
         uint32_t mIndexSize;   // off+28

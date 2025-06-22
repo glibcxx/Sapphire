@@ -10,11 +10,11 @@ namespace mce::framebuilder::bgfxbridge {
                 std::variant<
                     std::monostate,
                     mce::Buffer,
-                    mce::ClientResourcePointer<dragon::mesh::ResolvedVertexBufferResource>,
-                    mce::ClientResourcePointer<dragon::mesh::ResolvedIndexBufferResource>>> &clientBuffer,
-            const int                                                                        vertexCount,
-            uint32_t                                                                         indicesOffset,
-            uint32_t                                                                         indicesCount
+                    mce::ClientResourcePointer<dragon::ResolvedVertexBufferResource>,
+                    mce::ClientResourcePointer<dragon::ResolvedIndexBufferResource>>> &clientBuffer,
+            const int                                                                  vertexCount,
+            uint32_t                                                                   indicesOffset,
+            uint32_t                                                                   indicesCount
         ) {
             using Hook = core::ApiLoader<
                 "\xE8\x00\x00\x00\x00\x4C\x8B\xD8\x48\x8B\x8D"_sig,

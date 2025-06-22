@@ -1,9 +1,9 @@
 #pragma once
 
-namespace dragon::mesh {
+namespace dragon {
 
     struct ResolvedIndexBuffer {};
 
-    struct ResolvedIndexBufferResource {};
+    struct ResolvedIndexBufferResource : ResolvedIndexBuffer {};
 
-}
+} // namespace dragon

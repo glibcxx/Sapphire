@@ -17,11 +17,11 @@ namespace mce::framebuilder::bgfxbridge {
                 std::variant<
                     std::monostate,
                     mce::Buffer,
-                    mce::ClientResourcePointer<dragon::mesh::ResolvedVertexBufferResource>,
-                    mce::ClientResourcePointer<dragon::mesh::ResolvedIndexBufferResource>>> &clientBuffer,
-            const int                                                                        vertexCount,
-            uint32_t                                                                         indicesOffset,
-            uint32_t                                                                         indicesCount
+                    mce::ClientResourcePointer<dragon::ResolvedVertexBufferResource>,
+                    mce::ClientResourcePointer<dragon::ResolvedIndexBufferResource>>> &clientBuffer,
+            const int                                                                  vertexCount,
+            uint32_t                                                                   indicesOffset,
+            uint32_t                                                                   indicesCount
         );
 
     } // namespace meshutils
