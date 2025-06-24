@@ -19,7 +19,7 @@ namespace dragon::materials {
         return (this->*Hook::origin)(path, encryptionVariants, a3);
     }
 
-    std::pair<std::unordered_map<std::string, MaterialResource>::iterator, bool>
+    std::pair<std::unordered_map<std::string, CompiledMaterial>::iterator, bool>
     CompiledMaterialManager::mMaterial__try_emplace(const std::string &path) {
         using Hook = core::ApiLoader<
             "\xE8\x00\x00\x00\x00\x48\x8B\x18\x80\xBC\x24"_sig,

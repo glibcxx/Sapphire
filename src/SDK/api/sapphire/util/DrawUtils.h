@@ -26,4 +26,6 @@ public:
     SDK_API void flush();
 
     SDK_API static DrawUtils &getInstance();
+
+    Tessellator *getTessellator() { return mTess; }
 };

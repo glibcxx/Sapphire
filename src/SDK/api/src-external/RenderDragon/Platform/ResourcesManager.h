@@ -43,6 +43,5 @@ namespace dragon::platform {
             const std::function<uintptr_t(uintptr_t)>                      &a4
         );
     };
-    const auto a = offsetof(ResourcesManager, mAccelerationStructureResourceService);
 
 } // namespace dragon::platform

@@ -6,6 +6,7 @@
 
 namespace mce {
 
+    // off+24
     template <typename Shared, typename Weak>
     class SimpleDeferredResourceTracker {
     public:
@@ -17,11 +18,12 @@ namespace mce {
         std::vector<TransactionPair> mPendingTransactionHandles; // off+0
     };
 
+    // off+48
     template <typename Shared, typename Weak>
     class SimpleResourceTracker {
     public:
-        std::vector<Weak>                                mResourceTrackingBlocks;
-        mce::SimpleDeferredResourceTracker<Shared, Weak> mDeferredResourceTracker;
+        std::vector<Weak>                                mResourceTrackingBlocks; // off+0
+        mce::SimpleDeferredResourceTracker<Shared, Weak> mDeferredResourceTracker; // off+24
     };
 
 } // namespace mce

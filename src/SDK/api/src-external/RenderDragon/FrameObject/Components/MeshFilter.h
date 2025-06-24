@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SDK/core/Core.h"
+
 #include <variant>
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 
@@ -16,7 +18,13 @@ namespace DFC /*dragon::frameobject::components*/ {
         uint64_t mUnkBuffer[4];    // off+96, std::variant<...>
         uint32_t mUnkOffset;       // off+128
         uint64_t mUnkCount;        // off+136
-        uint64_t mUnk144;          // off+144
+        uint64_t mAllocator;       // off+144
+
+        ~MeshFilter() {
+            this->dtor();
+        }
+
+        SDK_API void dtor() noexcept;
     };
 
 } // namespace DFC

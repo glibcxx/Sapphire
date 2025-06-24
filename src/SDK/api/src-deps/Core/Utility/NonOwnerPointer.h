@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gsl/gsl>
 #include "EnableNonOwnerReferences.h"
 
 namespace Bedrock {
@@ -31,6 +32,17 @@ namespace Bedrock {
         T &operator*() const {
             return *access();
         }
+
+        bool operator==(const NonOwnerPointer &other) const {
+            return access() == other.access();
+        }
+
+        bool operator==(nullptr_t) const {
+            return access() == nullptr;
+        }
     };
+
+    template <typename T>
+    using NotNullNonOwnerPtr = gsl::not_null<NonOwnerPointer<T>>;
 
 } // namespace Bedrock

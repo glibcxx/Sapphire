@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <variant>
 #include <bitset>
+#include <map>
 #include "SDK/core/Core.h"
 
 #include "Definition/MaterialDefinition.h"
@@ -30,19 +31,38 @@ namespace dragon::materials {
         Unknown = 16,
     };
 
+    // size: 16
     struct PlatformShaderStage {
         ShaderCodePlatform      mPlatform; // off+0
         definition::ShaderStage mStage;    // off+1
+
+        bool operator==(const PlatformShaderStage &rhs) const {
+            return mPlatform == rhs.mPlatform && mStage == rhs.mStage;
+        }
+        bool operator!=(const PlatformShaderStage &rhs) const {
+            return mPlatform != rhs.mPlatform || mStage != rhs.mStage;
+        }
     };
+
+} // namespace dragon::materials
+
+template <>
+struct std::hash<dragon::materials::PlatformShaderStage> {
+    std::size_t operator()(const dragon::materials::PlatformShaderStage &key) const {
+        return static_cast<std::size_t>(key.mStage) ^ static_cast<std::size_t>(key.mPlatform);
+    }
+};
+
+namespace dragon::materials {
 
     // size: 336
     class CompiledMaterialDefinition {
     public:
-        // size: 96
+        // size: 48
         struct ShaderCode {
-            uint64_t                                                 mSourceHash; // off+0
-            std::vector<uint8_t>                                     mData;       // off+8
-            std::unordered_map<std::string, definition::ShaderInput> mInputs;     // off+32
+            uint64_t                                       mSourceHash; // off+0
+            std::vector<uint8_t>                           mData;       // off+8
+            std::map<std::string, definition::ShaderInput> mInputs;     // off+32
         };
 
         // size: 136
@@ -51,7 +71,9 @@ namespace dragon::materials {
             std::unordered_map<std::string, std::string>        mFlags;       // off+8
             std::unordered_map<PlatformShaderStage, ShaderCode> mShaders;     // off+72
 
-            SDK_API void dtor();
+            Variant *ctor(const Variant *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x0F\xB6\x02\x88\x01\x48\x8D\x59\x00\x48\x89\x5C\x24\x00\x8B\x42 1.21.50
+
+            SDK_API void dtor() noexcept;
         };
 
         // size: 136
@@ -62,7 +84,19 @@ namespace dragon::materials {
             std::unordered_map<std::string, std::string> mFlagDefaultValues; // off+64
             std::optional<definition::BlendMode>         mDefaultBlendMode;  // off+128
 
-            SDK_API void dtor();
+            SDK_API void dtor() noexcept;
+        };
+
+        // size: 176
+        class VariantSet {
+            const CompiledMaterialDefinition                  &mDefinition;        // off+0
+            const Pass                                        &mPass;              // off+8
+            std::vector<const Variant *>                       mVariants;          // off+16
+            const std::unordered_map<std::string, std::string> mDefaultFlagValues; // off+40
+            const std::unordered_map<std::string, std::string> mSetFlags;          // off+104
+            const Variant                                     *mDefaultVariant;    // off+168
+
+            VariantSet *ctor(const VariantSet *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x48\x8B\x02\x48\x89\x01\x48\x8B\x42 1.21.50
         };
 
         std::unordered_map<std::string, Pass> mPasses;     // off+0

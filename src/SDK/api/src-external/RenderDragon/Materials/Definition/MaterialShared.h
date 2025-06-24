@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <unordered_set>
 
 namespace dragon::materials::definition {
 
@@ -117,13 +118,18 @@ namespace dragon::materials::definition {
         uint8_t       mIndex; // off+1
     };
 
-    struct ShaderInput // size: 12
-    {
+    // size: 12
+    struct ShaderInput {
         ShaderInputType                        mType;                    // off+0
         bool                                   mIsPerInstance;           // off+4
         SemanticDescription                    mSemantic;                // off+5
         std::optional<PrecisionConstraint>     mPrecisionConstraint;     // off+7
         std::optional<InterpolationConstraint> mInterpolationConstraint; // off+9
+    };
+
+    // off+64
+    struct StageInputMap {
+        std::unordered_set<SemanticDescription> mInputs; // off+0
     };
 
 } // namespace dragon::materials::definition

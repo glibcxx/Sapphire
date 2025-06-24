@@ -30,7 +30,7 @@ public:
     mce::RendererSettings                             &rendererSettings;          // off+144
     mce::FrameBufferObject                            *frameBufferObject;         // off+152
     const mce::ViewportInfo                           &viewport;                  // off+160
-    Bedrock::NonOwnerPointer<const GuiData>            guiData;                   // off+168, Bedrock::NotNullNonOwnerPtr
+    Bedrock::NotNullNonOwnerPtr<const GuiData>         guiData;                   // off+168
     const mce::Clock                                  &clock;                     // off+184
     Tessellator                                       &tessellator;               // off+192
     MinecraftGraphicsPipeline                         &minecraftGraphicsPipeline; // off+200
@@ -50,7 +50,7 @@ public:
     mce::RendererSettings                             &rendererSettings;          // off+144
     mce::FrameBufferObject                            *frameBufferObject;         // off+152
     const mce::ViewportInfo                           &viewport;                  // off+160
-    Bedrock::NonOwnerPointer<const GuiData>            guiData;                   // off+168, Bedrock::NotNullNonOwnerPtr
+    Bedrock::NotNullNonOwnerPtr<const GuiData>         guiData;                   // off+168
     const mce::Clock                                  &clock;                     // off+192
     Tessellator                                       &tessellator;               // off+200
     MinecraftGraphicsPipeline                         &minecraftGraphicsPipeline; // off+208

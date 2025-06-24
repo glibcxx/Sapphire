@@ -7,11 +7,12 @@
 
 namespace dragon::materials {
 
-    struct MaterialResource {
+    struct CompiledMaterial {
         std::shared_ptr<CompiledMaterialDefinition> mMaterial; // off+0
         bool                                        mUsed;     // off+16
     };
 
+    // size: 376
     class CompiledMaterialManager {
     public:
         struct Unk144B9A04E {
@@ -30,7 +31,7 @@ namespace dragon::materials {
             std::optional<Unk144B9A04E> mUnk120; // off+120
         };
 
-        std::unordered_map<std::string, MaterialResource>                          mMaterials; // off+0
+        std::unordered_map<std::string, CompiledMaterial>                          mMaterials; // off+0
         std::mutex                                                                 mMutex;     // off+64
         Unk144B99FE0                                                               mUnk144;    // off+144
         std::unordered_map<uint32_t, std::unordered_map<std::string, std::string>> mUnk312;    // off+312
@@ -41,7 +42,7 @@ namespace dragon::materials {
             std::string path, definition::EncryptionVariants::SimplePassphrase encryptionVariants, bool a3
         );
 
-        SDK_API std::pair<std::unordered_map<std::string, MaterialResource>::iterator, bool>
+        SDK_API std::pair<std::unordered_map<std::string, CompiledMaterial>::iterator, bool>
                 mMaterial__try_emplace(const std::string &path);
     };
     static_assert(sizeof(CompiledMaterialManager) == 376);

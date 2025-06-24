@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ResourceBlockTemplate.h"
+#include "PerFrameHandleTracker.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonBufferDescription.h"
 
 namespace mce {

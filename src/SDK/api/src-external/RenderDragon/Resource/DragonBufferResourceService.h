@@ -7,6 +7,7 @@
 #include "SDK/api/src-deps/Core/CheckedResourceService/SimpleResourceTracker.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexBufferResourceManagerTypes.h"
+#include "SDK/api/src-external/RenderDragon/Mesh/IndexBufferResourceManagerTypes.h"
 
 namespace dragon {
 
@@ -54,9 +55,14 @@ class mce::CheckedResourceService<dragon::ResolvedVertexBufferResource> {
 public:
     using ResourceServiceContextMember = dragon::DragonBufferResourceServiceContext;
 
+    using FactoryTrackerPtr = std::weak_ptr<
+        mce::ResourceBlockTemplate<dragon::ResolvedVertexBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>;
+
     using FactoryTracker = mce::SimpleResourceTracker<
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedVertexBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
-        std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedVertexBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
+        FactoryTrackerPtr>;
+
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedVertexBufferResource>;
 
     using ResourceServiceContext = ResourceServiceContextMember;
 
@@ -75,6 +81,8 @@ public:
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedIndexBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
         std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedIndexBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
 
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedIndexBufferResource>;
+
     using ResourceServiceContext = ResourceServiceContextMember;
 
     FactoryTracker            mResourceTracker;        // off+0
@@ -91,6 +99,8 @@ public:
     using FactoryTracker = mce::SimpleResourceTracker<
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedShaderBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
         std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedShaderBufferResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
+
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedShaderBufferResource>;
 
     using ResourceServiceContext = ResourceServiceContextMember;
 
@@ -109,6 +119,8 @@ public:
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedAccelerationStructureResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
         std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedAccelerationStructureResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
 
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedAccelerationStructureResource>;
+
     using ResourceServiceContext = ResourceServiceContextMember;
 
     FactoryTracker            mResourceTracker;        // off+0
@@ -125,6 +137,8 @@ public:
     using FactoryTracker = mce::SimpleResourceTracker<
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::Unk1768Resource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
         std::weak_ptr<mce::ResourceBlockTemplate<dragon::Unk1768Resource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
+
+    using ResourcePtr = mce::ResourcePointer<dragon::Unk1768Resource>;
 
     using ResourceServiceContext = ResourceServiceContextMember;
 

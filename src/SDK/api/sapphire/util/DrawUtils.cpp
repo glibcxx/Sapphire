@@ -22,11 +22,7 @@ HOOK_TYPE(
 ) {
     drawUtils->mLevelRenderer = this;
     drawUtils->mScreenCtx = &ctx;
-#if MC_VERSION == v1_21_2
-    drawUtils->mTess = memory::getField<Tessellator *>(&ctx, 192);
-#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    drawUtils->mTess = memory::getField<Tessellator *>(&ctx, 200);
-#endif
+    drawUtils->mTess = &ctx.tessellator;
     this->origin(ctx, obj);
     EventManager::getInstance().dispatchEvent(RenderLevelEvent{this, ctx});
 

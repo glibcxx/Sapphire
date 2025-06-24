@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SDK/api/src-deps/Core/CheckedResourceService/TransactionContainer.h"
+
 namespace mce {
 
     enum class ResourceServiceState : uint8_t {

@@ -2,6 +2,7 @@
 
 #include "SDK/api/src-deps/Core/CheckedResourceService/CheckedResourceService.h"
 #include "SDK/api/src-external/RenderDragon/Materials/CompiledMaterialManager.h"
+#include "SDK/api/src-external/RenderDragon/Materials/Material.h"
 
 namespace dragon {
 
@@ -11,7 +12,12 @@ namespace dragon {
         std::function<uintptr_t(uintptr_t)>                         mUnk8;                    // off+8
     };
 
-    class ResolvedMaterialResource {};
+    // size: 24 (1.21.50)
+    class ResolvedMaterialResource {
+    public:
+        std::unique_ptr<materials::Material>                   mRuntimeMaterial;  // off+0
+        std::shared_ptr<materials::CompiledMaterialDefinition> mCompiledMaterial; // off+8
+    };
 
     using MaterialResourceService = mce::CheckedResourceService<ResolvedMaterialResource>;
 
@@ -23,9 +29,14 @@ class mce::CheckedResourceService<dragon::ResolvedMaterialResource> {
 public:
     using ResourceServiceContextMember = dragon::MaterialResourceServiceContext;
 
+    using FactoryTrackerPtr = std::weak_ptr<
+        mce::ResourceBlockTemplate<dragon::ResolvedMaterialResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>;
+
     using FactoryTracker = mce::SimpleResourceTracker<
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedMaterialResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
-        std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedMaterialResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
+        FactoryTrackerPtr>;
+
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedMaterialResource>;
 
     using ResourceServiceContext = ResourceServiceContextMember;
 

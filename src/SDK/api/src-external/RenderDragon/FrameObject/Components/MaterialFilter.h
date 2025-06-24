@@ -2,6 +2,7 @@
 
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialUniformMap.h"
 #include "SDK/api/src-external/RenderDragon/Materials/Material.h"
+#include "SDK/api/src-external/RenderDragon/Resource/DragonMaterialResourceService.h"
 
 namespace DFC /*dragon::frameobject::components*/ {
 

@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureDescription.h"
+#include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/CheckedResourceService.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/SimpleResourceTracker.h"
@@ -19,6 +20,9 @@ namespace dragon {
     class ServerTexture : public mce::ServerResourcePointer<ResolvedTextureResource> {
     };
 
+    class ClientTexture : public mce::ClientResourcePointer<ResolvedTextureResource> {
+    };
+
     using TextureResourceService = mce::CheckedResourceService<ResolvedTextureResource>;
 
 } // namespace dragon
@@ -32,6 +36,8 @@ public:
     using FactoryTracker = mce::SimpleResourceTracker<
         std::shared_ptr<mce::ResourceBlockTemplate<dragon::ResolvedTextureResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>,
         std::weak_ptr<mce::ResourceBlockTemplate<dragon::ResolvedTextureResource, mce::UncheckedHandleTracker, dragon::BufferDescription>>>;
+
+    using ResourcePtr = mce::ResourcePointer<dragon::ResolvedTextureResource>;
 
     using ResourceServiceContext = ResourceServiceContextMember;
 
