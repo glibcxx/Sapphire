@@ -4,9 +4,11 @@
 #include <bitset>
 #include <array>
 #include "SDK/api/src-deps/Core/Threading/InstancedThreadLocal.h"
+#include "SDK/api/src-deps/Core/Memory/RingAllocatorContainer.h"
 
 namespace dragon::platform::registry {
 
+    // size: 176
     template <typename... Components>
     class BasicRenderRegistry {
     public:
@@ -17,7 +19,8 @@ namespace dragon::platform::registry {
         using ThreadLocalComponentType = Bedrock::Threading::InstancedThreadLocal<Pool>;
 
         ThreadLocalComponentType mThreadLocalComponents; // off+0
-        // ...
+
+        std::unique_ptr<Core::RingAllocatorContainer<uint8_t>::AllocationScope> *mFrameAllocator; // off+168
 
         template <typename... Comps>
         void add(Comps &&...args) {
@@ -27,7 +30,7 @@ namespace dragon::platform::registry {
                 using Ty = std::decay_t<Comps>;
                 auto &vec = std::get<std::vector<Ty>>(components);
                 vec.emplace_back(std::forward<Comps>(type));
-                auto idx = tupleIndex<std::vector<Ty>, ComponentType>();
+                auto idx = componentIndex<Ty>();
                 i.first.set(idx);
                 i.second[idx] = vec.size() - 1;
             }(std::forward<Comps>(args), pool.second, back),
@@ -35,14 +38,14 @@ namespace dragon::platform::registry {
             pool.first.push_back(std::move(back));
         }
 
-        template <typename T, typename Tuple, std::size_t I = 0>
-        static constexpr std::size_t tupleIndex() {
-            if constexpr (I >= std::tuple_size_v<Tuple>)
+        template <typename Comp, std::size_t I = 0>
+        static constexpr auto componentIndex() {
+            if constexpr (I >= std::tuple_size_v<ComponentType>)
                 static_assert(false, "Type not found in tuple");
-            else if constexpr (std::is_same_v<T, std::tuple_element_t<I, Tuple>>)
+            else if constexpr (std::is_same_v<std::vector<Comp>, std::tuple_element_t<I, ComponentType>>)
                 return I;
             else
-                return tupleIndex<T, Tuple, I + 1>();
+                return componentIndex<Comp, I + 1>();
         }
     };
 

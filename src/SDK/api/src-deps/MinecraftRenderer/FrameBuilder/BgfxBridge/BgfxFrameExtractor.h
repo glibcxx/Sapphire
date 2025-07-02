@@ -2,17 +2,20 @@
 
 #include "SDK/api/src-external/RenderDragon/Rendering/ClipSpaceOrigin.h"
 #include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
-#include "SDK/api/src-external/RenderDragon/Mesh/VertexDeclManager.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialResourceManager.h"
-#include "SDK/api/src-external/RenderDragon/Resource/DragonBufferResourceService.h"
-#include "SDK/api/src-external/RenderDragon/Resource/DragonTextureResourceService.h"
-#include "SDK/api/src-external/RenderDragon/Resource/DragonMaterialResourceService.h"
+#include "SDK/api/src-external/RenderDragon/FrameObject/Frame.h"
 #include "src/SDK/api/src-deps/MinecraftRenderer/Resources/TextureResourceService.h"
 
 namespace mce::framebuilder {
 
     struct RenderSkyDescription;
+    struct BlitFlipbookSingleTextureDescription;
+
+    struct BlitFlipbookTextureDescription {
+        const dragon::ServerTexture                           mRenderTargetTexture; // off+0
+        gsl::span<const BlitFlipbookSingleTextureDescription> mTextures;            // off+24
+    };
 
     struct GamefaceRenderTarget {
         std::variant<std::monostate, dragon::ClientTexture, mce::ClientTexture> mColorTargetTextureHandle; // off+0
@@ -48,9 +51,9 @@ namespace mce::framebuilder {
 
         // size: 120 (1.21.50)
         struct EntityCreationContext {
-            uintptr_t                                    &mAllocator;               // off+0
+            Core::CpuRingBufferAllocator<uint8_t>        &mAllocator;               // off+0
             dragon::rendering::ClipSpaceOrigin            clipSaceOrigin;           // off+8
-            uintptr_t                                    &mFrame;                   // off+16
+            dragon::frameobject::GameFrame               &mFrame;                   // off+16
             dragon::task::GraphicsTasks                  &mGraphicsTasks;           // off+24
             dragon::task::AsyncTasksScope                &mAsyncTasks;              // off+32
             dragon::VertexBufferResourceService          &mVbResourceService;       // off+40
@@ -88,6 +91,11 @@ namespace mce::framebuilder {
             SDK_API void _insert(
                 const EntityCreationContext       &entityContext,
                 const RenderUIGamefaceDescription &description
+            );
+
+            SDK_API void _insert(
+                const EntityCreationContext          &entityContext,
+                const BlitFlipbookTextureDescription &descriptions
             );
         };
 

@@ -106,18 +106,30 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
     UINT            SwapChainFlags
 ) {
     Logger::Debug("[ResizeBuffers] w: {}, h: {}", Width, Height);
+ 
+    if (GuiOverlay::sInitialized) {
+        pd3d11DeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+        ImGui_ImplDX11_InvalidateDeviceObjects();
+        CleanupRenderTargetResources();
+        pd3d11DeviceContext->Flush();
+    } else {
+        CleanupRenderTargetResources();
+    }
     WaitForGPU();
-    CleanupRenderTargetResources();
-
+ 
     HRESULT hr = oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
-    if (FAILED(hr)) return hr;
-
+    if (FAILED(hr)) {
+        Logger::Error("[DX12Hook] oResizeBuffers failed with HRESULT: {:#x}", (uint32_t)hr);
+        return hr;
+    }
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
     ImGuiIO &io = ImGui::GetIO();
     io.DisplaySize = ImVec2((float)desc.BufferDesc.Width, (float)desc.BufferDesc.Height);
-
     CreateRenderTargetResources(pSwapChain);
+    if (GuiOverlay::sInitialized) {
+        ImGui_ImplDX11_CreateDeviceObjects();
+    }
 
     return hr;
 }
@@ -202,6 +214,15 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
     pd3d11DeviceContext->Flush();
 
     return oPresent12(pSwapChain, SyncInterval, Flags);
+}
+
+void DX12Hook::installAsync() {
+    std::thread{[]() {
+        if (!DX12Hook::install()) {
+            Logger::Error("[core] DX12 Hook 安装失败！");
+            Logger::ErrorBox(L"DX12 Hook 安装失败！");
+        }
+    }}.detach();
 }
 
 bool DX12Hook::install() {

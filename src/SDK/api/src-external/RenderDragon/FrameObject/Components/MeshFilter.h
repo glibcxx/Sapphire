@@ -20,6 +20,11 @@ namespace DFC /*dragon::frameobject::components*/ {
         uint64_t mUnkCount;        // off+136
         uint64_t mAllocator;       // off+144
 
+        MeshFilter(MeshFilter &&rhs) {
+            memcpy(this, &rhs, sizeof(MeshFilter));
+            memset(&rhs, 0, sizeof(MeshFilter));
+        }
+
         ~MeshFilter() {
             this->dtor();
         }

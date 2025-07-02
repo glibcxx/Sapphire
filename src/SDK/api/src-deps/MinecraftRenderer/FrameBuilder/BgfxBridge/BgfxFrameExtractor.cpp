@@ -22,4 +22,13 @@ namespace mce::framebuilder::bgfxbridge {
         (this->*Hook::origin)(entityContext, description);
     }
 
+    void BgfxFrameExtractor::_insert(const EntityCreationContext &entityContext, const BlitFlipbookTextureDescription &descriptions) {
+        using Fn = void (BgfxFrameExtractor::*)(const EntityCreationContext &, const BlitFlipbookTextureDescription &);
+        using Hook = core::ApiLoader<
+            "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\x02\x48\x8B\x51\x00\x48\x8B\x09\xE8\x00\x00\x00\x00\xEB"_sig,
+            (Fn)&BgfxFrameExtractor::_insert,
+            core::deRefCall>;
+        (this->*Hook::origin)(entityContext, descriptions);
+    }
+
 } // namespace mce::framebuilder::bgfxbridge

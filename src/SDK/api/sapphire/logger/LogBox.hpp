@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
-#include <Windows.h>
 #include <format>
+#include <Windows.h>
+#include <WinUser.h>
 
 namespace Logger {
 

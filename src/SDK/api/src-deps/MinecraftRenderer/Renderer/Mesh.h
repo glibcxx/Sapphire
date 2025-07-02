@@ -31,6 +31,11 @@ namespace mce {
 
         bool isValid() const;
 
+        Mesh(Mesh &&other) {
+            memcpy(this, &other, sizeof(Mesh));
+            memset(&other, 0, sizeof(Mesh));
+        }
+
         SDK_API Mesh *ctor(mce::Mesh &&c);
     };
     static_assert(sizeof(Mesh) == 560);

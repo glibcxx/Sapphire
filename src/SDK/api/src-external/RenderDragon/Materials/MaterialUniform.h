@@ -22,15 +22,19 @@ namespace dragon::materials {
         // size: 56
         struct TextureParameter {
             const MaterialUniform *mParameter; // off+0
+            uint8_t                _fill[48];
         };
 
         // size: 56
         struct BufferParameter {
             const MaterialUniform *mParameter; // off+0
+            uint8_t                _fill[48];
         };
 
         // size: 24
-        struct UnknownParameter {};
+        struct UnknownParameter {
+            uint8_t _fill[24];
+        };
 
         const UniformType mType;     // off+0
         const std::string mName;     // off+8

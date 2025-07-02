@@ -6,7 +6,7 @@
 template <typename T>
 class MPMCQueue {
 public:
-    moodycamel::ConcurrentQueue<T, moodycamel::ConcurrentQueueDefaultTraits> mQueue; // off+0
+    moodycamel::ConcurrentQueue<T> mQueue; // off+0
 };
 
 namespace mpmc {

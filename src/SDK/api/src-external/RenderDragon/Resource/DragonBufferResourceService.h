@@ -40,11 +40,19 @@ namespace dragon {
 
     struct Unk1768Resource {};
 
+    // size: 80
     using VertexBufferResourceService = mce::CheckedResourceService<dragon::ResolvedVertexBufferResource>;
+
+    // size: 80
     using IndexBufferResourceService = mce::CheckedResourceService<dragon::ResolvedIndexBufferResource>;
+
+    // size: 80
     using ShaderBufferResourceService = mce::CheckedResourceService<dragon::ResolvedShaderBufferResource>;
+
+    // size: 80
     using AccelerationStructureResourceService = mce::CheckedResourceService<dragon::ResolvedAccelerationStructureResource>;
 
+    // size: 80
     using Unk1768ResourceService = mce::CheckedResourceService<dragon::Unk1768Resource>;
 
 }; // namespace dragon

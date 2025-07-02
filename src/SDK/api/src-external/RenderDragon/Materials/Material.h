@@ -5,6 +5,7 @@
 #include "SDK/api/src-external/RenderDragon/Platform/GraphicsPlatform.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialUniformHandles.h"
 #include "SDK/api/src-deps/Core/Memory/RingAllocatorContainer.h"
+#include "SDK/api/src-deps/Core/Utility/brstd/flat_map.h"
 #include "SDK/api/src-deps/Core/Utility/StringHash.h"
 #include "CompiledMaterialDefinition.h"
 
@@ -23,6 +24,20 @@ namespace dragon::materials {
     struct Unk144A1210F {
         uint64_t              mHash;    // off+0
         dragon::ServerTexture mTexture; // off+8
+    };
+
+    // off+120
+    struct SamplerSlot {
+        int                       mSlot;             // off+0
+        std::string               mName;             // off+8
+        uint64_t                  mNameHash;         // off+40
+        std::string               mPropertyName;     // off+48
+        std::string               mCustomType;       // off+80
+        uint32_t                  mCustomTypeStride; // off+112
+        definition::SamplerAccess mAccess;           // off+116
+        bool                      mIsUAV;            // off+117
+
+        SamplerSlot *ctor(SamplerSlot &&other); // \xE8\x00\x00\x00\x00\x44\x8B\xA5\x00\x00\x00\x00\xEB\x00\x4C\x89\x74\x24 1.21.50
     };
 
     // size: 16
@@ -67,21 +82,31 @@ namespace dragon::materials {
     // size: 1024 (1.21.50)
     class Material {
     public:
-        std::vector<Unk144A1210F>                                                 mUnk0;                    // off+0
-        const uint32_t                                                            mId = 0;                  // off+24
-        dragon::platform::GraphicsPlatform                                        mPlatform;                // off+32
-        std::string                                                               mName;                    // off+296
-        std::optional<std::string>                                                mParentName;              // off+328
-        std::unique_ptr<MaterialUniformMap>                                       mDefaultUniforms;         // off+368
-        Core::RingAllocatorContainer<uint8_t>                                     mDefaultUniformsData;     // off+376
-        MaterialUniformHandles                                                    mUniformHandles;          // off+576
-        definition::StageInputMap                                                 mCombinedVertexInputDesc; // off+600
-        std::vector<std::string>                                                  mPassNames;               // off+664
-        const std::unordered_map<std::string, std::string>                        mGlobalFlags;             // off+688
-        uintptr_t                                                                 mUnk752[9];               // off+752
-        std::unordered_map<std::string, std::aligned_storage_t<128 - 32 - 16, 8>> mUnk824;                  // off+824
-        std::unordered_map<uint16_t, std::aligned_storage_t<240 - 8 - 16, 8>>     mUnk888;                  // off+888
-        std::vector<std::aligned_storage_t<128, 8>>                               mUnk952[3];               // off+952
+        std::vector<Unk144A1210F>                            mUnk0;                     // off+0
+        const uint32_t                                       mId = 0;                   // off+24
+        dragon::platform::GraphicsPlatform                   mPlatform;                 // off+32
+        std::string                                          mName;                     // off+296
+        std::optional<std::string>                           mParentName;               // off+328
+        std::unique_ptr<MaterialUniformMap>                  mDefaultUniforms;          // off+368
+        Core::RingAllocatorContainer<uint8_t>                mDefaultUniformsData;      // off+376
+        MaterialUniformHandles                               mUniformHandles;           // off+576
+        definition::StageInputMap                            mCombinedVertexInputDesc;  // off+600
+        std::vector<std::string>                             mPassNames;                // off+664
+        const std::unordered_map<std::string, std::string>   mGlobalFlags;              // off+688
+        std::shared_ptr<const CompiledMaterialDefinition>    mSharedMaterialDefinition; // off+752
+        brstd::flat_map<HashedString, std::shared_ptr<Pass>> mPasses;                   // off+768
+        std::unordered_map<
+            std::string,
+            std::variant<
+                std::monostate,
+                definition::PropertyField<glm::tvec4<float>>,
+                definition::PropertyField<glm::tmat3x3<float>>,
+                definition::PropertyField<glm::tmat4x4<float>>,
+                definition::ExternalUniformDeclaration>>
+            mProperties; // off+824
+
+        std::unordered_map<std::string, definition::SamplerDefinition> mIndexedSamplers; // off+888
+        std::vector<std::pair<SamplerSlot, bool>>                      mSamplerSlots[3]; // off+952
 
         SDK_API Material *ctor(
             CompiledMaterialDefinition                              &materialDefinition,

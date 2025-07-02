@@ -8,6 +8,7 @@
 
 class DX12Hook {
 public:
+    static void installAsync();
     static bool install();
     static void uninstall();
 

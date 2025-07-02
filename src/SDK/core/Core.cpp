@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "SDK/api/sapphire/hook/Hook.h"
+#include "util/MemoryScanning.hpp"
 #include "util/time.h"
 
 #include "DX12Hook.h"
@@ -22,22 +23,28 @@ namespace moduleInfo {
     uint64_t gStartTime = 0;
 } // namespace moduleInfo
 
-// 扫描特征码
-uintptr_t ScanSignature(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
-    const char *data = reinterpret_cast<const char *>(start);
-    for (uintptr_t i = 0; i <= size - sigLength; ++i) {
-        bool match = true;
-        for (uintptr_t j = 0; j < sigLength; ++j) {
-            if (sig[j] != 0x00 && data[i + j] != sig[j]) // 0x00表示通配符
-            {
-                match = false;
-                break;
-            }
-        }
-        if (match) return start + i;
+class ApiScanningProfile {
+    inline static std::chrono::steady_clock::duration sTotal{0};
+
+    std::chrono::steady_clock::time_point mStart;
+
+public:
+    ApiScanningProfile() :
+        mStart(std::chrono::steady_clock::now()) {
     }
-    return 0;
-}
+
+    ~ApiScanningProfile() {
+        sTotal += std::chrono::steady_clock::now() - mStart;
+    }
+
+    static auto getTotal() {
+        return sTotal;
+    }
+
+    static auto getTotalMs() {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(sTotal);
+    }
+};
 
 namespace core {
     class CoreInfo {
@@ -78,7 +85,12 @@ namespace core {
                         mTextSectionSize = section->SizeOfRawData;
                     }
                     foundTextSection = true;
-                    Logger::Debug("[CoreInfo] Found .text section in main module: Address=0x{:X}, Size=0x{:X}", mTextSectionStart, mTextSectionSize);
+                    Logger::Debug(
+                        "[CoreInfo] Found .text section in main module: VA=0x{:X}, Address=0x{:X}, Size=0x{:X}",
+                        section->VirtualAddress,
+                        mTextSectionStart,
+                        mTextSectionSize
+                    );
                     break;
                 }
             }
@@ -127,9 +139,10 @@ namespace core {
             不写成全局变量的原因是，不同编译单元的静态存储期对象初始化顺序是未知的，
             而api库创建接口就是完成于静态初始化期间，此时访问core的全局变量是未定义行为。
         */
-        return ScanSignature(
-            reinterpret_cast<uintptr_t>(coreInfo.mMainModule),
-            coreInfo.mMainModuleInfo.SizeOfImage,
+        ApiScanningProfile p{};
+        return memory::scanSignature(
+            coreInfo.mTextSectionStart,
+            coreInfo.mTextSectionSize,
             sig,
             sigLength
         );
@@ -141,6 +154,7 @@ namespace core {
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH: {
+        Logger::Info("[core] Scanning Finished in {}.", ApiScanningProfile::getTotalMs());
         winrt::init_apartment(winrt::apartment_type::single_threaded);
         DisableThreadLibraryCalls(hModule);
         moduleInfo::gStartTime = util::getTimeMs();
@@ -151,12 +165,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
             winrt::uninit_apartment();
             return false;
         }
-        std::thread{[]() {
-            if (!DX12Hook::install()) {
-                Logger::Error("[core] DX12 Hook 安装失败！");
-                Logger::ErrorBox(L"DX12 Hook 安装失败！");
-            }
-        }}.detach();
+        DX12Hook::installAsync();
         DrawUtils::getInstance();
         EventHooks::init();
         sapphire::service::init();

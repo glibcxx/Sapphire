@@ -10,6 +10,9 @@ namespace Core {
         using Ring = FencedDynamicRingBuffer<Core::CpuRingBufferAllocation_Buffer, M, N>;
         using Allocator = Core::CpuRingBufferAllocator<TBuffer, M, N, Core::CheckedRingBuffer<M, N>>;
 
+        struct AllocationScope {
+        };
+
         typename Ring::Ring::Fence              mCurrentFence;          // off+0
         std::atomic<typename Ring::Ring::Fence> mLastCompletedFence;    // off+8
         std::atomic<bool>                       mHasLastCompletedFence; // off+16

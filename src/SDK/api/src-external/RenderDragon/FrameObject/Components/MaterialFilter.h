@@ -10,7 +10,13 @@ namespace DFC /*dragon::frameobject::components*/ {
     struct MaterialFilter {
         std::reference_wrapper<const dragon::materials::Material> mMaterial;  // off+0
         dragon::materials::MaterialUniformMap                     mUniforms;  // off+8
-        uintptr_t                                                 mAllocator; // off+128
+        Core::CpuRingBufferAllocator<uint8_t>                    &mAllocator; // off+128
+
+        SDK_API std::optional<dragon::materials::ParameterId> setTexture(
+            const dragon::materials::MaterialUniformName &propertyName,
+            const dragon::ServerTexture                  &texture,
+            const uintptr_t                               samplerFlags
+        );
     };
 
 } // namespace DFC

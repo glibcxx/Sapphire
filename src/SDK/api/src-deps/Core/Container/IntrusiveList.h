@@ -65,7 +65,7 @@ namespace Bedrock::Intrusive {
             mSentinel.mPrev = &val;
         }
 
-        list_base_hook<void> mSentinel; // off+0
+        hook_type mSentinel; // off+0
     };
 
 } // namespace Bedrock::Intrusive

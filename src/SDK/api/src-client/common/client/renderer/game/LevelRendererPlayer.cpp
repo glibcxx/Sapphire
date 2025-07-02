@@ -23,3 +23,10 @@ void LevelRendererPlayer::queueRenderEntities(LevelRenderPreRenderUpdateParamete
         &LevelRendererPlayer::queueRenderEntities>;
     (this->*Hook::origin)(levelRenderPreRenderUpdateParameters);
 }
+
+void LevelRendererPlayer::callRenderCracks(BaseActorRenderContext &renderContext, const ViewRenderObject &renderObj) {
+        using Hook = core::ApiLoader<
+        "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x4C\x8B\xFA"_sig,
+        &LevelRendererPlayer::callRenderCracks>;
+    (this->*Hook::origin)(renderContext, renderObj);
+}

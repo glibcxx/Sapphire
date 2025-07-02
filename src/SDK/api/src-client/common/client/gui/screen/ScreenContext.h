@@ -2,7 +2,7 @@
 
 #include "SDK/core/Core.h"
 #include "UIScreenContext.h"
-#include "SDK/api/src-deps/MinecraftRenderer/Renderer/Meshcontext.h"
+#include "SDK/api/src-deps/MinecraftRenderer/Renderer/MeshContext.h"
 #include "SDK/api/src-deps/Core/Memory/LinearAllocator.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src-deps/MinecraftRenderer/Objects/FrameRenderObject.h"

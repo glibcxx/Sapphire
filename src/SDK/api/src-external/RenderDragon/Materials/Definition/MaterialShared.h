@@ -75,6 +75,9 @@ namespace dragon::materials::definition {
         TypeCube = 4,
         TypeStructuredBuffer = 5,
         TypeRawBuffer = 6,
+        TypeAccelerationStructure = 7,
+        Type2DShadow = 8,
+        Type2DArrayShadow = 9,
     };
 
     enum class BlendMode : int {

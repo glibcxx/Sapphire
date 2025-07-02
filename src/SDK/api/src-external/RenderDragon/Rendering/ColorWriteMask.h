@@ -8,7 +8,7 @@ namespace dragon::rendering {
     {
         uint8_t mWriteMask; // off+0
 
-        ColorWriteMask(uint8_t mask) :
+        ColorWriteMask(uint8_t mask = 0) :
             mWriteMask(mask) {}
     };
 
