@@ -3,7 +3,7 @@
 #include "SDK/api/sapphire/hook/Hook.h"
 
 void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObject &frameRenderObj) {
-    using Hook = core::ApiLoader<
+    using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\xE8\x00\x00\x00\x00\x45\x32\xE4\x48\x8B\x07"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
@@ -17,7 +17,7 @@ void LevelRenderer::renderLevel(ScreenContext &screenCtx, const FrameRenderObjec
 }
 
 void LevelRenderer::preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRenderUpdateParameters &params) {
-    using Hook = core::ApiLoader<
+    using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x4D\x00\x48\x8B\xCE"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60

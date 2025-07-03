@@ -1,9 +1,10 @@
 #pragma once
 
-#include <Windows.h>
+#include "SDK/core/Core.h"
 
-namespace builtinPluginInfo {
+class BuiltinPlugin : public sapphire::IPlugin {
+public:
+    virtual void init() override;
 
-    extern HMODULE hModule;
-
-} // namespace builtinPluginInfo
+    virtual void uninit() override;
+};

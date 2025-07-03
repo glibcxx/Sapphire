@@ -225,7 +225,7 @@ void TickRatePlugin::_setupHotkeys() {
     );
 }
 
-HOOK_TYPE(TickRatePlugin::NormalTickRateHook, Timer, hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
+HOOK_TYPE(TickRatePlugin::NormalTickRateHook, Timer, sapphire::hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
     origin(preferredFrameStep);
     mTimeScale = plugin->mTimeScale;
 }
@@ -233,7 +233,7 @@ HOOK_TYPE(TickRatePlugin::NormalTickRateHook, Timer, hook::HookPriority::Normal,
 HOOK_TYPE(
     TickRatePlugin::ParticleTickRateHook2,
     ParticleSystem::ParticleEmitterActual,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     ParticleSystem::ParticleEmitterActual::tick,
     void,
     const std::chrono::nanoseconds &dtIn,

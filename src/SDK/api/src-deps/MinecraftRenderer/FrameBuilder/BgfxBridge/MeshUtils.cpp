@@ -16,10 +16,10 @@ namespace mce::framebuilder::bgfxbridge {
             uint32_t                                                                   indicesOffset,
             uint32_t                                                                   indicesCount
         ) {
-            using Hook = core::ApiLoader<
+            using Hook = sapphire::ApiLoader<
                 "\xE8\x00\x00\x00\x00\x4C\x8B\xD8\x48\x8B\x8D"_sig,
                 &makeMeshFilter,
-                core::deRefCall>;
+                sapphire::deRefCall>;
             return Hook::origin(allocator, buffer, clientBuffer, vertexCount, indicesOffset, indicesCount);
         }
 
@@ -30,10 +30,10 @@ namespace mce::framebuilder::bgfxbridge {
         const DFC::MaterialFilter                                  &materialFilter,
         const mce::Mesh                                            &mesh
     ) {
-        using Hook = core::ApiLoader<
+        using Hook = sapphire::ApiLoader<
             "\xE8\x00\x00\x00\x00\x90\xB3\x00\x66\xC7\x44\x24"_sig,
             &makeMeshFilter,
-            core::deRefCall>;
+            sapphire::deRefCall>;
         return Hook::origin(entityContext, materialFilter, mesh);
     }
 

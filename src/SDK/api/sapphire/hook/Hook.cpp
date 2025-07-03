@@ -2,7 +2,7 @@
 
 #include <MinHook.h>
 
-namespace hook {
+namespace sapphire::hook {
 
     struct FuncHookInfo {
         uintptr_t  mDetour;
@@ -140,4 +140,4 @@ namespace hook {
         if (list.empty()) this->mHookedFunctions.erase(found);
     }
 
-} // namespace hook
+} // namespace sapphire::hook

@@ -11,7 +11,7 @@ std::unique_ptr<SapphireEventAppPlatformListener> gAppPlatformListener = nullptr
 HOOK_TYPE(
     AppPlatformHook,
     AppPlatform,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     AppPlatform::initialize,
     void
 ) {

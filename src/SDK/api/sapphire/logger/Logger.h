@@ -4,11 +4,9 @@
 #include <mutex>
 #include <Windows.h>
 #include <winrt/Windows.Storage.h>
-#include "macros/Macros.h"
 #include "impl/GameLogger.h"
 #include "impl/LogFile.h"
 #include "LogBox.hpp"
-#include "imgui.h"
 
 namespace Logger {
 

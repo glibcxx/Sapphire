@@ -142,7 +142,7 @@ InputManager *instance = nullptr;
 HOOK_TYPE(
     CanncelMouseEventHook,
     MouseDevice,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     MouseDevice::feed,
     void,
     MouseAction::ActionType action,

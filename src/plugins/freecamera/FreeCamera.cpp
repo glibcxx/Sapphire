@@ -12,7 +12,7 @@ FreeCameraPlugin *freeCam = nullptr;
 HOOK_TYPE_CONST(
     ForceDrawPlayerHook,
     ClientInstance,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     ClientInstance::getRenderPlayerModel,
     bool
 ) {
@@ -22,7 +22,7 @@ HOOK_TYPE_CONST(
 HOOK_TYPE(
     ClientInputUpdateSystemTickHook,
     ClientInputUpdateSystemInternal,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     ClientInputUpdateSystemInternal::tick,
     void,
     void *context
@@ -36,7 +36,7 @@ HOOK_TYPE(
 HOOK_TYPE(
     OnPlayerTurnHook,
     LocalPlayer,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     LocalPlayer::localPlayerTurn,
     void,
     const Vec2 &deltaRot
@@ -80,7 +80,7 @@ HOOK_TYPE(
 HOOK_TYPE(
     SetCameraPosHook,
     LevelRendererPlayer,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     LevelRendererPlayer::setupCamera,
     void,
     mce::Camera &camera,
@@ -160,5 +160,16 @@ void FreeCameraPlugin::_setupSettingGui() {
 }
 
 void FreeCameraPlugin::onDrawSetting() {
-    ImGui::Checkbox("Toggle Free Camera", &mEnabled);
+    if (ImGui::Checkbox("Toggle Free Camera", &mEnabled) && this->mEnabled) {
+        auto &cam = ClientInstance::primaryClientInstance->getRenderCameraComponent()->mCamera;
+        this->mFreeCamPos = cam.mPosition;
+        this->mFreeCamOrientation = cam.mOrientation;
+        glm::vec3 forward = freeCam->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
+        mPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
+        glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitch), glm::vec3(1, 0, 0));
+        glm::quat yawQuatOnly = freeCam->mFreeCamOrientation * glm::inverse(pitchQuat);
+        float     angleDeg = glm::degrees(glm::angle(yawQuatOnly));
+        glm::vec3 axis = glm::axis(yawQuatOnly);
+        mYaw = (axis.y >= 0.0f ? 1.0f : -1.0f) * angleDeg;
+    }
 }

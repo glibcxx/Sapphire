@@ -1,9 +1,12 @@
 #pragma once
 
+#define EXPORT_DLL __declspec(dllexport)
+#define IMPORT_DLL __declspec(dllimport)
+
 #ifdef DLLEXPORT
-#    define SDK_API __declspec(dllexport)
+#    define SDK_API EXPORT_DLL
 #else
-#    define SDK_API __declspec(dllimport)
+#    define SDK_API IMPORT_DLL
 #endif
 
 #define SDK_VAPI SDK_API virtual

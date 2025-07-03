@@ -1,6 +1,7 @@
 file(GLOB_RECURSE SDK_SRC api/*.cpp)
+file(GLOB_RECURSE CORE_SRC core/*.cpp)
 
-add_library(sapphire_core SHARED core/Core.cpp core/DX12Hook.cpp ${SDK_SRC})
+add_library(sapphire_core SHARED ${CORE_SRC} ${SDK_SRC})
 
 add_definitions(-DDLLEXPORT)
 

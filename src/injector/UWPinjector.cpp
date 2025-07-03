@@ -137,18 +137,13 @@ void disableDebugging(const std::wstring &familyName) {
 using AutoCloseHandle = std::unique_ptr<std::remove_pointer_t<HANDLE>, decltype([](HANDLE h) { CloseHandle(h); })>;
 using AutoVirtualFree = std::unique_ptr<std::remove_pointer_t<LPVOID>, decltype([](LPVOID m) { VirtualFree(m, 0, MEM_RELEASE); })>;
 
-bool injectDll(DWORD pid, const fs::path &dllPath) {
+DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
     std::wstring dllPathStr = dllPath;
     SetPermissions(dllPath);
-    AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid)};
-    if (!hProcess && hProcess.get() == INVALID_HANDLE_VALUE) {
-        Logger::ErrorBox(L"[UWPinjector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
-        return false;
-    }
 
     // 在目标进程分配内存
     AutoVirtualFree pRemotePath{VirtualAllocEx(
-        hProcess.get(),
+        hProcess,
         nullptr,
         (dllPathStr.size() + 1) * sizeof(wchar_t),
         MEM_COMMIT | MEM_RESERVE,
@@ -161,7 +156,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
 
     // 写入DLL路径
     if (!WriteProcessMemory(
-            hProcess.get(),
+            hProcess,
             pRemotePath.get(),
             dllPathStr.c_str(),
             (dllPathStr.size() + 1) * sizeof(wchar_t),
@@ -173,7 +168,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
 
     // 创建远程线程调用LoadLibraryW
     AutoCloseHandle hThread{
-        CreateRemoteThread(hProcess.get(), nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
+        CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
     };
     if (!hThread) {
         Logger::ErrorBox(L"[UWPinjector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
@@ -187,7 +182,7 @@ bool injectDll(DWORD pid, const fs::path &dllPath) {
     if (exitCode == STILL_ACTIVE)
         Logger::WarnBox(L"[UWPinjector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
 
-    return true;
+    return exitCode;
 }
 
 fs::path getCurrentPath() {
@@ -227,37 +222,99 @@ int main(int argc, char **argv) {
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"UWPinjector.exe");
     } else {
-        util::ScopeGuard autoResume{
-            [dwProcessId]() {
+        bool             injectionSuccessful = false;
+        util::ScopeGuard autoTerminateOrResume{
+            [dwProcessId, &injectionSuccessful]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
                 HANDLE hTargetProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);
-                NtResumeProcess(hTargetProcess);
-                CloseHandle(hTargetProcess);
+                if (hTargetProcess && hTargetProcess != INVALID_HANDLE_VALUE) {
+                    if (injectionSuccessful) {
+                        NtResumeProcess(hTargetProcess);
+                    } else {
+                        TerminateProcess(hTargetProcess, 1);
+                    }
+                    CloseHandle(hTargetProcess);
+                }
             }
         };
-        fs::path llPath = currentDir / L"sapphire_core.dll";
-        if (!fs::exists(llPath)) {
+        fs::path dllPath = currentDir / L"sapphire_core.dll";
+        if (!fs::exists(dllPath)) {
             currentDir = fs::path{argv[0]}.parent_path();
-            llPath = currentDir / L"sapphire_core.dll";
-            if (!fs::exists(llPath)) {
-                Logger::ErrorBox(L"[UWPinjector] 未找到dll内核：{}", llPath.c_str());
+            dllPath = currentDir / L"sapphire_core.dll";
+            if (!fs::exists(dllPath)) {
+                Logger::ErrorBox(L"[UWPinjector] 未找到dll内核：{}", dllPath.c_str());
                 return 1;
             }
         }
         fs::path homePath = currentDir / L"sapphire";
         if (!std::filesystem::exists(homePath))
             std::filesystem::create_directories(homePath);
+        fs::path modsPath = homePath / "mods";
+        if (!std::filesystem::exists(modsPath))
+            std::filesystem::create_directories(modsPath);
         SetPermissions(homePath, GENERIC_READ | GENERIC_WRITE);
-        if (!injectDll(dwProcessId, llPath)) {
+        SetPermissions(modsPath, GENERIC_READ | GENERIC_EXECUTE);
+        AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId)};
+        if (!hProcess && hProcess.get() == INVALID_HANDLE_VALUE) {
+            Logger::ErrorBox(L"[UWPinjector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+            return 1;
+        }
+
+        PSECURITY_DESCRIPTOR p_sd = nullptr;
+        SECURITY_ATTRIBUTES  sa = {};
+        sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+        sa.bInheritHandle = FALSE;
+        ConvertStringSecurityDescriptorToSecurityDescriptorW(
+            L"D:(A;;GA;;;WD)(A;;GA;;;AC)",
+            SDDL_REVISION_1,
+            &p_sd,
+            nullptr
+        );
+        sa.lpSecurityDescriptor = p_sd;
+        std::wstring    pipe_name = L"\\\\.\\pipe\\SapphireSignalPipe";
+        AutoCloseHandle h_pipe{CreateNamedPipe(
+            pipe_name.c_str(),
+            PIPE_ACCESS_INBOUND,
+            PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+            1,
+            1024,
+            1024,
+            0,
+            &sa
+        )};
+
+        if (p_sd) LocalFree(p_sd);
+        if (h_pipe.get() == INVALID_HANDLE_VALUE) {
+            Logger::ErrorBox(L"[UWPinjector] 无法打开通信管道 (错误码: {})", GetLastError());
+            return 1;
+        }
+
+        DWORD code = injectDll(hProcess.get(), dllPath);
+        if (code == 0) {
             Logger::ErrorBox(L"[UWPinjector] sapphire_core.dll 注入失败！");
             return 1;
         }
-        std::wcout.imbue(std::locale("chs"));
-        for (auto &&entry : fs::directory_iterator{currentDir}) {
-            if (entry.is_regular_file() && entry.path().extension() == ".dll" && entry.path().filename() != "sapphire_core.dll") {
-                if (injectDll(dwProcessId, entry.path()))
-                    std::wcout << std::format(L"[UWPinjector] {} 注入成功\n", entry.path().c_str());
+        BOOL b_connected = ConnectNamedPipe(h_pipe.get(), nullptr);
+        if (!b_connected) {
+            if (GetLastError() != ERROR_PIPE_CONNECTED) {
+                Logger::ErrorBox(L"[UWPinjector] 连接通信管道失败 (错误码: {})", GetLastError());
+                return 1;
             }
+        }
+
+        char  buffer[256] = {0};
+        DWORD bytes_read = 0;
+        BOOL  b_result = ReadFile(h_pipe.get(), buffer, sizeof(buffer) - 1, &bytes_read, nullptr);
+        if (b_result && bytes_read > 0) {
+            if (strcmp(buffer, "READY") == 0) {
+                std::cout << "'Ready' signal received.\n";
+                injectionSuccessful = true;
+            } else {
+                return 1;
+            }
+        } else {
+            Logger::ErrorBox(L"[UWPinjector] 读取通信管道失败 (错误码: {})", GetLastError());
+            return 1;
         }
     }
     CoUninitialize();

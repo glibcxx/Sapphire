@@ -10,7 +10,7 @@
 
 namespace mce {
 
-    class Buffer;
+    class Buffer {};
     class BufferResourceService;
 
     // size: 40 (1.21.50)

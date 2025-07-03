@@ -13,8 +13,8 @@
 #include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
 #include "SDK/api/sapphire/service/Service.h"
 
-#include <Psapi.h> // for MODULEINFO
-#include <winnt.h> // For PE header structures
+#include "util/threading/ThreadPool.h"
+#include "util/ScopedTimer.hpp"
 
 namespace fs = std::filesystem;
 
@@ -23,159 +23,187 @@ namespace moduleInfo {
     uint64_t gStartTime = 0;
 } // namespace moduleInfo
 
-class ApiScanningProfile {
-    inline static std::chrono::steady_clock::duration sTotal{0};
-
-    std::chrono::steady_clock::time_point mStart;
-
-public:
-    ApiScanningProfile() :
-        mStart(std::chrono::steady_clock::now()) {
-    }
-
-    ~ApiScanningProfile() {
-        sTotal += std::chrono::steady_clock::now() - mStart;
-    }
-
-    static auto getTotal() {
-        return sTotal;
-    }
-
-    static auto getTotalMs() {
-        return std::chrono::duration_cast<std::chrono::milliseconds>(sTotal);
-    }
-};
-
-namespace core {
-    class CoreInfo {
-    public:
-        HMODULE    mMainModule = GetModuleHandleW(nullptr);
-        MODULEINFO mMainModuleInfo;
-        uintptr_t  mTextSectionStart = 0;
-        size_t     mTextSectionSize = 0;
-
-        CoreInfo() {
-            GetModuleInformation(GetCurrentProcess(), this->mMainModule, &mMainModuleInfo, sizeof(MODULEINFO));
-            uintptr_t moduleBase = reinterpret_cast<uintptr_t>(mMainModule);
-
-            if (!moduleBase) {
-                Logger::Error("[CoreInfo] Failed to get main module handle.");
-                return;
-            }
-
-            PIMAGE_DOS_HEADER dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase);
-            if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
-                Logger::Error("[CoreInfo] Invalid DOS signature for main module.");
-                return;
-            }
-
-            PIMAGE_NT_HEADERS ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(moduleBase + dosHeader->e_lfanew);
-            if (ntHeaders->Signature != IMAGE_NT_SIGNATURE) {
-                Logger::Error("[CoreInfo] Invalid NT signature for main module.");
-                return;
-            }
-
-            PIMAGE_SECTION_HEADER section = IMAGE_FIRST_SECTION(ntHeaders);
-            bool                  foundTextSection = false;
-            for (WORD i = 0; i < ntHeaders->FileHeader.NumberOfSections; ++i, ++section) {
-                if (memcmp(section->Name, ".text", 5) == 0 && section->Name[5] == '\0') {
-                    mTextSectionStart = moduleBase + section->VirtualAddress;
-                    mTextSectionSize = section->Misc.VirtualSize;
-                    if (mTextSectionSize == 0) {
-                        mTextSectionSize = section->SizeOfRawData;
-                    }
-                    foundTextSection = true;
-                    Logger::Debug(
-                        "[CoreInfo] Found .text section in main module: VA=0x{:X}, Address=0x{:X}, Size=0x{:X}",
-                        section->VirtualAddress,
-                        mTextSectionStart,
-                        mTextSectionSize
-                    );
-                    break;
-                }
-            }
-
-            if (!foundTextSection || mTextSectionStart == 0 || mTextSectionSize == 0) {
-                Logger::Error("[CoreInfo] .text section not found or invalid in main module. Signature scanning for main module will fail.");
-                mTextSectionStart = 0; // Ensure these are zero if not found
-                mTextSectionSize = 0;
-            }
-        }
-
-        static CoreInfo &getInstance() {
-            static CoreInfo instance;
-            return instance;
-        }
-    };
+namespace sapphire {
 
     SapphireModuleInfo::SapphireModuleInfo() :
-        sapphireModuleHandle(GetModuleHandleW(L"sapphire_core.dll")) {
+        sapphireModuleHandle(GetModuleHandle(L"sapphire_core.dll")) {
         GetModuleInformation(GetCurrentProcess(), this->sapphireModuleHandle, &sapphireModuleInfo, sizeof(MODULEINFO));
         wchar_t modulePathBuf[MAX_PATH] = {0};
-        if (GetModuleFileNameW(sapphireModuleHandle, modulePathBuf, MAX_PATH) != 0) {
+        if (GetModuleFileName(sapphireModuleHandle, modulePathBuf, MAX_PATH) != 0) {
             sapphireHome = modulePathBuf;
             sapphireHome = sapphireHome.parent_path() / HOME_FOLDER_NAME;
         }
     }
 
-    SapphireModuleInfo &getSapphireInfo() {
-        static SapphireModuleInfo info{};
-        return info;
+    SapphireModuleInfo &SapphireModuleInfo::get() {
+        static SapphireModuleInfo instance;
+        return instance;
     }
 
-    uintptr_t getImagebase() {
-        return reinterpret_cast<uintptr_t>(CoreInfo::getInstance().mMainModuleInfo.lpBaseOfDll);
+    Core &Core::getInstance() {
+        static Core instance{};
+        return instance;
     }
 
-    uintptr_t scanApi(const char *sig, size_t sigLength) {
-        /*
-            目前api设计如下：
-            SDK内头文件声明接口，而对应cpp文件实现为转发调用原始函数的指针。
-            而指针在静态初始化期间完成扫描，所有函数接口的特征码直接写在对应函数体内。
-        */
-        CoreInfo &coreInfo = CoreInfo::getInstance();
-        /*
-            coreInfo用于保存主模块句柄，主模块大小等信息。
-            不写成全局变量的原因是，不同编译单元的静态存储期对象初始化顺序是未知的，
-            而api库创建接口就是完成于静态初始化期间，此时访问core的全局变量是未定义行为。
-        */
-        ApiScanningProfile p{};
-        return memory::scanSignature(
-            coreInfo.mTextSectionStart,
-            coreInfo.mTextSectionSize,
-            sig,
-            sigLength
+    Core::~Core() {
+        this->mPluginManager.uninitAllPlugins();
+        this->mPluginManager.freeAllPlugins();
+        sapphire::service::uninit();
+        EventHooks::uninit();
+        DX12Hook::uninstall();
+        winrt::uninit_apartment();
+    }
+
+    void Core::init() {
+        HANDLE hPipe = INVALID_HANDLE_VALUE;
+        while (true) {
+            hPipe = CreateFile(
+                L"\\\\.\\pipe\\SapphireSignalPipe",
+                GENERIC_WRITE,
+                0,
+                nullptr,
+                OPEN_EXISTING,
+                0,
+                nullptr
+            );
+
+            if (hPipe != INVALID_HANDLE_VALUE) {
+                break;
+            }
+            auto code = GetLastError();
+            if (code != ERROR_PIPE_BUSY) {
+                CloseHandle(hPipe);
+                Logger::Error("[Core] 无法连接管道 (code: {:#X})", code);
+                Logger::ErrorBox(L"[Core] 无法连接管道 (code: {:#X})", code);
+                throw std::runtime_error{"pipe connect error"};
+            }
+            if (!WaitNamedPipe(L"\\\\.\\pipe\\SapphireSignalPipe", 20000)) {
+                CloseHandle(hPipe);
+                Logger::Error("[Core] 连接管道超时");
+                Logger::ErrorBox(L"[Core] 连接管道超时");
+                throw std::runtime_error{"pipe connect timeout"};
+            }
+        }
+        bool res = this->_init();
+
+        std::string_view msg = res ? "READY" : "ERROR";
+        DWORD            bytes_written = 0;
+        BOOL             bResult = WriteFile(hPipe, msg.data(), msg.size(), &bytes_written, nullptr);
+        if (!bResult) {
+            CloseHandle(hPipe);
+            Logger::Error("[Core] 无法写入管道");
+            Logger::ErrorBox(L"[Core] 无法写入管道");
+            throw std::runtime_error{"send signal error"};
+        }
+        CloseHandle(hPipe);
+    }
+
+    bool Core::_init() {
+        util::TimerToken token;
+        {
+            util::ScopedTimer timer{token};
+            Logger::Info("[Core] 正在初始化 Sapphire...");
+            auto &apiManager = ApiManager::getInstance();
+            apiManager.startThreadPool();
+            apiManager.waitAllFinished();
+
+            winrt::init_apartment(winrt::apartment_type::multi_threaded);
+            moduleInfo::gStartTime = util::getTimeMs();
+            moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
+            if (!moduleInfo::gMainWindow) {
+                Logger::Error("[Core] 未找到 Minecraft 窗口！");
+                Logger::ErrorBox(L"[Core] 未找到 Minecraft 窗口！");
+                winrt::uninit_apartment();
+                return false;
+            }
+            DX12Hook::installAsync();
+            DrawUtils::getInstance();
+            EventHooks::init();
+            sapphire::service::init();
+
+            Logger::Info("[Core] 加载插件...");
+            if (!this->loadAllPlugins())
+                return false;
+            apiManager.waitAllFinished();
+            Logger::Info("[Core] 加载完毕...");
+
+            Logger::Info("[Core] 初始化插件...");
+            this->mPluginManager.initAllPlugins();
+            Logger::Info("[Core] 初始化完毕...");
+
+            apiManager.stopThreadPool();
+        }
+        Logger::Info(
+            "[Core] Sapphire初始化完毕，耗时：{}",
+            std::chrono::duration_cast<std::chrono::milliseconds>(token.getDuration())
         );
+        return true;
     }
 
-} // namespace core
+    bool Core::loadAllPlugins() {
+        DWORD    dwProcessId;
+        fs::path modsDir = SapphireModuleInfo::get().sapphireHome / "mods";
+        if (!fs::exists(modsDir)) {
+            fs::create_directory(modsDir);
+        }
+        if (!fs::is_directory(modsDir)) {
+            Logger::Error("[Core] 未找到插件目录！sapphire/mods/");
+            return false;
+        }
+
+        auto  &plugins = this->mPluginManager.mLoadedPlugins;
+        size_t loaded = plugins.size();
+        for (auto &&entry : fs::directory_iterator{modsDir}) {
+            auto filename = entry.path().filename().string();
+            if (!entry.is_regular_file()
+                || entry.path().extension() != ".dll"
+                || filename == "sapphire_core.dll")
+                continue;
+            HMODULE handle = LoadLibrary(entry.path().c_str());
+            if (!handle) {
+                Logger::Error("[Core] {} 注入失败！", filename);
+                continue;
+            }
+            size_t current = plugins.size();
+            if (current > loaded + 1) {
+                Logger::Error(
+                    "[Core] 不得在一个dll插件注入期间注入另一个dll插件或者一个dll创建多个IPlugin实例！({})",
+                    filename
+                );
+                plugins.erase(
+                    plugins.begin() + loaded,
+                    plugins.end()
+                );
+            } else if (current == loaded) {
+                Logger::Warn(
+                    "[Core] {} 未向sapphire注册，可能不是标准sapphire插件，sapphire将无法管理其生命周期！",
+                    filename
+                );
+            } else if (current < loaded) {
+                Logger::Error("[Core] 加载 {} 后出现意外数据丢失，终止进程！", filename);
+                return false;
+            } else {
+                plugins.back().handle = handle;
+                loaded++;
+                Logger::Info("[Core] {} 注入成功！", filename);
+            }
+        }
+        return true;
+    }
+
+} // namespace sapphire
 
 // 整个库的入口
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID reserved) {
     switch (reason) {
     case DLL_PROCESS_ATTACH: {
-        Logger::Info("[core] Scanning Finished in {}.", ApiScanningProfile::getTotalMs());
-        winrt::init_apartment(winrt::apartment_type::single_threaded);
         DisableThreadLibraryCalls(hModule);
-        moduleInfo::gStartTime = util::getTimeMs();
-        moduleInfo::gMainWindow = FindWindow(0, L"Minecraft");
-        if (!moduleInfo::gMainWindow) {
-            Logger::Error("[core] 未找到 Minecraft 窗口！");
-            Logger::ErrorBox(L"未找到 Minecraft 窗口！");
-            winrt::uninit_apartment();
-            return false;
-        }
-        DX12Hook::installAsync();
-        DrawUtils::getInstance();
-        EventHooks::init();
-        sapphire::service::init();
+        std::thread{[]() {
+            sapphire::Core::getInstance().init();
+        }}.detach();
         break;
     }
     case DLL_PROCESS_DETACH:
-        sapphire::service::uninit();
-        EventHooks::uninit();
-        DX12Hook::uninstall();
-        winrt::uninit_apartment();
         break;
     default:
         break;

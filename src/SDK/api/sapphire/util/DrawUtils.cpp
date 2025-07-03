@@ -14,7 +14,7 @@ static DrawUtils *drawUtils = nullptr;
 HOOK_TYPE(
     RenderLevelMainFuncHook,
     LevelRenderer,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     LevelRenderer::renderLevel,
     void,
     ScreenContext           &ctx,

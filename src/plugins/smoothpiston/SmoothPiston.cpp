@@ -51,7 +51,7 @@ static constexpr void twoStageLerp(float &alpha, PistonBlockActor &piston, Fn le
 HOOK_TYPE(
     SmoothPistonPlugin::PistonActorTickHook,
     PistonBlockActor,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     PistonBlockActor::tick,
     void,
     BlockSource &region
@@ -91,7 +91,7 @@ HOOK_TYPE(
 HOOK_TYPE(
     SmoothPistonPlugin::SmoothMovingBlockHook,
     MovingBlockActorRenderer,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     MovingBlockActorRenderer::render,
     void,
     BaseActorRenderContext &context,
@@ -145,7 +145,7 @@ HOOK_TYPE(
 HOOK_TYPE(
     SmoothPistonPlugin::SmoothPistonArmHook,
     PistonBlockActorRenderer,
-    hook::HookPriority::Normal,
+    sapphire::hook::HookPriority::Normal,
     PistonBlockActorRenderer::render,
     void,
     BaseActorRenderContext &context,

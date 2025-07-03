@@ -3,7 +3,7 @@
 namespace sapphire::inline config {
 
     ConfigManager::ConfigManager() :
-        mConfigDir(core::getSapphireInfo().sapphireHome / "configs") {
+        mConfigDir(sapphire::SapphireModuleInfo::get().sapphireHome / "configs") {
         if (!std::filesystem::exists(mConfigDir)) {
             std::filesystem::create_directories(mConfigDir);
         }

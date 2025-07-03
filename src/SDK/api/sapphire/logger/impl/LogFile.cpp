@@ -4,7 +4,7 @@
 namespace Logger {
 
     LogFile::LogFile() {
-        const core::SapphireModuleInfo &coreInfo = core::getSapphireInfo();
+        const auto &coreInfo = sapphire::SapphireModuleInfo::get();
         try {
             std::filesystem::path logDir = coreInfo.sapphireHome / L"logs";
             std::filesystem::create_directories(logDir);

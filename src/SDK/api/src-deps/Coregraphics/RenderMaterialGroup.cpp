@@ -1,7 +1,7 @@
 #include "RenderMaterialGroup.h"
 
 mce::RenderMaterialGroup *mce::RenderMaterialGroup::common = reinterpret_cast<mce::RenderMaterialGroup *>(
-    core::loadStatic<
+    sapphire::loadStatic<
 #if MC_VERSION == v1_21_2
         "\x48\x8B\x05\x00\x00\x00\x00\x48\x8D\x54\x24\x00\x48\x8D\x0D\x00\x00\x00\x00\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x48\x8B\xF8"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60

@@ -6,7 +6,7 @@
 
 void AppPlatform::initialize() {
     // search "Streaming Pool" and find caller
-    using Hook = core::ApiLoader<
+    using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xF1\x45\x33\xF6"_sig,
 #elif MC_VERSION == v1_21_50
@@ -19,7 +19,7 @@ void AppPlatform::initialize() {
 }
 
 void AppPlatform::addListener(AppPlatformListener *l, float priority) {
-    using Hook = core::ApiLoader<
+    using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x0F\x29\x74\x24\x00\x0F\x28\xF2"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
@@ -33,7 +33,7 @@ template <>
 ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get() {
     // search "AppLifecycleContext::setHasGraphicsContext"
 
-    using Hook = core::ApiLoader<
+    using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x40"_sig,
 #elif MC_VERSION == v1_21_50
@@ -42,6 +42,6 @@ ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get() {
         "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x48\x8B\xBC\x24"_sig,
 #endif
         &ServiceLocator<AppPlatform>::get,
-        core::deRefCall>;
+        sapphire::deRefCall>;
     return Hook::origin();
 }
