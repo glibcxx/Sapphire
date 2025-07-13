@@ -4,6 +4,7 @@
 
 namespace mce::framebuilder {
 
+    // size: 24
     class FrameBuilder : public Bedrock::EnableNonOwnerReferences {
     public:
     };

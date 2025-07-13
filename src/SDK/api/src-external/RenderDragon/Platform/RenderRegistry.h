@@ -41,7 +41,7 @@ namespace dragon::platform::registry {
         template <typename Comp, std::size_t I = 0>
         static constexpr auto componentIndex() {
             if constexpr (I >= std::tuple_size_v<ComponentType>)
-                static_assert(false, "Type not found in tuple");
+                static_assert(false, "Component not found in tuple");
             else if constexpr (std::is_same_v<std::vector<Comp>, std::tuple_element_t<I, ComponentType>>)
                 return I;
             else

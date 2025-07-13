@@ -7,8 +7,8 @@
 #if defined(_WIN32)
 typedef unsigned long DWORD;
 extern "C" {
-__declspec(dllimport) void *__stdcall TlsGetValue(DWORD dwTlsIndex);
-__declspec(dllimport) int __stdcall TlsSetValue(DWORD dwTlsIndex, void *lpTlsValue);
+__declspec(dllimport) PVOID __stdcall FlsGetValue(DWORD dwFlsIndex);
+__declspec(dllimport) BOOL __stdcall FlsSetValue(DWORD dwFlsIndex, PVOID lpFlsData);
 }
 #else
 #    error "InstancedThreadLocal currently supports Windows TLS only"
@@ -54,12 +54,12 @@ namespace Bedrock::Threading {
         T *operator->() { return _load(); }
 
         T *_load() { // 1.21.50 \xE8\x00\x00\x00\x00\x0F\x57\xC0\x48\x8D\x4D\x00\x33\xD2
-            Item *item = static_cast<Item *>(TlsGetValue(this->mKey));
+            Item *item = static_cast<Item *>(FlsGetValue(this->mKey));
             if (!item) {
                 AllocatorType alloc{};
                 item = std::allocator_traits<AllocatorType>::allocate(alloc, 1);
                 this->mConstructor(item->data());
-                TlsSetValue(this->mKey, item);
+                FlsSetValue(this->mKey, item);
                 LockType lock(this->mMutex);
                 this->mItems.push_back(*item);
             }

@@ -154,6 +154,7 @@ namespace {
         uint64_t        a10
     ) {
         origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        Logger::Debug("[[sapphire service] primaryClientInstance found: {:#X}", (uintptr_t)ret);
         ClientInstance::primaryClientInstance = ret;
     }
 

@@ -13,10 +13,10 @@ public:
     short   dy;
     short   xPrev;
     short   yPrev;
-    char    mUnk10[16];
-    int64_t mUnk20;
-    int64_t mUnk28;
-    int32_t mUnk30;
+    char    mUnk16[16];
+    int64_t mUnk32;
+    int64_t mUnk40;
+    int32_t mUnk48;
 
     SDK_API void feed(
         MouseAction::ActionType action,
@@ -28,6 +28,4 @@ public:
         bool                    forceMotionlessPointer
     );
 };
-
-static_assert(offsetof(MouseDevice, mUnk20) == 0x20);
 static_assert(sizeof(MouseDevice) == 0x38);

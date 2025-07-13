@@ -98,10 +98,6 @@ namespace mce::framebuilder::bgfxbridge {
     struct HolographicMinecraftFrameRendererResources;
 } // namespace mce::framebuilder::bgfxbridge
 
-template <auto Seed = []() {}>
-struct UnkRenderComponent {};
-static_assert(!std::is_same_v<UnkRenderComponent<>, UnkRenderComponent<>>);
-
 namespace dragon::frameobject {
 
     // size: 1664
@@ -116,6 +112,10 @@ namespace dragon::frameobject {
         dragon::DragonBufferResourceServiceContext mBufferResourceServiceContext; // off+1264
         dragon::IndexBufferResourceService         mIndexBufferResourceService;   // off+1288
         dragon::VertexBufferResourceService        mVertexBufferResourceService;  // off+1368
+
+        template <auto Seed = []() {}>
+        struct UnkRenderComponent {};
+        static_assert(!std::is_same_v<UnkRenderComponent<>, UnkRenderComponent<>>);
 
         dragon::platform::registry::BasicRenderRegistry<
             DFC::ViewSetId,                      // 89

@@ -41,9 +41,9 @@ namespace dragon::materials {
         SDK_API MaterialUniformMap *ctor(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
 
         SDK_API MaterialUniformMap *ctor(
-            const CompiledMaterialDefinition      &definition,
-            MaterialUniformHandles                &uniformHandles,
-            Core::CheckedRingBuffer<2, 0> &allocator
+            const CompiledMaterialDefinition &definition,
+            MaterialUniformHandles           &uniformHandles,
+            Core::CheckedRingBuffer<2, 0>    &allocator
         );
 
         template <typename UniformType>

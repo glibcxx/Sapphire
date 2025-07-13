@@ -19,5 +19,6 @@ namespace Core {
         typename Ring::RingPtr                  mBuffer;                // off+24
         Ring                                    mRing;                  // off+40
     };
+    static_assert(sizeof(RingAllocatorContainer<uint8_t>) == 200);
 
 } // namespace Core
