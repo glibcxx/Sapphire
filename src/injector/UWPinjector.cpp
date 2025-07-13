@@ -150,7 +150,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
         PAGE_READWRITE
     )};
     if (!pRemotePath) {
-        Logger::ErrorBox(L"[UWPinjector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[injector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -162,7 +162,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
             (dllPathStr.size() + 1) * sizeof(wchar_t),
             nullptr
         )) {
-        Logger::ErrorBox(L"[UWPinjector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[injector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -171,7 +171,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
         CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
     };
     if (!hThread) {
-        Logger::ErrorBox(L"[UWPinjector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        Logger::ErrorBox(L"[injector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
     // 等待线程结束
@@ -180,7 +180,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
     DWORD exitCode;
     GetExitCodeThread(hThread.get(), &exitCode);
     if (exitCode == STILL_ACTIVE)
-        Logger::WarnBox(L"[UWPinjector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
+        Logger::WarnBox(L"[injector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
 
     return exitCode;
 }
@@ -207,7 +207,7 @@ int main(int argc, char **argv) {
 
     HRESULT hResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hResult)) {
-        Logger::ErrorBox(L"[UWPinjector] CoInitializeEx 失败 (错误码: {})", hResult);
+        Logger::ErrorBox(L"[injector] CoInitializeEx 失败 (错误码: {})", hResult);
         return 1;
     }
 
@@ -220,7 +220,7 @@ int main(int argc, char **argv) {
 
     fs::path currentDir = getCurrentPath();
     if (dwProcessId == 0) {
-        launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"UWPinjector.exe");
+        launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"sapphire_launcher.exe");
     } else {
         bool             injectionSuccessful = false;
         util::ScopeGuard autoTerminateOrResume{
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
             currentDir = fs::path{argv[0]}.parent_path();
             dllPath = currentDir / L"sapphire_core.dll";
             if (!fs::exists(dllPath)) {
-                Logger::ErrorBox(L"[UWPinjector] 未找到dll内核：{}", dllPath.c_str());
+                Logger::ErrorBox(L"[injector] 未找到dll内核：{}", dllPath.c_str());
                 return 1;
             }
         }
@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
         SetPermissions(modsPath, GENERIC_READ | GENERIC_EXECUTE);
         AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId)};
         if (!hProcess && hProcess.get() == INVALID_HANDLE_VALUE) {
-            Logger::ErrorBox(L"[UWPinjector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+            Logger::ErrorBox(L"[injector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
             return 1;
         }
 
@@ -285,19 +285,19 @@ int main(int argc, char **argv) {
 
         if (p_sd) LocalFree(p_sd);
         if (h_pipe.get() == INVALID_HANDLE_VALUE) {
-            Logger::ErrorBox(L"[UWPinjector] 无法打开通信管道 (错误码: {})", GetLastError());
+            Logger::ErrorBox(L"[injector] 无法打开通信管道 (错误码: {})", GetLastError());
             return 1;
         }
 
         DWORD code = injectDll(hProcess.get(), dllPath);
         if (code == 0) {
-            Logger::ErrorBox(L"[UWPinjector] sapphire_core.dll 注入失败！");
+            Logger::ErrorBox(L"[injector] sapphire_core.dll 注入失败！");
             return 1;
         }
         BOOL b_connected = ConnectNamedPipe(h_pipe.get(), nullptr);
         if (!b_connected) {
             if (GetLastError() != ERROR_PIPE_CONNECTED) {
-                Logger::ErrorBox(L"[UWPinjector] 连接通信管道失败 (错误码: {})", GetLastError());
+                Logger::ErrorBox(L"[injector] 连接通信管道失败 (错误码: {})", GetLastError());
                 return 1;
             }
         }
@@ -313,7 +313,7 @@ int main(int argc, char **argv) {
                 return 1;
             }
         } else {
-            Logger::ErrorBox(L"[UWPinjector] 读取通信管道失败 (错误码: {})", GetLastError());
+            Logger::ErrorBox(L"[injector] 读取通信管道失败 (错误码: {})", GetLastError());
             return 1;
         }
     }
