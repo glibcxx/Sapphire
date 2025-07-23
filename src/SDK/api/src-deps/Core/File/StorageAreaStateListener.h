@@ -19,6 +19,7 @@ namespace Core {
         Unknown = 6,
     };
 
+    // size: 104
     class StorageAreaStateListener {
     public:
         std::shared_ptr<Core::FileStorageArea> mFileStorageArea;

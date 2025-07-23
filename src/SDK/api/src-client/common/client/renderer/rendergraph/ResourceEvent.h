@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/Utility/optional_ref.h"
 
 namespace rendergraph {

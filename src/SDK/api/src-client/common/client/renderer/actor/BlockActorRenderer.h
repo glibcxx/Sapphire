@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 
 #include "BaseActorRenderer.h"
 #include "BaseActorRenderContext.h"

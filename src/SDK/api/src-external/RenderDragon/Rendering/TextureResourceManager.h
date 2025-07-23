@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "BufferHandleType.h"
 
 namespace dragon::rendering {

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 
+// size: 24
 class IClientInstance : public Bedrock::EnableNonOwnerReferences {
 public:
     virtual ~IClientInstance() = 0;

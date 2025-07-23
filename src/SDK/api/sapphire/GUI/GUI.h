@@ -31,6 +31,10 @@ public:
 
     SDK_API static void registerPluginSettings(PluginSettings &&settings);
 
+    static void registerPluginSettings(const std::string &name , const std::string &description, std::function<void()> drawSettings) {
+        return registerPluginSettings({name, description, drawSettings});
+    }
+
     SDK_API static void registerHotkey(Hotkey &&hotkey);
 
     SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));

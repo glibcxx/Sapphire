@@ -5,41 +5,45 @@
 
 namespace Bedrock {
 
+    // size: 16 (1.21.2), 24 (1.21.50+)
     template <typename T>
     class NonOwnerPointer {
     public:
         std::shared_ptr<EnableNonOwnerReferences::ControlBlock> mControlBlock; // off+0
 #if MC_VERSION >= v1_21_50
-        T *mPtr; // off+16
+        T *mPtr = nullptr; // off+16
 #endif
 
-        operator bool() const {
-            return access();
+        NonOwnerPointer() = default;
+
+        NonOwnerPointer(std::shared_ptr<EnableNonOwnerReferences::ControlBlock> cb, T *ptr) :
+            mControlBlock(std::move(cb)), mPtr(ptr) {}
+
+        bool isValid() const {
+#if MC_VERSION == v1_21_2
+            return mControlBlock && mControlBlock->mPtr;
+#elif MC_VERSION >= v1_21_50
+            return mControlBlock && mControlBlock->mIsValid;
+#endif
         }
+
+        operator bool() const { return isValid(); }
 
         T *access() const {
 #if MC_VERSION == v1_21_2
-            return mControlBlock ? static_cast<T *>(mControlBlock->mPtr) : nullptr;
+            return isValid() ? static_cast<T *>(mControlBlock->mPtr) : nullptr;
 #elif MC_VERSION >= v1_21_50
-            return mControlBlock && mControlBlock->mIsValid ? mPtr : nullptr;
+            return isValid() ? mPtr : nullptr;
 #endif
         }
 
-        T *operator->() const {
-            return access();
-        }
+        T *operator->() const { return access(); }
 
-        T &operator*() const {
-            return *access();
-        }
+        T &operator*() const { return *access(); }
 
-        bool operator==(const NonOwnerPointer &other) const {
-            return access() == other.access();
-        }
+        bool operator==(const NonOwnerPointer &other) const { return access() == other.access(); }
 
-        bool operator==(nullptr_t) const {
-            return access() == nullptr;
-        }
+        bool operator==(nullptr_t) const { return isValid(); }
     };
 
     template <typename T>

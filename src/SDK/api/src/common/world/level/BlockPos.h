@@ -1,7 +1,7 @@
 #pragma once
 
 #include <format>
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 
 class BlockPos {
 public:

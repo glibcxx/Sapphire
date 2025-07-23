@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureResourceService.h"
 #include "SDK/api/src-external/RenderDragon/Platform/GraphicsPlatform.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialUniformHandles.h"

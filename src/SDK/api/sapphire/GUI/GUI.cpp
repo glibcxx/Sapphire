@@ -1,5 +1,6 @@
 #include "GUI.h"
 
+#include "SDK/core/Core.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
 #include <backends/imgui_impl_dx11.h>

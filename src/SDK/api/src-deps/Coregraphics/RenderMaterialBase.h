@@ -1,17 +1,16 @@
 #pragma once
 
-#include <map>
 #include <set>
-#include <string>
 #include "SDK/api/src-deps/Core/File/Path.h"
 #include "SDK/api/src-deps/Core/Utility/SemVersion.h"
+#include "SDK/api/src-deps/json/Value.h"
 
 namespace cg {
 
     struct VariationMap {
     public:
         std::map<std::string, cg::VariationMap> mMaterialJsonVariationMap; // off+0
-        uint64_t                                mVariantJson[2];           // off+16, Json::Value
+        Json::Value                                mVariantJson;           // off+16
     };
     static_assert(sizeof(VariationMap) == 32);
 

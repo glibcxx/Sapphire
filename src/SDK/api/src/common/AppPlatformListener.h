@@ -7,6 +7,7 @@ enum class OperationMode : int {
     Console = 1,
 }; // OperationMode
 
+// size: 16
 class AppPlatformListener {
 public:
     bool mListenerRegistered; // off+8

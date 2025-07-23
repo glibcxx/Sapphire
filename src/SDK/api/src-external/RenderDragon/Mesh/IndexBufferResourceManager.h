@@ -3,7 +3,7 @@
 #include <optional>
 #include <variant>
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BufferResourceManager.h"
 #include "IndexBufferResourceManagerTypes.h"
 

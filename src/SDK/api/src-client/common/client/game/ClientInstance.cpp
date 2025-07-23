@@ -1,8 +1,12 @@
 #include "ClientInstance.h"
 
 #include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "util/ScopeGuard.hpp"
+
+#include "SDK/api/src/common/certificates/Certificate.h"
+#include "SDK/api/src-client/common/client/network/LegacyClientNetworkHandler.h"
 
 void *const *ClientInstance::__vftable0 = reinterpret_cast<void *const *>(
     sapphire::Core::getInstance().getImagebase()
@@ -71,4 +75,14 @@ bool ClientInstance::getRenderPlayerModel() const {
 #endif
         &ClientInstance::getRenderPlayerModel>;
     return (this->*Hook::origin)();
+}
+
+std::unique_ptr<LegacyClientNetworkHandler> ClientInstance::_createNetworkHandler(std::unique_ptr<Certificate> cert) {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_50
+        "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x48\x89\x28\x48\x89\x54\x24\x00\x48\x8D\x54\x24\x00\x48\x8B\xCB"_sig,
+#endif
+        &ClientInstance::_createNetworkHandler,
+        sapphire::deRefCall>;
+    return (this->*Hook::origin)(std::move(cert));
 }

@@ -1,5 +1,6 @@
 #include "EventHooks.h"
 
+#include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src-deps/Application/AppPlatform.h"
 #include "SDK/api/sapphire/event/EventManager.h"
 #include "../AppInitializedEvent.h"

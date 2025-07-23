@@ -1,4 +1,5 @@
 #include "LogFile.h"
+
 #include "SDK/core/Core.h"
 
 namespace Logger {

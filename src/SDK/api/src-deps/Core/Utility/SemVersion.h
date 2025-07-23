@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/String/StaticOptimizedString.h"
 
 #if MC_VERSION <= v1_21_50

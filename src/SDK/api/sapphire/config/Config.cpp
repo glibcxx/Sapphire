@@ -1,5 +1,7 @@
 #include "Config.h"
 
+#include "SDK/core/Core.h"
+
 namespace sapphire::inline config {
 
     ConfigManager::ConfigManager() :

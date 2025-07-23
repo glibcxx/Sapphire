@@ -6,15 +6,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options("/utf-8")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 else()
     message(FATAL_ERROR "[ERROR] Currently do not support other compilers. Please use MSVC.")
 endif()
-
-# Debug 模式下的迭代器调试级别
-# 主要针对 MSVC STL std::string 在不同模式下内存布局不同
-add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -117,9 +112,18 @@ target_link_directories(SapphireCommon INTERFACE
 )
 target_link_libraries(SapphireCommon INTERFACE glm nlohmann_json EnTT::EnTT Microsoft.GSL::GSL concurrentqueue)
 
+target_compile_options(SapphireCommon INTERFACE
+    "/utf-8"
+)
 target_compile_definitions(SapphireCommon INTERFACE
+    UNICODE
+    _UNICODE
+    NOMINMAX
+    WIN32_LEAN_AND_MEAN 
+    "MC_VERSION=${MC_VERSION}"
     ENTT_SPARSE_PAGE=2048
     ENTT_PACKED_PAGE=128
+    $<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>
 )
 
 add_subdirectory(src/plugins)

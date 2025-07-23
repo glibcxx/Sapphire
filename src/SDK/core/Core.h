@@ -4,10 +4,8 @@
 #include <Psapi.h>
 
 #include <string>
-#include "Version.h"
 #include "util/StringLiteral.hpp"
 #include "util/Memory.hpp"
-#include "SDK/api/sapphire/hook/Hook.h"
 #include "ApiManager.h"
 #include "PluginManager.h"
 

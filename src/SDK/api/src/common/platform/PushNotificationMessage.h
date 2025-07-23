@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "SDK/api/src-deps/json/Value.h"
 
 enum class PushNotificationType : int {
     Achievement = 0,
@@ -18,9 +18,9 @@ enum class PushNotificationType : int {
 // size: 88
 class PushNotificationMessage {
 public:
-    PushNotificationType m_Type;           // off+0
-    std::string          m_Title;          // off+8
-    std::string          m_Description;    // off+40
-    uint64_t             m_PropertyBag[2]; // off+72, Json::Value
+    PushNotificationType m_Type;        // off+0
+    std::string          m_Title;       // off+8
+    std::string          m_Description; // off+40
+    Json::Value          m_PropertyBag; // off+72
 };
 static_assert(sizeof(PushNotificationMessage) == 88);

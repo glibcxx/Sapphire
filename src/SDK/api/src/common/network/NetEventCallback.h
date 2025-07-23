@@ -3,7 +3,6 @@
 #include <string>
 #include <functional>
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
-#include "Packet.h"
 #include "NetworkIdentifierWithSubId.h"
 #include "ShowStoreOfferRedirectType.h"
 #include "PacketViolationResponse.h"
@@ -13,9 +12,12 @@
 #    include "OutgoingPacketFilterResult.h"
 #endif
 
+class Packet;
 class Player;
 class ResourcePackClientResponsePacket;
 class IPacketSecurityController;
+class TextPacket;
+enum class MinecraftPacketIds : int;
 namespace Connection {
     enum class DisconnectFailReason : int;
 }
@@ -125,5 +127,13 @@ public:
     virtual GameSpecificNetEventCallback *getGameSpecificNetEventCallback() = 0;
 
     // ... many handle functions
+
+    /*virtual*/ void handle(const NetworkIdentifier &source, const TextPacket &packet) {
+#if MC_VERSION == v1_21_2
+        memory::vCall(this, 21, source, packet);
+#elif MC_VERSION == v1_21_50
+        memory::vCall(this, 210, source, packet);
+#endif
+    }
 };
 static_assert(sizeof(NetEventCallback) == 24);

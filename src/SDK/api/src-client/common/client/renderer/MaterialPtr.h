@@ -7,6 +7,7 @@
 
 namespace mce {
 
+    // size: 16
     class MaterialPtr {
     public:
         std::shared_ptr<mce::RenderMaterialInfo> mRenderMaterialInfoPtr;

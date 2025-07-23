@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "UIScreenContext.h"
 #include "SDK/api/src-deps/MinecraftRenderer/Renderer/MeshContext.h"
 #include "SDK/api/src-deps/Core/Memory/LinearAllocator.h"

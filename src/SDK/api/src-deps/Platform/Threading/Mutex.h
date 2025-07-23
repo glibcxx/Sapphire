@@ -7,6 +7,7 @@ namespace Bedrock {
 
 namespace Threading {
 
+    // size: 80
     typedef std::mutex              Mutex;
     typedef std::shared_timed_mutex SharedMutex;
     typedef std::recursive_mutex    RecursiveMutex;

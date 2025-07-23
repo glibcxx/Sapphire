@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Version.h"
+
 #define EXPORT_DLL __declspec(dllexport)
 #define IMPORT_DLL __declspec(dllimport)
 

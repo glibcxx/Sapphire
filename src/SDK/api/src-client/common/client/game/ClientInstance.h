@@ -8,17 +8,21 @@
 #include "SDK/api/src/common/world/actor/player/PlayerListener.h"
 #include "SDK/api/src/common/entity/components/RenderCameraComponent.h"
 
+class ToastManager;
+class Certificate;
+class LegacyClientNetworkHandler;
+
 class ClientInstance : public IClientInstance,
-                       public ::Core::StorageAreaStateListener,
+                       public Core::StorageAreaStateListener,
                        public GameCallbacks,
                        public PlayerListener,
                        public std::enable_shared_from_this<ClientInstance> {
 public:
     static_assert(sizeof(IClientInstance) == 24);
-    static_assert(sizeof(::Core::StorageAreaStateListener) == 128 - 24);
+    static_assert(sizeof(Core::StorageAreaStateListener) == 128 - 24);
     static_assert(sizeof(PlayerListener) == 136 - 128);
 
-    /*virtual*/ bool getMouseGrabbed() const {
+    /*virtual*/ bool getMouseGrabbed() const /*override*/ {
         // \x40\x53\x48\x83\xEC\x00\x48\x8B\x01\x48\x8B\xD9\x48\x8B\x80\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x80\x00\x00\x00\x00\xFF\x15
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         return memory::vCall<bool>(this, 167);
@@ -27,7 +31,7 @@ public:
 #endif
     }
 
-    /*virtual*/ bool isShowingMenu() const {
+    /*virtual*/ bool isShowingMenu() const /*override*/ {
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         return memory::vCall<bool>(this, 172); // \x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xD9\x45\x33\xFF\x44\x89\x7C\x24\x00\x44\x88\x7D
 #elif MC_VERSION == v1_21_2
@@ -35,7 +39,7 @@ public:
 #endif
     }
 
-    /*virtual*/ void grabMouse() const {
+    /*virtual*/ void grabMouse() const /*override*/ {
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         memory::vCall(this, 340);
 #elif MC_VERSION == v1_21_2
@@ -43,7 +47,7 @@ public:
 #endif
     }
 
-    /*virtual*/ void releaseMouse() {
+    /*virtual*/ void releaseMouse() /*override*/ {
         // \x40\x53\x48\x83\xEC\x00\x48\x8B\x01\x48\x8B\xD9\x48\x8B\x80\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x80\x00\x00\x00\x00\x48\x83\xC4\x00\x5B\x48\xFF\x25\x00\x00\x00\x00\x48\x83\xC4\x00\x5B\xC3\x48\x89\x5C\x24
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         memory::vCall(this, 341);
@@ -52,9 +56,17 @@ public:
 #endif
     }
 
+    /*virtual*/ ToastManager &getToastManager() /*override*/ {
+#if MC_VERSION == v1_21_50
+        return *memory::getField<std::shared_ptr<ToastManager>>(this, 1448);
+#endif
+    }
+
     SDK_API RenderCameraComponent *getRenderCameraComponent() const;
 
-    SDK_API /*virtual*/ bool getRenderPlayerModel() const;
+    SDK_API /*virtual*/ bool getRenderPlayerModel() const /*override*/;
+
+    SDK_API std::unique_ptr<LegacyClientNetworkHandler> _createNetworkHandler(std::unique_ptr<Certificate> cert);
 
     SDK_API static void *const *__vftable0;
     SDK_API static void *const *__vftable1;

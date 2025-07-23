@@ -9,7 +9,7 @@ class WeakRefT;
 template <typename Traits>
 class OwnerPtrT : public Traits::OwnerStorage {
 public:
-    using OwnerStackRef = typename Traits::OwnerStackRef;
+    // using OwnerStackRef = typename Traits::OwnerStackRef;
 
     OwnerPtrT() :
         Traits::OwnerStorage(nullptr) {}

@@ -3,7 +3,7 @@
 #include <string_view>
 #include <variant>
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexBufferResourceManagerTypes.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/IndexBufferResourceManagerTypes.h"

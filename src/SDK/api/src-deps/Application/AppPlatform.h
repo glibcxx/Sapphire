@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IAppPlatform.h"
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src/common/AppPlatformListener.h"
 #include "SDK/api/src-deps/Core/SecureStorage/SecureStorageKey.h"
 #include "SDK/api/src-deps/Core/Utility/ServiceLocator.h"

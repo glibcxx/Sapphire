@@ -145,19 +145,21 @@ HOOK_TYPE(
     sapphire::hook::HookPriority::Normal,
     MouseDevice::feed,
     void,
-    MouseAction::ActionType action,
-    int                     buttonData,
-    short                   x,
-    short                   y,
-    short                   dx,
-    short                   dy,
-    bool                    forceMotionlessPointer
+    char  actionButtonId,
+    int   buttonData,
+    short x,
+    short y,
+    short dx,
+    short dy,
+    bool  forceMotionlessPointer
 ) {
     if (GuiOverlay::sShowPannel || ImGui::GetIO().WantCaptureMouse)
         return;
     if (instance->mDisableGameMouseMoveInput)
         dx = dy = 0;
-    this->origin(action, buttonData, x, y, dx, dy, forceMotionlessPointer);
+    if (instance->mDisableGameMouseWheelInput && actionButtonId == MouseAction::ActionType::ActionWheel)
+        return;
+    this->origin(actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
 }
 
 void InputManager::init() {
@@ -308,8 +310,9 @@ void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEven
 
 void InputManager::onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
     if (ClientInstance::primaryClientInstance) {
-        if (ClientInstance::primaryClientInstance->getMouseGrabbed())
+        if (!mDisableGameMouseWheelInput && ClientInstance::primaryClientInstance->getMouseGrabbed()) {
             return;
+        }
     } else {
         Logger::Warn("primaryClientInstance not found");
     }

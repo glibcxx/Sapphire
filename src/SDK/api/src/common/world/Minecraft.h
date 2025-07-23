@@ -1,5 +1,31 @@
 #pragma once
 
+#include "SDK/api/src/common/CommonTypes.h"
+#include "SDK/api/src/common/gamerefs/OwnerPtr.h"
+#include "SDK/api/src/common/entity/gamerefs_entity/IEntityRegistryOwner.h"
+#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
+
+class IMinecraftEventing;
+class ResourcePackManager;
+class StructureManager;
+class GameModuleServer;
+class AllowList;
+class PermissionsFile;
+class PrivateKeyManager;
+class ServerMetrics;
+class MinecraftCommands;
+class GameSession;
+class GameTestLevelListener;
+class MinecraftGameTest;
+class Timer;
+class PacketSender;
+class IMinecraftApp;
+class NetEventCallback;
+namespace Core {
+    class FilePathManager;
+}
+
+// size: 8
 class GameCallbacks {
 public:
     virtual ~GameCallbacks() = 0;
@@ -25,6 +51,39 @@ public:
     virtual void updateScreens() = 0;
 };
 
-class Minecraft {
+class Minecraft : public IEntityRegistryOwner {
+public:
+    GameCallbacks                                     &mGameCallbacks;         // off+24
+    IMinecraftEventing                                &mEventing;              // off+32
+    std::unique_ptr<ResourcePackManager>               mResourceLoader;        // off+40
+    std::unique_ptr<StructureManager>                  mStructureManager;      // off+48
+    std::shared_ptr<GameModuleServer>                  mGameModuleServer;      // off+56
+    AllowList                                         &mAllowList;             // off+72
+    PermissionsFile                                   *mPermissionsFile;       // off+80
+    std::unique_ptr<PrivateKeyManager>                 mServerKeys;            // off+88
+    const std::string                                  mSaveGamePath;          // off+96
+    Bedrock::NotNullNonOwnerPtr<Core::FilePathManager> mFilePathManager;       // off+128
+    ServerMetrics                                     *mServerMetrics;         // off+152
+    bool                                               mCorruptionDetected;    // off+160
+    bool                                               mFireOnLevelCorrupt;    // off+161
+    double                                             mFrameDuration;         // off+168
+    double                                             mLastFrameStart;        // off+176
+    std::chrono::seconds                               mMaxPlayerIdleTime;     // off+184
+    std::unique_ptr<MinecraftCommands>                 mCommands;              // off+192
+    std::unique_ptr<GameSession>                       mGameSession;           // off+200
+    std::unique_ptr<GameTestLevelListener>             mGameTestLevelListener; // off+208
+    std::unique_ptr<MinecraftGameTest>                 mGameTest;              // off+216
+    Timer                                             &mSimTimer;              // off+224
+    Timer                                             &mRealTimer;             // off+232
+    std::aligned_storage_t<16, 8>                      mNetwork;               // off+240
+    PacketSender                                      &mPacketSender;          // off+256
+    IMinecraftApp                                     &mApp;                   // off+264
+    SubClientId                                        mClientSubId;           // off+272
+    OwnerPtr<EntityRegistry>                           mEntityRegistry;        // off+280
+    std::unique_ptr<void>                              mLevelSubscribers;      // off+296
+
+    // vtb+0
     virtual ~Minecraft() = 0;
+
+    SDK_API void startClientGame(std::unique_ptr<NetEventCallback> legacyClientNetworkHandler);
 };

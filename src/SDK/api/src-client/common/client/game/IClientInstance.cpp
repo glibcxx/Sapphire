@@ -1,6 +1,7 @@
 #include "IClientInstance.h"
 
 #include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 
 void *const *IClientInstance::__vftable = reinterpret_cast<void *const *>(
     sapphire::Core::getInstance().getImagebase()

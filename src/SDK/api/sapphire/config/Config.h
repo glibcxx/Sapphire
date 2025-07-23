@@ -7,7 +7,7 @@
 #include <optional>
 #include <nlohmann/json.hpp>
 
-#include "SDK/core/Core.h"
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "imgui.h"
 
