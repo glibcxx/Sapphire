@@ -2,13 +2,17 @@
 #include "SDK/api/sapphire/event/EventManager.h"
 #include "SDK/api/sapphire/event/events/AppTerminateEvent.h"
 
-SapphireEventAppPlatformListener::SapphireEventAppPlatformListener() :
-    mPlatform(ServiceLocator<AppPlatform>::get().mService) {
-    if (mPlatform) {
-        mPlatform->addListener(this, 0.0f);
-    }
-}
+namespace sapphire::event {
 
-void SapphireEventAppPlatformListener::onAppTerminated() {
-    EventManager::getInstance().dispatchEvent(AppTerminateEvent{*mPlatform});
-}
+    SapphireEventAppPlatformListener::SapphireEventAppPlatformListener() :
+        mPlatform(ServiceLocator<AppPlatform>::get().mService) {
+        if (mPlatform) {
+            mPlatform->addListener(this, 0.0f);
+        }
+    }
+
+    void SapphireEventAppPlatformListener::onAppTerminated() {
+        EventManager::getInstance().dispatchEvent(AppTerminateEvent{*mPlatform});
+    }
+
+} // namespace sapphire::event

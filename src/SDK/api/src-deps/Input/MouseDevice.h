@@ -27,5 +27,6 @@ public:
         short dy,
         bool  forceMotionlessPointer
     );
+    MARK_HOOKABLE(&MouseDevice::feed)
 };
 static_assert(sizeof(MouseDevice) == 56);

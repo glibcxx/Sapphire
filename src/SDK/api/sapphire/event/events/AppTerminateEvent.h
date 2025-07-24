@@ -4,10 +4,14 @@
 
 #include "SDK/api/src-deps/Application/AppPlatform.h"
 
-class AppTerminateEvent : public Event {
-    AppPlatform &mPlatform;
+namespace sapphire::event {
 
-public:
-    AppTerminateEvent(AppPlatform &platform) :
-        mPlatform(platform) {}
-};
+    class AppTerminateEvent : public Event {
+        AppPlatform &mPlatform;
+
+    public:
+        AppTerminateEvent(AppPlatform &platform) :
+            mPlatform(platform) {}
+    };
+
+} // namespace sapphire::event

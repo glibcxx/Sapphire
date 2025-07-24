@@ -65,6 +65,7 @@ public:
         const Json::Value &propertyBag,
         float              a5
     );
+    MARK_HOOKABLE(&ToastMessage::ctor)
 
     ToastMessage(const ToastMessage &) = delete;
     ToastMessage(ToastMessage &&) = delete;

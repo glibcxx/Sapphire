@@ -7,6 +7,8 @@
 #include "util/ApiUniqueId.hpp"
 #include "MainModuleInfo.h"
 
+#include "util/Hookable.h"
+
 template <util::StringLiteral A>
 consteval auto operator""_sig() {
     return A;

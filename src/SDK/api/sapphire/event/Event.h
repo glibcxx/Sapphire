@@ -2,7 +2,11 @@
 
 #include "macros/Macros.h"
 
-class Event {
-public:
-    virtual ~Event() {}
-};
+namespace sapphire::event {
+
+    class Event {
+    public:
+        virtual ~Event() = default;
+    };
+
+} // namespace sapphire::event

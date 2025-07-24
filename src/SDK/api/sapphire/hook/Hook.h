@@ -1,16 +1,10 @@
 #pragma once
 
-#include <bit>
 #include <array>
-#include <vector>
 #include <unordered_map>
-#include <functional>
 
 #include "macros/Macros.h"
-#include "util/ApiUniqueId.hpp"
 #include "util/TypeTraits.hpp"
-#include "util/Memory.hpp"
-#include "../logger/Logger.h"
 #include "SDK/core/ApiManager.h"
 
 namespace sapphire::inline hook {
@@ -28,12 +22,15 @@ namespace sapphire::inline hook {
         class PrioritizedHookFuncList;
 
         std::unordered_map<uintptr_t, PrioritizedHookFuncList> mHookedFunctions;
+        bool                                                   mInitialized = false;
 
         HookManager();
         ~HookManager();
 
     public:
         SDK_API static HookManager &getInstance();
+
+        void teardown();
 
         SDK_API bool hook(uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline);
         SDK_API void unhook(uintptr_t target, uintptr_t detour, HookPriority priority);
@@ -54,8 +51,10 @@ namespace sapphire::inline hook {
 #define IMPL_HOOK(Static, Const, FPtr, Call, HookName, TypeName, Priority, targetAddr, RetType, ...) \
     class HookName : public TypeName {                                                               \
         using FuncPtrType = RetType FPtr(__VA_ARGS__) Const;                                         \
-        inline static uintptr_t     sdkOriginal = 0;                                                 \
-        inline static FuncPtrType   trampoline = nullptr;                                            \
+        ASSERT_HOOKABLE("Function [ " #targetAddr " ] is not hookable!", (FuncPtrType) & targetAddr) \
+                                                                                                     \
+        inline static uintptr_t   sdkOriginal = 0;                                                   \
+        inline static FuncPtrType trampoline = nullptr;                                              \
                                                                                                      \
         template <typename... Args>                                                                  \
         Static RetType origin(Args &&...args) Const {                                                \

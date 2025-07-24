@@ -131,3 +131,8 @@ void installFMODHooks() {
         Logger::Debug("[Tickrate][AudioSpeed] FMOD Hook 安装成功！");
     }
 }
+
+void uninstallFMODHooks() {
+    FMODSystemPlaySoundHook::unhook();
+    FMODSystemInitHook::unhook();
+}

@@ -23,6 +23,7 @@ namespace mce::framebuilder::bgfxbridge {
             uint32_t                                                                   indicesOffset,
             uint32_t                                                                   indicesCount
         );
+        MARK_HOOKABLE(&makeMeshFilter)
 
     } // namespace meshutils
 
@@ -31,5 +32,6 @@ namespace mce::framebuilder::bgfxbridge {
         const DFC::MaterialFilter                                  &materialFilter,
         const mce::Mesh                                            &mesh
     );
+    MARK_HOOKABLE(&makeMeshFilter)
 
 } // namespace mce::framebuilder::bgfxbridge

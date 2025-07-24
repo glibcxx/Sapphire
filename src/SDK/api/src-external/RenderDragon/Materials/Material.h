@@ -113,6 +113,7 @@ namespace dragon::materials {
             const std::unordered_map<std::string, std::string>      &globalFlags,
             const std::optional<dragon::platform::GraphicsPlatform> &platform
         );
+        MARK_HOOKABLE(&Material::ctor)
     };
     static_assert(sizeof(Material) == 1024);
 

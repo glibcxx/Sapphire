@@ -26,6 +26,7 @@ namespace {
             &onClientCreatedLevel>;
         Hook::origin(This, std::move(level), localPlayer);
     }
+    MARK_HOOKABLE(&onClientCreatedLevel)
 
     HOOK_STATIC(
         GetClientLevelHook,
@@ -58,6 +59,7 @@ namespace {
             sapphire::deRefCall>;
         return Hook::origin(This, serverInstance, level);
     }
+    MARK_HOOKABLE(&ServerInstanceEventCoordinator__sendServerLevelInitialized)
 
     HOOK_STATIC(
         GetServerLevelHook,
@@ -100,6 +102,7 @@ namespace {
             sapphire::deRefCall>;
         return Hook::origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     }
+    MARK_HOOKABLE(&LocalPlayer_ctor)
 
     HOOK_STATIC(
         GetLocalPlayerHook,
@@ -137,6 +140,7 @@ namespace {
 #endif
             &makeClientInstance>::origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     }
+    MARK_HOOKABLE(&makeClientInstance)
 
     HOOK_STATIC(
         GetClientInstance,

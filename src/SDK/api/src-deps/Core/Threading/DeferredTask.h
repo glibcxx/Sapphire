@@ -19,6 +19,7 @@ public:
     bool                                    mUnk72;               // off+72
 
     SDK_API void operator()() const;
+    MARK_HOOKABLE(&lambda_144B72F30::operator())
 };
 static_assert(sizeof(lambda_144B72F30) == 80);
 
@@ -44,8 +45,10 @@ namespace Core {
 
         template <>
         SDK_API DeferredTask *ctor(lambda_144B72F30 &&callback);
+        MARK_HOOKABLE(&DeferredTask::ctor<lambda_144B72F30>)
 
         SDK_API bool tryExecute();
+        MARK_HOOKABLE(&DeferredTask::tryExecute)
     };
     static_assert(sizeof(DeferredTask) == 232);
 

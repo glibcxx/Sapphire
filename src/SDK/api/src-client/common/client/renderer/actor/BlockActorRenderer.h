@@ -11,10 +11,10 @@ public:
     BlockActorRenderer() = delete;
 
     // vtb+0
-    SDK_VAPI ~BlockActorRenderer() = 0;
+    virtual ~BlockActorRenderer() = 0;
 
     // vtb+2
-    SDK_VAPI void render(BaseActorRenderContext &context, BlockActorRenderData &renderData) = 0;
+    virtual void render(BaseActorRenderContext &context, BlockActorRenderData &renderData) = 0;
 
     // vtb+3
     virtual void unk_virtual_3() = 0;

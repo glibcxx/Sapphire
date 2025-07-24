@@ -11,7 +11,7 @@ namespace dragon::materials {
         return (this->*Hook::origin)(other, allocator);
     }
 
-    SDK_API MaterialUniformMap *MaterialUniformMap::ctor(
+    MaterialUniformMap *MaterialUniformMap::ctor(
         const CompiledMaterialDefinition &definition,
         MaterialUniformHandles           &uniformHandles,
         Core::CheckedRingBuffer<2, 0>    &allocator

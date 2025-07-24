@@ -74,6 +74,7 @@ namespace dragon::materials {
             Variant *ctor(const Variant *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x0F\xB6\x02\x88\x01\x48\x8D\x59\x00\x48\x89\x5C\x24\x00\x8B\x42 1.21.50
 
             SDK_API void dtor() noexcept;
+            MARK_HOOKABLE(&Variant::dtor)
         };
 
         // size: 136
@@ -85,6 +86,7 @@ namespace dragon::materials {
             std::optional<definition::BlendMode>         mDefaultBlendMode;  // off+128
 
             SDK_API void dtor() noexcept;
+            MARK_HOOKABLE(&Pass::dtor)
         };
 
         // size: 176
@@ -117,8 +119,10 @@ namespace dragon::materials {
         std::unordered_map<std::string, definition::CustomTypeDeclaration> mCustomTypes;     // off+272
 
         SDK_API CompiledMaterialDefinition *ctor();
+        MARK_HOOKABLE(&CompiledMaterialDefinition::ctor)
 
-        void _loadFrom(std::istream &inStream, uint64_t a2, uint64_t a3, uint8_t a4);
+        SDK_API void _loadFrom(std::istream &inStream, uint64_t a2, uint64_t a3, uint8_t a4);
+        MARK_HOOKABLE(&CompiledMaterialDefinition::_loadFrom)
     };
 
 } // namespace dragon::materials

@@ -14,5 +14,7 @@ public:
 template <typename Service>
 class ServiceLocator {
 public:
-    SDK_API static ServiceReference<Service> get();
+    static ServiceReference<Service> get() {
+        static_assert(false, "defualt ServiceLocator::get() is not implemented!");
+    }
 };

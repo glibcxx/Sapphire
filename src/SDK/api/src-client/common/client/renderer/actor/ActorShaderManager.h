@@ -11,5 +11,5 @@ public:
     virtual ~ActorShaderManager() = 0;
 
     // vtb+1
-    SDK_VAPI mce::Color &_getOverlayColor(Actor &entity, float a) const;
+    virtual mce::Color &_getOverlayColor(Actor &entity, float a) const;
 };

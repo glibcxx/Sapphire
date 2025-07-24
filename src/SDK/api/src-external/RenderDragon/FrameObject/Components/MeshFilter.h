@@ -30,6 +30,7 @@ namespace DFC /*dragon::frameobject::components*/ {
         }
 
         SDK_API void dtor() noexcept;
+        MARK_HOOKABLE(&MeshFilter::dtor)
     };
 
 } // namespace DFC

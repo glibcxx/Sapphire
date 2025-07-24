@@ -12,6 +12,8 @@
 #include "SDK/api/sapphire/config/Config.h"
 #include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
 #include "SDK/api/sapphire/service/Service.h"
+#include "SDK/api/sapphire/event/events/AppTerminateEvent.h"
+#include "SDK/api/sapphire/event/EventManager.h"
 
 #include "util/threading/ThreadPool.h"
 #include "util/ScopedTimer.hpp"
@@ -45,13 +47,8 @@ namespace sapphire {
         return instance;
     }
 
-    Core::~Core() {
-        this->mPluginManager.uninitAllPlugins();
-        this->mPluginManager.freeAllPlugins();
-        sapphire::service::uninit();
-        EventHooks::uninit();
-        DX12Hook::uninstall();
-        winrt::uninit_apartment();
+    Core::~Core() noexcept {
+        this->_uninit();
     }
 
     void Core::init() {
@@ -99,6 +96,13 @@ namespace sapphire {
     }
 
     bool Core::_init() {
+        if (mInitialized) return true;
+
+        event::EventManager::getInstance().registerListener<event::AppTerminateEvent>(
+            [](event::AppTerminateEvent &e) {
+                sapphire::Core::getInstance()._uninit();
+            }
+        );
         util::TimerToken token;
         {
             util::ScopedTimer timer{token};
@@ -118,7 +122,7 @@ namespace sapphire {
             }
             DX12Hook::installAsync();
             DrawUtils::getInstance();
-            EventHooks::init();
+            event::EventHooks::init();
             sapphire::service::init();
 
             Logger::Info("[Core] 加载插件...");
@@ -133,11 +137,24 @@ namespace sapphire {
 
             apiManager.stopThreadPool();
         }
+        mInitialized = true;
         Logger::Info(
             "[Core] Sapphire初始化完毕，耗时：{}",
             std::chrono::duration_cast<std::chrono::milliseconds>(token.getDuration())
         );
         return true;
+    }
+
+    void Core::_uninit() noexcept {
+        if (!mInitialized) return;
+        this->mPluginManager.uninitAllPlugins();
+        this->mPluginManager.freeAllPlugins();
+        sapphire::service::uninit();
+        event::EventHooks::uninit();
+        DX12Hook::uninstall();
+        HookManager::getInstance().teardown();
+        Logger::Loggers::getInstance().flush();
+        mInitialized = false;
     }
 
     bool Core::loadAllPlugins() {

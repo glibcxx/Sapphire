@@ -8,12 +8,12 @@
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 
-static AutoListener<RenderLevelEvent> renderListener;
+static sapphire::event::AutoListener<sapphire::event::RenderLevelEvent> renderListener;
 
 static DrawUtils *drawUtils = nullptr;
 static bool       drawBorder = false;
 
-void onRenderLevel(RenderLevelEvent &event) {
+void onRenderLevel(sapphire::event::RenderLevelEvent &event) {
     if (!drawBorder) return;
     const Vec3 &camPos = event.mLevelRenderer->getLevelRendererPlayer().getCameraPos();
     ChunkPos    chunkPos{(int)std::floor(camPos.x) >> 4, (int)std::floor(camPos.z) >> 4};
@@ -108,6 +108,7 @@ void setupSettings() {
 void installChunkBorderRender() {
     Logger::Debug("installChunkBorderRender()");
     drawUtils = &DrawUtils::getInstance();
-    renderListener = EventManager::getInstance().registerAutoListener<RenderLevelEvent>(onRenderLevel);
+    renderListener = sapphire::event::EventManager::getInstance()
+                         .registerAutoListener<sapphire::event::RenderLevelEvent>(onRenderLevel);
     setupSettings();
 }

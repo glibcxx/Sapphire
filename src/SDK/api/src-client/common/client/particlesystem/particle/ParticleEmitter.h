@@ -98,6 +98,7 @@ namespace ParticleSystem {
     class ParticleEmitterActual : public ParticleEmitter {
     public:
         SDK_API virtual void tick(const std::chrono::nanoseconds &dtIn, const float a) override;
+        MARK_VIRTUAL_HOOKABLE(&ParticleEmitterActual::tick)
     };
 
 } // namespace ParticleSystem

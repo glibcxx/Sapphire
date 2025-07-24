@@ -1,8 +1,12 @@
 #include "EventManager.h"
 
-ListenerId EventManager::sNextListenerId = 0;
+namespace sapphire::event {
 
-EventManager &EventManager::getInstance() {
-    static EventManager instance;
-    return instance;
-}
+    ListenerId EventManager::sNextListenerId = 0;
+
+    EventManager &EventManager::getInstance() {
+        static EventManager instance;
+        return instance;
+    }
+
+} // namespace sapphire::event

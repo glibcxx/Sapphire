@@ -25,7 +25,7 @@ HOOK_TYPE(
     drawUtils->mScreenCtx = &ctx;
     drawUtils->mTess = &ctx.tessellator;
     this->origin(ctx, obj);
-    EventManager::getInstance().dispatchEvent(RenderLevelEvent{this, ctx});
+    sapphire::event::EventManager::getInstance().dispatchEvent(sapphire::event::RenderLevelEvent{this, ctx});
 
     drawUtils->flush();
 }

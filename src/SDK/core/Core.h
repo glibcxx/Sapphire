@@ -32,14 +32,17 @@ namespace sapphire {
         PluginManager mPluginManager;
 
         HMODULE mMainModuleHandle = GetModuleHandleW(nullptr);
+        bool    mInitialized = false;
 
         bool loadAllPlugins();
 
         bool _init();
 
+        void _uninit() noexcept;
+
     public:
         Core() = default;
-        ~Core();
+        ~Core() noexcept;
         Core(const Core &) = delete;
         Core &operator=(const Core &) = delete;
 

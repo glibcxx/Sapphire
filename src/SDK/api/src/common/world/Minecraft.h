@@ -86,4 +86,5 @@ public:
     virtual ~Minecraft() = 0;
 
     SDK_API void startClientGame(std::unique_ptr<NetEventCallback> legacyClientNetworkHandler);
+    MARK_HOOKABLE(&Minecraft::startClientGame)
 };

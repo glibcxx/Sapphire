@@ -266,8 +266,9 @@ TickRatePlugin::TickRatePlugin() {
 }
 
 TickRatePlugin::~TickRatePlugin() {
-    NormalTickRateHook::unhook();
+    uninstallFMODHooks();
     ParticleTickRateHook2::unhook();
+    NormalTickRateHook::unhook();
 }
 
 TickRatePlugin &TickRatePlugin::getInstance() {

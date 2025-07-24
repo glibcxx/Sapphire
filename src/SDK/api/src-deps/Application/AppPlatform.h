@@ -9,9 +9,12 @@
 class AppPlatform : public IAppPlatform, public ISecureStorageKeySystem {
 public:
     SDK_API /*virtual*/ void initialize();
+    MARK_HOOKABLE(&AppPlatform::initialize)
 
     SDK_API /*virtual*/ void addListener(AppPlatformListener *l, float priority);
+    MARK_HOOKABLE(&AppPlatform::addListener)
 };
 
 template <>
-SDK_API inline ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get();
+SDK_API ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get();
+MARK_HOOKABLE(&ServiceLocator<AppPlatform>::get)

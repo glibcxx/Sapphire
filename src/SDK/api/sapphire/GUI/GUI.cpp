@@ -113,7 +113,6 @@ void GuiOverlay::initImGui(
 void GuiOverlay::shutdownImGui() {
     GuiOverlay::sInitialized = false;
     ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
 

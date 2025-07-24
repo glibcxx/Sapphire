@@ -6,4 +6,5 @@ class ClientInputUpdateSystem {};
 
 struct ClientInputUpdateSystemInternal {
     SDK_API /*virtual*/ void tick(void *context) /*override*/;
+    MARK_HOOKABLE(&ClientInputUpdateSystemInternal::tick)
 };

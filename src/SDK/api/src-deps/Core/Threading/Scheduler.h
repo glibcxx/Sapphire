@@ -22,5 +22,6 @@ public:
     std::thread::id                       mThreadId;                // off+96
 
     SDK_API Scheduler *ctor(std::string name, uint32_t FPS);
+    MARK_HOOKABLE(&Scheduler::ctor)
 };
 static_assert(sizeof(Scheduler) == 104);

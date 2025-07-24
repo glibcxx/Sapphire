@@ -9,5 +9,6 @@ namespace MeshHelpers {
     SDK_API void renderMeshImmediately(
         ScreenContext &screenContext, Tessellator &tessellator, const mce::MaterialPtr &material, void *a4
     );
+    MARK_HOOKABLE(&MeshHelpers::renderMeshImmediately)
 
 };

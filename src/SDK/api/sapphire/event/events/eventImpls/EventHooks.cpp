@@ -7,27 +7,31 @@
 
 #include "EventAtAppPlatformListener.h"
 
-std::unique_ptr<SapphireEventAppPlatformListener> gAppPlatformListener = nullptr;
+namespace sapphire::event {
 
-HOOK_TYPE(
-    AppPlatformHook,
-    AppPlatform,
-    sapphire::hook::HookPriority::Normal,
-    AppPlatform::initialize,
-    void
-) {
-    this->origin();
-    EventManager::getInstance().dispatchEvent(AppInitializedEvent{*this});
-    gAppPlatformListener = std::make_unique<SapphireEventAppPlatformListener>();
-}
+    std::unique_ptr<SapphireEventAppPlatformListener> gAppPlatformListener = nullptr;
 
-void EventHooks::init() {
-    if (!AppPlatformHook::hook())
-        Logger::Error("[EventHooks] AppPlatformHook::hook failed!");
-    else
-        Logger::Debug("[EventHooks] AppPlatformHook::hook success!");
-}
+    HOOK_TYPE(
+        AppPlatformHook,
+        AppPlatform,
+        sapphire::hook::HookPriority::Normal,
+        AppPlatform::initialize,
+        void
+    ) {
+        this->origin();
+        EventManager::getInstance().dispatchEvent(AppInitializedEvent{*this});
+        gAppPlatformListener = std::make_unique<SapphireEventAppPlatformListener>();
+    }
 
-void EventHooks::uninit() {
-    AppPlatformHook::unhook();
-}
+    void EventHooks::init() {
+        if (!AppPlatformHook::hook())
+            Logger::Error("[EventHooks] AppPlatformHook::hook failed!");
+        else
+            Logger::Debug("[EventHooks] AppPlatformHook::hook success!");
+    }
+
+    void EventHooks::uninit() {
+        AppPlatformHook::unhook();
+    }
+
+} // namespace sapphire::event

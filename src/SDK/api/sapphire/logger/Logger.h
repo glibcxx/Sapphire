@@ -49,6 +49,10 @@ namespace Logger {
             mGameLogger.log(logEntry);
             mFileLogger.log(logEntry, level != LogLevel::Debug);
         }
+
+        void flush() {
+            mFileLogger.flush();
+        }
     };
 
     template <typename... Args>

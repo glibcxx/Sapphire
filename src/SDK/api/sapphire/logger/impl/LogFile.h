@@ -26,6 +26,11 @@ namespace Logger {
                     mLogFileStream.flush();
             }
         }
+
+        void flush() {
+            if (mLogFileStream.is_open())
+                mLogFileStream.flush();
+        }
     };
 
 } // namespace Logger

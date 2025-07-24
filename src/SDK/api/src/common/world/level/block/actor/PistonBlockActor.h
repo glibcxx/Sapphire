@@ -33,4 +33,5 @@ public:
     }
 
     SDK_API void tick(class BlockSource &region);
+    MARK_HOOKABLE(&PistonBlockActor::tick)
 };

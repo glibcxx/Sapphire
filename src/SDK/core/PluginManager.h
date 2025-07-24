@@ -2,6 +2,7 @@
 
 #include <minwindef.h>
 #include <vector>
+#include <ranges>
 #include "IPlugin.h"
 
 namespace sapphire {
@@ -38,17 +39,20 @@ namespace sapphire {
         }
 
         void uninitAllPlugins() {
-            for (auto &&plg : this->mLoadedPlugins) {
-                plg.instance->uninit();
+            for (auto &&plg : std::views::reverse(this->mLoadedPlugins)) {
+                if (plg.inited)
+                    plg.instance->uninit();
                 plg.inited = false;
             }
         }
 
         void freeAllPlugins() {
-            for (auto &&plg : this->mLoadedPlugins) {
+            for (auto &&plg : std::views::reverse(this->mLoadedPlugins)) {
                 if (plg.handle)
                     FreeLibrary(plg.handle);
+                plg.handle = nullptr;
             }
+            this->mLoadedPlugins.clear();
         }
 
     public:

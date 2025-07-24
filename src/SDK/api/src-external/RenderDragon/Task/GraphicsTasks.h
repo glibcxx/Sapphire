@@ -121,23 +121,29 @@ namespace dragon::task {
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &clientScheduler
         );
+        MARK_HOOKABLE(&GraphicsTasks::ctor)
 
         SDK_API InitializationState continueInit(InitializationState initState);
+        MARK_HOOKABLE(&GraphicsTasks::ctor)
 
         SDK_API bool _queueMainFrameRenderTask(const std::function<void(void)> &task);
+        MARK_HOOKABLE(&GraphicsTasks::_queueMainFrameRenderTask)
 
         SDK_API void waitForPreviousFrame();
+        MARK_HOOKABLE(&GraphicsTasks::waitForPreviousFrame)
 
         SDK_API void frame(
             const std::function<void(void)>                                                               &frameContentCallback,
             const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
         );
+        MARK_HOOKABLE(&GraphicsTasks::frame)
 
         class _lambda_144B71107_at_continueInit {
         public:
             GraphicsTasks *__this;
 
             SDK_API std::variant<std::monostate, InitBegin, InitPending, InitFinalize, InitEnd> operator()(const InitBegin &begin) const;
+            MARK_HOOKABLE(&_lambda_144B71107_at_continueInit::operator())
         };
     };
     static_assert(sizeof(GraphicsTasks) == 336);

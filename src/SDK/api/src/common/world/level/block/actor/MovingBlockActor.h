@@ -15,4 +15,5 @@ public:
     int                                mPreservedLifespan;
 
     SDK_API Vec3 getDrawPos(const IConstBlockSource &region, float alpha) const;
+    MARK_HOOKABLE(&MovingBlockActor::getDrawPos)
 };

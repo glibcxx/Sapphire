@@ -37,6 +37,7 @@ namespace mce {
         }
 
         SDK_API Mesh *ctor(mce::Mesh &&c);
+        MARK_HOOKABLE(&Mesh::ctor)
     };
     static_assert(sizeof(Mesh) == 560);
 

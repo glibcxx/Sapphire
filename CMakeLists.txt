@@ -56,7 +56,6 @@ FetchContent_Declare(
     GIT_TAG v1.0.4
 )
 
-
 # --- 项目版本与兼容性 ---
 # 允许从 CMake 命令行设置 MC_VERSION, 例如: cmake -DMC_VERSION=vX_Y_Z .. 
 # 默认为 "v1_21_60"
@@ -64,12 +63,18 @@ set(MC_VERSION_DEFAULT "v1_21_60")
 set(MC_VERSION "${MC_VERSION_DEFAULT}" CACHE STRING "Minecraft compatible version (v1_21_60, v1_21_50, v1_21_2)")
 message(STATUS "Configuring Sapphire for MC_VERSION: ${MC_VERSION}")
 
+# --- 编译期检测是否可 hook ---
+set(ENABLE_HOOKABLE_STATIC_ASSERT_DEFAULT ON)
+set(ENABLE_HOOKABLE_STATIC_ASSERT "${ENABLE_HOOKABLE_STATIC_ASSERT_DEFAULT}"
+    CACHE STRING "Detecting fucntion is hookable or not at compile time. (ON/OFF)")
+
 # --- 全局项目定义 ---
 add_compile_definitions(
     UNICODE
     _UNICODE
     NOMINMAX
     "MC_VERSION=${MC_VERSION}"
+    "ENABLE_HOOKABLE_STATIC_ASSERT=${ENABLE_HOOKABLE_STATIC_ASSERT}"
 )
 
 # --- 外部依赖 ---
@@ -119,7 +124,7 @@ target_compile_definitions(SapphireCommon INTERFACE
     UNICODE
     _UNICODE
     NOMINMAX
-    WIN32_LEAN_AND_MEAN 
+    WIN32_LEAN_AND_MEAN
     "MC_VERSION=${MC_VERSION}"
     ENTT_SPARSE_PAGE=2048
     ENTT_PACKED_PAGE=128

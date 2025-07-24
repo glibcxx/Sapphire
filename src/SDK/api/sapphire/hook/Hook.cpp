@@ -97,17 +97,25 @@ namespace sapphire::hook {
         return h;
     }
 
+    void HookManager::teardown() {
+        if (!this->mInitialized) return;
+        MH_Uninitialize();
+        this->mInitialized = false;
+    }
+
     HookManager::HookManager() {
         MH_Initialize();
+        this->mInitialized = true;
     }
 
     HookManager::~HookManager() {
-        MH_Uninitialize();
+        this->teardown();
     }
 
     bool HookManager::hook(
         uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline
     ) {
+        if (!this->mInitialized) return false;
         auto found = this->mHookedFunctions.find(target);
         trampoline = 0;
         if (found == this->mHookedFunctions.end()) {
@@ -133,6 +141,7 @@ namespace sapphire::hook {
     }
 
     void HookManager::unhook(uintptr_t target, uintptr_t detour, HookPriority priority) {
+        if (!this->mInitialized) return;
         auto found = this->mHookedFunctions.find(target);
         if (found == this->mHookedFunctions.end()) return;
         PrioritizedHookFuncList &list = found->second;

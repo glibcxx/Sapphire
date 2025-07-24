@@ -11,8 +11,6 @@
 #    define SDK_API IMPORT_DLL
 #endif
 
-#define SDK_VAPI SDK_API virtual
-
 #ifndef IMGUI_API
 #    define IMGUI_API SDK_API
 #endif
@@ -30,3 +28,7 @@
 #define CONCAT(a, b) CONCAT_(a, b)
 
 #define ASSUME(...) __assume(__VA_ARGS__);
+
+#ifndef ENABLE_HOOKABLE_STATIC_ASSERT
+#    define ENABLE_HOOKABLE_STATIC_ASSERT 1
+#endif
