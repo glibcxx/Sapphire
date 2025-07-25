@@ -16,7 +16,7 @@ namespace util::detail {
         friend auto hookable_flag(ADL<value>) {}
     };
 
-    template <auto ptr>
+    template <auto ptr, auto Seed = [] {}>
     concept is_hookable = requires { hookable_flag(detail::ADL<ptr>{}); };
 } // namespace util::detail
 
