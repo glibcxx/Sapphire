@@ -33,7 +33,7 @@ HOOK_TYPE_CONST(
     ClientInstance::getRenderPlayerModel,
     bool
 ) {
-    return freeCam->isEnabled() || this->origin();
+    return (freeCam->isEnabled() && freeCam->mShowPlayerModel) || this->origin();
 }
 
 HOOK_TYPE(
@@ -59,13 +59,7 @@ HOOK_TYPE(
     const Vec2 &deltaRot
 ) {
     if (freeCam->isEnabled() && freeCam->mRedirectMoveInputToFreeCamera) {
-        freeCam->mYaw -= deltaRot.y;
-        freeCam->mPitch += deltaRot.x;
-        freeCam->mPitch = std::clamp(freeCam->mPitch, -90.0f, 90.0f);
-
-        glm::quat yawQuat = glm::angleAxis(glm::radians(freeCam->mYaw), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::quat pitchQuat = glm::angleAxis(glm::radians(freeCam->mPitch), glm::vec3(1.0f, 0.0f, 0.0f));
-        freeCam->mFreeCamOrientation = yawQuat * pitchQuat;
+        freeCam->rotateFreeCamDelta(deltaRot);
 
         auto *moveInput = sapphire::getLocalPlayer()->getMoveInputComponent();
         if (moveInput) {
@@ -86,7 +80,7 @@ HOOK_TYPE(
             if (right == 0 && forward == 0) {
                 freeCam->mFreeCamPos += glm::vec3(0, up * moveSpeed, 0);
             } else {
-                glm::vec3 camera3DForward = freeCam->mFreeCamOrientation * glm::vec3(right, 0.0f, -forward);
+                glm::vec3 camera3DForward = freeCam->getFreeCamOrientation() * glm::vec3(right, 0.0f, -forward);
 
                 glm::vec3 horiNorm = glm::normalize(glm::vec3(camera3DForward.x, 0.0f, camera3DForward.z));
                 glm::vec3 upDir = glm::vec3(0, up, 0);
@@ -111,7 +105,7 @@ HOOK_TYPE(
         auto *camComp = ClientInstance::primaryClientInstance->getRenderCameraComponent();
         if (camComp) {
             camComp->mCamera.mPosition = freeCam->mFreeCamPos;
-            camComp->mCamera.mOrientation = freeCam->mFreeCamOrientation;
+            camComp->mCamera.mOrientation = freeCam->getFreeCamOrientation();
         }
     }
     this->origin(camera, a);
@@ -155,19 +149,33 @@ FreeCameraPlugin::~FreeCameraPlugin() {
     CaptureClientMinecraftHook::unhook();
 }
 
-void FreeCameraPlugin::enableFreeCamera(bool enable) {
+void FreeCameraPlugin::setFreeCamOrientation(const glm::quat &orientation) {
+    this->mFreeCamOrientation = orientation;
+    glm::vec3 forward = freeCam->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
+    mPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
+    glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitch), glm::vec3(1, 0, 0));
+    glm::quat yawQuatOnly = freeCam->mFreeCamOrientation * glm::inverse(pitchQuat);
+    float     angleDeg = glm::degrees(glm::angle(yawQuatOnly));
+    glm::vec3 axis = glm::axis(yawQuatOnly);
+    mYaw = (axis.y >= 0.0f ? 1.0f : -1.0f) * angleDeg;
+}
+
+void FreeCameraPlugin::rotateFreeCamDelta(const Vec2 &deltaRot) {
+    this->mYaw -= deltaRot.y;
+    this->mPitch += deltaRot.x;
+    this->mPitch = std::clamp(this->mPitch, -90.0f, 90.0f);
+    glm::quat yawQuat = glm::angleAxis(glm::radians(this->mYaw), glm::vec3(0.0f, 1.0f, 0.0f));
+    glm::quat pitchQuat = glm::angleAxis(glm::radians(this->mPitch), glm::vec3(1.0f, 0.0f, 0.0f));
+    this->mFreeCamOrientation = yawQuat * pitchQuat;
+}
+
+void FreeCameraPlugin::enableFreeCamera(bool enable, bool showPlayerModel) {
     this->mEnabled = enable;
+    this->mShowPlayerModel = showPlayerModel;
     if (this->mEnabled) {
         auto &cam = ClientInstance::primaryClientInstance->getRenderCameraComponent()->mCamera;
         this->mFreeCamPos = cam.mPosition;
-        this->mFreeCamOrientation = cam.mOrientation;
-        glm::vec3 forward = freeCam->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
-        mPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
-        glm::quat pitchQuat = glm::angleAxis(glm::radians(mPitch), glm::vec3(1, 0, 0));
-        glm::quat yawQuatOnly = freeCam->mFreeCamOrientation * glm::inverse(pitchQuat);
-        float     angleDeg = glm::degrees(glm::angle(yawQuatOnly));
-        glm::vec3 axis = glm::axis(yawQuatOnly);
-        mYaw = (axis.y >= 0.0f ? 1.0f : -1.0f) * angleDeg;
+        this->setFreeCamOrientation(cam.mOrientation);
     }
     if (this->mClientMinecraft) {
         TextPacket packet = TextPacket::createRaw(std::format("FreeCamera: {}", this->mEnabled ? "ON" : "OFF"));

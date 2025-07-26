@@ -106,7 +106,7 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
     UINT            SwapChainFlags
 ) {
     Logger::Debug("[ResizeBuffers] w: {}, h: {}", Width, Height);
- 
+
     if (GuiOverlay::sInitialized) {
         pd3d11DeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
         ImGui_ImplDX11_InvalidateDeviceObjects();
@@ -116,7 +116,7 @@ HRESULT __stdcall DX12Hook::hkResizeBuffers(
         CleanupRenderTargetResources();
     }
     WaitForGPU();
- 
+
     HRESULT hr = oResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags);
     if (FAILED(hr)) {
         Logger::Error("[DX12Hook] oResizeBuffers failed with HRESULT: {:#x}", (uint32_t)hr);
@@ -198,7 +198,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
     ImGui::NewFrame();
 
     // 绘制窗口
-    GuiOverlay::drawGUI();
+    GuiOverlay::frame();
 
     ImGui::Render();
 
@@ -270,6 +270,4 @@ void DX12Hook::uninstall() {
     }
 
     kiero::shutdown();
-
-    winrt::uninit_apartment();
 }

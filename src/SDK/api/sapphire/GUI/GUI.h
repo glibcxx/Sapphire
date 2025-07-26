@@ -85,7 +85,7 @@ private:
 
     static void handleHotkey();
 
-    static void drawGUI();
+    static void frame();
 
     static void refreshCursorPos();
 

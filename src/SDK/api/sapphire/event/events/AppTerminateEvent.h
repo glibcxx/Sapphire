@@ -7,9 +7,9 @@
 namespace sapphire::event {
 
     class AppTerminateEvent : public Event {
+    public:
         AppPlatform &mPlatform;
 
-    public:
         AppTerminateEvent(AppPlatform &platform) :
             mPlatform(platform) {}
     };

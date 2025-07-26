@@ -2,11 +2,14 @@
 
 #include "SDK/core/Core.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
+#include "SDK/api/sapphire/event/EventManager.h"
 
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
 
 using namespace std::chrono_literals;
+using namespace sapphire::event;
 
 std::unique_ptr<InputManager>             GuiOverlay::sInputManager = nullptr;
 std::vector<GuiOverlay::PluginSettings>   GuiOverlay::sPluginSettings{};
@@ -140,7 +143,10 @@ void GuiOverlay::handleHotkey() {
     }
 }
 
-void GuiOverlay::drawGUI() {
+void GuiOverlay::frame() {
+    EventManager::getInstance().dispatchEvent(
+        GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
+    );
 #ifndef NDEBUG
     static bool show_demo = true;
     if (show_demo)

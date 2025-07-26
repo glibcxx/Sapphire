@@ -7,9 +7,9 @@
 namespace sapphire::event {
 
     class AppInitializedEvent : public Event {
+    public:
         AppPlatform &mPlatform;
 
-    public:
         AppInitializedEvent(AppPlatform &platform) :
             mPlatform(platform) {}
     };

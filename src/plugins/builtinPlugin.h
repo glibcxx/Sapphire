@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/Core.h"
+#include "SDK/core/IPlugin.h"
 
 class BuiltinPlugin : public sapphire::IPlugin {
 public:

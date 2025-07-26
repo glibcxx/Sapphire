@@ -66,6 +66,9 @@ namespace mce::framebuilder {
         SDK_API /*virtual*/ void destroy() /*override*/;
         MARK_HOOKABLE(&BgfxFrameBuilder::destroy)
 
+        SDK_API /*virtual*/ void startFrame() /*override*/;
+        MARK_HOOKABLE(&BgfxFrameBuilder::startFrame)
+
         SDK_API /*virtual*/ void endFrame(mce::framebuilder::FrameBuilderContext &&frameBuilderContext) /*override*/;
         MARK_HOOKABLE(&BgfxFrameBuilder::endFrame)
 
