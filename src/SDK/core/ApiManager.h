@@ -7,7 +7,7 @@
 #include "util/ApiUniqueId.hpp"
 #include "MainModuleInfo.h"
 
-#include "util/Hookable.h"
+#include "SDK/api/sapphire/hook/SafeHook.h"
 
 template <util::StringLiteral A>
 consteval auto operator""_sig() {

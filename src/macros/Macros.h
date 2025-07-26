@@ -29,6 +29,6 @@
 
 #define ASSUME(...) __assume(__VA_ARGS__);
 
-#ifndef ENABLE_HOOKABLE_STATIC_ASSERT
-#    define ENABLE_HOOKABLE_STATIC_ASSERT 1
+#ifndef ENABLE_SAFE_HOOK
+#    define ENABLE_SAFE_HOOK 1
 #endif

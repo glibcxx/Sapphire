@@ -63,10 +63,10 @@ set(MC_VERSION_DEFAULT "v1_21_60")
 set(MC_VERSION "${MC_VERSION_DEFAULT}" CACHE STRING "Minecraft compatible version (v1_21_60, v1_21_50, v1_21_2)")
 message(STATUS "Configuring Sapphire for MC_VERSION: ${MC_VERSION}")
 
-# --- 编译期检测是否可 hook ---
-set(ENABLE_HOOKABLE_STATIC_ASSERT_DEFAULT ON)
-set(ENABLE_HOOKABLE_STATIC_ASSERT "${ENABLE_HOOKABLE_STATIC_ASSERT_DEFAULT}"
-    CACHE STRING "Detecting fucntion is hookable or not at compile time. (ON/OFF)")
+# --- 启用编译期安全 hook 检测 ---
+set(ENABLE_SAFE_HOOK_DEFAULT ON)
+set(ENABLE_SAFE_HOOK "${ENABLE_SAFE_HOOK_DEFAULT}"
+    CACHE STRING "Enable safe hook. (ON/OFF)")
 
 # --- 全局项目定义 ---
 add_compile_definitions(
@@ -74,7 +74,7 @@ add_compile_definitions(
     _UNICODE
     NOMINMAX
     "MC_VERSION=${MC_VERSION}"
-    "ENABLE_HOOKABLE_STATIC_ASSERT=${ENABLE_HOOKABLE_STATIC_ASSERT}"
+    "ENABLE_SAFE_HOOK=${ENABLE_SAFE_HOOK}"
 )
 
 # --- 外部依赖 ---
