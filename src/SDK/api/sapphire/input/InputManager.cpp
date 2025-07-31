@@ -9,8 +9,6 @@
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "util/String.hpp"
 
-#include <imgui/imgui.h>
-
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Core;
 
@@ -137,29 +135,124 @@ static constexpr ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
     }
 }
 
+static KeyCode mouseButtonToKeyCode(int button) {
+    switch (button) {
+    case 0: return KeyCode::MouseLeft;
+    case 1: return KeyCode::MouseRight;
+    case 2: return KeyCode::MouseMiddle;
+    case 3: return KeyCode::MouseX1;
+    case 4: return KeyCode::MouseX2;
+    default: return KeyCode::None;
+    }
+}
+
 InputManager *instance = nullptr;
 
 HOOK_TYPE(
-    CanncelMouseEventHook,
+    InputManager::MouseFeedHook,
     MouseDevice,
     sapphire::hook::HookPriority::Normal,
     MouseDevice::feed,
     void,
     char  actionButtonId,
-    int   buttonData,
+    char  buttonData,
     short x,
     short y,
     short dx,
     short dy,
     bool  forceMotionlessPointer
 ) {
-    if (GuiOverlay::sShowPannel || ImGui::GetIO().WantCaptureMouse)
+    InputInterceptor &interceptor = instance->mInputInterceptor;
+    if (interceptor.isAllMouseInputBlocked())
         return;
-    if (instance->mDisableGameMouseMoveInput)
-        dx = dy = 0;
-    if (instance->mDisableGameMouseWheelInput && actionButtonId == MouseAction::ActionType::ActionWheel)
-        return;
+
+    ImGuiIO &io = ImGui::GetIO();
+    switch (actionButtonId) {
+    case MouseAction::ActionType::ACTION_MOVE: {
+        if (interceptor.isMouseMoveBlocked())
+            return;
+        break;
+    }
+    case MouseAction::ActionType::ACTION_LEFT:
+    case MouseAction::ActionType::ACTION_RIGHT:
+    case MouseAction::ActionType::ACTION_MIDDLE:
+    case MouseAction::ActionType::ACTION_X1:
+    case MouseAction::ActionType::ACTION_X2: {
+        instance->_onRawMouseButtonEvent(
+            mouseButtonToKeyCode(actionButtonId - MouseAction::ActionType::ACTION_LEFT),
+            buttonData,
+            {(float)x, (float)y}
+        );
+        io.AddMouseButtonEvent(actionButtonId - MouseAction::ActionType::ACTION_LEFT, buttonData);
+        if (interceptor.isMouseButtonBlocked())
+            return;
+        break;
+    }
+    case MouseAction::ActionType::ACTION_WHEEL: {
+        instance->_onRawMouseWheel(0.0f, (float)buttonData);
+        io.AddMouseWheelEvent(0.0f, (float)buttonData / WHEEL_DELTA);
+        if (interceptor.isMouseWheelBlocked())
+            return;
+        break;
+    }
+    default: break;
+    }
+
     this->origin(actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
+}
+
+bool InputManager::isKeyDown(KeyCode key) const {
+    std::lock_guard lock(mStateMutex);
+    auto            it_curr = mCurrentKeyStates.find(key);
+    bool            current_state = it_curr != mCurrentKeyStates.end() && it_curr->second;
+
+    auto it_prev = mPreviousKeyStates.find(key);
+    bool prev_state = it_prev != mPreviousKeyStates.end() && it_prev->second;
+
+    return current_state && !prev_state;
+}
+
+bool InputManager::isKeyUp(KeyCode key) const {
+    std::lock_guard lock(mStateMutex);
+    auto            it_curr = mCurrentKeyStates.find(key);
+    bool            current_state = it_curr != mCurrentKeyStates.end() && it_curr->second;
+
+    auto it_prev = mPreviousKeyStates.find(key);
+    bool prev_state = it_prev != mPreviousKeyStates.end() && it_prev->second;
+
+    return !current_state && prev_state;
+}
+
+bool InputManager::isKeyPressed(KeyCode key) const {
+    std::lock_guard lock(mStateMutex);
+    auto            it = mCurrentKeyStates.find(key);
+    return it != mCurrentKeyStates.end() && it->second;
+}
+
+Vec2 InputManager::getMousePosition() const {
+    std::lock_guard lock(mStateMutex);
+    return mMousePosition;
+}
+
+Vec2 InputManager::getMouseDelta() const {
+    std::lock_guard lock(mStateMutex);
+    return mMouseDelta;
+}
+
+MouseWheelData InputManager::getMouseWheelData() const {
+    std::lock_guard lock(mStateMutex);
+    return mMouseWheel;
+}
+
+InputManager::InputManager(CoreWindow &coreWindow) :
+    mInputInterceptor(InputInterceptor::create()), mCoreWindow(coreWindow) {
+    this->init();
+}
+
+InputManager::~InputManager() {
+    MouseFeedHook::unhook();
+    this->mCoreDispatcher = nullptr;
+    this->mCoreWindow = nullptr;
 }
 
 void InputManager::init() {
@@ -183,6 +276,12 @@ void InputManager::init() {
                 this->onPointerWheelChanged(sender, args);
             }
         );
+        this->mCharacterReceivedRevoker = this->mCoreWindow.CharacterReceived(
+            winrt::auto_revoke,
+            [this](const CoreWindow &sender, const CharacterReceivedEventArgs &args) {
+                this->onCharacterReceived(sender, args);
+            }
+        );
     } catch (const winrt::hresult_error &ex) {
         Logger::Error("订阅 CoreWindowEvents 失败: {}", util::wstringToString(ex.message().c_str()));
         return;
@@ -200,16 +299,12 @@ void InputManager::init() {
         return;
     }
     instance = this;
-    CanncelMouseEventHook::hook();
-}
-
-InputManager::~InputManager() {
-    CanncelMouseEventHook::unhook();
-    this->mCoreDispatcher = nullptr;
-    this->mCoreWindow = nullptr;
+    MouseFeedHook::hook();
 }
 
 void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
+    InputInterceptor &interceptor = this->mInputInterceptor;
+
     winrt::Windows::System::VirtualKey vk = args.VirtualKey();
     CoreAcceleratorKeyEventType        eventType = args.EventType();
     CorePhysicalKeyStatus              keyStatus = args.KeyStatus();
@@ -217,54 +312,57 @@ void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const
     const bool extendedkey = keyStatus.IsExtendedKey;
     const bool isPressed = eventType == CoreAcceleratorKeyEventType::KeyDown
                         || eventType == CoreAcceleratorKeyEventType::SystemKeyDown;
+
     ImGuiIO &io = ImGui::GetIO();
+    auto     syncKey = [this, &io, isPressed](ImGuiKey key) {
+        this->_onRawKeyEvent(static_cast<KeyCode>(key), isPressed);
+        io.AddKeyEvent(key, isPressed);
+    };
+
     switch (vk) {
     case winrt::Windows::System::VirtualKey::Menu:
-        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftAlt : ImGuiKey::ImGuiKey_RightAlt, isPressed);
-        io.AddKeyEvent(ImGuiKey::ImGuiMod_Alt, isPressed);
+        syncKey(extendedkey ? ImGuiKey::ImGuiKey_LeftAlt : ImGuiKey::ImGuiKey_RightAlt);
+        syncKey(ImGuiKey::ImGuiMod_Alt);
         break;
     case winrt::Windows::System::VirtualKey::Control:
-        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftCtrl : ImGuiKey::ImGuiKey_RightCtrl, isPressed);
-        io.AddKeyEvent(ImGuiKey::ImGuiMod_Ctrl, isPressed);
+        syncKey(extendedkey ? ImGuiKey::ImGuiKey_LeftCtrl : ImGuiKey::ImGuiKey_RightCtrl);
+        syncKey(ImGuiKey::ImGuiMod_Ctrl);
         break;
     case winrt::Windows::System::VirtualKey::Shift:
-        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_LeftShift : ImGuiKey::ImGuiKey_RightShift, isPressed);
-        io.AddKeyEvent(ImGuiKey::ImGuiMod_Shift, isPressed);
+        syncKey(extendedkey ? ImGuiKey::ImGuiKey_LeftShift : ImGuiKey::ImGuiKey_RightShift);
+        syncKey(ImGuiKey::ImGuiMod_Shift);
         break;
     case winrt::Windows::System::VirtualKey::Delete:
-        io.AddKeyEvent(extendedkey ? ImGuiKey::ImGuiKey_Delete : ImGuiKey::ImGuiKey_KeypadDecimal, isPressed);
+        syncKey(extendedkey ? ImGuiKey::ImGuiKey_Delete : ImGuiKey::ImGuiKey_KeypadDecimal);
         break;
     default:
         if (ImGuiKey imguiKey = KeyEventToImGuiKey(static_cast<WPARAM>(vk)); imguiKey != ImGuiKey_None) {
-            io.AddKeyEvent(imguiKey, isPressed);
+            syncKey(imguiKey);
         }
         break;
     }
 
-    if (isPressed && io.WantTextInput) {
-        BYTE keyboardState[256] = {0};
-        GetKeyboardState(keyboardState);
-        WCHAR charBuf[2] = {0};
-        if (ToUnicode(static_cast<UINT>(vk), keyStatus.ScanCode, keyboardState, charBuf, 1, 0) > 0) {
-            io.AddInputCharacterUTF16(charBuf[0]);
-        }
-    }
-
-    if (io.WantCaptureKeyboard || mDisableGameKeyBoardInput) {
+    if (interceptor.mBlockAllKeys) {
         args.Handled(true);
     }
 }
 
-void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
-    if (ClientInstance::primaryClientInstance) {
-        if (ClientInstance::primaryClientInstance->getMouseGrabbed())
-            return;
-    } else {
-        Logger::Warn("primaryClientInstance not found");
+void InputManager::onCharacterReceived(const CoreWindow &sender, const CharacterReceivedEventArgs &args) {
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantTextInput) {
+        io.AddInputCharacter(args.KeyCode());
     }
+}
+
+void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
+    InputInterceptor &interceptor = this->mInputInterceptor;
+
     ImGuiIO                      &io = ImGui::GetIO();
     Input::PointerPoint           point = args.CurrentPoint();
     Input::PointerPointProperties props = point.Properties();
+
+    auto pos = point.Position();
+    _onRawMouseMove({pos.X, pos.Y});
 
     Input::PointerUpdateKind updateKind = props.PointerUpdateKind();
     int                      button = -1;
@@ -279,16 +377,22 @@ void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEvent
 
     if (button != -1) {
         io.AddMouseButtonEvent(button, true);
+        this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), true, {pos.X, pos.Y});
     }
-    if (GuiOverlay::sShowPannel || mDisableGamePointerInput) {
+    if (interceptor.isMouseButtonBlocked()) {
         args.Handled(true);
     }
 }
 
 void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args) {
+    InputInterceptor &interceptor = this->mInputInterceptor;
+
     ImGuiIO                      &io = ImGui::GetIO();
     Input::PointerPoint           point = args.CurrentPoint();
     Input::PointerPointProperties props = point.Properties();
+
+    auto pos = point.Position();
+    _onRawMouseMove({pos.X, pos.Y});
 
     Input::PointerUpdateKind updateKind = props.PointerUpdateKind();
     int                      button = -1;
@@ -302,20 +406,16 @@ void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEven
     }
     if (button != -1) {
         io.AddMouseButtonEvent(button, false);
+        this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), false, {pos.X, pos.Y});
     }
-    if (GuiOverlay::sShowPannel || mDisableGamePointerInput) {
+
+    if (interceptor.isMouseButtonBlocked()) {
         args.Handled(true);
     }
 }
 
 void InputManager::onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
-    if (ClientInstance::primaryClientInstance) {
-        if (!mDisableGameMouseWheelInput && ClientInstance::primaryClientInstance->getMouseGrabbed()) {
-            return;
-        }
-    } else {
-        Logger::Warn("primaryClientInstance not found");
-    }
+    InputInterceptor &interceptor = this->mInputInterceptor;
 
     using namespace Input;
     ImGuiIO               &io = ImGui::GetIO();
@@ -329,8 +429,97 @@ void InputManager::onPointerWheelChanged(const CoreWindow &sender, const Pointer
         float wheel_x = 0.0f;
         (props.IsHorizontalMouseWheel() ? wheel_x : wheel_y) = wheelAmount;
         io.AddMouseWheelEvent(wheel_x, wheel_y);
+        this->_onRawMouseWheel(wheel_x, wheel_y);
     }
-    if (GuiOverlay::sShowPannel || mDisableGameMouseWheelInput) {
+    if (interceptor.isMouseWheelBlocked()) {
         args.Handled(true);
+    }
+}
+
+void InputManager::_onRawKeyEvent(KeyCode key, bool is_down) {
+    std::lock_guard lock(mStateMutex);
+    mCurrentKeyStates[key] = is_down;
+}
+
+void InputManager::_onRawMouseButtonEvent(KeyCode button, bool is_down, const Vec2 &pos) {
+    std::lock_guard lock(mStateMutex);
+    mCurrentKeyStates[button] = is_down;
+    mMousePosition = pos;
+}
+
+void InputManager::_onRawMouseMove(const Vec2 &pos) {
+    std::lock_guard lock(mStateMutex);
+    mMousePosition = pos;
+}
+
+void InputManager::_onRawMouseWheel(float dx, float dy) {
+    std::lock_guard lock(mStateMutex);
+    mMouseWheel.horizontal = dx;
+    mMouseWheel.vertical = dy;
+}
+
+void InputManager::_onFrameEnd() {
+    std::lock_guard lock(mStateMutex);
+    mPreviousKeyStates = mCurrentKeyStates;
+
+    mMouseDelta.x = mMousePosition.x - mPreviousMousePosition.x;
+    mMouseDelta.y = mMousePosition.y - mPreviousMousePosition.y;
+    mPreviousMousePosition = mMousePosition;
+}
+
+void InputInterceptor::requestKeyBlock(KeyCode key) {
+    if (key < KeyCode::NamedKey_BEGIN || key >= KeyCode::NamedKey_END)
+        return;
+    size_t          idx = keycodeToIndex(key);
+    std::lock_guard lock(mMutex);
+    switch (key) {
+    case KeyCode::Mod_Shift:
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftShift));
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightShift));
+        break;
+    case KeyCode::Mod_Ctrl:
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftCtrl));
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightCtrl));
+        break;
+    case KeyCode::Mod_Alt:
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftAlt));
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightAlt));
+        break;
+    case KeyCode::Mod_Super:
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftSuper));
+        mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightSuper));
+        break;
+    default:
+        mBlockedKeysAndButtons.set(static_cast<size_t>(key));
+        break;
+    }
+}
+
+bool InputInterceptor::isKeyBlocked(KeyCode key) const {
+    return this->mBlockedKeysAndButtons.test(static_cast<size_t>(key));
+}
+
+bool InputInterceptor::isMouseButtonBlocked() const {
+    return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseButton;
+}
+
+bool InputInterceptor::isMouseMoveBlocked() const {
+    return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseMove;
+}
+
+bool InputInterceptor::isMouseWheelBlocked() const {
+    return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseWheel;
+}
+
+bool InputInterceptor::isAllMouseInputBlocked() const {
+    return this->mBlockMouseStatus == MouseBlockStatus::BlockAll;
+}
+
+void InputInterceptor::refresh() {
+    {
+        std::lock_guard lock(mMutex);
+        mBlockedKeysAndButtons = {};
+        mBlockMouseStatus = MouseBlockStatus::NoBlock;
+        mBlockAllKeys = false;
     }
 }

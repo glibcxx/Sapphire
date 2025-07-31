@@ -131,6 +131,10 @@ target_compile_definitions(SapphireCommon INTERFACE
     $<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>
 )
 
+target_precompile_headers(SapphireCommon INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h>
+)
+
 add_subdirectory(src/plugins)
 add_subdirectory(src/injector)
 add_subdirectory(src/SDK)

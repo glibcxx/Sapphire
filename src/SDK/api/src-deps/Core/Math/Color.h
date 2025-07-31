@@ -17,7 +17,7 @@ namespace mce {
     };
 
     namespace Colors {
-        constexpr Color WITHE{1.0f, 1.0f, 1.0f, 1.0f};
+        constexpr Color WHITE{1.0f, 1.0f, 1.0f, 1.0f};
         constexpr Color GREY{0.5f, 0.5f, 0.5f, 1.0f};
         constexpr Color BLACK{0.0f, 0.0f, 0.0f, 1.0f};
         constexpr Color RED{1.0f, 0.0f, 0.0f, 1.0f};

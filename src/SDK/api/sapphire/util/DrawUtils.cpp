@@ -42,18 +42,84 @@ DrawUtils::~DrawUtils() {
     RenderLevelMainFuncHook::unhook();
 }
 
-void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color) {
+void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color) const {
     if (!this->mLevelRenderer) {
         Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
         return;
     }
+    Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
     std::lock_guard guard{this->mMutex};
     this->mTess->begin(mce::PrimitiveMode::LineList, 1, false);
-    Vec3 &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
     this->mTess->color(color);
     this->mTess->vertex(from - camPos);
     this->mTess->vertex(to - camPos);
 }
+
+void DrawUtils::drawQuard(const Vec3 &a, const Vec3 &b, const Vec3 &c, const Vec3 &d, const mce::Color &color) const {
+    if (!this->mLevelRenderer) {
+        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        return;
+    }
+    Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
+    std::lock_guard guard{this->mMutex};
+    this->mTess->begin(mce::PrimitiveMode::LineList, 4, false);
+    this->mTess->color(color);
+
+    this->mTess->vertex(a - camPos);
+    this->mTess->vertex(b - camPos);
+
+    this->mTess->vertex(b - camPos);
+    this->mTess->vertex(c - camPos);
+
+    this->mTess->vertex(c - camPos);
+    this->mTess->vertex(d - camPos);
+
+    this->mTess->vertex(d - camPos);
+    this->mTess->vertex(a - camPos);
+}
+
+// clang-format off
+void DrawUtils::drawBox(const AABB &aabb, const mce::Color &color) const {
+    if (!this->mLevelRenderer) {
+        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        return;
+    }
+    Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
+    std::lock_guard guard{this->mMutex};
+
+    std::array<Vec3, 8> c{
+        Vec3{aabb.min.x, aabb.min.y, aabb.min.z},
+        Vec3{aabb.max.x, aabb.min.y, aabb.min.z},
+        Vec3{aabb.max.x, aabb.max.y, aabb.min.z},
+        Vec3{aabb.min.x, aabb.max.y, aabb.min.z},
+        Vec3{aabb.min.x, aabb.min.y, aabb.max.z},
+        Vec3{aabb.max.x, aabb.min.y, aabb.max.z},
+        Vec3{aabb.max.x, aabb.max.y, aabb.max.z},
+        Vec3{aabb.min.x, aabb.max.y, aabb.max.z}
+    };
+
+    this->mTess->begin(mce::PrimitiveMode::LineList, 12, false);
+    this->mTess->color(color);
+
+    // Bottom face
+    this->mTess->vertex(c[0] - camPos); this->mTess->vertex(c[1] - camPos);
+    this->mTess->vertex(c[1] - camPos); this->mTess->vertex(c[5] - camPos);
+    this->mTess->vertex(c[5] - camPos); this->mTess->vertex(c[4] - camPos);
+    this->mTess->vertex(c[4] - camPos); this->mTess->vertex(c[0] - camPos);
+
+    // Top face
+    this->mTess->vertex(c[3] - camPos); this->mTess->vertex(c[2] - camPos);
+    this->mTess->vertex(c[2] - camPos); this->mTess->vertex(c[6] - camPos);
+    this->mTess->vertex(c[6] - camPos); this->mTess->vertex(c[7] - camPos);
+    this->mTess->vertex(c[7] - camPos); this->mTess->vertex(c[3] - camPos);
+
+    // Vertical edges
+    this->mTess->vertex(c[0] - camPos); this->mTess->vertex(c[3] - camPos);
+    this->mTess->vertex(c[1] - camPos); this->mTess->vertex(c[2] - camPos);
+    this->mTess->vertex(c[4] - camPos); this->mTess->vertex(c[7] - camPos);
+    this->mTess->vertex(c[5] - camPos); this->mTess->vertex(c[6] - camPos);
+}
+// clang-format on
 
 void DrawUtils::flush() {
     if (!this->mLevelRenderer) {

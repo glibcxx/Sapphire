@@ -2,7 +2,7 @@
 
 void MouseDevice::feed(
     char  actionButtonId,
-    int   buttonData,
+    char  buttonData,
     short x,
     short y,
     short dx,

@@ -4,6 +4,7 @@
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src-deps/Platform/Threading/PrioritizeSharedOwnership.h"
 
+// size: 32 (1.21.2), 40 (1.21.50+)
 template <typename Service>
 class ServiceReference {
 public:

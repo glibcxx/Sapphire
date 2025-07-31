@@ -18,7 +18,7 @@ void AppPlatform::initialize() {
     (this->*Hook::origin)();
 }
 
-void AppPlatform::addListener(AppPlatformListener *l, float priority) {
+void AppPlatform::addListener(Listener *l, float priority) {
     using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x0F\x29\x74\x24\x00\x0F\x28\xF2"_sig,
@@ -29,10 +29,27 @@ void AppPlatform::addListener(AppPlatformListener *l, float priority) {
     (this->*Hook::origin)(l, priority);
 }
 
+SDK_API void AppPlatform::removeListener(Listener *l) {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x8B\xF2\x48\x81\xC1\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x85\xC0\x74\x00\x8B\xC8\xFF\x15\x00\x00\x00\x00\xCC\x48\x8B\x47"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF2\x48\x8B\xF9\x48\x81\xC1\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x85\xC0"_sig,
+#endif
+        &AppPlatform::removeListener>;
+    (this->*Hook::origin)(l);
+}
+
+void AppPlatform::_fireAppSuspended() {
+    using Hook = sapphire::ApiLoader<
+        "\xE9\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\xCC\xCC\xCC\xCC\xC6\x41"_sig,
+        &AppPlatform::_fireAppSuspended,
+        sapphire::deRefCall>;
+    return (this->*Hook::origin)();
+}
+
 template <>
 ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get() {
-    // search "AppLifecycleContext::setHasGraphicsContext"
-
     using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x40"_sig,

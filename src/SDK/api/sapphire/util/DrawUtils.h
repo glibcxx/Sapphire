@@ -12,7 +12,7 @@ class DrawUtils {
     ScreenContext *mScreenCtx = nullptr;
     LevelRenderer *mLevelRenderer = nullptr;
 
-    std::mutex mMutex;
+    mutable std::mutex mMutex;
 
     DrawUtils(Tessellator *tess = nullptr);
 
@@ -21,7 +21,28 @@ class DrawUtils {
     static mce::MaterialPtr sDrawMat;
 
 public:
-    SDK_API void drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color = mce::Colors::RED);
+    SDK_API void drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color = mce::Colors::RED) const;
+
+    SDK_API void drawBox(
+        const AABB       &aabb,
+        const mce::Color &color = mce::Colors::RED
+    ) const;
+
+    SDK_API void drawQuard(
+        const Vec3 &a,
+        const Vec3 &b,
+        const Vec3 &c,
+        const Vec3 &d,
+        const mce::Color &color = mce::Colors::RED
+    ) const;
+
+    void drawBox(
+        const Vec3       &min,
+        const Vec3       &max,
+        const mce::Color &color = mce::Colors::RED
+    ) const {
+        drawBox({min, max}, color);
+    }
 
     SDK_API void flush();
 

@@ -63,6 +63,10 @@ public:
         return *this;
     }
 
+    operator glm::vec3() const {
+        return {x, y, z};
+    }
+
     std::string toString() const {
         return std::format("[{:.4f}, {:.4f}, {:.4f}]", x, y, z);
     }

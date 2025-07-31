@@ -4,6 +4,7 @@
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
 #include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/input/InputManager.h"
 
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
@@ -11,7 +12,6 @@
 using namespace std::chrono_literals;
 using namespace sapphire::event;
 
-std::unique_ptr<InputManager>             GuiOverlay::sInputManager = nullptr;
 std::vector<GuiOverlay::PluginSettings>   GuiOverlay::sPluginSettings{};
 std::vector<GuiOverlay::Hotkey>           GuiOverlay::sRegisteredHotkeys{};
 std::vector<std::string>                  GuiOverlay::sToastMessages{};
@@ -30,10 +30,6 @@ void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::durati
     GuiOverlay::sLastShowToastTimePoint = std::chrono::steady_clock::now();
     if (sToastShowingDuration < duration) sToastShowingDuration = duration;
     sToastMessages.emplace_back(std::move(message));
-}
-
-InputManager &GuiOverlay::getInputManager() {
-    return *sInputManager;
 }
 
 void GuiOverlay::initImGui(
@@ -144,6 +140,14 @@ void GuiOverlay::handleHotkey() {
 }
 
 void GuiOverlay::frame() {
+    ImGuiIO &io = ImGui::GetIO();
+    auto    &interceptor = InputInterceptor::getInstance();
+    interceptor.refresh();
+    if (GuiOverlay::sShowPannel || io.WantCaptureMouse)
+        interceptor.requestAllInputBlock();
+    else if (io.WantCaptureKeyboard)
+        interceptor.requestAllKeyboardBlock();
+
     EventManager::getInstance().dispatchEvent(
         GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
     );
@@ -218,10 +222,6 @@ void GuiOverlay::loadConfig() {
     } catch (const nlohmann::json::exception &e) {
         Logger::Error("[GuiOverlay] Error loading ImGui settings: {}", e.what());
     }
-}
-
-void GuiOverlay::initInputManager(std::unique_ptr<InputManager> inputManager) {
-    GuiOverlay::sInputManager = std::move(inputManager);
 }
 
 void GuiOverlay::drawToast() {

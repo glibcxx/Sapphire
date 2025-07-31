@@ -6,8 +6,9 @@ namespace sapphire::event {
 
     SapphireEventAppPlatformListener::SapphireEventAppPlatformListener() :
         mPlatform(ServiceLocator<AppPlatform>::get().mService) {
-        if (mPlatform) {
+        if (!this->mListenerRegistered && mPlatform) {
             mPlatform->addListener(this, 0.0f);
+            this->mListenerRegistered = true;
         }
     }
 

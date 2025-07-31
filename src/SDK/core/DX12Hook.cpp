@@ -172,7 +172,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
         try {
             CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
             if (coreWindow) {
-                GuiOverlay::initInputManager(std::make_unique<InputManager>(coreWindow));
+                InputManager::create(coreWindow);
             } else {
                 Logger::Warn("[DX12Hook] CoreWindow::GetForCurrentThread() 返回 nullptr。可能不在 UI 线程?");
                 // todo: 回退方案

@@ -11,6 +11,7 @@
 #include "SDK/api/src/common/network/packet/TextPacket.h"
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src/common/world/GameSession.h"
+#include "SDK/api/sapphire/input/InputManager.h"
 
 FreeCameraPlugin *freeCam = nullptr;
 
@@ -68,7 +69,10 @@ HOOK_TYPE(
             float up = moveInput->mRawInputState.mJumpDown - moveInput->mRawInputState.mSneakDown;
             float baseMoveSpeed = freeCam->mBaseCameraMoveSpeed;
             auto &io = ImGui::GetIO();
-            GuiOverlay::getInputManager().disableGameMouseWheelInput(moveInput->mRawInputState.mSprintDown);
+            if (moveInput->mRawInputState.mSprintDown) {
+                InputInterceptor &ins = InputInterceptor::getInstance();
+                ins.requestMouseWheelBlock();
+            }
             if (moveInput->mRawInputState.mSprintDown) {
                 freeCam->mBaseCameraMoveSpeed += io.MouseWheel;
                 freeCam->mBaseCameraMoveSpeed = std::clamp(freeCam->mBaseCameraMoveSpeed, 1.0f, 50.0f);
@@ -170,17 +174,15 @@ void FreeCameraPlugin::rotateFreeCamDelta(const Vec2 &deltaRot) {
 }
 
 void FreeCameraPlugin::enableFreeCamera(bool enable, bool showPlayerModel) {
+    if (this->mEnabled == enable) return;
     this->mEnabled = enable;
     this->mShowPlayerModel = showPlayerModel;
     if (this->mEnabled) {
-        auto &cam = ClientInstance::primaryClientInstance->getRenderCameraComponent()->mCamera;
+        RenderCameraComponent *comp = ClientInstance::primaryClientInstance->getRenderCameraComponent();
+        if (!comp) return;
+        auto &cam = comp->mCamera;
         this->mFreeCamPos = cam.mPosition;
         this->setFreeCamOrientation(cam.mOrientation);
-    }
-    if (this->mClientMinecraft) {
-        TextPacket packet = TextPacket::createRaw(std::format("FreeCamera: {}", this->mEnabled ? "ON" : "OFF"));
-        packet.mType = TextPacketType::Tip;
-        this->mClientMinecraft->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
     }
 }
 
@@ -198,6 +200,11 @@ void FreeCameraPlugin::_setupSettingGui() {
              if (ClientInstance::primaryClientInstance->isShowingMenu())
                  return;
              this->enableFreeCamera(!this->mEnabled);
+             if (this->mClientMinecraft) {
+                 TextPacket packet = TextPacket::createRaw(std::format("FreeCamera: {}", this->mEnabled ? "ON" : "OFF"));
+                 packet.mType = TextPacketType::Tip;
+                 this->mClientMinecraft->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
+             }
          }}
     );
 }

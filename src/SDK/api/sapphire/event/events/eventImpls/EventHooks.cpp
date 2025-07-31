@@ -130,9 +130,12 @@ namespace sapphire::event {
             Logger::Error("[EventHooks] MinecraftGameUpdateHook::hook failed!");
         if (!ClientUpdateHook::hook())
             Logger::Error("[EventHooks] ClientUpdateHook::hook failed!");
+        if (!GameUpdateGraphicHook::hook())
+            Logger::Error("[EventHooks] GameUpdateGraphicHook::hook failed!");
     }
 
     void EventHooks::uninit() {
+        GameUpdateGraphicHook::unhook();
         ClientUpdateHook::unhook();
         MinecraftGameUpdateHook::unhook();
         FrameBuilderEndFrameHook::unhook();

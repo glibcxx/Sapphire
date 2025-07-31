@@ -10,8 +10,6 @@
 #include <d3d11.h>
 #include <dxgi1_6.h>
 
-
-#include "../input/InputManager.h"
 #include "SDK/api/sapphire/config/Config.h"
 
 class GuiOverlay {
@@ -31,7 +29,7 @@ public:
 
     SDK_API static void registerPluginSettings(PluginSettings &&settings);
 
-    static void registerPluginSettings(const std::string &name , const std::string &description, std::function<void()> drawSettings) {
+    static void registerPluginSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
         return registerPluginSettings({name, description, drawSettings});
     }
 
@@ -39,20 +37,15 @@ public:
 
     SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
 
-    SDK_API static InputManager &getInputManager();
-
 private:
     friend class DX12Hook;
-    friend class InputManager;
-    friend class CanncelMouseEventHook;
 
     inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
     inline static std::chrono::steady_clock::duration   sToastShowingDuration{};
 
-    static std::unique_ptr<InputManager> sInputManager;
-    static std::vector<PluginSettings>   sPluginSettings;
-    static std::vector<Hotkey>           sRegisteredHotkeys;
-    static std::vector<std::string>      sToastMessages;
+    static std::vector<PluginSettings> sPluginSettings;
+    static std::vector<Hotkey>         sRegisteredHotkeys;
+    static std::vector<std::string>    sToastMessages;
 
     static std::shared_ptr<sapphire::config::Config> sConfig;
 
@@ -91,8 +84,6 @@ private:
 
     static void saveConfig();
     static void loadConfig();
-
-    static void initInputManager(std::unique_ptr<InputManager> inputManager);
 
     static void drawToast();
     static void drawPanel();

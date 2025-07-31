@@ -1,14 +1,18 @@
 #pragma once
 
 #include "SDK/core/ApiManager.h"
+#include "IMinecraftGame.h"
 #include "SDK/api/src/common/util/Timer.h"
 
 class IClientInstance;
 
-class MinecraftGame {
+// size: 5424
+class MinecraftGame : public IMinecraftGame {
 public:
-    virtual ~MinecraftGame() = 0;
+    // vtb+0
+    virtual ~MinecraftGame() override;
 
+    // vtb+2
     SDK_API /*virtual*/ void update() /*override*/;
     MARK_HOOKABLE(&MinecraftGame::update)
 

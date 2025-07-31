@@ -1,26 +1,27 @@
 #pragma once
 
-#include "MouseAction.h"
-
 #include "SDK/core/ApiManager.h"
+#include "MouseAction.h"
 
 // size: 56
 class MouseDevice {
 public:
-    int                      _index;             // off+0
-    short                    _x;                 // off+4
-    short                    _y;                 // off+6
-    short                    _dx;                // off+8
-    short                    _dy;                // off+10
-    short                    _xOld;              // off+12
-    short                    _yOld;              // off+14
-    char                     _buttonStates[5];   // off+16
-    std::vector<MouseAction> _inputs;            // off+24
-    int                      _firstMovementType; // off+48
+    static constexpr int DELTA_NOTSET = -9999;
+
+    int                      _index = -1;            // off+0
+    short                    _x = 0;                 // off+4
+    short                    _y = 0;                 // off+6
+    short                    _dx = DELTA_NOTSET;     // off+8
+    short                    _dy = DELTA_NOTSET;     // off+10
+    short                    _xOld = 0;              // off+12
+    short                    _yOld = 0;              // off+14
+    char                     _buttonStates[5]{};     // off+16
+    std::vector<MouseAction> _inputs{};              // off+24
+    int                      _firstMovementType = 0; // off+48
 
     SDK_API void feed(
         char  actionButtonId,
-        int   buttonData,
+        char  buttonData,
         short x,
         short y,
         short dx,

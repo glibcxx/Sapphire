@@ -28,6 +28,10 @@ public:
         return this->mFreeCamOrientation;
     }
 
+    glm::vec3 getForwardVector() const {
+        return this->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
+    }
+
     float getFreeCamYaw() { return this->mYaw; }
     float getFreeCamPitch() { return this->mPitch; }
 

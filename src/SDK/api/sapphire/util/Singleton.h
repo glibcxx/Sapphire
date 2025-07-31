@@ -7,9 +7,10 @@ namespace sapphire {
 
     template <typename T>
     class Singleton {
-        static std::unique_ptr<T> sInstance;
+        SDK_API inline static std::unique_ptr<T> sInstance;
 
     public:
+        Singleton() = default;
         Singleton(const Singleton &) = delete;
         Singleton &operator=(const Singleton &) = delete;
 
@@ -26,8 +27,8 @@ namespace sapphire {
             sInstance.reset();
         }
 
-        SDK_API static T &getInstance() noexcept {
-            return sInstance;
+        static T &getInstance() noexcept {
+            return *sInstance;
         }
     };
 

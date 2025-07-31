@@ -21,7 +21,7 @@ void MinecraftGame::startFrame() {
 
 void MinecraftGame::endFrame() {
     using Hook = sapphire::ApiLoader<
-        "\x00\x8B\x00\xE8\x00\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\xC6\x80\xB8\x00\x00\x00\x00\x00\x8B"_sig,
+        "\x8B\x00\xE8\x00\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\xC6\x80\xB8\x00\x00\x00\x00\x00\x8B"_sig,
         &MinecraftGame::endFrame,
         [](uintptr_t addr) { return memory::deRef(addr + 2, memory::AsmOperation::CALL); }>;
     return (this->*Hook::origin)();
