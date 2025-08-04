@@ -11,13 +11,13 @@ namespace sapphire::inline service {
         return ClientInstance::primaryClientInstance;
     }
 
-    SDK_API inline Level *getServerLevel();
+    SDK_API Level *getServerLevel();
 
-    SDK_API inline Level *getMultiPlayerLevel();
+    SDK_API Level *getMultiPlayerLevel();
 
-    SDK_API inline ServerInstance *getServerInstance();
+    SDK_API ServerInstance *getServerInstance();
 
-    SDK_API inline LocalPlayer *getLocalPlayer();
+    SDK_API LocalPlayer *getLocalPlayer();
 
     void init();
     void uninit();
