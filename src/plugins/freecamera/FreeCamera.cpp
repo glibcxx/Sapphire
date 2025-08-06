@@ -70,7 +70,7 @@ HOOK_TYPE(
             float baseMoveSpeed = freeCam->mBaseCameraMoveSpeed;
             auto &io = ImGui::GetIO();
             if (moveInput->mRawInputState.mSprintDown) {
-                InputInterceptor &ins = InputInterceptor::getInstance();
+                auto &ins = sapphire::input::InputInterceptor::getInstance();
                 ins.requestMouseWheelBlock();
             }
             if (moveInput->mRawInputState.mSprintDown) {

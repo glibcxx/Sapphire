@@ -4,7 +4,7 @@ file(GLOB_RECURSE
     smoothpiston_src smoothpiston/*.cpp
     chunkborder_src chunkborder/*.cpp
     freecamera_src freecamera/*.cpp
-    BCM_src BCM/*.cpp
+    BCMv2_src BCM_V2/*.cpp
 )
 
 add_library(builtin_plugin SHARED
@@ -14,7 +14,7 @@ add_library(builtin_plugin SHARED
     ${smoothpiston_src}
     ${chunkborder_src}
     ${freecamera_src}
-    ${BCM_src}
+    ${BCMv2_src}
 )
 
 target_link_libraries(builtin_plugin PRIVATE sapphire_core fmod)

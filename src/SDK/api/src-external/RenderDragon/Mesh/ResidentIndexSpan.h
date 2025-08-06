@@ -7,6 +7,8 @@
 
 namespace dragon::mesh {
 
+    class IndexBufferResourceManager;
+
     namespace details {
         struct IndexBufferHandleTypeKey;
     }

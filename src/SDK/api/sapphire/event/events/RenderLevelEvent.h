@@ -8,11 +8,11 @@ namespace sapphire::event {
 
     class RenderLevelEvent : public Event {
     public:
-        ScreenContext *mScreen;
-        LevelRenderer *mLevelRenderer;
+        ScreenContext &mScreen;
+        LevelRenderer &mLevelRenderer;
 
-        RenderLevelEvent(LevelRenderer *levelRenderer, ScreenContext &screen) :
-            mLevelRenderer(levelRenderer), mScreen(&screen) {}
+        RenderLevelEvent(LevelRenderer &levelRenderer, ScreenContext &screen) :
+            mLevelRenderer(levelRenderer), mScreen(screen) {}
     };
 
 } // namespace sapphire::event

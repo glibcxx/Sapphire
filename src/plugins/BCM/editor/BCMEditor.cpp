@@ -63,7 +63,7 @@ BCMEditor::~BCMEditor() = default;
 void BCMEditor::enableEditor(bool enable) {
     if (mEnabled == enable) return;
     mEnabled = enable;
-    setUIFocus(true);
+    setUIFocus(mEnabled);
     if (!enable)
         mIsPlaying = false;
 }
@@ -94,11 +94,9 @@ void BCMEditor::setUIFocus(bool focused) {
 
     mUIHasFocus = focused;
     if (mUIHasFocus) {
-        ClientInstance::primaryClientInstance->releaseMouse();
+        GuiOverlay::gameReleaseMouse();
     } else {
-        if (!ClientInstance::primaryClientInstance->isShowingMenu())
-            ClientInstance::primaryClientInstance->grabMouse();
-        ImGui::SetWindowFocus(nullptr);
+        GuiOverlay::gameTryGrabMouse();
     }
 }
 
@@ -215,10 +213,6 @@ void BCMEditor::handleDrag(ScreenContext &screenCtx) {
 void BCMEditor::render() {
     if (!mEnabled || !mShowEditor) return;
     ImGuiWindowFlags flags = 0;
-    // 有关窗口聚焦与鼠标捕获的状态逻辑可能需要框架进行重构
-    // if (!mUIHasFocus) {
-    //     flags |= ImGuiWindowFlags_NoInputs;
-    // }
     ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("BCM Editor", &mShowEditor, flags);
 

@@ -37,6 +37,9 @@ public:
 
     SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
 
+    SDK_API static void gameTryGrabMouse();
+    SDK_API static void gameReleaseMouse();
+
 private:
     friend class DX12Hook;
 

@@ -7,6 +7,8 @@
 
 namespace dragon::mesh {
 
+    class VertexBufferResourceManager;
+
     namespace details {
         struct VertexBufferHandleTypeKey;
     }

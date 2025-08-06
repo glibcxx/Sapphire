@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace dragon::mesh {
 
     enum class IndexSize : uint8_t {

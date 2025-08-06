@@ -15,7 +15,7 @@ static bool       drawBorder = false;
 
 void onRenderLevel(sapphire::event::RenderLevelEvent &event) {
     if (!drawBorder) return;
-    const Vec3 &camPos = event.mLevelRenderer->getLevelRendererPlayer().getCameraPos();
+    const Vec3 &camPos = event.mLevelRenderer.getLevelRendererPlayer().getCameraPos();
     ChunkPos    chunkPos{(int)std::floor(camPos.x) >> 4, (int)std::floor(camPos.z) >> 4};
 
     for (int cx = -1; cx <= 2; ++cx) {

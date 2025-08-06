@@ -6,14 +6,14 @@
 #include "smoothpiston/SmoothPiston.h"
 #include "chunkborder/ChunkBorderRenderer.h"
 #include "freecamera/FreeCamera.h"
-#include "BCM/BCM.h"
+#include "BCM_V2/BCMPlugin.h"
 
 void BuiltinPlugin::init() {
     TickRatePlugin::getInstance();
     SmoothPistonPlugin::getInstance();
     FreeCameraPlugin::getInstance();
     installChunkBorderRender();
-    BedrockCameraMovementsPlugin::getInstance();
+    BCM_V2::BCMPlugin::getInstance();
 }
 
 void BuiltinPlugin::uninit() {

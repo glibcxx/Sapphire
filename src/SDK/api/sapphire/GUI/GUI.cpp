@@ -32,6 +32,16 @@ void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::durati
     sToastMessages.emplace_back(std::move(message));
 }
 
+void GuiOverlay::gameTryGrabMouse() {
+    if (!ClientInstance::primaryClientInstance->isShowingMenu())
+        ClientInstance::primaryClientInstance->grabMouse();
+    ImGui::SetWindowFocus(NULL);
+}
+
+SDK_API void GuiOverlay::gameReleaseMouse() {
+    ClientInstance::primaryClientInstance->releaseMouse();
+}
+
 void GuiOverlay::initImGui(
     HWND                  mainWindow,
     ID3D11Device         *device,
@@ -65,16 +75,11 @@ void GuiOverlay::initImGui(
         "Toggle Main Panel",
         []() {
             GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
-            if (ClientInstance::primaryClientInstance) {
-                if (GuiOverlay::sShowPannel) {
-                    ClientInstance::primaryClientInstance->releaseMouse();
-                } else if (!ClientInstance::primaryClientInstance->isShowingMenu()) {
-                    ClientInstance::primaryClientInstance->grabMouse();
-                    ImGui::SetWindowFocus(NULL);
-                }
-            } else {
-                Logger::Warn("ClientInstance not found!");
-            } },
+            if (GuiOverlay::sShowPannel)
+                GuiOverlay::gameReleaseMouse();
+            else
+                GuiOverlay::gameTryGrabMouse();
+        },
     });
 
     GuiOverlay::registerHotkey({
@@ -83,9 +88,7 @@ void GuiOverlay::initImGui(
         "Close Main Panel",
         []() {
             GuiOverlay::sShowPannel = false;
-            if (!ClientInstance::primaryClientInstance->isShowingMenu())
-                ClientInstance::primaryClientInstance->grabMouse();
-            ImGui::SetWindowFocus(NULL);
+            GuiOverlay::gameTryGrabMouse();
         },
     });
 
@@ -141,10 +144,12 @@ void GuiOverlay::handleHotkey() {
 
 void GuiOverlay::frame() {
     ImGuiIO &io = ImGui::GetIO();
-    auto    &interceptor = InputInterceptor::getInstance();
+    auto    &interceptor = sapphire::input::InputInterceptor::getInstance();
     interceptor.refresh();
-    if (GuiOverlay::sShowPannel || io.WantCaptureMouse)
+    if (GuiOverlay::sShowPannel)
         interceptor.requestAllInputBlock();
+    else if (io.WantCaptureMouse)
+        interceptor.requestAllMouseInputBlock();
     else if (io.WantCaptureKeyboard)
         interceptor.requestAllKeyboardBlock();
 

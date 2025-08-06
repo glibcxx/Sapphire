@@ -78,10 +78,10 @@ public:
     SelectionMode         mSelectedMode = SelectionMode::None;
 
     // Dragging state
-    bool mIsDragging = false;
+    bool      mIsDragging = false;
     glm::vec3 mDragInitialPos{};
     glm::vec3 mDragPlaneNormal{};
-    float mDragPlaneD = 0.0f;
+    float     mDragPlaneD = 0.0f;
 
 private:
     bool mEnabled = false;
