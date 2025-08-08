@@ -5,13 +5,10 @@ void MeshHelpers::renderMeshImmediately(
 ) {
     using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
-        "\xE8\x00\x00\x00\x00\xC6\x43\x00\x00\xF3\x0F\x10\x1D\x00\x00\x00\x00\x0F\x57\xD2"_sig,
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xC6\x43\x00\x00\xF3\x0F\x10\x1D\x00\x00\x00\x00\x0F\x57\xD2"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-        "\xE8\x00\x00\x00\x00\x41\xC6\x44\x24\x00\x00\xF3\x0F\x10\x1D"_sig,
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x41\xC6\x44\x24\x00\x00\xF3\x0F\x10\x1D"_sig,
 #endif
-        &MeshHelpers::renderMeshImmediately,
-        [](uintptr_t addr) {
-            return memory::deRef(addr, memory::AsmOperation::CALL);
-        }>;
+        &MeshHelpers::renderMeshImmediately>;
     Hook::origin(screenContext, tessellator, material, a4);
 }

@@ -8,8 +8,7 @@
 
 struct LevelRendererCommandListInit;
 
-class LevelRendererCamera : public PlayerListener,
-                            public LevelListener {
+class LevelRendererCamera {
 public:
     /*virtual*/ Vec3 &getCameraPos() {
         /*

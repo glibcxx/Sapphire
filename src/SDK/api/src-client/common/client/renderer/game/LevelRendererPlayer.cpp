@@ -2,11 +2,8 @@
 
 void LevelRendererPlayer::setupCamera(mce::Camera &camera, const float a) {
     using Hook = sapphire::ApiLoader<
-        "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x00\x08\x00\x8B\x00\x00\x03"_sig,
-        &LevelRendererPlayer::setupCamera,
-        [](uintptr_t addr) {
-            return memory::deRef(addr, memory::AsmOperation::CALL);
-        }>;
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x00\x08\x00\x8B\x00\x00\x03"_sig,
+        &LevelRendererPlayer::setupCamera>;
     (this->*Hook::origin)(camera, a);
 }
 

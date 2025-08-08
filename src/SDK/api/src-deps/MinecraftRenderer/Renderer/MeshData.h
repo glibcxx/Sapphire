@@ -1,11 +1,12 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/Utility/PrimitiveTypes.h"
 
 namespace mce {
 
-    // size: 288 (1.21.50)
+    // size: 264 (1.21.2), 288 (1.21.50)
     class MeshData {
     public:
         using Index = uint32_t;
@@ -20,16 +21,30 @@ namespace mce {
         std::vector<uint16_t>          mBoneId0s;          // off+128
         std::vector<glm::tvec2<float>> mTextureUVs[3];     // off+152
         std::vector<uint16_t>          mPBRTextureIndices; // off+224
-        std::vector<uint32_t>          mUnk248;            // off+248
-        std::array<bool, 12>           mFieldEnabled;      // off+272
+#if MC_VERSION >= v1_21_50
+        std::vector<uint32_t> mUnk248; // off+248
+#endif
+        std::array<bool, 14> mFieldEnabled;
+
+        MeshData *ctor(); // \xE8\x00\x00\x00\x00\x48\x89\xB3\x00\x00\x00\x00\x48\x89\xB3\x00\x00\x00\x00\x48\x89\xBB
 
         MeshData *ctor(MeshData &&other); // \xE8\x00\x00\x00\x00\x90\x48\x89\xAB\x00\x00\x00\x00\x48\x89\xAB\x00\x00\x00\x00\x4C\x89\xB3 1.21.50
 
-        void dtor(); // \xE8\x00\x00\x00\x00\x4C\x8B\x8E\x00\x00\x00\x00\x45\x89\xA1 1.21.50
+        SDK_API void dtor();
+        MARK_HOOKABLE(&MeshData::dtor)
 
-        MeshData clone() const; // \x48\x89\x5C\x24\x00\x48\x89\x54\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xD9\x0F\xB6\x01
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        SDK_API MeshData clone() const;
+        MARK_HOOKABLE(&MeshData::clone)
+#endif
 
-        void clear(); // \x48\x83\xEC\x00\xC6\x01 1.21.50
+        SDK_API void clear();
+        MARK_HOOKABLE(&MeshData::clear)
     };
+#if MC_VERSION == v1_21_2
+    static_assert(sizeof(MeshData) == 264);
+#elif MC_VERSION == v1_21_50
+    static_assert(sizeof(MeshData) == 288);
+#endif
 
 } // namespace mce

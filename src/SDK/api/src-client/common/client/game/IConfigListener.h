@@ -14,7 +14,7 @@ public:
 class IConfigListener {
 public:
     // vtb+0
-    virtual ~IConfigListener() noexcept {}
+    virtual ~IConfigListener() noexcept = default;
 
     // vtb+1
     virtual void onConfigChanged(const Config &) = 0;

@@ -7,7 +7,7 @@ namespace mce {
 
     class BufferResourceService;
 
-    // size: 560 (1.21.50)
+    // size: 536 (1.21.2), 560 (1.21.50/1.21.60)
     class Mesh : public IndexBufferContainer {
     public:
         std::variant<std::monostate, uint64_t, glm::tvec3<int>> mCacheKey; // off+40
@@ -17,6 +17,8 @@ namespace mce {
         std::string                          mDebugName;             // off+72
         std::weak_ptr<BufferResourceService> mBufferResourceService; // off+104
         MeshData                             mMeshData;              // off+120
+
+        //=============================================== // (1.21.50/1.21.60), (1.21.2 = 1.21.50 - 24)
         mce::ClientResourcePointer<
             std::variant<
                 std::monostate,
@@ -39,6 +41,10 @@ namespace mce {
         SDK_API Mesh *ctor(mce::Mesh &&c);
         MARK_HOOKABLE(&Mesh::ctor)
     };
+#if MC_VERSION == v1_21_2
+    static_assert(sizeof(Mesh) == 536);
+#elif MC_VERSION == v1_21_50
     static_assert(sizeof(Mesh) == 560);
+#endif
 
 } // namespace mce

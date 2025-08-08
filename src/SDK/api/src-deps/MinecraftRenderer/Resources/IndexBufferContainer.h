@@ -10,10 +10,12 @@
 
 namespace mce {
 
-    class Buffer {};
+    class Buffer {
+         // todo
+    };
     class BufferResourceService;
 
-    // size: 40 (1.21.50)
+    // size: 40
     class IndexBufferContainer {
     public:
         mce::ClientResourcePointer<

@@ -56,11 +56,11 @@ public:
 #endif
     }
 
-    /*virtual*/ ToastManager &getToastManager() /*override*/ {
 #if MC_VERSION == v1_21_50
+    /*virtual*/ ToastManager &getToastManager() /*override*/ {
         return *memory::getField<std::shared_ptr<ToastManager>>(this, 1448);
-#endif
     }
+#endif
 
     SDK_API RenderCameraComponent *getRenderCameraComponent() const;
     MARK_HOOKABLE(&ClientInstance::getRenderCameraComponent)

@@ -19,7 +19,7 @@ namespace mce::framebuilder {
 
     class FrameBuilderContext;
 
-    // size: 1344 (1.21.50)
+    // size: 1344 (1.21.50), todo: 1.21.2/1.21.60
     class BgfxFrameBuilder : public FrameBuilder {
     public:
         bool                                                                            mInitialized;                          // off+24

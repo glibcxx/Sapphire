@@ -6,32 +6,38 @@ namespace dragon::task {
         WorkerPool &rendererPool, gsl::span<std::reference_wrapper<WorkerPool>> helperPools, Scheduler &clientScheduler
     ) {
         using Hook = sapphire::ApiLoader<
-            "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x70\x00\x48\x89\x78\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x68\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4D\x8B\xE1"_sig, // 1.21.50
+            [](uintptr_t addr) { return memory::deRef(addr + 15, memory::AsmOperation::CALL); }
+                | "\x4C\x8D\x44\x24\x00\x00\x8B\x00\x00\x8D\x00\x08\x01\x00\x00\xE8\x00\x00\x00\x00\x90\x00\x89"_sig,
             &GraphicsTasks::ctor>;
-        return (this->*Hook::origin)(rendererPool, helperPools, clientScheduler);
+        return (this->*Hook::origin)(rendererPool, std::move(helperPools), clientScheduler);
     }
 
     GraphicsTasks::InitializationState GraphicsTasks::continueInit(InitializationState initState) {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\x90\x80\x7D\x00\x00\x75\x00\x0F\xB6\x45"_sig, // 1.21.50
-            &GraphicsTasks::continueInit,
-            sapphire::deRefCall>;
+#if MC_VERSION == v1_21_2
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x0F\xBE\x4D\x00\x48\x83\xF9\x00\x75"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x80\x7D\x00\x00\x75\x00\x0F\xB6\x45"_sig,
+#endif
+            &GraphicsTasks::continueInit>;
         return (this->*Hook::origin)(std::move(initState));
     }
 
     bool GraphicsTasks::_queueMainFrameRenderTask(const std::function<void(void)> &task) {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\xB3\x00\x4C\x8B\x7D"_sig, // 1.21.50
-            &GraphicsTasks::_queueMainFrameRenderTask,
-            sapphire::deRefCall>;
+#if MC_VERSION == v1_21_2
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x41\x0F\x94\xC7\x48\x8B\x4C\x24"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\xB3\x01\x00\x8B"_sig,
+#endif
+            &GraphicsTasks::_queueMainFrameRenderTask>;
         return (this->*Hook::origin)(task);
     }
 
     void GraphicsTasks::waitForPreviousFrame() {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\x80\x7E\x00\x00\x0F\x84\x00\x00\x00\x00\xC6\x46"_sig, // 1.21.50
-            &GraphicsTasks::waitForPreviousFrame,
-            sapphire::deRefCall>;
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\x96\x00\x00\x00\x00\x48\x83\xEA\x00\x4C"_sig,
+            &GraphicsTasks::waitForPreviousFrame>;
         return (this->*Hook::origin)();
     }
 
@@ -40,9 +46,12 @@ namespace dragon::task {
         const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
     ) {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\xBF"_sig, // 1.21.50
-            &GraphicsTasks::frame,
-            sapphire::deRefCall>;
+#if MC_VERSION == v1_21_2
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\x80\xBD"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\xBF"_sig,
+#endif
+            &GraphicsTasks::frame>;
         return (this->*Hook::origin)(frameContentCallback, a2);
     }
 
@@ -54,17 +63,23 @@ namespace dragon::task {
         GraphicsTasks::InitEnd>
     GraphicsTasks::_lambda_144B71107_at_continueInit::operator()(const InitBegin &begin) const {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC3\x48\x8D\x54\x24\x00\x48\x8D\x8C\x24"_sig, // 1.21.50
-            &GraphicsTasks::_lambda_144B71107_at_continueInit::operator(),
-            sapphire::deRefCall>;
+#if MC_VERSION == v1_21_2
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC7\x48\x8D\x55"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC3\x48\x8D\x54\x24\x00\x48\x8D\x8C\x24"_sig,
+#endif
+            &GraphicsTasks::_lambda_144B71107_at_continueInit::operator()>;
         return (this->*Hook::origin)(begin);
     }
 
     GraphicsTasks::InitializationState *GraphicsTasks::InitializationState::ctor(const InitializationState &other) {
         using Hook = sapphire::ApiLoader<
-            "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x83\xC0"_sig, // 1.21.50
-            &GraphicsTasks::InitializationState::ctor,
-            sapphire::deRefCall>;
+#if MC_VERSION == v1_21_2
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x8B\xD0"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x83\xC0"_sig,
+#endif
+            &GraphicsTasks::InitializationState::ctor>;
         return (this->*Hook::origin)(other);
     }
 

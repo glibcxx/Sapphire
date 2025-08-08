@@ -1,18 +1,15 @@
 #pragma once
 
 #include "macros/Macros.h"
+#include <source_location>
 #include "util/threading/ThreadPool.h"
-#include "util/StringLiteral.hpp"
 #include "util/Memory.hpp"
 #include "util/ApiUniqueId.hpp"
+#include "util/TypeTraits.hpp"
 #include "MainModuleInfo.h"
+#include "Signature.h"
 
 #include "SDK/api/sapphire/hook/SafeHook.h"
-
-template <util::StringLiteral A>
-consteval auto operator""_sig() {
-    return A;
-}
 
 namespace sapphire {
 
@@ -55,58 +52,77 @@ namespace sapphire {
             this->mThreadPool.wait_all_finished();
         }
 
-        template <auto Api, auto Callback = nullptr, size_t N>
-        uintptr_t scanAndRegisterApi(const char (&sig)[N], bool storeToMap = true) {
-            uintptr_t origin = this->_scanApi(sig, N - 1);
+        template <auto Api>
+        static void assertApi() {
+            constexpr std::string_view sig = &__FUNCSIG__[45];
+            constexpr std::string_view msg = sig.substr(0, sig.size() - 7);
+            Logger::Error("[ApiManager] Failed to find api: {}", msg);
+        }
+
+        template <auto Api>
+        static void assertApi(std::source_location loc) {
+            constexpr std::string_view sig = &__FUNCSIG__[45];
+            constexpr std::string_view msg = sig.substr(0, sig.size() - 30);
+            Logger::Error("[ApiManager] Failed to find data: {} at [{}:{}:{}]", msg, loc.file_name(), loc.line(), loc.column());
+        }
+
+        template <signature::Signature Sig, auto Api>
+        uintptr_t scanAndRegisterApi(bool storeToMap = true) {
+            uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
             if (!origin) {
-                constexpr std::string_view msg = __FUNCSIG__;
-                Logger::Error("[core] Failed to find api: {}", msg);
+                assertApi<Api>();
                 return 0;
             }
-            if constexpr (std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
-                origin = Callback(origin);
+            origin = Sig(origin);
             if (storeToMap)
                 this->_addApiToMap(util::ApiUniqueId::make<Api>(), origin);
             return origin;
         }
 
-        template <util::StringLiteral Sig, typename ApiType, auto Api, auto Callback = nullptr>
+        template <signature::Signature Sig, auto Api>
+        uintptr_t scanAndRegisterApi(std::source_location loc, bool storeToMap = true) {
+            uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
+            if (!origin) {
+                assertApi<Api>(loc);
+                return 0;
+            }
+            origin = Sig(origin);
+            if (storeToMap)
+                this->_addApiToMap(util::ApiUniqueId::make<Api>(), origin);
+            return origin;
+        }
+
+        template <signature::Signature Sig, typename ApiType, auto Api>
         void scanAndRegisterApiAsync(ApiType &result, bool storeToMap = true) {
             this->_submitAsyncScanTask([this, storeToMap, &result] {
-                result = memory::toMemberFunc<ApiType>(this->scanAndRegisterApi<Api, Callback>(Sig.value, storeToMap));
+                result = memory::toMemberFunc<ApiType>(this->scanAndRegisterApi<Sig, Api>(storeToMap));
             });
         }
     };
 
-    template <util::StringLiteral Sig, auto Api, auto Callback = nullptr>
-        requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
+    template <signature::Signature Sig, auto Api>
     class ApiLoader {
         using ApiType = decltype(Api);
 
     public:
-        // inline static ApiType origin = memory::toMemberFunc<ApiType>(
-        //     ApiManager::getInstance().scanAndRegisterApi<Api, Callback>(Sig.value)
-        // );
         inline static ApiType origin;
 
     private:
-        inline static int async = (ApiManager::getInstance().scanAndRegisterApiAsync<Sig, ApiType, Api, Callback>(origin), 0);
+        inline static int async = (ApiManager::getInstance().scanAndRegisterApiAsync<Sig, ApiType, Api>(origin), 0);
     };
 
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
     constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };
     constexpr auto deRefMov = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::MOV); };
 
-    template <util::StringLiteral Sig, auto Api, auto Callback = deRefLea>
-        requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
-    uintptr_t loadStatic() {
-        return ApiManager::getInstance().scanAndRegisterApi<Api, Callback>(Sig.value, false);
+    template <signature::Signature Sig, auto Api>
+    uintptr_t loadStatic(std::source_location loc = std::source_location::current()) {
+        return ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false);
     };
 
-    template <util::StringLiteral Sig, auto Api, auto Callback = deRefLea>
-        requires(Callback == nullptr || std::is_invocable_r_v<uintptr_t, decltype(Callback), uintptr_t>)
-    void *const *loadVftable() {
-        return reinterpret_cast<void *const *>(loadStatic<Sig, Api, Callback>());
+    template <signature::Signature Sig, auto Api>
+    void *const *loadVftable(std::source_location loc = std::source_location::current()) {
+        return reinterpret_cast<void *const *>(loadStatic<Sig, Api>(loc));
     };
 
 } // namespace sapphire

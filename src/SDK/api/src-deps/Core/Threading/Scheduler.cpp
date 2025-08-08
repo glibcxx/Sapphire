@@ -2,8 +2,7 @@
 
 Scheduler *Scheduler::ctor(std::string name, uint32_t FPS) {
     using Hook = sapphire::ApiLoader<
-        "\xE8\x00\x00\x00\x00\x90\x0F\x57\xC0\xF3\x0F\x7F\x45\x00\x44\x8B\xE3"_sig,
-        &Scheduler::ctor,
-        sapphire::deRefCall>;
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xD8\x48\x8B\x0D\x00\x00\x00\x00\x48\x89\x1D"_sig,
+        &Scheduler::ctor>;
     return (this->*Hook::origin)(std::move(name), FPS);
 }

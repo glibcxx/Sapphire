@@ -56,11 +56,8 @@ ClientInstance *ClientInstance::primaryClientInstance = nullptr;
 
 RenderCameraComponent *ClientInstance::getRenderCameraComponent() const {
     using Hook = sapphire::ApiLoader<
-        "\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x00\xF3\x0F\x10\x58\x00\xF3\x0F\x10\x05"_sig,
-        &ClientInstance::getRenderCameraComponent,
-        [](uintptr_t addr) {
-            return memory::deRef(addr, memory::AsmOperation::CALL);
-        }>;
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x00\xF3\x0F\x10\x58\x00\xF3\x0F\x10\x05"_sig,
+        &ClientInstance::getRenderCameraComponent>;
     return (this->*Hook::origin)();
 }
 
@@ -79,10 +76,13 @@ bool ClientInstance::getRenderPlayerModel() const {
 
 std::unique_ptr<LegacyClientNetworkHandler> ClientInstance::_createNetworkHandler(std::unique_ptr<Certificate> cert) {
     using Hook = sapphire::ApiLoader<
-#if MC_VERSION == v1_21_50
-        "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x48\x89\x28\x48\x89\x54\x24\x00\x48\x8D\x54\x24\x00\x48\x8B\xCB"_sig,
+#if MC_VERSION == v1_21_2
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x48\x89\x38\x48\x89\x54\x24\x00\x48\x8D\x54\x24\x00\x48\x8B\xCB\xE8\x00\x00\x00\x00\x90\x48\x8B\x4C\x24"_sig,
+#elif MC_VERSION == v1_21_50
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x48\x89\x28\x48\x89\x54\x24\x00\x48\x8D\x54\x24\x00\x48\x8B\xCB"_sig,
+#elif MC_VERSION == v1_21_60
+        "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x33\xED"_sig,
 #endif
-        &ClientInstance::_createNetworkHandler,
-        sapphire::deRefCall>;
+        &ClientInstance::_createNetworkHandler>;
     return (this->*Hook::origin)(std::move(cert));
 }

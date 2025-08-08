@@ -17,7 +17,13 @@ namespace Bedrock {
         NonOwnerPointer() = default;
 
         NonOwnerPointer(std::shared_ptr<EnableNonOwnerReferences::ControlBlock> cb, T *ptr) :
-            mControlBlock(std::move(cb)), mPtr(ptr) {}
+            mControlBlock(std::move(cb))
+#if MC_VERSION >= v1_21_50
+            ,
+            mPtr(ptr)
+#endif
+        {
+        }
 
         bool isValid() const {
 #if MC_VERSION == v1_21_2

@@ -73,8 +73,10 @@ namespace dragon::materials {
 
             Variant *ctor(const Variant *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x0F\xB6\x02\x88\x01\x48\x8D\x59\x00\x48\x89\x5C\x24\x00\x8B\x42 1.21.50
 
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             SDK_API void dtor() noexcept;
             MARK_HOOKABLE(&Variant::dtor)
+#endif
         };
 
         // size: 136
@@ -85,8 +87,10 @@ namespace dragon::materials {
             std::unordered_map<std::string, std::string> mFlagDefaultValues; // off+64
             std::optional<definition::BlendMode>         mDefaultBlendMode;  // off+128
 
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             SDK_API void dtor() noexcept;
             MARK_HOOKABLE(&Pass::dtor)
+#endif
         };
 
         // size: 176

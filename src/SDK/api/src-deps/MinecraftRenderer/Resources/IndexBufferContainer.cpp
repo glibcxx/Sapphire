@@ -8,5 +8,9 @@ void mce::IndexBufferContainer::loadIndexBuffer(
     std::string_view            debugName
 ) {
     // search "loadIndexBuffer"
-    // \x48\x8B\xC4\x4C\x89\x48\x00\x44\x89\x40 1.21.50
+
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x41\x8B\x00\x00\x89\x43\x20\x48\x8D"_sig,
+        &IndexBufferContainer::loadIndexBuffer>;
+    (this->*Hook::origin)(bufferResourceService, stride, data, count, debugName);
 }
