@@ -1,7 +1,9 @@
 #pragma once
 
 #include "BlockPos.h"
+#include "SDK/api/src-deps/Core/Math/Math.h"
 
+// size: 8
 class ChunkPos {
 public:
     int x;
@@ -64,5 +66,16 @@ public:
 
     std::string toString() const {
         return std::format("[{}, {}]", x, z);
+    }
+
+    std::size_t hashCode() const {
+        return mce::Math::hash2(this->x, this->z);
+    }
+};
+
+template <>
+struct std::hash<ChunkPos> {
+    std::size_t operator()(const ChunkPos &_Keyval) const {
+        return _Keyval.hashCode();
     }
 };

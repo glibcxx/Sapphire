@@ -13,19 +13,20 @@ enum class BlockChangedEventTarget : uint8_t {
     NeighborBlock = 1,
 };
 
+// size: 8
 class BlockSourceListener {
 public:
     // vtb+0
-    virtual ~BlockSourceListener() {}
+    virtual ~BlockSourceListener() = default;
 
     // vtb+1
-    virtual void onSourceCreated(BlockSource &source) = 0;
+    virtual void onSourceCreated(BlockSource &source) {}
 
     // vtb+2
-    virtual void onSourceDestroyed(BlockSource &source) = 0;
+    virtual void onSourceDestroyed(BlockSource &source) {}
 
     // vtb+3
-    virtual void onAreaChanged(BlockSource &source, const BlockPos &min, const BlockPos &max) = 0;
+    virtual void onAreaChanged(BlockSource &source, const BlockPos &min, const BlockPos &max) {}
 
     // vtb+4
     virtual void onBlockChanged(
@@ -38,17 +39,19 @@ public:
         const ActorBlockSyncMessage *syncMsg,
         BlockChangedEventTarget      eventTarget,
         Actor                       *blockChangeSource
-    ) = 0;
+    ) {}
 
     // vtb+5
-    virtual void onBrightnessChanged(BlockSource &source, const BlockPos &pos) = 0;
+    virtual void onBrightnessChanged(BlockSource &source, const BlockPos &pos) {
+        this->onAreaChanged(source, pos, pos);
+    }
 
     // vtb+6
-    virtual void onBlockEntityChanged(BlockSource &source, BlockActor &te) = 0;
+    virtual void onBlockEntityChanged(BlockSource &source, BlockActor &te) {}
 
     // vtb+7
-    virtual void onEntityChanged(BlockSource &source, Actor &entity) = 0;
+    virtual void onEntityChanged(BlockSource &source, Actor &entity) {}
 
     // vtb+8
-    virtual void onBlockEvent(BlockSource &source, int x, int y, int z, int b0, int b1) = 0;
+    virtual void onBlockEvent(BlockSource &source, int x, int y, int z, int b0, int b1) {}
 };

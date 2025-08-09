@@ -5,14 +5,14 @@
 
 class MovingBlockActor : public BlockActor {
 public:
-    const struct Block                *mBlock;
-    const struct Block                *mExtraBlock;
-    std::shared_ptr<struct BlockActor> mBlockEntity;
-    BlockPos                           mPistonPos;
-    bool                               mPistonBlockExpanding;
-    AABB                               mCollisionShape;
-    bool                               mPreserved;
-    int                                mPreservedLifespan;
+    const Block                *mBlock;
+    const Block                *mExtraBlock;
+    std::shared_ptr<BlockActor> mBlockEntity;
+    BlockPos                    mPistonPos;
+    bool                        mPistonBlockExpanding;
+    AABB                        mCollisionShape;
+    bool                        mPreserved;
+    int                         mPreservedLifespan;
 
     SDK_API Vec3 getDrawPos(const IConstBlockSource &region, float alpha) const;
     MARK_HOOKABLE(&MovingBlockActor::getDrawPos)

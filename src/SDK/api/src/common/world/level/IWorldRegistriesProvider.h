@@ -15,10 +15,11 @@ class Dimension;
 class Level;
 class Scheduler;
 
+// size: 8
 class IWorldRegistriesProvider {
 public:
     // vtb+0
-    virtual ~IWorldRegistriesProvider() {}
+    virtual ~IWorldRegistriesProvider() = default;
 
     // vtb+1
     virtual BiomeRegistry &getBiomeRegistry() = 0;

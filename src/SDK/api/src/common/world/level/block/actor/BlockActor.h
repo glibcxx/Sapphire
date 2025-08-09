@@ -72,9 +72,9 @@ enum class BlockActorType : int {
 };
 
 #if MC_VERSION == v1_21_60
+// size: 232
 class BlockActor {
 public:
-    void                            **vtable;                // off+0
     int                               mTickCount;            // off+8
     const class Block                *mBlock;                // off+16
     float                             mDestroyTimer;         // off+24
@@ -94,12 +94,14 @@ public:
     const float                       signShadowRadius;      // off+200
     ActorTerrainInterlockData         mTerrainInterlockData; // off+208
     bool                              mChanged;              // off+232
+
+    virtual ~BlockActor() = default;
 };
 static_assert(offsetof(BlockActor, mChanged) == 232);
 #else
+// size: 192
 class BlockActor {
 public:
-    void                    **vtable;                // off+0
     int                       mTickCount;            // off+8
     const class Block        *mBlock;                // off+16
     float                     mDestroyTimer;         // off+24
@@ -119,6 +121,8 @@ public:
     const float               signShadowRadius;      // off+160
     ActorTerrainInterlockData mTerrainInterlockData; // off+168
     bool                      mChanged;              // off+192
+
+    virtual ~BlockActor() = default;
 };
 static_assert(offsetof(BlockActor, mChanged) == 192);
 #endif

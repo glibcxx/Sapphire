@@ -1,4 +1,4 @@
 #pragma once
 
-class HIDControllerWind32 {
+class HIDControllerWin32 {
 };

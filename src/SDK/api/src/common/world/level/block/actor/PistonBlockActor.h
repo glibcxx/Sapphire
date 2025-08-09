@@ -2,6 +2,8 @@
 
 #include "MovingBlockActor.h"
 
+class BlockSource;
+
 class PistonBlockActor : public BlockActor {
 public:
     enum class PistonState : char {
@@ -32,6 +34,6 @@ public:
         return this->mLastProgress + (this->mProgress - this->mLastProgress) * a;
     }
 
-    SDK_API void tick(class BlockSource &region);
+    SDK_API void tick(BlockSource &region);
     MARK_HOOKABLE(&PistonBlockActor::tick)
 };
