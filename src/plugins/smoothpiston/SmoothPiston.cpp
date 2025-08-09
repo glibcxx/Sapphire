@@ -5,7 +5,8 @@
 #include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
-#include "SDK/api/src-client/common/client/renderer/actor/PistonBlockActorRenerer.h"
+#include "SDK/api/src-client/common/client/renderer/blockactor/PistonBlockActorRenerer.h"
+#include "SDK/api/src-client/common/client/renderer/blockactor/MovingBlockActorRenderer.h"
 
 #include "SDK/api/sapphire/GUI/GUI.h"
 
@@ -97,15 +98,15 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto   region = renderData.renderSource;
-    auto   movingBlock = (MovingBlockActor *)renderData.entity;
+    auto  &region = renderData.renderSource;
+    auto  &movingBlock = static_cast<MovingBlockActor &>(renderData.entity);
     float &alpha = context.mFrameAlpha;
     if (plugin->mEnableSmoothPiston) {
         /*
             提前返回可以终止本帧渲染。
             一行代码（大概）修复拖影问题，不要问为啥，反正这么写就是目前最佳方案。
         */
-        if (movingBlock->mPreserved == true) return;
+        if (movingBlock.mPreserved == true) return;
         /*
             这一行可以干掉拖影，但是会有别的问题，也就是活塞被另一个活塞推就位时会短暂不渲染活塞臂，
             这个问题在慢速情况下会得到缓解，因为其不受游戏内Timer计时器控制，活塞臂消失的时间不会变化，
@@ -119,7 +120,7 @@ HOOK_TYPE(
         需要临时修改mLastProgress和mProgress以修改活塞的初末状态...反正比较复杂。
     */
     if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
-        auto ownerPistonBlockActor = memory::vCall<PistonBlockActor *>(region, 4, movingBlock->mPistonPos);
+        auto ownerPistonBlockActor = memory::vCall<PistonBlockActor *>(&region, 4, movingBlock.mPistonPos);
         if (!ownerPistonBlockActor) // 这个的确可能是nullptr
             return this->origin(context, renderData);
         float    oldAlpha = alpha;
@@ -151,26 +152,26 @@ HOOK_TYPE(
     BaseActorRenderContext &context,
     BlockActorRenderData   &renderData
 ) {
-    auto   region = renderData.renderSource;
-    auto   pistonActor = (PistonBlockActor *)renderData.entity;
+    auto  &region = renderData.renderSource;
+    auto  &pistonActor = static_cast<PistonBlockActor &>(renderData.entity);
     float &alpha = context.mFrameAlpha;
     if (plugin->mRenderThread == std::thread::id{})
-        plugin->mRenderThread = region->mOwnerThreadID;
+        plugin->mRenderThread = region.mOwnerThreadID;
 
     // 上面只会影响MovingBlock，这个是活塞臂
 
     if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
         float    oldAlpha = alpha;
-        float    oldLastProgress = pistonActor->mLastProgress;
-        float    oldProgress = pistonActor->mProgress;
-        uint32_t gapReuseTickOrder = *(uint32_t *)((uintptr_t)&pistonActor->mTickCount + 4);
+        float    oldLastProgress = pistonActor.mLastProgress;
+        float    oldProgress = pistonActor.mProgress;
+        uint32_t gapReuseTickOrder = *(uint32_t *)((uintptr_t)&pistonActor.mTickCount + 4);
         float    newX = (float)gapReuseTickOrder / plugin->mTotalTicked * (plugin->mTotalTicked < 4 ? 0.45f : 0.65f);
-        twoStageLerp(alpha, *pistonActor, newStartX, newX);
+        twoStageLerp(alpha, pistonActor, newStartX, newX);
 
         this->origin(context, renderData);
         alpha = oldAlpha;
-        pistonActor->mLastProgress = oldLastProgress;
-        pistonActor->mProgress = oldProgress;
+        pistonActor.mLastProgress = oldLastProgress;
+        pistonActor.mProgress = oldProgress;
     } else {
         this->origin(context, renderData);
     }

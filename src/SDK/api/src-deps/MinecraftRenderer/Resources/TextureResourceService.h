@@ -10,6 +10,7 @@ namespace mce {
         std::byte _fill[104];
     };
 
+    // size: 24
     class ClientTexture : public mce::ClientResourcePointer<std::variant<
                               std::monostate,
                               mce::Texture,

@@ -128,15 +128,12 @@ void DrawUtils::flush() {
     }
 
     std::lock_guard guard{this->mMutex};
-    if (!sDrawMat.mRenderMaterialInfoPtr && mce::RenderMaterialGroup::common) {
-        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("wireframe");
+    if (!sDrawMat.mRenderMaterialInfoPtr) {
+        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common.getMaterialInfo("wireframe");
         if (matInfo.mPtr)
             sDrawMat.mRenderMaterialInfoPtr = matInfo.shared_from_this();
         if (!sDrawMat.mRenderMaterialInfoPtr)
-            Logger::Warn(
-                "Material `wireframe` not found! mce::RenderMaterialGroup::common is {}",
-                (void *)mce::RenderMaterialGroup::common
-            );
+            Logger::Warn("Material `wireframe` not found!");
     }
 
     char a4[64] = {};

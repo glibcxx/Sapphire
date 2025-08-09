@@ -115,14 +115,17 @@ namespace sapphire {
     constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };
     constexpr auto deRefMov = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::MOV); };
 
-    template <signature::Signature Sig, auto Api>
-    uintptr_t loadStatic(std::source_location loc = std::source_location::current()) {
-        return ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false);
+    template <signature::Signature Sig, auto Api, typename DataType>
+    DataType &loadStatic(std::source_location loc = std::source_location::current()) {
+        if constexpr (std::is_reference_v<DataType>)
+            return **std::bit_cast<std::remove_reference_t<DataType> **>(ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false));
+        else
+            return *std::bit_cast<DataType *>(ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false));
     };
 
     template <signature::Signature Sig, auto Api>
     void *const *loadVftable(std::source_location loc = std::source_location::current()) {
-        return reinterpret_cast<void *const *>(loadStatic<Sig, Api>(loc));
+        return loadStatic<Sig, Api, void *const *>(loc);
     };
 
 } // namespace sapphire

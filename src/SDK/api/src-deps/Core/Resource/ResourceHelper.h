@@ -9,6 +9,7 @@
 #include "SDK/api/src-deps/Core/Utility/UUID.h"
 #include "SDK/api/src-deps/Core/Utility/SemVersion.h"
 
+// size: 56
 class ResourceLocation {
 public:
     ResourceFileSystem   mFileSystem;
@@ -16,14 +17,14 @@ public:
     uint64_t             mPathHash;
     size_t               mFullHash;
 };
-
-static_assert(offsetof(ResourceLocation, mFullHash) == 48);
+static_assert(sizeof(ResourceLocation) == 56);
 
 class ResourceInformation {};
 
+// size: 88
 class ResourceLoader : public Bedrock::EnableNonOwnerReferences {
 public:
-    virtual ~ResourceLoader() = 0;
+    virtual ~ResourceLoader() = default;
 
     std::function<Core::HeapPathBuffer()> mGetPath;
 };
