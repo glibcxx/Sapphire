@@ -27,8 +27,8 @@ namespace mce {
         using const_pointer = const value_type *;
         using iterator = value_type *;
         using const_iterator = const value_type *;
-        using difference_type = int64_t;
-        using size_type = uint64_t;
+        using difference_type = ptrdiff_t;
+        using size_type = size_t;
 
         pointer_type mBlob; // off+0
         size_type    mSize; // off+16

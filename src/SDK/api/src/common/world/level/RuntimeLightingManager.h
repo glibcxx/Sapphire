@@ -7,6 +7,7 @@
 
 class Dimension;
 
+// size: 12
 struct SubChunkLightUpdate {
     SubChunkBlockPos mPos;           // off+0
     Brightness       mOldBrightness; // off+4
@@ -15,6 +16,7 @@ struct SubChunkLightUpdate {
     Brightness       mNewAbsorption; // off+7
     bool             mIsSkyLight;    // off+8
 };
+static_assert(sizeof(SubChunkLightUpdate) == 12);
 
 // size: 168
 class RuntimeLightingManager {
@@ -40,5 +42,6 @@ public:
     bool                                                      mWorkerScheduled;       // off+144
     std::chrono::steady_clock::duration                       mLightingTimeboxTime;   // off+152
 
+    // vtb+0
     virtual ~RuntimeLightingManager() = default;
 };

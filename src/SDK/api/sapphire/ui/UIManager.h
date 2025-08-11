@@ -1,11 +1,13 @@
 #pragma once
 
-#include "macros/Macros.h"
-#include "../event/EventManager.h"
-#include "WindowViewModel.h"
 #include <string>
 #include <vector>
 #include <memory>
+#include "macros/Macros.h"
+#include <imgui.h>
+#include "../event/EventManager.h"
+#include "WindowViewModel.h"
+
 
 namespace sapphire::event {
     class GuiOverlayFrameEvent;

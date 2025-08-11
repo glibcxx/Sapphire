@@ -22,10 +22,10 @@ public:
     virtual ~LevelListener() = default;
 
     // vtb+9
-    virtual void allChanged();
+    virtual void allChanged() {}
 
     // vtb+10
-    virtual void sendServerLegacyParticle(ParticleType name, const Vec3 &pos, const Vec3 &dir, int data);
+    virtual void sendServerLegacyParticle(ParticleType name, const Vec3 &pos, const Vec3 &dir, int data) {}
 
     // vtb+11
     virtual void addParticleEffect(
@@ -34,7 +34,7 @@ public:
         const HashedString      &locator,
         const Vec3              &emitterOffset,
         const MolangVariableMap &molangVariables
-    );
+    ) {}
 
     // vtb+12
     virtual void addTerrainParticleEffect(
@@ -44,7 +44,7 @@ public:
         float           intensity,
         float           velocityScalar,
         float           emitterRadius
-    );
+    ) {}
 
     // vtb+13
     virtual void addTerrainSlideEffect(
@@ -54,32 +54,32 @@ public:
         float           intensity,
         float           velocityScalar,
         float           emitterRadius
-    );
+    ) {}
 
     // vtb+14
     virtual void addBreakingItemParticleEffect(
         const Vec3                 &pos,
         ParticleType                type,
         const ResolvedItemIconInfo &textureInfo
-    );
+    ) {}
 
     // vtb+15
-    virtual void playMusic(const std::string &name, const Vec3 &pos, float songOffset, float volume);
+    virtual void playMusic(const std::string &name, const Vec3 &pos, float songOffset, float volume) {}
 
     // vtb+16
-    virtual void playStreamingMusic(const std::string &name, int x, int y, int z);
+    virtual void playStreamingMusic(const std::string &name, int x, int y, int z) {}
 
     // vtb+17
-    virtual void onEntityAdded(Actor &entity);
+    virtual void onEntityAdded(Actor &entity) {}
 
     // vtb+18
-    virtual void onEntityRemoved(Actor &entity);
+    virtual void onEntityRemoved(Actor &entity) {}
 
     // vtb+19
-    virtual void onChunkLoaded(ChunkSource &source, LevelChunk &lc);
+    virtual void onChunkLoaded(ChunkSource &source, LevelChunk &lc) {}
 
     // vtb+20
-    virtual void onChunkReloaded(ChunkSource &source, LevelChunk &lc);
+    virtual void onChunkReloaded(ChunkSource &source, LevelChunk &lc) {}
 
     // vtb+21
     virtual void onSubChunkLoaded(
@@ -87,19 +87,19 @@ public:
         LevelChunk  &lc,
         short        absoluteSubChunkIndex,
         bool         subChunkVisibilityChanged
-    );
+    ) {}
 
     // vtb+22
-    virtual void onChunkUnloaded(LevelChunk &lc);
+    virtual void onChunkUnloaded(LevelChunk &lc) {}
 
     // vtb+23
-    virtual void onLevelDestruction(const std::string &levelId);
+    virtual void onLevelDestruction(const std::string &levelId) {}
 
     // vtb+24
-    virtual void levelEvent(LevelEvent type, const Vec3 &pos, int data);
+    virtual void levelEvent(LevelEvent type, const Vec3 &pos, int data) {}
 
     // vtb+25
-    virtual void levelEvent(LevelEvent type, const CompoundTag &data);
+    virtual void levelEvent(LevelEvent type, const CompoundTag &data) {}
 
     // vtb+26
     virtual void takePicture(
@@ -107,16 +107,16 @@ public:
         Actor                    *camera,
         Actor                    *target,
         struct ScreenshotOptions &screenshotOptions
-    );
+    ) {}
 
     // vtb+27
-    virtual void playerListChanged();
+    virtual void playerListChanged() {}
 
     // vtb+28
-    virtual void onLevelDataCommandsChanged(bool change);
+    virtual void onLevelDataCommandsChanged(bool change) {}
 
     // vtb+29
-    virtual void onLevelDataWorldTemplateOptionsUnlocked();
+    virtual void onLevelDataWorldTemplateOptionsUnlocked() {}
 };
 
 static_assert(sizeof(LevelListener) == 8);

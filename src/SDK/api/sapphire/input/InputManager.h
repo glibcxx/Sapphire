@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <winrt/Windows.UI.Core.h>
+#include <bitset>
 
 #include "../util/Singleton.h"
 #include "SDK/api/src/common/world/phys/Vec2.h"

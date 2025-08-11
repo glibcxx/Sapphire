@@ -5,7 +5,7 @@
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialResourceManager.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/Frame.h"
-#include "src/SDK/api/src-deps/MinecraftRenderer/Resources/TextureResourceService.h"
+#include "SDK/api/src-deps/MinecraftRenderer/Resources/TextureResourceService.h"
 
 namespace mce::framebuilder {
 

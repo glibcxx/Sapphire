@@ -42,6 +42,5 @@
 #include <entt/entt.hpp>
 #include <gsl/gsl>
 #include <concurrentqueue.h>
-#include <MinHook.h>
 #include <imgui.h>
 #include <kiero/kiero.h>

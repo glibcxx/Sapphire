@@ -2,7 +2,7 @@
 
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
-#include "src/SDK/api/src/common/gamerefs/OwnerPtr.h"
+#include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 
 class ServerInstanceEventCoordinator;
 
