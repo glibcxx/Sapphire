@@ -11,7 +11,7 @@ function(sapphire_add_sdk_target BUILDING_MC_VERSION)
     target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE DLLEXPORT)
 
     target_precompile_headers(${SAPPHIRE_TARGET_NAME} PRIVATE
-        "${CMAKE_SOURCE_DIR}/src/pch.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
     )
 
     target_link_libraries(${SAPPHIRE_TARGET_NAME}

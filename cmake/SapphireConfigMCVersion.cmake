@@ -1,6 +1,10 @@
 # 允许从 CMake 命令行设置 MC_VERSION, 例如: cmake -DMC_VERSION=vX_Y_Z .. 
 # 默认为编译全部
 set(SAPPHIRE_SUPPORTED_MC_VERSIONS v1_21_60 v1_21_50 v1_21_2)
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+    set(SAPPHIRE_SUPPORTED_MC_VERSIONS ${SAPPHIRE_SUPPORTED_MC_VERSIONS} PARENT_SCOPE)
+endif()
 set(MC_VERSION "all" CACHE STRING "Minecraft compatible version. Default: all. (v1_21_60, v1_21_50, v1_21_2, all)")
 string(TOLOWER ${MC_VERSION} MC_VERSION)
 list(FIND SAPPHIRE_SUPPORTED_MC_VERSIONS ${MC_VERSION} IS_SUPPORTED)

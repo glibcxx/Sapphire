@@ -23,7 +23,7 @@ function(sapphire_builtin_plugin_add_target BUILDING_MC_VERSION)
     target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core_for_${BUILDING_MC_VERSION})
 
     target_precompile_headers(${MOD_TARGET_NAME} PRIVATE
-        "${CMAKE_SOURCE_DIR}/src/pch.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
     )
 
     target_compile_definitions(${MOD_TARGET_NAME} PRIVATE "MC_VERSION=${BUILDING_MC_VERSION}")
