@@ -36,6 +36,15 @@ namespace sapphire::inline config {
             return mData[key].get<T>();
         }
 
+        template <typename T>
+        std::optional<T> try_get(const std::string &key) {
+            auto &val = mData[key];
+            if (val.is_string())
+                return std::optional{val.get<T>()};
+            else
+                return std::nullopt;
+        }
+
         void save() {
             std::ofstream ofs{mPath};
             if (ofs.is_open()) {

@@ -1,8 +1,15 @@
 #include <iostream>
 #include <filesystem>
+#include <regex>
+#include <map>
 
 #include "SDK/api/sapphire/logger/LogBox.hpp"
 #include "util/ScopeGuard.hpp"
+
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Management.Deployment.h>
+#include <winrt/Windows.ApplicationModel.h>
+#include <winrt/Windows.Foundation.Collections.h>
 
 #include <AccCtrl.h>
 #include <atlcomcli.h>
@@ -15,6 +22,9 @@
 #    error "please upgrade Windows SDK version!!"
 #endif
 
+using namespace winrt;
+using namespace Windows::Management::Deployment;
+using namespace Windows::ApplicationModel;
 namespace fs = std::filesystem;
 using namespace Logger;
 
@@ -191,6 +201,64 @@ fs::path getCurrentPath() {
     return fs::path{buffer}.parent_path();
 }
 
+struct VersionInfo {
+    uint16_t Major;
+    uint16_t Minor;
+    uint16_t Build;
+    uint16_t Revision;
+
+    constexpr VersionInfo(uint16_t ma = 0, uint16_t mi = 0, uint16_t b = 0, uint16_t r = 0) :
+        Major{ma}, Minor{mi}, Build{b}, Revision{r} {}
+    constexpr VersionInfo(const PackageVersion &v) :
+        Major{v.Major}, Minor{v.Minor}, Build{v.Build}, Revision{v.Revision} {}
+
+    constexpr std::strong_ordering operator<=>(const VersionInfo &rhs) const = default;
+};
+
+std::optional<VersionInfo> getMinecraftVersion() {
+    try {
+        PackageManager packageManager;
+        for (auto &&package : packageManager.FindPackagesForUser(L"", L"Microsoft.MinecraftUWP_8wekyb3d8bbwe")) {
+            return package.Id().Version();
+        }
+    } catch (const winrt::hresult_error &ex) {
+        std::wcerr << L"Error: " << ex.message().c_str() << std::endl;
+    }
+    return std::nullopt;
+}
+
+std::filesystem::path getBestCompatibleVersion(const VersionInfo &uwpInternalVersion, const std::filesystem::path &path) {
+    std::map<VersionInfo, std::filesystem::path, std::greater<VersionInfo>> versions;
+    Logger::InfoBox(L"Searching begin");
+    for (auto &&entry : fs::directory_iterator{path}) {
+        if (!entry.is_regular_file())
+            continue;
+        auto        filename = entry.path().filename().string();
+        std::regex  reg{"sapphire_core_for_v(\\d+)_(\\d+)_(\\d+)\\.dll"};
+        std::smatch matched;
+        if (!std::regex_match(filename, matched, reg))
+            continue;
+        VersionInfo ver{
+            (uint16_t)std::stoi(matched[1].str()),
+            (uint16_t)std::stoi(matched[2].str()),
+            (uint16_t)std::stoi(matched[3].str())
+        };
+        versions.emplace(ver, entry.path());
+    }
+    if (versions.empty())
+        return {};
+    VersionInfo serverSideVersion{
+        uwpInternalVersion.Major,
+        uwpInternalVersion.Minor,
+        (uint16_t)(uwpInternalVersion.Build / 100),
+        (uint16_t)(uwpInternalVersion.Build % 100)
+    };
+    auto it = versions.lower_bound(serverSideVersion);
+    if (it == versions.end())
+        return {};
+    return it->second;
+}
+
 int main(int argc, char **argv) {
     /*
         UWP的启动方式与普通的Win32程序不同，这里的思路来自上面那个链接里的帖子。
@@ -237,7 +305,23 @@ int main(int argc, char **argv) {
                 }
             }
         };
-        fs::path dllPath = currentDir / L"sapphire_core.dll";
+        auto mcVersion = getMinecraftVersion();
+        if (!mcVersion) {
+            Logger::ErrorBox(L"[injector] 无法获取游戏版本信息。");
+            return 1;
+        }
+        auto dllPath = getBestCompatibleVersion(*mcVersion, currentDir);
+        if (dllPath.empty()) {
+            Logger::ErrorBox(
+                L"[injector] 无法找到一个兼容游戏的 Sapphire 版本。游戏版本：{}.{}.{}.{}",
+                mcVersion->Major,
+                mcVersion->Minor,
+                mcVersion->Build,
+                mcVersion->Revision
+            );
+            return 1;
+        }
+
         if (!fs::exists(dllPath)) {
             currentDir = fs::path{argv[0]}.parent_path();
             dllPath = currentDir / L"sapphire_core.dll";

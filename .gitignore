@@ -11,14 +11,15 @@ CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
 
-build/
+/build/
+/out/
 
-.vscode/
+/.vscode/
 
-.data/
+/.data/
 
 # Local History for Visual Studio Code
-.history/
+/.history/
 
 # Built Visual Studio Code Extensions
 *.vsix

@@ -7,25 +7,38 @@ file(GLOB_RECURSE
     BCMv2_src BCM_V2/*.cpp
 )
 
-add_library(builtin_plugin SHARED
-    ./builtinPlugin.cpp
-    ${tickrate_src}
-    ${gui_src}
-    ${smoothpiston_src}
-    ${chunkborder_src}
-    ${freecamera_src}
-    ${BCMv2_src}
-)
+function(sapphire_builtin_plugin_add_target BUILDING_MC_VERSION)
+    set(MOD_TARGET_NAME "builtin_plugin_for_${BUILDING_MC_VERSION}")
 
-target_link_libraries(builtin_plugin PRIVATE sapphire_core fmod)
+    add_library(${MOD_TARGET_NAME} SHARED
+        ./builtinPlugin.cpp
+        ${tickrate_src}
+        ${gui_src}
+        ${smoothpiston_src}
+        ${chunkborder_src}
+        ${freecamera_src}
+        ${BCMv2_src}
+    )
 
-add_custom_command(
-    TARGET builtin_plugin POST_BUILD
+    target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core_for_${BUILDING_MC_VERSION})
 
-    COMMAND ${CMAKE_COMMAND} -E copy
-    "$<TARGET_FILE:builtin_plugin>"
-    "$<TARGET_FILE_DIR:builtin_plugin>/sapphire/mods/$<TARGET_FILE_NAME:builtin_plugin>"
+    target_precompile_headers(${MOD_TARGET_NAME} PRIVATE
+        "${CMAKE_SOURCE_DIR}/src/pch.h"
+    )
 
-    COMMAND ${CMAKE_COMMAND} -E echo "Moved $<TARGET_FILE_NAME:builtin_plugin> to sapphire/mods"
-    VERBATIM
-)
+    target_compile_definitions(${MOD_TARGET_NAME} PRIVATE "MC_VERSION=${BUILDING_MC_VERSION}")
+
+    install(TARGETS ${MOD_TARGET_NAME}
+        EXPORT SapphireBuiltinPluginTargets
+        DESTINATION Sapphire/sapphire/mods COMPONENT CPACK_SapphireBuiltinPlugin_for_${BUILDING_MC_VERSION}
+    )
+
+endfunction()
+
+if(BUILD_FOR_ALL_MC_VERSIONS)
+    foreach(BUILDING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})
+        sapphire_builtin_plugin_add_target(${BUILDING_MC_VERSION})
+    endforeach()
+else()
+    sapphire_builtin_plugin_add_target(${MC_VERSION})
+endif()

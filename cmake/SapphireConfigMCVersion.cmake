@@ -1,0 +1,19 @@
+# 允许从 CMake 命令行设置 MC_VERSION, 例如: cmake -DMC_VERSION=vX_Y_Z .. 
+# 默认为编译全部
+set(SAPPHIRE_SUPPORTED_MC_VERSIONS v1_21_60 v1_21_50 v1_21_2)
+set(MC_VERSION "all" CACHE STRING "Minecraft compatible version. Default: all. (v1_21_60, v1_21_50, v1_21_2, all)")
+string(TOLOWER ${MC_VERSION} MC_VERSION)
+list(FIND SAPPHIRE_SUPPORTED_MC_VERSIONS ${MC_VERSION} IS_SUPPORTED)
+if((NOT ${MC_VERSION} MATCHES "all") AND (IS_SUPPORTED EQUAL -1))
+    message(FATAL_ERROR "[ERROR] Invalid MC_VERSION: \"${MC_VERSION}\". Valid versions: ${SAPPHIRE_SUPPORTED_MC_VERSIONS}")
+endif()
+
+if(${MC_VERSION} MATCHES "all")
+    message(STATUS "Configuring ${PROJECT_NAME} for MC versions: ${SAPPHIRE_SUPPORTED_MC_VERSIONS}")
+    message(STATUS "If you want to configure ${PROJECT_NAME} for only a single MC version, set -DMC_VERSION=version")
+    set(BUILD_FOR_ALL_MC_VERSIONS ON)
+else()
+    set(MC_VERSION_DEFAULT "v1_21_60")
+    set(MC_VERSION "${MC_VERSION_DEFAULT}" CACHE STRING "Minecraft compatible version (v1_21_60, v1_21_50, v1_21_2)")
+    message(STATUS "Configuring ${PROJECT_NAME} for MC_VERSION: ${MC_VERSION}")
+endif()

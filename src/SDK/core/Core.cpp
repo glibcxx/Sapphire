@@ -27,8 +27,12 @@ namespace moduleInfo {
 
 namespace sapphire {
 
-    SapphireModuleInfo::SapphireModuleInfo() :
-        sapphireModuleHandle(GetModuleHandle(L"sapphire_core.dll")) {
+    SapphireModuleInfo::SapphireModuleInfo() {
+        GetModuleHandleEx(
+            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            (LPCWSTR)&SapphireModuleInfo::get,
+            &sapphireModuleHandle
+        );
         GetModuleInformation(GetCurrentProcess(), this->sapphireModuleHandle, &sapphireModuleInfo, sizeof(MODULEINFO));
         wchar_t modulePathBuf[MAX_PATH] = {0};
         if (GetModuleFileName(sapphireModuleHandle, modulePathBuf, MAX_PATH) != 0) {

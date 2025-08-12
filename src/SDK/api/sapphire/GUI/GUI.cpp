@@ -38,7 +38,7 @@ void GuiOverlay::gameTryGrabMouse() {
     ImGui::SetWindowFocus(NULL);
 }
 
-SDK_API void GuiOverlay::gameReleaseMouse() {
+void GuiOverlay::gameReleaseMouse() {
     ClientInstance::primaryClientInstance->releaseMouse();
 }
 
@@ -217,9 +217,9 @@ void GuiOverlay::loadConfig() {
         return;
     }
     try {
-        std::string imguiIni = sConfig->get<std::string>("imgui");
-        if (!imguiIni.empty()) {
-            ImGui::LoadIniSettingsFromMemory(imguiIni.c_str(), imguiIni.length());
+        auto imguiIni = sConfig->try_get<std::string>("imgui");
+        if (imguiIni && !imguiIni->empty()) {
+            ImGui::LoadIniSettingsFromMemory(imguiIni->c_str(), imguiIni->length());
             Logger::Info("[GuiOverlay] Loaded ImGui settings from config file.");
         } else {
             Logger::Info("[GuiOverlay] No ImGui settings in config file.");

@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+        fetch-depth: 0
+
+    - name: Setup Windows 10 SDK Action
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+      with:
+        sdk-version: 22621
+
+    - name: Configure CMake
+      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_SYSTEM_VERSION="10.0.22621.0"
+
+    - name: Build
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
+
+    - name: Install
+      run: cmake --install build --config ${{env.BUILD_TYPE}}
+
+    - name: Package
+      run: cmake --build build --target package --config ${{env.BUILD_TYPE}}
+
+    - name: Upload Packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: Sapphire-Packages
+        path: build
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{github.workspace}}/build/Sapphire-SDK-*.*.*-win64-*.zip

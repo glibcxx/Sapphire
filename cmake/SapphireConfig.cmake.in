@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+# This file is called by find_package(Sapphire).
+# It loads the exported targets and finds the required third-party dependencies.
+
+include("${CMAKE_CURRENT_LIST_DIR}/SapphireTargets.cmake")
+
+# Include the dependency resolution script that was installed with the SDK.
+# This makes the sapphire_resolve_dependencies() function available.
+include("${CMAKE_CURRENT_LIST_DIR}/SapphireDependencies.cmake")
+
+if(TARGET Sapphire::SapphireCommon)
+    target_link_libraries(Sapphire::SapphireCommon INTERFACE
+        glm::glm
+        nlohmann_json::nlohmann_json
+        EnTT::EnTT
+        Microsoft.GSL::GSL
+        concurrentqueue
+    )
+endif()
+
+set(Sapphire_SUPPORTED_MC_VERSIONS "@SAPPHIRE_SUPPORTED_MC_VERSIONS@")
