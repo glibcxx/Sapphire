@@ -129,7 +129,7 @@ void DrawUtils::flush() {
 
     std::lock_guard guard{this->mMutex};
     if (!sDrawMat.mRenderMaterialInfoPtr) {
-        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common.getMaterialInfo("wireframe");
+        mce::RenderMaterialInfo &matInfo = mce::RenderMaterialGroup::common->getMaterialInfo("wireframe");
         if (matInfo.mPtr)
             sDrawMat.mRenderMaterialInfoPtr = matInfo.shared_from_this();
         if (!sDrawMat.mRenderMaterialInfoPtr)

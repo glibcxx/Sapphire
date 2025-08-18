@@ -4,5 +4,5 @@
 
 class Mouse {
 public:
-    SDK_API static MouseDevice &_instance;
+    SDK_API static MouseDevice *_instance;
 };

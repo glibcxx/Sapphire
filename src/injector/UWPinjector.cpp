@@ -229,7 +229,6 @@ std::optional<VersionInfo> getMinecraftVersion() {
 
 std::filesystem::path getBestCompatibleVersion(const VersionInfo &uwpInternalVersion, const std::filesystem::path &path) {
     std::map<VersionInfo, std::filesystem::path, std::greater<VersionInfo>> versions;
-    Logger::InfoBox(L"Searching begin");
     for (auto &&entry : fs::directory_iterator{path}) {
         if (!entry.is_regular_file())
             continue;
