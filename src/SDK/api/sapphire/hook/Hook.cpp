@@ -2,7 +2,7 @@
 
 #include <MinHook.h>
 
-namespace sapphire::hook {
+namespace sapphire::inline hook {
 
     struct FuncHookInfo {
         uintptr_t  mDetour;

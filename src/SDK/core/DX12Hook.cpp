@@ -172,7 +172,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
         try {
             CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
             if (coreWindow) {
-                sapphire::input::InputManager::create(coreWindow);
+                sapphire::input::InputManager::getInstance().init(coreWindow);
             } else {
                 Logger::Warn("[DX12Hook] CoreWindow::GetForCurrentThread() 返回 nullptr。可能不在 UI 线程?");
                 // todo: 回退方案
@@ -229,9 +229,9 @@ bool DX12Hook::install() {
     Logger::Debug("DX12Hook::install");
     winrt::init_apartment(winrt::apartment_type::multi_threaded);
     return kiero::init(kiero::RenderType::D3D12) == kiero::Status::Success
-        && kiero::bind(140, (void **)&oPresent12, hkPresent12) == kiero::Status::Success
-        && kiero::bind(54, (void **)&oExecuteCommandLists, hkExecuteCommandLists) == kiero::Status::Success
-        && kiero::bind(145, (void **)&oResizeBuffers, hkResizeBuffers) == kiero::Status::Success;
+        && kiero::bind(140, (void **)&oPresent12, (void *)hkPresent12) == kiero::Status::Success
+        && kiero::bind(54, (void **)&oExecuteCommandLists, (void *)hkExecuteCommandLists) == kiero::Status::Success
+        && kiero::bind(145, (void **)&oResizeBuffers, (void *)hkResizeBuffers) == kiero::Status::Success;
 }
 
 void DX12Hook::uninstall() {

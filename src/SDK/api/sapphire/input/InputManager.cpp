@@ -246,9 +246,8 @@ namespace sapphire::input {
         return mMouseWheel;
     }
 
-    InputManager::InputManager(CoreWindow &coreWindow) :
-        mInputInterceptor(InputInterceptor::create()), mCoreWindow(coreWindow) {
-        this->init();
+    InputManager::InputManager() :
+        mInputInterceptor(InputInterceptor::create()) {
     }
 
     InputManager::~InputManager() {
@@ -257,8 +256,14 @@ namespace sapphire::input {
         this->mCoreWindow = nullptr;
     }
 
-    void InputManager::init() {
-        if (!this->mCoreWindow) return;
+    InputManager &InputManager::getInstance() {
+        static InputManager instance;
+        return instance;
+    }
+
+    void InputManager::init(CoreWindow &coreWindow) {
+        if (this->mCoreWindow || !coreWindow) return;
+        this->mCoreWindow = coreWindow;
         try {
             this->mPointerPressedRevoker = this->mCoreWindow.PointerPressed(
                 winrt::auto_revoke,

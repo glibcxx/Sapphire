@@ -7,6 +7,8 @@ namespace sapphire::ui {
     struct InteractionContext {
         bool isItemHovered() const { return ImGui::IsItemHovered(); }
         bool isItemActive() const { return ImGui::IsItemActive(); }
+        Vec2 getMouseDelta() const { return ImGui::GetIO().MouseDelta; }
+        Vec2 getMouseDragDelta() const { return ImGui::GetMouseDragDelta(); }
         // ...
     };
 
@@ -29,11 +31,11 @@ namespace sapphire::ui {
     };
 
     struct UIContext {
-        InteractionContext interaction;
-        LayoutContext      layout;
-        StyleContext       style;
+        [[msvc::no_unique_address]] InteractionContext interaction;
+        [[msvc::no_unique_address]] LayoutContext      layout;
+        [[msvc::no_unique_address]] StyleContext       style;
     };
 
-    constexpr const UIContext &getUIContext() { return {}; }
+    constexpr UIContext getUIContext() { return {}; }
 
 } // namespace sapphire::ui

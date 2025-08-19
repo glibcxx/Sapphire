@@ -243,7 +243,7 @@ void GuiOverlay::drawToast() {
                 | ImGuiWindowFlags_AlwaysAutoResize
         )) {
         for (auto &&i : sToastMessages) {
-            ImGui::Text(i.c_str());
+            ImGui::Text("%s", i.c_str());
         }
         auto now = std::chrono::steady_clock::now();
         if (now - sLastShowToastTimePoint >= sToastShowingDuration) {

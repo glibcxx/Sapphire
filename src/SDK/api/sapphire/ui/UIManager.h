@@ -48,7 +48,7 @@ namespace sapphire::ui {
             TViewModel &mViewModel;
 
         public:
-            template <typename UView, typename TViewModel>
+            template <typename UView>
             UI(std::string name, UView &&viewFunction, TViewModel &viewModel) :
                 UIBase(std::move(name)), mViewFunction(std::forward<UView>(viewFunction)), mViewModel(viewModel) {}
 

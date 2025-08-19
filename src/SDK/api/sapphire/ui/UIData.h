@@ -62,8 +62,14 @@ namespace sapphire::ui {
             r{r}, g{g}, b{b}, a{a} {}
 
         constexpr operator ImVec4() const { return {r, g, b, a}; }
+        constexpr operator float *() { return &r; }
         constexpr operator uint32_t() const {
-            return IM_COL32(static_cast<unsigned int>(r * 255), static_cast<unsigned int>(g * 255), static_cast<unsigned int>(b * 255), static_cast<unsigned int>(a * 255));
+            return IM_COL32(
+                static_cast<unsigned int>(r * 255),
+                static_cast<unsigned int>(g * 255),
+                static_cast<unsigned int>(b * 255),
+                static_cast<unsigned int>(a * 255)
+            );
         }
     };
 

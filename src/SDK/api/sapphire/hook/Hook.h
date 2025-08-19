@@ -71,9 +71,9 @@ namespace sapphire::inline hook {
         static bool hook() {                                                                                 \
             auto &hookMgr = sapphire::hook::HookManager::getInstance();                                      \
             auto &apiMgr = sapphire::ApiManager::getInstance();                                              \
-            if (sdkOriginal = apiMgr.findTarget(                                                             \
-                    util::ApiUniqueId::make<(FuncPtrType) & targetFunc>()                                    \
-                )) {                                                                                         \
+            if ((sdkOriginal = apiMgr.findTarget(                                                            \
+                     util::ApiUniqueId::make<(FuncPtrType) & targetFunc>()                                   \
+                 ))) {                                                                                       \
                 Logger::Debug("[Hook] Target [" #targetFunc "] found at {:#X}!", sdkOriginal);               \
                 return hookMgr.hook(sdkOriginal, &HookName::detour, Priority, trampoline);                   \
             }                                                                                                \

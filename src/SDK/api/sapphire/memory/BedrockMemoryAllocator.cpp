@@ -1,5 +1,5 @@
 #include "BedrockMemoryAllocator.h"
-namespace sapphire::memory {
+namespace sapphire::inline memory {
 
     BedrockMemoryAllocator &BedrockMemoryAllocator::getInstance() {
         static BedrockMemoryAllocator instance{};

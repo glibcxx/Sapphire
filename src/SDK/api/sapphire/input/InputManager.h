@@ -125,34 +125,35 @@ namespace sapphire::input {
         }
     };
 
-    class InputManager : public sapphire::Singleton<InputManager> {
+    class InputManager {
     public:
         class MouseFeedHook;
 
         // 按键按下的瞬间
-        bool isKeyDown(KeyCode key) const;
+        SDK_API bool isKeyDown(KeyCode key) const;
         // 按键抬起的瞬间
-        bool isKeyUp(KeyCode key) const;
+        SDK_API bool isKeyUp(KeyCode key) const;
         // 按键按住状态
-        bool isKeyPressed(KeyCode key) const;
+        SDK_API bool isKeyPressed(KeyCode key) const;
 
-        Vec2           getMousePosition() const;
-        Vec2           getMouseDelta() const;
-        MouseWheelData getMouseWheelData() const;
+        SDK_API Vec2           getMousePosition() const;
+        SDK_API Vec2           getMouseDelta() const;
+        SDK_API MouseWheelData getMouseWheelData() const;
 
         using CoreWindow = winrt::Windows::UI::Core::CoreWindow;
 
-        InputManager(CoreWindow &coreWindow);
-
+        InputManager();
         ~InputManager();
+
+        void init(CoreWindow &coreWindow);
+
+        SDK_API static InputManager &getInstance();
 
     private:
         using CoreDispatcher = winrt::Windows::UI::Core::CoreDispatcher;
         using PointerEventArgs = winrt::Windows::UI::Core::PointerEventArgs;
         using AcceleratorKeyEventArgs = winrt::Windows::UI::Core::AcceleratorKeyEventArgs;
         using CharacterReceivedEventArgs = winrt::Windows::UI::Core::CharacterReceivedEventArgs;
-
-        void init();
 
         void onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args);
 
@@ -210,7 +211,7 @@ namespace sapphire::input {
          * @brief 请求在当前帧拦截一个或多个特定的按键。
          * @param key 要拦截的按键。
          */
-        void requestKeyBlock(KeyCode key);
+        SDK_API void requestKeyBlock(KeyCode key);
 
         /**
          * @brief 请求在当前帧拦截所有鼠标的按键。
