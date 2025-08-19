@@ -53,7 +53,7 @@ public:
 private:
     bool mEnabled = false;
 
-    Minecraft *mClientMinecraft;
+    Minecraft *mClientMinecraft = nullptr;
 
     FreeCameraPlugin();
     ~FreeCameraPlugin();
@@ -61,4 +61,6 @@ private:
     void _setupSettingGui();
 
     void onDrawSetting();
+
+    Minecraft *getMinecraft();
 };

@@ -48,12 +48,12 @@ private:
     std::string            mInputErrorMsg = "";                 // 输入错误信息
     bool                   mInputValid = true;                  // 输入是否有效
     bool                   mInputChangedSinceLastApply = false; // 输入框内容是否已更改
+    bool                   mChangeAudioSpeed = true;
 
     float mTimeScale = 1.0f;
     float mTimeScaleBuffer = mTimeScale;
 
     int mSelectedTps = 6;
 
-    bool mChangeAudioSpeed = true;
-    int  mSelectedResamplerMethod = 2;
+    int mSelectedResamplerMethod = 2;
 };

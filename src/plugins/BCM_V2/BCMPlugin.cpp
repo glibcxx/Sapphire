@@ -7,7 +7,12 @@
 #include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
 #include "SDK/api/sapphire/input/InputManager.h"
+#include "SDK/api/sapphire/service/Service.h"
 #include "plugins/FreeCamera/FreeCamera.h"
+
+#include "SDK/api/src/common/world/Minecraft.h"
+#include "SDK/api/src/common/world/GameSession.h"
+#include "SDK/api/src/common/network/packet/TextPacket.h"
 
 #include "ui/MainUIWindowView.h"
 
@@ -17,6 +22,9 @@ namespace BCM_V2 {
     using namespace sapphire::input;
     using namespace sapphire::ui;
 
+    static AutoListener<RenderLevelEvent>       renderEvent;
+    static AutoListener<GameUpdateGraphicEvent> updateGraphicListener;
+
     BCMPlugin &BCMPlugin::getInstance() {
         static BCMPlugin inst{};
         return inst;
@@ -24,7 +32,7 @@ namespace BCM_V2 {
 
     BCMPlugin::BCMPlugin() :
         mFreeCamPlugin(FreeCameraPlugin::getInstance()) {
-        mEditor = std::make_unique<Editor>();
+        mEditor = std::make_unique<Editor>(mFreeCamPlugin);
         mViewModel = std::make_unique<ui::MainUIWindowViewModel>(mFreeCamPlugin, *mEditor);
 
         UIManager::getInstance().registerView("BCM Editor", &ui::mainWindowView, *mViewModel);
@@ -38,7 +46,14 @@ namespace BCM_V2 {
 
     void BCMPlugin::setupEventListeners() {
         auto &eventMgr = EventManager::getInstance();
-        eventMgr.registerAutoListener<RenderLevelEvent>([this](RenderLevelEvent &e) {
+        updateGraphicListener = eventMgr.registerAutoListener<GameUpdateGraphicEvent>(
+            [this](GameUpdateGraphicEvent &e) {
+                if (mViewModel->isPlaying())
+                    mEditor->update(e.mTimer);
+                mViewModel->update(e.mTimer.mAlpha);
+            }
+        );
+        renderEvent = eventMgr.registerAutoListener<RenderLevelEvent>([this](RenderLevelEvent &e) {
             // render path
         });
     }
@@ -46,37 +61,37 @@ namespace BCM_V2 {
     void BCMPlugin::setupHotkeys() {
         GuiOverlay::registerHotkey(
             {.triggerKey = ImGuiKey_F7,
-             .description = "Toggle BCM Edit Mode (V2)",
+             .description = "Toggle BCM Edit Mode",
              .action = [this]() {
-                this->mEditor->toggleEditorMode();
-                this->mViewModel->mIsOpen = this->mEditor->isEnabled();
+                 if (auto mc = getMinecraft(); mc && mc->mGameSession) {
+                     this->mEditor->toggleEditorMode();
+                     this->mViewModel->mIsOpen = this->mEditor->isEnabled();
+                     this->mFreeCamPlugin.enableFreeCamera(this->mEditor->isEnabled(), false);
+                     TextPacket packet = TextPacket::createRaw(std::format("BCM: {}", this->mEditor->isEnabled() ? "ON" : "OFF"));
+                     packet.mType = TextPacketType::Tip;
+                     mc->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
+                 } else if (this->mEditor->isEnabled()) {
+                     this->mEditor->toggleEditorMode();
+                     this->mViewModel->mIsOpen = false;
+                 }
              }}
         );
-
-        GuiOverlay::registerHotkey(
-            {.triggerKey = ImGuiKey_K,
-             .description = "Add key frame (BCM V2)",
-             .action = [this]() {
-             }}
-        );
-
-        GuiOverlay::registerHotkey(
-            {.triggerKey = ImGuiKey_Tab,
-             .description = "Toggle BCM Editor focus (V2)",
-             .action = [this]() {
-             }}
-        );
-
-        // ... other hotkeys like Play/Pause (P), Reset (R) etc.
     }
 
     void BCMPlugin::setupSettingsMenu() {
         GuiOverlay::registerPluginSettings(
-            {.name = "BCM (V2)",
+            {.name = "BCM",
              .description = "A camera path editor based on MVVM.",
              .drawSettings = [this]() {
              }}
         );
+    }
+
+    Minecraft *BCMPlugin::getMinecraft() {
+        if (!mClientMinecraft) {
+            mClientMinecraft = sapphire::getClientMinecraft().access();
+        }
+        return mClientMinecraft;
     }
 
 } // namespace BCM_V2

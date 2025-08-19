@@ -2,8 +2,8 @@
 
 #include "SDK/api/sapphire/hook/Hook.h"
 
-#include "SDK/api/src/common/util/Timer.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
+#include "SDK/api/src/common/util/Timer.h"
 #include "SDK/api/src-client/common/client/particlesystem/particle/ParticleEmitter.h"
 
 #include "../smoothpiston/SmoothPiston.h"
@@ -113,18 +113,18 @@ void TickRatePlugin::_renderSettingGUI() {
         ImGui::BeginDisabled(true);
         ImGui::SliderInt("##TickSpeedSetting", nullptr, 0, 0, "TimeScale list is empty!");
         ImGui::EndDisabled();
-    } else if (changed = ImGui::SliderInt(
-                   "##TickSpeedSetting",
-                   &mSelectedTps,
-                   0,
-                   mTimeScaleList.size() - 1,
-                   std::format(
-                       "TickSpeed: {} Tps (x{})",
-                       mTimeScaleList[mSelectedTps] * 20,
-                       mTimeScaleList[mSelectedTps]
-                   )
-                       .data()
-               )) {
+    } else if ((changed = ImGui::SliderInt(
+                    "##TickSpeedSetting",
+                    &mSelectedTps,
+                    0,
+                    mTimeScaleList.size() - 1,
+                    std::format(
+                        "TickSpeed: {} Tps (x{})",
+                        mTimeScaleList[mSelectedTps] * 20,
+                        mTimeScaleList[mSelectedTps]
+                    )
+                        .data()
+                ))) {
         mTimeScaleBuffer = mTimeScaleList[mSelectedTps];
     }
 
@@ -136,7 +136,8 @@ void TickRatePlugin::_renderSettingGUI() {
     }
     if (ImGui::InputText("##SpeedListInput", mTimeScaleListInputBuffer.data(), mTimeScaleListInputBuffer.size())) {
         mInputChangedSinceLastApply = true;
-        if (mInputValid = parseTimeScaleString(mTimeScaleListInputBuffer.data(), mParsedTimeScaleList, mInputErrorMsg)) {
+        if (parseTimeScaleString(mTimeScaleListInputBuffer.data(), mParsedTimeScaleList, mInputErrorMsg)) {
+            mInputValid = true;
             auto it = std::find(mParsedTimeScaleList.begin(), mParsedTimeScaleList.end(), mTimeScaleBuffer);
             if (it != mParsedTimeScaleList.end()) {
                 mSelectedTps = static_cast<int>(std::distance(mParsedTimeScaleList.begin(), it));
@@ -153,7 +154,7 @@ void TickRatePlugin::_renderSettingGUI() {
     }
     bool list_content_changed = mInputValid && (mParsedTimeScaleList != mTimeScaleList);
     bool buffer_changed = std::fabs(mTimeScale - mTimeScaleBuffer) > 1e-6f;
-    bool can_apply = mInputValid && ((mInputChangedSinceLastApply && list_content_changed) || changed || buffer_changed);
+    bool can_apply = mInputValid && (mInputChangedSinceLastApply && list_content_changed || changed || buffer_changed);
     ImGui::BeginDisabled(!can_apply);
     if (ImGui::Button("Apply")) {
         if (mInputChangedSinceLastApply && list_content_changed) {
@@ -179,7 +180,9 @@ void TickRatePlugin::_renderSettingGUI() {
     }
 
     // 设置重采样算法
-    if (ImGui::Combo("Resampler Method", &mSelectedResamplerMethod, sResamplerMethodNames.data(), sResamplerMethodNames.size())) {
+    if (ImGui::Combo(
+            "Resampler Method", &mSelectedResamplerMethod, sResamplerMethodNames.data(), sResamplerMethodNames.size()
+        )) {
         if (mSelectedResamplerMethod >= 0 && mSelectedResamplerMethod < sResamplerMethods.size()) {
             UpdateResamplerMethod(sResamplerMethods[mSelectedResamplerMethod]);
         }

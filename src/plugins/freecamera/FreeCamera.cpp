@@ -15,18 +15,6 @@
 
 FreeCameraPlugin *freeCam = nullptr;
 
-HOOK_TYPE(
-    CaptureClientMinecraftHook,
-    Minecraft,
-    sapphire::hook::HookPriority::Normal,
-    Minecraft::startClientGame,
-    void,
-    std::unique_ptr<NetEventCallback> legacyClientNetworkHandler
-) {
-    freeCam->mClientMinecraft = this;
-    this->origin(std::move(legacyClientNetworkHandler));
-}
-
 HOOK_TYPE_CONST(
     ForceDrawPlayerHook,
     ClientInstance,
@@ -123,10 +111,6 @@ FreeCameraPlugin &FreeCameraPlugin::getInstance() {
 FreeCameraPlugin::FreeCameraPlugin() {
     _setupSettingGui();
     freeCam = this;
-    if (CaptureClientMinecraftHook::hook())
-        Logger::Debug("[FreeCameraPlugin] CaptureClientMinecraftHook initialized!");
-    else
-        Logger::Error("[FreeCameraPlugin] CaptureClientMinecraftHook::hook failed!");
     if (ForceDrawPlayerHook::hook())
         Logger::Debug("[FreeCameraPlugin] ForceDrawPlayerHook initialized!");
     else
@@ -150,7 +134,6 @@ FreeCameraPlugin::~FreeCameraPlugin() {
     OnPlayerTurnHook::unhook();
     SetCameraPosHook::unhook();
     ForceDrawPlayerHook::unhook();
-    CaptureClientMinecraftHook::unhook();
 }
 
 void FreeCameraPlugin::setFreeCamOrientation(const glm::quat &orientation) {
@@ -200,10 +183,11 @@ void FreeCameraPlugin::_setupSettingGui() {
              if (ClientInstance::primaryClientInstance->isShowingMenu())
                  return;
              this->enableFreeCamera(!this->mEnabled);
-             if (this->mClientMinecraft) {
+             auto mc = this->getMinecraft();
+             if (mc) {
                  TextPacket packet = TextPacket::createRaw(std::format("FreeCamera: {}", this->mEnabled ? "ON" : "OFF"));
                  packet.mType = TextPacketType::Tip;
-                 this->mClientMinecraft->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
+                 mc->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
              }
          }}
     );
@@ -213,4 +197,11 @@ void FreeCameraPlugin::onDrawSetting() {
     if (ImGui::Checkbox("Toggle Free Camera", &mEnabled) && this->mEnabled) {
         this->enableFreeCamera(true);
     }
+}
+
+Minecraft *FreeCameraPlugin::getMinecraft() {
+    if (!mClientMinecraft) {
+        mClientMinecraft = sapphire::getClientMinecraft().access();
+    }
+    return mClientMinecraft;
 }

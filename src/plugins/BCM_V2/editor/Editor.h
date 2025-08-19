@@ -3,6 +3,8 @@
 #include "CameraPath.h"
 #include "CamTimeline.h"
 
+class FreeCameraPlugin;
+
 namespace BCM_V2 {
 
     class Editor {
@@ -25,9 +27,19 @@ namespace BCM_V2 {
         CamTimeline       &getTimeline() { return this->mTimeline; }
         const CamTimeline &getTimeline() const { return this->mTimeline; }
 
+        void addKeyFrameAtCurrentFreeCameraPos();
+
+        void update(const Timer &timer);
+
+        Editor(FreeCameraPlugin &freeCam);
+
     private:
+        void setupHotkeys();
+
         CameraPath  mPath;
         CamTimeline mTimeline;
+
+        FreeCameraPlugin &mFreeCam;
 
         bool mIsPlaying = false;
         bool mEnabled = false;

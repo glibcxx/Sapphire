@@ -3,6 +3,8 @@
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
+#include "SDK/api/src/common/world/Minecraft.h"
+#include "SDK/api/src/common/network/NetEventCallback.h"
 
 class ServerInstanceEventCoordinator;
 
@@ -12,6 +14,8 @@ namespace {
     static Level          *serverLevel = nullptr;
     static ServerInstance *serverInstance = nullptr;
     static LocalPlayer    *localPlayer = nullptr;
+
+    static Bedrock::NonOwnerPointer<Minecraft> clientMinecraft;
 
     void onClientCreatedLevel(void *This, void *level, void *localPlayer) {
         /*
@@ -161,6 +165,18 @@ namespace {
         ClientInstance::primaryClientInstance = ret;
     }
 
+    HOOK_TYPE(
+        GetClientMinecraftHook,
+        Minecraft,
+        sapphire::hook::HookPriority::Normal,
+        Minecraft::startClientGame,
+        void,
+        std::unique_ptr<NetEventCallback> legacyClientNetworkHandler
+    ) {
+        clientMinecraft = {this->mControlBlock, this};
+        this->origin(std::move(legacyClientNetworkHandler));
+    }
+
 } // namespace
 
 Level *sapphire::service::getServerLevel() {
@@ -179,6 +195,10 @@ LocalPlayer *sapphire::service::getLocalPlayer() {
     return localPlayer;
 }
 
+Bedrock::NonOwnerPointer<Minecraft> sapphire::service::getClientMinecraft() {
+    return clientMinecraft;
+}
+
 void sapphire::service::init() {
     if (!GetClientLevelHook::hook())
         Logger::Error("[sapphire service] GetClientLevelHook::hook failed!");
@@ -188,11 +208,14 @@ void sapphire::service::init() {
         Logger::Error("[sapphire service] GetLocalPlayerHook::hook failed!");
     if (!GetClientInstance::hook())
         Logger::Error("[sapphire service] GetClientInstance::hook failed!");
+    if (!GetClientMinecraftHook::hook())
+        Logger::Error("[sapphire service] GetClientMinecraftHook::hook failed!");
 }
 
 void sapphire::service::uninit() {
-    GetClientLevelHook::unhook();
-    GetServerLevelHook::unhook();
-    GetLocalPlayerHook::unhook();
+    GetClientMinecraftHook::unhook();
     GetClientInstance::unhook();
+    GetLocalPlayerHook::unhook();
+    GetServerLevelHook::unhook();
+    GetClientLevelHook::unhook();
 }

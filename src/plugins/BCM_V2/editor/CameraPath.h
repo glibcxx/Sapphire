@@ -35,6 +35,11 @@ namespace BCM_V2 {
         // 贝塞尔曲线的控制点
         glm::vec3 controlPointIn;
         glm::vec3 controlPointOut;
+
+        friend constexpr auto operator<=>(const Keyframe &k, size_t tick) { return k.tick <=> tick; }
+        friend constexpr auto operator<=>(size_t tick, const Keyframe &k) { return tick <=> k.tick; }
+        friend constexpr auto operator==(const Keyframe &k, size_t tick) { return tick == k.tick; }
+        friend constexpr auto operator==(size_t tick, const Keyframe &k) { return tick == k.tick; }
     };
 
     class CameraPath {

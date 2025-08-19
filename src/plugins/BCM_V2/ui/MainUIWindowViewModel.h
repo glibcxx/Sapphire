@@ -12,10 +12,19 @@ namespace BCM_V2::ui {
         MainUIWindowViewModel(FreeCameraPlugin &freeCam, Editor &editor) :
             mFreeCam(freeCam), mTimelineWidget(editor), mEditor(editor) {}
 
+        void update(float alpha) {
+            if (isPlaying())
+                mTimelineWidget.update(alpha);
+        }
+
         bool isPlaying() const { return mEditor.isPlaying(); }
 
         size_t getTimelineTick() const {
             return mEditor.getTimeline().getTick();
+        }
+
+        float getTimelineAlpha() const {
+            return mEditor.getTimeline().getAlpha();
         }
 
         void togglePlaying() {

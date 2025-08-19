@@ -4,6 +4,7 @@
 #include "SDK/api/sapphire/event/Event.h"
 
 class FreeCameraPlugin;
+class Minecraft;
 
 namespace BCM_V2 {
 
@@ -25,8 +26,11 @@ namespace BCM_V2 {
         void setupHotkeys();
         void setupSettingsMenu();
 
+        Minecraft *getMinecraft();
+
         std::unique_ptr<Editor>                    mEditor;
         std::unique_ptr<ui::MainUIWindowViewModel> mViewModel;
         FreeCameraPlugin                          &mFreeCamPlugin;
+        Minecraft                                 *mClientMinecraft = nullptr;
     };
 } // namespace BCM_V2
