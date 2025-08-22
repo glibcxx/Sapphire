@@ -7,6 +7,7 @@
 #include "util/MemoryScanning.hpp"
 #include "util/time.h"
 
+#include "IatPatcher.h"
 #include "DX12Hook.h"
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/config/Config.h"
@@ -172,6 +173,8 @@ namespace sapphire {
             return false;
         }
 
+        auto  &apiMap = ApiManager::getInstance().getApiDecoratedName2TargetAddr();
+        auto  &iatPatcher = IatPatcher::getInstance();
         auto  &plugins = this->mPluginManager.mLoadedPlugins;
         size_t loaded = plugins.size();
         for (auto &&entry : fs::directory_iterator{modsDir}) {
@@ -206,6 +209,7 @@ namespace sapphire {
             } else {
                 plugins.back().handle = handle;
                 loaded++;
+                iatPatcher.patchModule(handle, apiMap);
                 Logger::Info("[Core] {} 注入成功！", filename);
             }
         }

@@ -2,6 +2,7 @@
 
 #include "macros/Macros.h"
 #include <source_location>
+#include "util/DecoratedName.hpp"
 #include "util/threading/ThreadPool.h"
 #include "util/Memory.hpp"
 #include "util/ApiUniqueId.hpp"
@@ -17,11 +18,9 @@ namespace sapphire {
         MainModuleInfo   mMainModuleInfo;
         util::ThreadPool mThreadPool;
 
-        std::unordered_map<util::ApiUniqueId, uintptr_t> mSdkApi2TargetAddr;
+        std::unordered_map<std::string_view, uintptr_t> mApiDecoratedName2TargetAddr;
 
-        void _addApiToMap(util::ApiUniqueId api, uintptr_t originalAdr) {
-            this->mSdkApi2TargetAddr.emplace(api, originalAdr);
-        }
+        mutable std::mutex mLock;
 
         SDK_API uintptr_t _scanApi(const char *sig, size_t sigLength);
 
@@ -32,12 +31,35 @@ namespace sapphire {
     public:
         SDK_API static ApiManager &getInstance();
 
-        uintptr_t findTarget(util::ApiUniqueId api) const noexcept {
-            auto it = this->mSdkApi2TargetAddr.find(api);
-            if (it == this->mSdkApi2TargetAddr.end())
+        const std::unordered_map<std::string_view, uintptr_t> &getApiDecoratedName2TargetAddr() const {
+            return this->mApiDecoratedName2TargetAddr;
+        }
+
+        bool addDecoratedName(std::string_view dName, uintptr_t addr) {
+            bool success = false;
+            {
+                std::unique_lock lock{mLock};
+                success = this->mApiDecoratedName2TargetAddr.try_emplace(dName, addr).second;
+            }
+#ifdef SPHR_DEBUG
+            if (!success)
+                Logger::Warn("[ApiManager] Api with name {} already exists", dName);
+#endif
+            return success;
+        }
+
+        uintptr_t findTarget(std::string_view dName) {
+            std::unique_lock lock{mLock};
+            auto             it = this->mApiDecoratedName2TargetAddr.find(dName);
+            if (it == this->mApiDecoratedName2TargetAddr.end())
                 return 0;
             else
                 return it->second;
+        }
+
+        template <auto ptr>
+        uintptr_t findTarget() {
+            return findTarget(util::Decorator<ptr, true>::value.view());
         }
 
         void startThreadPool() {
@@ -52,63 +74,69 @@ namespace sapphire {
             this->mThreadPool.wait_all_finished();
         }
 
-        template <auto Api>
-        static void assertApi() {
-            constexpr std::string_view sig = &__FUNCSIG__[45];
-            constexpr std::string_view msg = sig.substr(0, sig.size() - 7);
-            Logger::Error("[ApiManager] Failed to find api: {}", msg);
-        }
-
-        template <auto Api>
-        static void assertApi(std::source_location loc) {
-            constexpr std::string_view sig = &__FUNCSIG__[45];
-            constexpr std::string_view msg = sig.substr(0, sig.size() - 30);
-            Logger::Error("[ApiManager] Failed to find data: {} at [{}:{}:{}]", msg, loc.file_name(), loc.line(), loc.column());
-        }
-
-        template <signature::Signature Sig, auto Api>
-        uintptr_t scanAndRegisterApi(bool storeToMap = true) {
+        template <signature::Signature Sig>
+        uintptr_t scanAndRegisterApi(std::string_view dName) {
             uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
             if (!origin) {
-                assertApi<Api>();
+                Logger::Error("[ApiManager] Failed to find api: {}", dName);
                 return 0;
             }
             origin = Sig(origin);
-            if (storeToMap)
-                this->_addApiToMap(util::ApiUniqueId::make<Api>(), origin);
+            this->addDecoratedName(dName, origin);
             return origin;
         }
 
-        template <signature::Signature Sig, auto Api>
-        uintptr_t scanAndRegisterApi(std::source_location loc, bool storeToMap = true) {
-            uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
-            if (!origin) {
-                assertApi<Api>(loc);
-                return 0;
-            }
-            origin = Sig(origin);
-            if (storeToMap)
-                this->_addApiToMap(util::ApiUniqueId::make<Api>(), origin);
-            return origin;
-        }
-
-        template <signature::Signature Sig, typename ApiType, auto Api>
-        void scanAndRegisterApiAsync(ApiType &result, bool storeToMap = true) {
-            this->_submitAsyncScanTask([this, storeToMap, &result] {
-                result = memory::toMemberFunc<ApiType>(this->scanAndRegisterApi<Sig, Api>(storeToMap));
+        template <signature::Signature Sig, typename ApiType>
+        int scanAndRegisterApiAsync(std::string_view dName, ApiType &result) {
+            this->_submitAsyncScanTask([this, dName, &result] {
+                result = memory::toMemberFunc<ApiType>(scanAndRegisterApi<Sig>(dName));
             });
+            return 0;
+        }
+
+        template <signature::Signature Sig, typename ApiType>
+        int scanAndRegisterApiAsync(std::string_view dName, std::string_view dName2, ApiType &result) {
+            this->_submitAsyncScanTask([this, dName, dName2, &result] {
+                auto addr = scanAndRegisterApi<Sig>(dName);
+                this->addDecoratedName(dName2, addr);
+                result = memory::toMemberFunc<ApiType>(addr);
+            });
+            return 0;
         }
     };
 
+    template <signature::Signature Sig, auto Api, auto = nullptr>
+    class ApiLoader;
+
     template <signature::Signature Sig, auto Api>
-    class ApiLoader {
+    class ApiLoader<Sig, Api, nullptr> {
         using ApiType = decltype(Api);
+        static_assert(
+            !util::Decorator<Api, true>::value.view().starts_with("??_9"),
+            "Please use ApiLoader<..., ..., SPHR_FUNCDNAME> for virtual function"
+        );
 
     public:
         inline static ApiType origin;
 
     private:
-        inline static int async = (ApiManager::getInstance().scanAndRegisterApiAsync<Sig, ApiType, Api>(origin), 0);
+        inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
+            util::Decorator<Api, true>::value.view(), origin
+        );
+    };
+
+    template <signature::Signature Sig, auto Api, util::StringLiteral RawDecoratedName>
+    class ApiLoader<Sig, Api, RawDecoratedName> {
+        using ApiType = decltype(Api);
+        static_assert(util::Decorator<Api, true>::value.view().starts_with("??_9"));
+
+    public:
+        inline static ApiType origin;
+
+    private:
+        inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
+            util::Decorator<Api, true>::value.view(), origin
+        );
     };
 
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
@@ -116,16 +144,20 @@ namespace sapphire {
     constexpr auto deRefMov = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::MOV); };
 
     template <signature::Signature Sig, auto Api, typename DataType>
-    DataType &loadStatic(std::source_location loc = std::source_location::current()) {
+    DataType &loadStatic() {
         if constexpr (std::is_reference_v<DataType>)
-            return **std::bit_cast<std::remove_reference_t<DataType> **>(ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false));
+            return **std::bit_cast<std::remove_reference_t<DataType> **>(
+                ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(util::Decorator<Api>::value.view())
+            );
         else
-            return *std::bit_cast<DataType *>(ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(loc, false));
+            return *std::bit_cast<DataType *>(ApiManager::getInstance().scanAndRegisterApi<Sig>(
+                util::Decorator<Api>::value.view()
+            ));
     };
 
     template <signature::Signature Sig, auto Api>
-    void *const *loadVftable(std::source_location loc = std::source_location::current()) {
-        return loadStatic<Sig, Api, void *const *>(loc);
+    void *const *loadVftable() {
+        return loadStatic<Sig, Api, void *const *>();
     };
 
 } // namespace sapphire

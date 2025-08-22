@@ -41,7 +41,7 @@ namespace memory {
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == 2 * sizeof(uintptr_t))
-    uintptr_t toRawFunc(Fn addr) {
+    constexpr uintptr_t toRawFunc(Fn addr) {
         struct member_func_ptr {
             uintptr_t addr;
             uintptr_t offset;
@@ -51,13 +51,17 @@ namespace memory {
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == sizeof(uintptr_t) || std::is_function_v<std::remove_pointer_t<Fn>>)
-    uintptr_t toRawFunc(Fn addr) {
+    constexpr uintptr_t toRawFunc(Fn addr) {
         return std::bit_cast<uintptr_t>(addr);
+    }
+
+    constexpr uintptr_t toRawFunc(uintptr_t addr) {
+        return addr;
     }
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == 2 * sizeof(uintptr_t))
-    Fn toMemberFunc(uintptr_t addr) {
+    constexpr Fn toMemberFunc(uintptr_t addr) {
         struct member_func_ptr {
             uintptr_t addr;
             uintptr_t offset;
@@ -67,7 +71,7 @@ namespace memory {
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == sizeof(uintptr_t) || std::is_function_v<std::remove_pointer_t<Fn>>)
-    Fn toMemberFunc(uintptr_t addr) {
+    constexpr Fn toMemberFunc(uintptr_t addr) {
         return std::bit_cast<Fn>(addr);
     }
 

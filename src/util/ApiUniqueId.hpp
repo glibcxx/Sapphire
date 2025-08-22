@@ -25,7 +25,7 @@ namespace util {
 
         template <auto pFn>
         static consteval auto make() {
-            return ApiUniqueId{__FUNCSIG__};
+            return ApiUniqueId{__FUNCDNAME__};
         }
     };
 

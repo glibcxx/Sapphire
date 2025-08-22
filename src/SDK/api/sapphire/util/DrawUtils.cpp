@@ -12,7 +12,7 @@ mce::MaterialPtr DrawUtils::sDrawMat{};
 
 static DrawUtils *drawUtils = nullptr;
 
-HOOK_TYPE(
+INDIRECT_HOOK_TYPE(
     RenderLevelMainFuncHook,
     LevelRenderer,
     sapphire::hook::HookPriority::Normal,

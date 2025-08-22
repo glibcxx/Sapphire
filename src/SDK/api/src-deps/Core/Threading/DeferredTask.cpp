@@ -21,7 +21,7 @@ namespace Core {
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xFC\x48\x8D\x47\x00\x48\x89\x83"_sig,
 #endif
-            &DeferredTask::ctor<lambda_144B72F30> >;
+            &DeferredTask::ctor<lambda_144B72F30>>;
         return (this->*Hook::origin)(std::move(callback));
     }
 

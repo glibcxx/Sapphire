@@ -9,6 +9,8 @@ namespace sapphire {
 
     class PluginManager {
         friend class Core;
+        friend class IatPatcher;
+
         class LoadedPlugin {
         public:
             HMODULE  handle;

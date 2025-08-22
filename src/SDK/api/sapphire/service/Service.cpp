@@ -32,7 +32,7 @@ namespace {
     }
     MARK_HOOKABLE(&onClientCreatedLevel)
 
-    HOOK_STATIC(
+    INDIRECT_HOOK_STATIC(
         GetClientLevelHook,
         sapphire::hook::HookPriority::Normal,
         onClientCreatedLevel,
@@ -64,7 +64,7 @@ namespace {
     }
     MARK_HOOKABLE(&ServerInstanceEventCoordinator__sendServerLevelInitialized)
 
-    HOOK_STATIC(
+    INDIRECT_HOOK_STATIC(
         GetServerLevelHook,
         sapphire::hook::HookPriority::Normal,
         ServerInstanceEventCoordinator__sendServerLevelInitialized,
@@ -106,7 +106,7 @@ namespace {
     }
     MARK_HOOKABLE(&LocalPlayer_ctor)
 
-    HOOK_STATIC(
+    INDIRECT_HOOK_STATIC(
         GetLocalPlayerHook,
         sapphire::hook::HookPriority::Normal,
         LocalPlayer_ctor,
@@ -144,7 +144,7 @@ namespace {
     }
     MARK_HOOKABLE(&makeClientInstance)
 
-    HOOK_STATIC(
+    INDIRECT_HOOK_STATIC(
         GetClientInstance,
         sapphire::hook::HookPriority::Normal,
         makeClientInstance,
@@ -165,7 +165,7 @@ namespace {
         ClientInstance::primaryClientInstance = ret;
     }
 
-    HOOK_TYPE(
+    INDIRECT_HOOK_TYPE(
         GetClientMinecraftHook,
         Minecraft,
         sapphire::hook::HookPriority::Normal,

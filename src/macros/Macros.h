@@ -15,6 +15,11 @@
 #    define IMGUI_API SDK_API
 #endif
 
+#ifndef SPHR_FUNCDNAME
+#    define SPHR_FUNCDNAME \
+        util::StringLiteral { __FUNCDNAME__ }
+#endif
+
 #if !defined(NDEBUG)
 #    define SPHR_DEBUG 1
 #endif

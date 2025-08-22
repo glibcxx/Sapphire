@@ -25,17 +25,24 @@ static void setResamplerMethod(FMOD::System &sys, FMOD_DSP_RESAMPLER resampler) 
     advSettings.cbSize = sizeof(FMOD_ADVANCEDSETTINGS);
     FMOD_RESULT getAdvRes = sys.getAdvancedSettings(&advSettings);
     if (getAdvRes != FMOD_OK) {
-        Logger::Warn("[Tickrate][AudioSpeed] Failed to get original FMOD advanced settings: {}", (int)getAdvRes);
+        Logger::Warn(
+            "[Tickrate][AudioSpeed] Failed to get original FMOD advanced settings: {}", (int)getAdvRes
+        );
     }
-    Logger::Debug("[Tickrate][AudioSpeed] resamplerMethod changed from {} to {}", (int)advSettings.resamplerMethod, (int)resampler);
+    Logger::Debug(
+        "[Tickrate][AudioSpeed] resamplerMethod changed from {} to {}", (int)advSettings.resamplerMethod, (int)resampler
+    );
     advSettings.resamplerMethod = resampler;
     FMOD_RESULT setAdvRes = sys.setAdvancedSettings(&advSettings);
     if (setAdvRes != FMOD_OK) {
-        Logger::Warn("[Tickrate][AudioSpeed] Failed to set FMOD advanced resampling method: {}. This might ignore the setting.", (int)setAdvRes);
+        Logger::Warn(
+            "[Tickrate][AudioSpeed] Failed to set FMOD advanced resampling method: {}. This might ignore the setting.",
+            (int)setAdvRes
+        );
     }
 }
 
-HOOK_RAW_TYPE(
+HOOK_TYPE(
     FMODSystemInitHook,
     FMOD::System,
     sapphire::hook::HookPriority::Normal,
@@ -54,7 +61,7 @@ HOOK_RAW_TYPE(
     return res;
 }
 
-HOOK_RAW_TYPE(
+HOOK_TYPE(
     FMODSystemPlaySoundHook,
     FMOD::System,
     sapphire::hook::HookPriority::Normal,
