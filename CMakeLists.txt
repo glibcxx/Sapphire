@@ -14,6 +14,7 @@ endif()
 include(FetchContent)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
+include(cmake/SapphireUtils.cmake)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,7 +36,7 @@ set(ENABLE_SAFE_HOOK "${ENABLE_SAFE_HOOK_DEFAULT}" CACHE STRING "Enable safe hoo
 
 # --- 外部依赖 ---
 add_subdirectory(external/minhook EXCLUDE_FROM_ALL)
-add_subdirectory(external/imgui)
+add_subdirectory(external/imgui EXCLUDE_FROM_ALL)
 include(cmake/SapphireDependencies.cmake)
 sapphire_resolve_dependencies()
 
@@ -107,27 +108,27 @@ install(TARGETS SapphireCommon
 )
 
 install(DIRECTORY external/imgui/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/imgui COMPONENT CPACK_Headers
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/imgui COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h"
 )
 install(DIRECTORY external/fmod/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fmod COMPONENT CPACK_Headers
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fmod COMPONENT sapphire_SDK_headers
 )
-install(FILES libs/fmod.lib
-    DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT CPACK_Development
-)
+# install(FILES libs/fmod.lib
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT sapphire_SDK_lib
+# )
 
 install(DIRECTORY src/macros/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/macros COMPONENT CPACK_Headers
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/macros COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 install(DIRECTORY src/util/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/util COMPONENT CPACK_Headers
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/util COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 
 install(FILES cmake/SapphireDependencies.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT CPACK_Development
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT sapphire_SDK_resource
 )
 
 write_basic_package_version_file(
@@ -145,90 +146,32 @@ configure_package_config_file(
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/SapphireConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/SapphireConfigVersion.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT CPACK_Development
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT sapphire_SDK_resource
 )
 
 install(EXPORT SapphireTargets
     FILE SapphireTargets.cmake
     NAMESPACE Sapphire::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT CPACK_Development
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT sapphire_SDK_resource
 )
 
-################################################################################
-# CPack Packaging Configuration
-################################################################################
+sapphire_add_install_target(
+    install-sapphire_SDK_resource
+    COMPONENT sapphire_SDK_resource
+)
 
-set(CPACK_PACKAGE_VERSION ${SAPPHIRE_VERSION})
-set(CPACK_PACKAGE_VENDOR "Triteleiopsis")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Sapphire Modding SDK and Runtime")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Sapphire")
+sapphire_add_install_target(
+    install-sapphire_SDK_lib
+    COMPONENT sapphire_SDK_lib
+    DEPENDS sapphire_core
+)
 
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+sapphire_add_install_target(
+    install-sapphire_SDK_headers
+    COMPONENT sapphire_SDK_headers
+)
 
-set(CPACK_GENERATOR "ZIP")
-set(CPACK_PACKAGE_FILE_NAME "Sapphire-${SAPPHIRE_VERSION}-win64")
-
-# --- 打包SDK ---
-
-cpack_add_component_group(SDK
-    DISPLAY_NAME "Developer SDK"
-    DESCRIPTION "Sapphire Development Kit.") # 简称SDK，乐
-
-cpack_add_component(CPACK_Development
-    DISPLAY_NAME "Libraries (.lib) and configs (.cmake etc)"
-    GROUP SDK)
-
-cpack_add_component(CPACK_Headers
-    DISPLAY_NAME "Header Files (.h, .hpp)"
-    GROUP SDK)
-
-cpack_add_component(Devel
-    DISPLAY_NAME "none"
-    DESCRIPTION "from concurrentqueue"
-    GROUP SDK HIDDEN)
-
-cpack_add_component(Unspecified
-    DISPLAY_NAME "none"
-    DESCRIPTION "from 3rd party"
-    GROUP SDK HIDDEN)
-
-# --- 打包exe ---
-
-macro(sapphire_pack_sapphire_exe BUILDING_MC_VERSION)
-    set(GROUP_NAME mc-${BUILDING_MC_VERSION})
-    cpack_add_component_group(${GROUP_NAME}
-        DISPLAY_NAME "Sapphire for ${BUILDING_MC_VERSION}"
-        DESCRIPTION "Just Sapphire."
-        DEPENDS SapphireCore)
-
-    cpack_add_component(CPACK_SapphireLauncher_for_${BUILDING_MC_VERSION}
-        DISPLAY_NAME "Sapphire Launcher"
-        DESCRIPTION "The executable to launch the game with Sapphire."
-        GROUP ${GROUP_NAME})
-
-    cpack_add_component(CPACK_Runtime_for_${BUILDING_MC_VERSION}
-        DISPLAY_NAME "Core Runtime (.dll)"
-        GROUP ${GROUP_NAME})
-
-    cpack_add_component(CPACK_SapphireBuiltinPlugin_for_${BUILDING_MC_VERSION}
-        DISPLAY_NAME "Built-in Plugin"
-        GROUP ${GROUP_NAME})
-
-    install(TARGETS sapphire_launcher
-        DESTINATION Sapphire/
-        COMPONENT CPACK_SapphireLauncher_for_${BUILDING_MC_VERSION}
-    )
-
-endmacro()
-
-if(BUILD_FOR_ALL_MC_VERSIONS)
-    foreach(BUILDING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})
-        sapphire_pack_sapphire_exe(${BUILDING_MC_VERSION})
-    endforeach()
-else()
-    sapphire_pack_sapphire_exe(${MC_VERSION})
-endif()
-
-set(CPACK_ARCHIVE_COMPONENT_INSTALL TRUE)
-
-include(CPack)
+sapphire_add_install_target(
+    install-sapphire_SDK
+    DEPENDS install-sapphire_SDK_headers install-sapphire_SDK_resource install-sapphire_SDK_lib
+)

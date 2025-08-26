@@ -91,11 +91,13 @@ namespace sapphire {
                         pIAT->u1.Function = static_cast<ULONGLONG>(realAddress);
                         VirtualProtect(&pIAT->u1.Function, sizeof(void *), oldProtect, &oldProtect);
                     }
-                } else if (SPHR_DEBUG) {
+                } else {
+#ifdef SPHR_DEBUG
                     std::string_view n{functionName};
                     if (n.find("sapphire@@") == std::string_view::npos
                         && n.find("ImGui@@") == std::string_view::npos)
                         Logger::Debug("[IatPatcher]  -> function '{}' not found in api map", functionName);
+#endif
                 }
             }
         }

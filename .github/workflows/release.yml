@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 env:
   BUILD_TYPE: Release
@@ -12,36 +12,74 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: 'recursive'
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
 
-    - name: Setup Windows 10 SDK Action
-      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-      with:
-        sdk-version: 22621
+      - name: Setup Windows 10 SDK Action
+        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
+        with:
+          sdk-version: 22621
 
-    - name: Configure CMake
-      run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_SYSTEM_VERSION="10.0.22621.0"
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_SYSTEM_VERSION="10.0.22621.0" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install"
 
-    - name: Build
-      run: cmake --build build --config ${{env.BUILD_TYPE}}
+      - name: Build and Package
+        run: |
+          $buildDir = "build"
+          $installDir = "install"
+          $artifactsDir = "artifacts"
 
-    - name: Install
-      run: cmake --install build --config ${{env.BUILD_TYPE}}
+          New-Item -ItemType Directory -Force -Path $artifactsDir
 
-    - name: Package
-      run: cmake --build build --target package --config ${{env.BUILD_TYPE}}
+          $allTargetsOutput = cmake --build $buildDir --target help
 
-    - name: Upload Packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: Sapphire-Packages
-        path: build
+          $codemodelFile = Get-ChildItem -Path "$buildDir/.cmake/api/v1/reply/codemodel-v2-*.json" | Select-Object -First 1
+          if (-not $codemodelFile) {
+              Write-Error "CMake codemodel file not found. Make sure CMake configuration was successful."
+              exit 1
+          }
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ${{github.workspace}}/build/Sapphire-SDK-*.*.*-win64-*.zip
+          Write-Host "Reading project structure from $($codemodelFile.FullName)"
+          $codemodel = Get-Content -Path $codemodelFile.FullName | ConvertFrom-Json
+
+          $allTargets = $codemodel.configurations.targets.name | Sort-Object -Unique
+
+          $installTargets = $allTargets | Where-Object { $_ -like 'install-*' }
+
+          if ($installTargets.Count -eq 0) {
+              Write-Warning "No 'install-*' targets found. Nothing to do."
+              exit 0
+          }
+
+          $installTargets | ForEach-Object { Write-Host "- $_" }
+
+          foreach ($target in $installTargets) {
+              Write-Host "--- Processing target: $target ---"
+
+              Write-Host "Building and installing '$target'..."
+              cmake --build $buildDir --target $target --config ${{env.BUILD_TYPE}}
+              if ($LASTEXITCODE -ne 0) {
+                  Write-Error "CMake build failed for target '$target'."
+                  exit 1
+              }
+
+              $zipFileName = "$artifactsDir/$target.zip"
+
+              if (Get-ChildItem -Path $installDir) {
+                  Compress-Archive -Path $installDir\* -DestinationPath $zipFileName -Force
+                  Write-Host "Successfully created package '$zipFileName'."
+              } else {
+                  Write-Warning "Installation directory was empty for target '$target'. No package was created."
+              }
+              Get-ChildItem -Path $installDir -Force | Remove-Item -Recurse -Force
+          }
+
+          Write-Host "--- Building: done. ---"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{github.workspace}}/artifacts
