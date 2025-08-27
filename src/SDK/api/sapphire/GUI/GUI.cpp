@@ -50,7 +50,7 @@ void GuiOverlay::initImGui(
 ) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    // ImGui_ImplWin32_Init(mainWindow);
+    ImGui_ImplWin32_Init(mainWindow);
     ImGui_ImplDX11_Init(device, deviceContext);
 
     ImGuiIO &io = ImGui::GetIO();
@@ -115,6 +115,7 @@ void GuiOverlay::initImGui(
 void GuiOverlay::shutdownImGui() {
     GuiOverlay::sInitialized = false;
     ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
 

@@ -16,6 +16,15 @@
 using namespace winrt::Windows::UI;
 using namespace winrt::Windows::UI::Core;
 
+WNDPROC oWndProc = nullptr;
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+static LRESULT APIENTRY       hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+        return true;
+    return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+}
+
 bool DX12Hook::CreateRenderTargetResources(IDXGISwapChain *pSwapChain) {
     DXGI_SWAP_CHAIN_DESC desc;
     pSwapChain->GetDesc(&desc);
@@ -186,6 +195,8 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
         if (!CreateRenderTargetResources(pSwapChain))
             return oPresent12(pSwapChain, SyncInterval, Flags);
 
+        oWndProc = (WNDPROC)SetWindowLongPtr(moduleInfo::gMainWindow, GWLP_WNDPROC, (LONG_PTR)hkWndProc);
+
         GuiOverlay::sInitialized = true;
     }
 
@@ -194,7 +205,7 @@ HRESULT __stdcall DX12Hook::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncIn
     GuiOverlay::saveConfig();
 
     ImGui_ImplDX11_NewFrame();
-    // ImGui_ImplWin32_NewFrame();
+    ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
     // 绘制窗口
