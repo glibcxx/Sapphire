@@ -1,7 +1,7 @@
 file(GLOB_RECURSE SDK_SRC api/*.cpp)
 file(GLOB_RECURSE CORE_SRC core/*.cpp)
 
-macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS)
+macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGETS)
     set(SAPPHIRE_TARGET_NAME sapphire_core_for_${BUILDING_MC_VERSION})
     set(SAPPHIRE_lib_NAME sapphire_core_lib_for_${BUILDING_MC_VERSION})
 
@@ -25,9 +25,12 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS)
 
     install(TARGETS ${SAPPHIRE_TARGET_NAME}
         EXPORT SapphireTargets
-        RUNTIME DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT sapphire_SDK_lib
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT sapphire_SDK_lib
+    )
+
+    install(TARGETS ${SAPPHIRE_TARGET_NAME}
+        RUNTIME DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
     )
 
     sapphire_add_install_target(
@@ -35,23 +38,25 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS)
         COMPONENT ${SAPPHIRE_TARGET_NAME}
     )
     list(APPEND ${OUT_TARGETS} ${SAPPHIRE_TARGET_NAME})
+    list(APPEND ${OUT_INSTALL_TARGETS} install-${SAPPHIRE_TARGET_NAME})
 
 endmacro()
 
 set(SAPPHIRE_CORE_TARGETS)
+set(INSTALL_SAPPHIRE_CORE_TARGETS)
 
 if(BUILD_FOR_ALL_MC_VERSIONS)
     foreach(BUILDING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})
-        sapphire_add_sdk_target(${BUILDING_MC_VERSION} SAPPHIRE_CORE_TARGETS)
+        sapphire_add_sdk_target(${BUILDING_MC_VERSION} SAPPHIRE_CORE_TARGETS INSTALL_SAPPHIRE_CORE_TARGETS)
     endforeach()
 else()
-    sapphire_add_sdk_target(${MC_VERSION} SAPPHIRE_CORE_TARGETS)
+    sapphire_add_sdk_target(${MC_VERSION} SAPPHIRE_CORE_TARGETS INSTALL_SAPPHIRE_CORE_TARGETS)
 endif()
 
 add_custom_target(sapphire_core DEPENDS ${SAPPHIRE_CORE_TARGETS})
 sapphire_add_install_target(
     install-sapphire_core
-    DEPENDS sapphire_core
+    DEPENDS ${INSTALL_SAPPHIRE_CORE_TARGETS} 
 )
 
 

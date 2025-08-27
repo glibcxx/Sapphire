@@ -114,9 +114,9 @@ install(DIRECTORY external/imgui/
 install(DIRECTORY external/fmod/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/fmod COMPONENT sapphire_SDK_headers
 )
-# install(FILES libs/fmod.lib
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT sapphire_SDK_lib
-# )
+install(FILES libs/fmod.lib
+    DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT sapphire_SDK_lib
+)
 
 install(DIRECTORY src/macros/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/macros COMPONENT sapphire_SDK_headers
