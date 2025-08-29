@@ -111,33 +111,58 @@ namespace sapphire {
     template <signature::Signature Sig, auto Api>
     class ApiLoader<Sig, Api, nullptr> {
         using ApiType = decltype(Api);
+        using Decorated = util::Decorator<Api, true>;
         static_assert(
-            !util::Decorator<Api, true>::value.view().starts_with("??_9"),
+            !Decorated::value.view().starts_with("??_9"),
             "Please use ApiLoader<..., ..., SPHR_FUNCDNAME> for virtual function"
         );
+        // static_assert(
+        //     !Decorated::value.view().starts_with("?ctor@"),
+        //     "Please define ctor in native ctor with ApiLoader<..., ..., SPHR_FUNCDNAME>"
+        // );
+        // static_assert(
+        //     !Decorated::value.view().starts_with("?dtor@"),
+        //     "Please define dtor in native dtor with ApiLoader<..., ..., SPHR_FUNCDNAME>"
+        // );
 
     public:
         inline static ApiType origin;
 
     private:
         inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            util::Decorator<Api, true>::value.view(), origin
+            Decorated::value.view(), origin
         );
     };
 
     template <signature::Signature Sig, auto Api, util::StringLiteral RawDecoratedName>
     class ApiLoader<Sig, Api, RawDecoratedName> {
         using ApiType = decltype(Api);
-        static_assert(util::Decorator<Api, true>::value.view().starts_with("??_9"));
+        using Decorated = util::Decorator<Api, true>;
+        static_assert(
+            Decorated::value.view().starts_with("??_9")        // virtual thunk
+                || RawDecoratedName.view().starts_with("??0")  // ctor
+                || RawDecoratedName.view().starts_with("??1"), // dtor
+            "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion, ctor or dtor"
+        );
+        static_assert(
+            (!RawDecoratedName.view().starts_with("??0") || Decorated::value.view().starts_with("?ctor@")),
+            "Please specific Api with 'ctor thunk'"
+        );
+        static_assert(
+            (!RawDecoratedName.view().starts_with("??1") || Decorated::value.view().starts_with("?dtor@")),
+            "Please specific Api with 'dtor thunk'"
+        );
 
     public:
         inline static ApiType origin;
 
     private:
         inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            util::Decorator<Api, true>::value.view(), origin
+            Decorated::value.view(), origin
         );
     };
+
+    class ApiAlias {};
 
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
     constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };

@@ -20,6 +20,15 @@
         util::StringLiteral { __FUNCDNAME__ }
 #endif
 
+#ifndef SPHR_UNINIT
+#    define SPHR_UNINIT(...) \
+        union {                     \
+            struct {                \
+                __VA_ARGS__         \
+            };                      \
+        };
+#endif
+
 #if !defined(NDEBUG)
 #    define SPHR_DEBUG 1
 #endif
