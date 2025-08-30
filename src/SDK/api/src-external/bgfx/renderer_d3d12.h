@@ -163,6 +163,8 @@ namespace bgfx {
 
             SDK_API BufferHeapBlock *ctor();
 
+            ~BufferHeapBlock() = delete;
+
             SDK_API bool init(ID3D12Device *pDevice, ID3D12Heap *pHeap, size_t blockSizeInBytes, size_t alignment);
 
             SDK_API size_t popInactiveBlockIndex();

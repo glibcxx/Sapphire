@@ -5,6 +5,15 @@
 
 namespace bgfx {
 
+    struct Context;
+
+    using ViewId = uint16_t;
+
+    constexpr uint16_t kInvalidHandle = UINT16_MAX;
+
+    extern SDK_API bgfx::Context *s_ctx;
+    extern SDK_API bx::AllocatorI *g_allocator;
+
     // size: 1
     struct Fatal {
         enum class Enum : int {
@@ -27,6 +36,11 @@ namespace bgfx {
     };
 
     // size: 2
+    struct DynamicVertexBufferHandle {
+        uint16_t idx; // off+0
+    };
+
+    // size: 2
     struct TextureHandle {
         uint16_t idx; // off+0
     };
@@ -38,6 +52,16 @@ namespace bgfx {
 
     // size: 2
     struct IndexBufferHandle {
+        uint16_t idx; // off+0
+    };
+
+    // size: 2
+    struct IndirectBufferHandle {
+        uint16_t idx; // off+0
+    };
+
+    // size: 2
+    struct DynamicIndexBufferHandle {
         uint16_t idx; // off+0
     };
 
@@ -70,6 +94,14 @@ namespace bgfx {
     struct AccelerationStructureHandle {
         uint16_t idx; // off+0
     };
+
+    template <typename HandleType>
+    concept is_bgfx_like_handle = requires(HandleType h) {
+        { h.idx } -> std::convertible_to<uint16_t>;
+    };
+
+    template <is_bgfx_like_handle Handle>
+    constexpr bool isValid(Handle h) { return h.idx != kInvalidHandle; }
 
     // size: 16
     struct Memory {
@@ -223,5 +255,29 @@ namespace bgfx {
         uint16_t            mip;    // off+2
         uint16_t            layer;  // off+4
     };
+
+    // size: 1
+    struct Encoder {
+        SDK_API uint16_t setScissor(uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height);
+    };
+
+    inline const bgfx::Memory *alloc(uint32_t _size) {
+        Memory *mem = (Memory *)g_allocator->realloc(nullptr, sizeof(Memory) + _size);
+        mem->size = _size;
+        mem->data = (uint8_t *)mem + sizeof(Memory);
+        return mem;
+    }
+
+    inline const bgfx::Memory *copy(const void *_data, uint32_t _size) {
+        const Memory *mem = alloc(_size);
+        ::memcpy(mem->data, _data, _size);
+        return mem;
+    }
+
+    SDK_API bgfx::DynamicVertexBufferHandle createDynamicVertexBuffer(
+        const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = 0x0000
+    );
+
+    SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
 
 } // namespace bgfx
