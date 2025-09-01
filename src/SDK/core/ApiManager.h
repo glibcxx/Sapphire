@@ -116,14 +116,6 @@ namespace sapphire {
             !Decorated::value.view().starts_with("??_9"),
             "Please use ApiLoader<..., ..., SPHR_FUNCDNAME> for virtual function"
         );
-        // static_assert(
-        //     !Decorated::value.view().starts_with("?ctor@"),
-        //     "Please define ctor in native ctor with ApiLoader<..., ..., SPHR_FUNCDNAME>"
-        // );
-        // static_assert(
-        //     !Decorated::value.view().starts_with("?dtor@"),
-        //     "Please define dtor in native dtor with ApiLoader<..., ..., SPHR_FUNCDNAME>"
-        // );
 
     public:
         inline static ApiType origin;
@@ -139,18 +131,8 @@ namespace sapphire {
         using ApiType = decltype(Api);
         using Decorated = util::Decorator<Api, true>;
         static_assert(
-            Decorated::value.view().starts_with("??_9")        // virtual thunk
-                || RawDecoratedName.view().starts_with("??0")  // ctor
-                || RawDecoratedName.view().starts_with("??1"), // dtor
-            "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion, ctor or dtor"
-        );
-        static_assert(
-            (!RawDecoratedName.view().starts_with("??0") || Decorated::value.view().starts_with("?ctor@")),
-            "Please specific Api with 'ctor thunk'"
-        );
-        static_assert(
-            (!RawDecoratedName.view().starts_with("??1") || Decorated::value.view().starts_with("?dtor@")),
-            "Please specific Api with 'dtor thunk'"
+            Decorated::value.view().starts_with("??_9"),
+            "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion"
         );
 
     public:

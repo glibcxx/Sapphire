@@ -18,6 +18,13 @@ uint16_t bgfx::Encoder::setScissor(uint16_t _x, uint16_t _y, uint16_t _width, ui
     return (this->*Hook::origin)(_x, _y, _width, _height);
 }
 
+int bgfx::init(const bgfx::Init &_init, bool a2) {
+    using Hook = sapphire::ApiLoader<
+        "\x40\x53\x56\x57\x48\x83\xEC\x00\x0F\xB6\xF2"_sig, // 1.21.50
+        &init>;
+    return (Hook::origin)(_init, a2);
+}
+
 bgfx::DynamicVertexBufferHandle bgfx::createDynamicVertexBuffer(
     const bgfx::Memory     *_mem,
     const bgfx::VertexDecl &_decl,

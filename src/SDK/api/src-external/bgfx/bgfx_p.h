@@ -486,8 +486,6 @@ namespace bgfx {
 
         EncoderImpl() = delete;
 
-        void setVertexBuffer(uint8_t, bgfx::VertexBufferHandle, uint32_t, uint32_t);
-
         SDK_API void setUniform(
             bgfx::UniformType::Enum _type, bgfx::UniformHandle _handle, const void *_value, uint16_t _num
         );
@@ -518,5 +516,15 @@ namespace bgfx {
             submit(_id, _program, handle, _depth, _preserveState);
         }
     };
+
+    SDK_API void fatal(bgfx::Fatal::Enum _code, const char *_format, ...);
+    namespace sphr_none_export {
+        extern SDK_API decltype(&fatal) fpFatal;
+    }
+
+    template <typename... Args>
+    void fatal(bgfx::Fatal::Enum _code, const char *_format, Args &&...args) {
+        fpFatal(_code, _format, std::forward<Args>(args)...);
+    }
 
 } // namespace bgfx

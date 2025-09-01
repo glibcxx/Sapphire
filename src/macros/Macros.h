@@ -5,6 +5,8 @@
 #define EXPORT_DLL __declspec(dllexport)
 #define IMPORT_DLL __declspec(dllimport)
 
+#define SPHR_NOINLINE __declspec(noinline)
+
 #ifdef DLLEXPORT
 #    define SDK_API EXPORT_DLL
 #else
@@ -22,11 +24,19 @@
 
 #ifndef SPHR_UNINIT
 #    define SPHR_UNINIT(...) \
-        union {                     \
-            struct {                \
-                __VA_ARGS__         \
-            };                      \
+        union {              \
+            struct {         \
+                __VA_ARGS__  \
+            };               \
         };
+#endif
+
+#ifdef DLLEXPORT
+#    define SPHR_LINKER_SYM_ALIAS(FROM_NAME, TO_NAME) \
+        comment(linker, "/alternatename:" FROM_NAME "=" TO_NAME)
+#else
+#    define SPHR_LINKER_SYM_ALIAS(FROM_NAME, TO_NAME) \
+        comment(linker, "/alternatename:__imp_" FROM_NAME "=__imp_" TO_NAME)
 #endif
 
 #if !defined(NDEBUG)

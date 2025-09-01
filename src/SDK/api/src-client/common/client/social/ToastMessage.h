@@ -54,9 +54,11 @@ public:
         const std::string &subtitle,
         const Json::Value &propertyBag,
         float              a5
-    ) {
-        this->ctor(type, title, subtitle, propertyBag, a5);
-    }
+    );
+#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                \
+    "??0ToastMessage@@QEAA@W4ToastMessageType@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@1AEBVValue@Json@@M@Z",        \
+    "?ctor@ToastMessage@@QEAAPEAV1@W4ToastMessageType@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@1AEBVValue@Json@@M@Z" \
+)
 
     SDK_API ToastMessage *ctor(
         ToastMessageType   type,
@@ -65,7 +67,6 @@ public:
         const Json::Value &propertyBag,
         float              a5
     );
-    MARK_HOOKABLE(&ToastMessage::ctor)
 
     ToastMessage(const ToastMessage &) = delete;
     ToastMessage(ToastMessage &&) = delete;

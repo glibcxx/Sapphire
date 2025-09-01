@@ -217,7 +217,7 @@ namespace bgfx {
         virtual ~CallbackI() noexcept = 0;
     };
 
-    // size: 56
+    // size: 64 (1.21.50)
     struct Init {
         bgfx::RendererType::Enum type;                   // off+0
         uint16_t                 vendorId;               // off+4
@@ -239,6 +239,7 @@ namespace bgfx {
         bgfx::Init::Limits limits;    // off+24
         bgfx::CallbackI   *callback;  // off+40
         bx::AllocatorI    *allocator; // off+48
+        uint64_t           mUnk56;    // off+56
     };
 
     // size: 80
@@ -256,10 +257,17 @@ namespace bgfx {
         uint16_t            layer;  // off+4
     };
 
+    // size: 5752 (1.21.50)
+    struct alignas(8) Caps {
+        uint8_t _fill[5752];
+    };
+
     // size: 1
     struct Encoder {
         SDK_API uint16_t setScissor(uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height);
     };
+
+    int init(const Init &_init, bool a2);
 
     inline const bgfx::Memory *alloc(uint32_t _size) {
         Memory *mem = (Memory *)g_allocator->realloc(nullptr, sizeof(Memory) + _size);

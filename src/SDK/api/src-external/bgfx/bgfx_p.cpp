@@ -86,3 +86,11 @@ void bgfx::EncoderImpl::submit(
         (Fn)&EncoderImpl::submit>;
     (this->*Hook::origin)(_id, _program, _occlusionQuery, _depth, _preserveState);
 }
+
+decltype(bgfx::sphr_none_export::fpFatal) bgfx::sphr_none_export::fpFatal = sapphire::ApiLoader<
+    "\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55"_sig, // 1.21.50
+    (decltype(bgfx::sphr_none_export::fpFatal))&bgfx::fatal>::origin;
+
+SPHR_NOINLINE void bgfx::fatal(bgfx::Fatal::Enum _code, const char *_format, ...) {
+    (sphr_none_export::fpFatal)(_code, "");
+}

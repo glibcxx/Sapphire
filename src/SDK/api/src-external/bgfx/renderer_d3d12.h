@@ -117,12 +117,12 @@ namespace bgfx {
             static constexpr const size_t c_MemBlockGrowCount = 32;
             static constexpr const size_t c_InvalidBlockIndex = -1;
 
-            ID3D12Heap   *m_pHeap;                // off+0
-            ID3D12Device *m_pDevice;              // off+8
-            HRESULT       m_lastAllocError;       // off+16
-            size_t        m_heapSizeInBytes;      // off+24
-            size_t        m_alignment;            // off+32
-            SPHR_UNINIT(std::mutex m_accessLock;) // off+40
+            ID3D12Heap   *m_pHeap;           // off+0
+            ID3D12Device *m_pDevice;         // off+8
+            HRESULT       m_lastAllocError;  // off+16
+            size_t        m_heapSizeInBytes; // off+24
+            size_t        m_alignment;       // off+32
+            std::mutex    m_accessLock;      // off+40
 
             // size: 48
             struct MemBlock {
@@ -140,18 +140,18 @@ namespace bgfx {
             using FreeBlock = std::pair<size_t, size_t>;
             using FreeBlocks = std::set<FreeBlock>;
 
-            SPHR_UNINIT(FreeBlocks m_freeBlocks;) // off+168
+            FreeBlocks m_freeBlocks; // off+168
 
             using ResourceKey = size_t;
             using UsedBlock = std::pair<size_t, size_t>;
             using UsedBlocks = std::map<size_t, size_t>;
 
-            SPHR_UNINIT(UsedBlocks m_usedBlocks;) // off+184
+            UsedBlocks m_usedBlocks; // off+184
 
             using FreeQueueEntry = std::pair<size_t, size_t>;
             using FreeQueue = std::multimap<size_t, size_t>;
 
-            SPHR_UNINIT(FreeQueue m_pendingFreedResources;) // off+200
+            FreeQueue m_pendingFreedResources; // off+200
 
             ID3D12Resource *m_pSharedResource;      // off+216
             size_t          m_totalActualUsedBytes; // off+224
@@ -160,6 +160,7 @@ namespace bgfx {
             float           m_totalOccupancy;       // off+248
 
             SDK_API BufferHeapBlock();
+#pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeapBlock@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeapBlock@d3d12@bgfx@@QEAAPEAV123@XZ")
 
             SDK_API BufferHeapBlock *ctor();
 
@@ -173,33 +174,32 @@ namespace bgfx {
         // size: 400
         class BufferHeap {
         public:
-            std::wstring  m_name;           // off+0
-            ID3D12Device *m_pDevice;        // off+32
-            HRESULT       m_lastAllocError; // off+40
-            SPHR_UNINIT(
-                std::mutex              m_accessLock; // off+48
-                std::mutex              m_growLock;   // off+128
-                std::condition_variable m_needHeaps;  // off+208
-            )
-            bool                  m_bAllocHeap;                           // off+280
-            bool                  m_bTerminateHeapThread;                 // off+281
-            std::thread          *m_pHeapFactoryThread;                   // off+288
-            size_t                m_currentFence;                         // off+296
-            D3D12_HEAP_PROPERTIES m_heapProperties;                       // off+304
-            D3D12_HEAP_FLAGS      m_heapFlags;                            // off+324
-            size_t                m_blockSizeInBytes;                     // off+328
-            size_t                m_alignment;                            // off+336
-            uint32_t              m_numInitialBlocks;                     // off+344
-            uint32_t              m_maxPreallocBlocks;                    // off+348
-            size_t                m_totalMemoryAllocatedForAllBlocks;     // off+352
-            size_t                m_totalMemoryUsedAcrossAllBlocks;       // off+360
-            size_t                m_totalPaddedMemoryUsedAcrossAllBlocks; // off+368
+            std::wstring            m_name;                                 // off+0
+            ID3D12Device           *m_pDevice;                              // off+32
+            HRESULT                 m_lastAllocError;                       // off+40
+            std::mutex              m_accessLock;                           // off+48
+            std::mutex              m_growLock;                             // off+128
+            std::condition_variable m_needHeaps;                            // off+208
+            bool                    m_bAllocHeap;                           // off+280
+            bool                    m_bTerminateHeapThread;                 // off+281
+            std::thread            *m_pHeapFactoryThread;                   // off+288
+            size_t                  m_currentFence;                         // off+296
+            D3D12_HEAP_PROPERTIES   m_heapProperties;                       // off+304
+            D3D12_HEAP_FLAGS        m_heapFlags;                            // off+324
+            size_t                  m_blockSizeInBytes;                     // off+328
+            size_t                  m_alignment;                            // off+336
+            uint32_t                m_numInitialBlocks;                     // off+344
+            uint32_t                m_maxPreallocBlocks;                    // off+348
+            size_t                  m_totalMemoryAllocatedForAllBlocks;     // off+352
+            size_t                  m_totalMemoryUsedAcrossAllBlocks;       // off+360
+            size_t                  m_totalPaddedMemoryUsedAcrossAllBlocks; // off+368
 
             using Heaps = std::vector<BufferHeapBlock *>;
 
             Heaps m_heaps; // off+376
 
             SDK_API BufferHeap();
+#pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeap@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeap@d3d12@bgfx@@QEAAPEAV123@XZ")
 
             SDK_API BufferHeap *ctor();
 

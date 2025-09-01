@@ -3,20 +3,18 @@
 
 namespace bgfx::d3d12 {
 
-    BufferHeapBlock::BufferHeapBlock() {
+    BufferHeapBlock *BufferHeapBlock::ctor() {
         using Hook = sapphire::ApiLoader<
             "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x33\xDB\x48\x85\xDB"_sig, // 1.21.50
-            &BufferHeapBlock::ctor,
-            SPHR_FUNCDNAME>;
-        (this->*Hook::origin)();
+            &BufferHeapBlock::ctor>;
+        return (this->*Hook::origin)();
     }
 
-    BufferHeap::BufferHeap() {
+    BufferHeap *BufferHeap::ctor() {
         using Hook = sapphire::ApiLoader<
             "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x33\xFF\x0F\x57\xC0\x0F\x11\x01"_sig, // 1.21.50
-            &BufferHeap::ctor,
-            SPHR_FUNCDNAME>;
-        (this->*Hook::origin)();
+            &BufferHeap::ctor>;
+        return (this->*Hook::origin)();
     }
 
     bool BufferHeapBlock::init(
