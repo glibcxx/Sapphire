@@ -25,6 +25,13 @@ int bgfx::init(const bgfx::Init &_init, bool a2) {
     return (Hook::origin)(_init, a2);
 }
 
+int bgfx::initCaps(const bgfx::Init &_init, int &a2) {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x48\x8B\xFA\x48\x8B\xD9\x48\x83\x3D"_sig, // 1.21.50
+        &initCaps>;
+    return (Hook::origin)(_init, a2);
+}
+
 bgfx::DynamicVertexBufferHandle bgfx::createDynamicVertexBuffer(
     const bgfx::Memory     *_mem,
     const bgfx::VertexDecl &_decl,

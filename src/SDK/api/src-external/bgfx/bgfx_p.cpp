@@ -1,6 +1,90 @@
 #include "bgfx_p.h"
 #include "SDK/core/ApiManager.h"
 
+void bgfx::Frame::create() {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x40\x38\x35"_sig, // 1.21.50
+        &Frame::create>;
+    (this->*Hook::origin)();
+}
+
+void bgfx::Frame::destroy() {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0"_sig, // 1.21.50
+        &Frame::destroy>;
+    (this->*Hook::origin)();
+}
+
+int32_t bgfx::Context::renderThread(bx::Thread *a1, void *a2) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefLea | "\x4C\x8D\x05\x00\x00\x00\x00\x48\x89\x7B"_sig, // 1.21.50
+        &Context::renderThread>;
+    return (Hook::origin)(a1, a2);
+}
+
+int bgfx::Context::init(bool a2) {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x0F\xB6\xFA\xBE"_sig, // 1.21.50
+        &Context::init>;
+    return (this->*Hook::origin)(a2);
+}
+
+void bgfx::Context::initRenderer() {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x81\xA1"_sig, // 1.21.50
+        &Context::initRenderer>;
+    (this->*Hook::origin)();
+}
+
+bgfx::RenderFrame::Enum bgfx::Context::renderFrame(int32_t _msecs) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x83\xF8\x00\x75\x00\x48\x89\x7C\x24"_sig, // 1.21.50
+        &Context::renderFrame>;
+    return (this->*Hook::origin)(_msecs);
+}
+
+bool bgfx::Context::apiSemWait(int32_t _msecs) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x80\xBF\x00\x00\x00\x00\x00\x48\xC7\x05"_sig, // 1.21.50
+        &Context::apiSemWait>;
+    return (this->*Hook::origin)(_msecs);
+}
+
+void bgfx::Context::resetView(uint16_t _id) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x41\xFF\xC1\x41\x81\xF9"_sig, // 1.21.50
+        &Context::resetView>;
+    return (this->*Hook::origin)(_id);
+}
+
+void bgfx::Context::frameNoRenderWait(bool a2) {
+    using Hook = sapphire::ApiLoader<
+        "\x40\x53\x48\x83\xEC\x00\x4C\x8B\x81\x00\x00\x00\x00\x48\x8B\xD9\x49\x81\xC0"_sig, // 1.21.50
+        &Context::frameNoRenderWait>;
+    return (this->*Hook::origin)(a2);
+}
+
+void bgfx::Context::swap() {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x41\x80\xBE\x00\x00\x00\x00\x00\x75\x00\x45\x33\xC0"_sig, // 1.21.50
+        &Context::swap>;
+    return (this->*Hook::origin)();
+}
+
+void bgfx::Context::freeDynamicBuffers() {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xBF"_sig, // 1.21.50
+        &Context::freeDynamicBuffers>;
+    return (this->*Hook::origin)();
+}
+
+void bgfx::Context::freeAllHandles(bgfx::Frame *_frame) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x4C\x8B\x93\x00\x00\x00\x00\x4C\x8B\xCE"_sig, // 1.21.50
+        &Context::freeAllHandles>;
+    return (this->*Hook::origin)(_frame);
+}
+
 bgfx::IndexBufferHandle bgfx::Context::createIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags) {
     using Hook = sapphire::ApiLoader<
         "\x40\x53\x55\x56\x57\x41\x56\x48\x83\xEC\x00\x45\x0F\xB7\xF1"_sig, // 1.21.50

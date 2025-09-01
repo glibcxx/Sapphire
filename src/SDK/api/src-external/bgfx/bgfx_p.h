@@ -4,6 +4,8 @@
 #include "bgfx.h"
 #include "SDK/api/src-external/bx/handlealloc.h"
 #include "SDK/api/src-external/bx/float4x4_t.h"
+#include "SDK/api/src-external/bx/thread.h"
+#include "platform.h"
 
 namespace bgfx {
 
@@ -165,6 +167,12 @@ namespace bgfx {
         uint32_t                 m_startVertex; // off+0
         bgfx::VertexBufferHandle m_handle;      // off+4
         bgfx::VertexDeclHandle   m_decl;        // off+6
+    };
+
+    struct Frame {
+        SDK_API void create();
+
+        SDK_API void destroy();
     };
 
     // size: 128
@@ -425,6 +433,26 @@ namespace bgfx {
         bx::HandleAllocT<4096> m_vertexBufferHandle; // off+207571796
 
         Context() = delete;
+
+        SDK_API static int32_t renderThread(bx::Thread *, void *);
+
+        SDK_API int init(bool a2);
+
+        SDK_API void initRenderer();
+
+        SDK_API bgfx::RenderFrame::Enum renderFrame(int32_t _msecs);
+
+        SDK_API bool apiSemWait(int32_t _msecs);
+
+        SDK_API void resetView(uint16_t _id);
+
+        SDK_API void frameNoRenderWait(bool a2);
+
+        SDK_API void swap();
+
+        SDK_API void freeDynamicBuffers();
+
+        SDK_API void freeAllHandles(bgfx::Frame *_frame);
 
         SDK_API bgfx::IndexBufferHandle createIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
 

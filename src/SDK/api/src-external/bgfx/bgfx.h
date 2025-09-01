@@ -267,7 +267,9 @@ namespace bgfx {
         SDK_API uint16_t setScissor(uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height);
     };
 
-    int init(const Init &_init, bool a2);
+    SDK_API int init(const Init &_init, bool a2);
+
+    SDK_API int initCaps(const Init &_init, int &a2);
 
     inline const bgfx::Memory *alloc(uint32_t _size) {
         Memory *mem = (Memory *)g_allocator->realloc(nullptr, sizeof(Memory) + _size);
