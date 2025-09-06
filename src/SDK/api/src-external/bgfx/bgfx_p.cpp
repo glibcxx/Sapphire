@@ -131,6 +131,30 @@ bgfx::DynamicIndexBufferHandle bgfx::Context::createDynamicIndexBuffer(
     return (this->*Hook::origin)(_num, _flags);
 }
 
+void bgfx::Context::update(
+    bgfx::DynamicVertexBufferHandle _handle,
+    uint32_t                        _startVertex,
+    const bgfx::Memory             *_mem
+) {
+    using Fn = void (bgfx::Context::*)(bgfx::DynamicVertexBufferHandle, uint32_t, const bgfx::Memory *);
+    using Hook = sapphire::ApiLoader<
+        "\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xF9\x45\x8B\xE0"_sig, // 1.21.50
+        (Fn)&Context::update>;
+    return (this->*Hook::origin)(_handle, _startVertex, _mem);
+}
+
+void bgfx::Context::update(
+    bgfx::DynamicIndexBufferHandle _handle,
+    uint32_t                       _startIndex,
+    const bgfx::Memory            *_mem
+) {
+    using Fn = void (bgfx::Context::*)(bgfx::DynamicIndexBufferHandle, uint32_t, const bgfx::Memory *);
+    using Hook = sapphire::ApiLoader<
+        "\x40\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xE9\x45\x8B\xE0"_sig, // 1.21.50
+        (Fn)&Context::update>;
+    return (this->*Hook::origin)(_handle, _startIndex, _mem);
+}
+
 uint32_t bgfx::Context::frame(uint32_t _flags) {
     using Hook = sapphire::ApiLoader<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x87\x83\x00\x00\x00\x00\x48\x8B\x4B\x00\xC6\x43\x00\x00\xE8"_sig, // 1.21.50

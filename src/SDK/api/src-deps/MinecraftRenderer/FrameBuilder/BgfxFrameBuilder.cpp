@@ -52,6 +52,20 @@ namespace mce::framebuilder {
         (this->*Hook::origin)(std::move(frameBuilderContext));
     }
 
+    void BgfxFrameBuilder::generateRenderChunkVertexData(
+        RenderChunkDirectVertexData        &renderChunkDirectVertexData,
+        const std::array<RangeIndices, 18> &layerRanges,
+        const gsl::span<const uint8_t>     &chunkData,
+        const uint64_t                     &vertexCount,
+        const mce::VertexFormat            &mceFormat,
+        const int                          *absoluteBlockPosition
+    ) {
+        using Hook = sapphire::ApiLoader<
+            "\x48\x81\xEC\x00\x00\x00\x00\x44\x8B\x15"_sig,
+            &BgfxFrameBuilder::generateRenderChunkVertexData>;
+        (this->*Hook::origin)(renderChunkDirectVertexData, layerRanges, chunkData, vertexCount, mceFormat, absoluteBlockPosition);
+    }
+
     void BgfxFrameBuilder::lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame::operator()() const {
         using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2

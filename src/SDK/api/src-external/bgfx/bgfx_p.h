@@ -454,19 +454,25 @@ namespace bgfx {
 
         SDK_API void freeAllHandles(bgfx::Frame *_frame);
 
-        SDK_API bgfx::IndexBufferHandle createIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
+        SDK_API bgfx::IndexBufferHandle createIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = BGFX_BUFFER_NONE);
 
         SDK_API void destroyIndexBuffer(bgfx::IndexBufferHandle _handle);
 
         SDK_API bgfx::VertexBufferHandle createVertexBuffer(
-            const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = 0x0000
+            const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = BGFX_BUFFER_NONE
         );
 
         SDK_API bgfx::DynamicVertexBufferHandle createDynamicVertexBuffer(
-            uint32_t _num, const bgfx::VertexDecl &_decl, uint16_t _flags = 0x0000
+            uint32_t _num, const bgfx::VertexDecl &_decl, uint16_t _flags = BGFX_BUFFER_NONE
         );
 
-        SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(uint32_t _num, uint16_t _flags = 0x0000);
+        SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(
+            uint32_t _num, uint16_t _flags = BGFX_BUFFER_NONE
+        );
+
+        SDK_API void update(bgfx::DynamicVertexBufferHandle _handle, uint32_t _startVertex, const bgfx::Memory *_mem);
+
+        SDK_API void update(bgfx::DynamicIndexBufferHandle _handle, uint32_t _startIndex, const bgfx::Memory *_mem);
 
         SDK_API uint32_t frame(uint32_t _flags);
 
@@ -475,7 +481,7 @@ namespace bgfx {
 
             if (isValid(handle)) {
                 uint32_t size = _num * 32;
-                uint16_t flags = 0x0400;
+                uint16_t flags = BGFX_BUFFER_DRAW_INDIRECT;
 
                 CommandBuffer &cmdbuf = memory::getField<CommandBuffer>(m_submit, 102553560 /*1.21.50*/);
                 cmdbuf.write((uint8_t)CommandBuffer::Enum::CreateDynamicVertexBuffer);

@@ -31,6 +31,16 @@ namespace dragon::materials {
     }
 #endif
 
+    const CompiledMaterialDefinition::Variant *
+    CompiledMaterialDefinition::VariantSet::_tryResolve(
+        const std::unordered_map<std::string, std::string> &filters
+    ) const {
+        using Hook = sapphire::ApiLoader<
+            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x49\x89\x87\x00\x00\x00\x00\x48\x8B\x4E"_sig, // 1.21.50
+            &CompiledMaterialDefinition::VariantSet::_tryResolve>;
+        return (this->*Hook::origin)(filters);
+    }
+
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     void CompiledMaterialDefinition::Variant::dtor() noexcept {
         using Hook = sapphire::ApiLoader<

@@ -95,6 +95,7 @@ namespace dragon::materials {
 
         // size: 176
         class VariantSet {
+        public:
             const CompiledMaterialDefinition                  &mDefinition;        // off+0
             const Pass                                        &mPass;              // off+8
             std::vector<const Variant *>                       mVariants;          // off+16
@@ -103,6 +104,10 @@ namespace dragon::materials {
             const Variant                                     *mDefaultVariant;    // off+168
 
             VariantSet *ctor(const VariantSet *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x48\x8B\x02\x48\x89\x01\x48\x8B\x42 1.21.50
+
+            SDK_API const Variant *_tryResolve(
+                const std::unordered_map<std::string, std::string> &filters
+            ) const;
         };
 
         std::unordered_map<std::string, Pass> mPasses;     // off+0

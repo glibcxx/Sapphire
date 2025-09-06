@@ -8,6 +8,11 @@ namespace dragon::materials::definition {
     // size: 1
     struct ExternalUniformDeclaration {};
 
+    enum class ShaderPipeline : uint8_t {
+        Compute = 0,
+        VertexFragment = 1,
+    };
+
     enum class InputSemantic : uint8_t {
         Position = 0,
         Normal = 1,

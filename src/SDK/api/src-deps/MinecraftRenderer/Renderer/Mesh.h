@@ -31,19 +31,16 @@ namespace mce {
         uint64_t                        mVertexFormat[9]; // off+464
         std::vector<byte>               mRawData;         // off+536
 
-        bool isValid() const;
+        SDK_API bool isValid() const;
 
-        Mesh(Mesh &&other) {
-            memcpy(this, &other, sizeof(Mesh));
-            memset(&other, 0, sizeof(Mesh));
-        }
+        SDK_API Mesh(Mesh &&other);
+#pragma SPHR_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
 
         SDK_API Mesh *ctor(mce::Mesh &&c);
-        MARK_HOOKABLE(&Mesh::ctor)
     };
 #if MC_VERSION == v1_21_2
     static_assert(sizeof(Mesh) == 536);
-#elif MC_VERSION == v1_21_50
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     static_assert(sizeof(Mesh) == 560);
 #endif
 

@@ -57,15 +57,9 @@ public:
     SDK_API dragon::ClientTexture _create<
         mce::TransactionContainer<dragon::res::CreateTextureTransaction, dragon::TextureResourceService>,
         dragon::res::CreateTextureTransaction>(dragon::res::CreateTextureTransaction &payload);
-    MARK_HOOKABLE(&mce::CheckedResourceService<dragon::ResolvedTextureResource>::_create<
-        mce::TransactionContainer<dragon::res::CreateTextureTransaction, dragon::TextureResourceService>,
-        dragon::res::CreateTextureTransaction>)
 
     template <>
     SDK_API dragon::ClientTexture _create<
         mce::TransactionContainer<dragon::res::CreateReadbackTextureTransaction, dragon::TextureResourceService>,
         dragon::res::CreateReadbackTextureTransaction>(dragon::res::CreateReadbackTextureTransaction &payload);
-    MARK_HOOKABLE(&mce::CheckedResourceService<dragon::ResolvedTextureResource>::_create<
-            mce::TransactionContainer<dragon::res::CreateReadbackTextureTransaction, dragon::TextureResourceService>,
-            dragon::res::CreateReadbackTextureTransaction>)
 };

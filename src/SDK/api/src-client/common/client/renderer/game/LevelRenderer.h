@@ -9,10 +9,8 @@
 class LevelRenderer : public LevelListener, public AppPlatformListener {
 public:
     SDK_API void renderLevel(ScreenContext &screenCtx, const FrameRenderObject &frameRenderObj);
-    MARK_HOOKABLE(&LevelRenderer::renderLevel)
 
     SDK_API void preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRenderUpdateParameters &params);
-    MARK_HOOKABLE(&LevelRenderer::preRenderUpdate)
 
     LevelRendererPlayer &getLevelRendererPlayer() {
 #if MC_VERSION == v1_21_2

@@ -7,12 +7,17 @@
 #include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureResourceService.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
+#include "SDK/api/src-client/common/client/renderer/chunks/RenderChunkGeometry.h"
 #include "SDK/api/src-deps/Core/Memory/Pool.h"
 #include "SDK/api/src-external/bgfx/bgfx.h"
 #include "BgfxBridge/UITarget.h"
 
+struct RenderChunkDirectVertexData;
 namespace dragon::rendering {
     struct Camera;
+}
+namespace mce {
+    class VertexFormat;
 }
 
 namespace mce::framebuilder {
@@ -64,13 +69,19 @@ namespace mce::framebuilder {
         MARK_HOOKABLE(&BgfxFrameBuilder::ctor)
 
         SDK_API /*virtual*/ void destroy() /*override*/;
-        MARK_HOOKABLE(&BgfxFrameBuilder::destroy)
 
         SDK_API /*virtual*/ void startFrame() /*override*/;
-        MARK_HOOKABLE(&BgfxFrameBuilder::startFrame)
 
         SDK_API /*virtual*/ void endFrame(mce::framebuilder::FrameBuilderContext &&frameBuilderContext) /*override*/;
-        MARK_HOOKABLE(&BgfxFrameBuilder::endFrame)
+
+        SDK_API /*virtual*/ void generateRenderChunkVertexData(
+            RenderChunkDirectVertexData        &renderChunkDirectVertexData,
+            const std::array<RangeIndices, 18> &layerRanges,
+            const gsl::span<const uint8_t>     &chunkData,
+            const uint64_t                     &vertexCount,
+            const mce::VertexFormat            &mceFormat,
+            const int                          *absoluteBlockPosition
+        ) /*override*/;
 
         // size: 104
         class lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame {
@@ -82,7 +93,6 @@ namespace mce::framebuilder {
             std::optional<dragon::frameobject::FrameExplicitTarget> targetImageWrapper; // off+48
 
             SDK_API void operator()() const;
-            MARK_HOOKABLE(&lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame::operator())
         };
         static_assert(sizeof(lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame) == 104);
     };

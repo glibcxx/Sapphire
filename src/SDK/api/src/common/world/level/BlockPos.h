@@ -1,7 +1,7 @@
 #pragma once
 
-#include <format>
 #include "SDK/core/ApiManager.h"
+#include "SDK/api/src-deps/Core/Math/Math.h"
 
 class BlockPos {
 public:
@@ -73,5 +73,16 @@ public:
 
     std::string toString() const {
         return std::format("[{}, {}, {}]", x, y, z);
+    }
+
+    size_t hashCode() const {
+        return mce::Math::hash3(this->x, this->y, this->z);
+    }
+};
+
+template <>
+struct std::hash<BlockPos> {
+    std::size_t operator()(const BlockPos &_Keyval) const {
+        return _Keyval.hashCode();
     }
 };

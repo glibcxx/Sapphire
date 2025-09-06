@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "SDK/api/src-external/bx/allocator.h"
+#include "defines.h"
 
 namespace bgfx {
 
@@ -109,6 +110,15 @@ namespace bgfx {
         uint32_t size; // off+8
     };
 
+    using ReleaseFn = void (*)(void *_ptr, void *_userData);
+
+    // size: 32
+    struct MemoryRef {
+        bgfx::Memory mem;       // off+0
+        ReleaseFn    releaseFn; // off+16
+        void        *userData;  // off+24
+    };
+
     // size: 16
     struct DLSSOptions {
         enum class Mode : int {
@@ -205,6 +215,16 @@ namespace bgfx {
         };
     };
 
+    // size: 1
+    struct Access {
+        enum class Enum : int {
+            Read = 0,
+            Write = 1,
+            ReadWrite = 2,
+            Count = 3,
+        };
+    };
+
     // size: 12
     struct Resolution {
         uint32_t width;  // off+0
@@ -284,10 +304,25 @@ namespace bgfx {
         return mem;
     }
 
+    inline const bgfx::Memory *makeRef(
+        const void *_data, uint32_t _size, ReleaseFn _releaseFn = nullptr, void *_userData = nullptr
+    ) {
+        MemoryRef *memRef = (MemoryRef *)g_allocator->realloc(g_allocator, sizeof(MemoryRef));
+        memRef->mem.size = _size;
+        memRef->mem.data = (uint8_t *)_data;
+        memRef->releaseFn = _releaseFn;
+        memRef->userData = _userData;
+        return &memRef->mem;
+    }
+
     SDK_API bgfx::DynamicVertexBufferHandle createDynamicVertexBuffer(
         const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = 0x0000
     );
 
     SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
+
+    SDK_API void updateOffset(
+        bgfx::DynamicVertexBufferHandle _handle, uint32_t _offset, uint32_t _declStride, const bgfx::Memory *_mem
+    );
 
 } // namespace bgfx
