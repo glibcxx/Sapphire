@@ -19,15 +19,12 @@ namespace Bedrock {
         std::unique_ptr<Platform_UWP> mPlatform;            // off+280
 
         SDK_API void Initialize(const winrt::Windows::ApplicationModel::Core::CoreApplicationView &applicationView);
-        MARK_HOOKABLE(&MainWindowUWP::Initialize)
 
         void Load(const winrt::hstring &entryPoint);
 
         SDK_API void Run();
-        MARK_HOOKABLE(&MainWindowUWP::Run)
 
         SDK_API void SetWindow(const winrt::Windows::UI::Core::CoreWindow &window);
-        MARK_HOOKABLE(&MainWindowUWP::SetWindow)
 
         void Uninitialize();
     };

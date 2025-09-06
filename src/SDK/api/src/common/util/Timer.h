@@ -23,5 +23,4 @@ public:
     std::function<int()> mGetTimeMSCallback;
 
     SDK_API void advanceTime(float preferredFrameStep);
-    MARK_HOOKABLE(&Timer::advanceTime)
 };

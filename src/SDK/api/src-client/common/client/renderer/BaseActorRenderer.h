@@ -25,5 +25,4 @@ public:
         const mce::Color       &color,
         bool                    realityFullVRMode
     );
-    MARK_HOOKABLE(&BaseActorRenderer::extractRenderTextObjects)
 };

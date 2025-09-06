@@ -31,15 +31,12 @@ namespace mce {
         MeshData *ctor(MeshData &&other); // \xE8\x00\x00\x00\x00\x90\x48\x89\xAB\x00\x00\x00\x00\x48\x89\xAB\x00\x00\x00\x00\x4C\x89\xB3 1.21.50
 
         SDK_API void dtor();
-        MARK_HOOKABLE(&MeshData::dtor)
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         SDK_API MeshData clone() const;
-        MARK_HOOKABLE(&MeshData::clone)
 #endif
 
         SDK_API void clear();
-        MARK_HOOKABLE(&MeshData::clear)
     };
 #if MC_VERSION == v1_21_2
     static_assert(sizeof(MeshData) == 264);

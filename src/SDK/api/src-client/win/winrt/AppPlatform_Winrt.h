@@ -27,10 +27,8 @@ public:
     uint64_t                                       mUnk2008;             // off+2008
 
     SDK_API AppPlatform_Winrt *ctor(winrt::Windows::UI::Core::CoreWindow coreWindow);
-    MARK_HOOKABLE(&AppPlatform_Winrt::ctor)
 
     SDK_API void update();
-    MARK_HOOKABLE(&AppPlatform_Winrt::update)
 };
 #if MC_VERSION == v1_21_2
 static_assert(sizeof(AppPlatform_Winrt) == 2008);

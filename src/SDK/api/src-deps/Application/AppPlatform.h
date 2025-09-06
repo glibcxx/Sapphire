@@ -101,16 +101,12 @@ public:
 #endif
 
     SDK_API /*virtual*/ void initialize();
-    MARK_HOOKABLE(&AppPlatform::initialize)
 
     SDK_API /*virtual*/ void addListener(Listener *l, float priority);
-    MARK_HOOKABLE(&AppPlatform::addListener)
 
     SDK_API /*virtual*/ void removeListener(Listener *l);
-    MARK_HOOKABLE(&AppPlatform::removeListener)
 
     SDK_API void _fireAppSuspended();
-    MARK_HOOKABLE(&AppPlatform::_fireAppSuspended)
 };
 #if MC_VERSION == v1_21_2
 static_assert(sizeof(AppPlatform) == 1032);
@@ -120,4 +116,3 @@ static_assert(sizeof(AppPlatform) == 1040);
 
 template <>
 SDK_API ServiceReference<AppPlatform> ServiceLocator<AppPlatform>::get();
-MARK_HOOKABLE(&ServiceLocator<AppPlatform>::get)

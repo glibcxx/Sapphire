@@ -19,7 +19,6 @@ namespace dragon::rendering {
         GraphicsTasks                                                                 &mGraphicsTasks;  // off+24
 
         SDK_API TextureResourceManager *ctor(GraphicsTasks &graphicsTasks);
-        MARK_HOOKABLE(&TextureResourceManager::ctor)
     };
 
 } // namespace dragon::rendering

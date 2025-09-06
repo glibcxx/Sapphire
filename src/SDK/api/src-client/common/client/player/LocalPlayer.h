@@ -6,7 +6,6 @@
 class LocalPlayer : public Player {
 public:
     SDK_API void localPlayerTurn(const Vec2 &deltaRot);
-    MARK_HOOKABLE(&LocalPlayer::localPlayerTurn)
 
     MoveInputComponent *getMoveInputComponent() {
         return tryGetComponent<MoveInputComponent>();

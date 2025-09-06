@@ -22,5 +22,4 @@ public:
     }
 
     SDK_API static mce::Color getOverlayColor(Actor &entity, float a);
-    MARK_HOOKABLE(&ActorShaderManager::getOverlayColor)
 };

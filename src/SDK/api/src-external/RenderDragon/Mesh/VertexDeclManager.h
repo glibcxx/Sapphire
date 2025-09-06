@@ -42,7 +42,6 @@ namespace dragon::mesh {
                 mValidationCache; // off+144
 
             SDK_API Impl *ctor();
-            MARK_HOOKABLE(&Impl::ctor)
         };
 
         std::unique_ptr<Impl> mImpl; // off+0

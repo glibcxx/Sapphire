@@ -17,7 +17,6 @@ namespace DFC /*dragon::frameobject::components*/ {
             const dragon::ServerTexture                  &texture,
             const uintptr_t                               samplerFlags
         );
-        MARK_HOOKABLE(&MaterialFilter::setTexture)
     };
 
 } // namespace DFC

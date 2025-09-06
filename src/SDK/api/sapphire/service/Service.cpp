@@ -30,7 +30,6 @@ namespace {
             &onClientCreatedLevel>;
         Hook::origin(This, std::move(level), localPlayer);
     }
-    MARK_HOOKABLE(&onClientCreatedLevel)
 
     INDIRECT_HOOK_STATIC(
         GetClientLevelHook,
@@ -62,7 +61,6 @@ namespace {
             &ServerInstanceEventCoordinator__sendServerLevelInitialized>;
         return Hook::origin(This, serverInstance, level);
     }
-    MARK_HOOKABLE(&ServerInstanceEventCoordinator__sendServerLevelInitialized)
 
     INDIRECT_HOOK_STATIC(
         GetServerLevelHook,
@@ -104,7 +102,6 @@ namespace {
             &LocalPlayer_ctor>;
         return Hook::origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     }
-    MARK_HOOKABLE(&LocalPlayer_ctor)
 
     INDIRECT_HOOK_STATIC(
         GetLocalPlayerHook,
@@ -142,7 +139,6 @@ namespace {
 #endif
             &makeClientInstance>::origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
     }
-    MARK_HOOKABLE(&makeClientInstance)
 
     INDIRECT_HOOK_STATIC(
         GetClientInstance,

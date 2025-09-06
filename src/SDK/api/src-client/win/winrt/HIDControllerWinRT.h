@@ -70,6 +70,5 @@ public:
     winrt::event_token mOnTextInputTextUpdating;         // off+8840, 更新输入文本
 
     SDK_API HIDControllerWinRT *ctor(AppPlatformWinRTDispatcher &dispatcher, winrt::Windows::UI::Core::CoreWindow coreWindow);
-    MARK_HOOKABLE(&HIDControllerWinRT::ctor)
 };
 static_assert(sizeof(HIDControllerWinRT) == 8848);

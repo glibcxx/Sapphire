@@ -66,7 +66,6 @@ namespace mce::framebuilder {
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &scheduler
         );
-        MARK_HOOKABLE(&BgfxFrameBuilder::ctor)
 
         SDK_API /*virtual*/ void destroy() /*override*/;
 

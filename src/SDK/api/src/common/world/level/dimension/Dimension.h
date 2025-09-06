@@ -163,7 +163,6 @@ public:
         Scheduler           &callbackContext,
         std::string          name
     );
-    MARK_HOOKABLE(&Dimension::ctor)
 };
 static_assert(sizeof(Dimension) == 1576);
 
@@ -251,7 +250,6 @@ public:
         Scheduler           &callbackContext,
         std::string          name
     );
-    MARK_HOOKABLE(&Dimension::ctor)
 };
 static_assert(sizeof(Dimension) == 1712);
 
@@ -337,7 +335,6 @@ public:
         Scheduler           &callbackContext,
         std::string          name
     );
-    MARK_HOOKABLE(&Dimension::ctor)
 };
 static_assert(sizeof(Dimension) == 1704);
 

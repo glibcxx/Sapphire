@@ -12,7 +12,6 @@ struct UniformInt : public IntProviderType {
 
     // vtb+1
     SDK_API virtual int sample(IRandom &rng) const override;
-    MARK_VIRTUAL_HOOKABLE(&Dimension::sample)
 
     // vtb+2
     virtual int maxValue() const override { return this->mMax; }

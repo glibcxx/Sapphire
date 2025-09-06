@@ -30,7 +30,6 @@ public:
         ScreenContext                        &screenContext,
         LevelRenderPreRenderUpdateParameters &levelRenderPreRenderUpdateParameters
     );
-    MARK_HOOKABLE(&LevelRendererCamera::preRenderUpdate)
 
     SDK_API /*virtual*/ void render(
         BaseActorRenderContext       &baseEntityRenderContext,
@@ -38,5 +37,4 @@ public:
         IClientInstance              &ci,
         LevelRendererCommandListInit &levelRendererCommandListInit
     );
-    MARK_HOOKABLE(&LevelRendererCamera::render)
 };

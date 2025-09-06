@@ -87,19 +87,16 @@ namespace mce::framebuilder {
                 const EntityCreationContext &entityContext,
                 const RenderSkyDescription  &description
             );
-            MARK_HOOKABLE((void (BgfxFrameExtractor::*)(const EntityCreationContext &, const RenderSkyDescription &))&BgfxFrameExtractor::_insert)
 
             SDK_API void _insert(
                 const EntityCreationContext       &entityContext,
                 const RenderUIGamefaceDescription &description
             );
-            MARK_HOOKABLE((void (BgfxFrameExtractor::*)(const EntityCreationContext &, const RenderUIGamefaceDescription &))&BgfxFrameExtractor::_insert)
 
             SDK_API void _insert(
                 const EntityCreationContext          &entityContext,
                 const BlitFlipbookTextureDescription &descriptions
             );
-            MARK_HOOKABLE((void (BgfxFrameExtractor::*)(const EntityCreationContext &, const BlitFlipbookTextureDescription &))&BgfxFrameExtractor::_insert)
         };
 
     } // namespace bgfxbridge

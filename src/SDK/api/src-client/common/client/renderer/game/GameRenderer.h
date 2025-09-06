@@ -6,5 +6,4 @@
 class GameRenderer {
 public:
     SDK_API std::weak_ptr<PlayerRenderView> addPlayerRenderView(LevelRenderer &renderer);
-    MARK_HOOKABLE(&GameRenderer::addPlayerRenderView)
 };

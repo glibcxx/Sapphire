@@ -43,6 +43,5 @@ public:
     virtual Bedrock::Result<void> _read(ReadOnlyBinaryStream &stream) override;
 
     SDK_API static TextPacket createRaw(const std::string &raw);
-    MARK_HOOKABLE(&TextPacket::createRaw)
 };
 static_assert(sizeof(TextPacket) == 256);

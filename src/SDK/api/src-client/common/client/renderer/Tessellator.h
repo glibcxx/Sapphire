@@ -14,19 +14,14 @@ public:
     };
 
     SDK_API void begin(const mce::PrimitiveMode mode, const int numVertices, const bool buildFaceData = false);
-    MARK_HOOKABLE(&Tessellator::begin)
 
     SDK_API void vertex(float x, float y, float z);
-    MARK_HOOKABLE(&Tessellator::vertex)
 
     SDK_API void vertexUV(float x, float y, float z, float u, float v);
-    MARK_HOOKABLE(&Tessellator::vertexUV)
 
     SDK_API void color(float r, float g, float b, float a);
-    MARK_HOOKABLE(&Tessellator::color)
 
     SDK_API mce::Mesh end(UploadMode uploadMode, std::string_view debugName, bool a3);
-    MARK_HOOKABLE(&Tessellator::end)
 
     void vertex(const Vec3 &pos) {
         this->vertex(pos.x, pos.y, pos.z);

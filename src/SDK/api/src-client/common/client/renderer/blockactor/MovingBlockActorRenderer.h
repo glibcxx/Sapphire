@@ -29,7 +29,6 @@ public:
 
     // vtb+2
     SDK_API virtual void render(BaseActorRenderContext &context, BlockActorRenderData &renderData) override;
-    MARK_VIRTUAL_HOOKABLE(&MovingBlockActorRenderer::render)
 };
 #if MC_VERSION == v1_21_2
 static_assert(sizeof(MovingBlockActorRenderer) == 384);

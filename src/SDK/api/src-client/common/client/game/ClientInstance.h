@@ -63,13 +63,10 @@ public:
 #endif
 
     SDK_API RenderCameraComponent *getRenderCameraComponent() const;
-    MARK_HOOKABLE(&ClientInstance::getRenderCameraComponent)
 
     SDK_API /*virtual*/ bool getRenderPlayerModel() const /*override*/;
-    MARK_HOOKABLE(&ClientInstance::getRenderPlayerModel)
 
     SDK_API std::unique_ptr<LegacyClientNetworkHandler> _createNetworkHandler(std::unique_ptr<Certificate> cert);
-    MARK_HOOKABLE(&ClientInstance::_createNetworkHandler)
 
     SDK_API static void *const *__vftable0;
     SDK_API static void *const *__vftable1;

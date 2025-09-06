@@ -75,7 +75,6 @@ namespace dragon::materials {
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             SDK_API void dtor() noexcept;
-            MARK_HOOKABLE(&Variant::dtor)
 #endif
         };
 
@@ -89,7 +88,6 @@ namespace dragon::materials {
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             SDK_API void dtor() noexcept;
-            MARK_HOOKABLE(&Pass::dtor)
 #endif
         };
 
@@ -128,10 +126,8 @@ namespace dragon::materials {
         std::unordered_map<std::string, definition::CustomTypeDeclaration> mCustomTypes;     // off+272
 
         SDK_API CompiledMaterialDefinition *ctor();
-        MARK_HOOKABLE(&CompiledMaterialDefinition::ctor)
 
         SDK_API void _loadFrom(std::istream &inStream, uint64_t a2, uint64_t a3, uint8_t a4);
-        MARK_HOOKABLE(&CompiledMaterialDefinition::_loadFrom)
     };
 
 } // namespace dragon::materials

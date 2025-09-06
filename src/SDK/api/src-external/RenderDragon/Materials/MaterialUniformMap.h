@@ -40,14 +40,12 @@ namespace dragon::materials {
 )
 
         SDK_API MaterialUniformMap *ctor(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
-        MARK_HOOKABLE(&MaterialUniformMap::ctor)
 
         SDK_API MaterialUniformMap *ctor(
             const CompiledMaterialDefinition &definition,
             MaterialUniformHandles           &uniformHandles,
             Core::CheckedRingBuffer<2, 0>    &allocator
         );
-        MARK_HOOKABLE((MaterialUniformMap * (MaterialUniformMap::*)(const CompiledMaterialDefinition &, MaterialUniformHandles &, Core::CheckedRingBuffer<2, 0> &)) & MaterialUniformMap::ctor)
 
         template <typename UniformType>
         void setUniform(const dragon::materials::ParameterId &id, const gsl::span<const UniformType> &value) {

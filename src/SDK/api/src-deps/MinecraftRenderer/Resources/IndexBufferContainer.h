@@ -36,7 +36,6 @@ namespace mce {
             const uint32_t              count,
             std::string_view            debugName
         );
-        MARK_HOOKABLE(&IndexBufferContainer::loadIndexBuffer)
     };
 
 } // namespace mce
