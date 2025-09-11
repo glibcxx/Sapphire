@@ -16,17 +16,16 @@ void RenderChunkShared::startRebuild(RenderChunkBuilder &builder, const Vec3 &cu
 }
 
 void RenderChunkShared::rebuild(
-    RenderChunkBuilder &builder,
-    bool                transparentLeaves,
-    BakedBlockLightType lightingType,
-    bool                forExport,
-    bool                usePBRFormat,
-    bool                emitPointLights
+    RenderChunkBuilder                                      &builder,
+    bool                                                     transparentLeaves,
+    BakedBlockLightType                                      lightingType,
+    bool                                                     forExport,
+    const mce::framebuilder::FrameLightingModelCapabilities &lightingModelCapabilities
 ) {
     using Hook = sapphire::ApiLoader<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\x5F\x00\x48\x8B\x4B"_sig, // 1.21.50
         &RenderChunkShared::rebuild>;
-    return (this->*Hook::origin)(builder, transparentLeaves, lightingType, forExport, usePBRFormat, emitPointLights);
+    return (this->*Hook::origin)(builder, transparentLeaves, lightingType, forExport, lightingModelCapabilities);
 }
 
 void RenderChunkShared::addEntityBlockSyncMessages(buffer_span<ActorBlockSyncMessage> syncMsgList) {

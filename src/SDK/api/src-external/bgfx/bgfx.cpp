@@ -18,6 +18,20 @@ uint16_t bgfx::Encoder::setScissor(uint16_t _x, uint16_t _y, uint16_t _width, ui
     return (this->*Hook::origin)(_x, _y, _width, _height);
 }
 
+void bgfx::Encoder::setVertexBuffer(
+    uint8_t                         _stream,
+    bgfx::DynamicVertexBufferHandle _handle,
+    uint32_t                        _startVertex,
+    uint32_t                        _numVertices,
+    bgfx::VertexDeclHandle          _decl,
+    uint32_t                        _stride
+) {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x0F\xB7\xC0"_sig, // 1.21.50
+        &Encoder::setVertexBuffer>;
+    (this->*Hook::origin)(_stream, _handle, _startVertex, _numVertices, _decl, _stride);
+}
+
 int bgfx::init(const bgfx::Init &_init, bool a2) {
     using Hook = sapphire::ApiLoader<
         "\x40\x53\x56\x57\x48\x83\xEC\x00\x0F\xB6\xF2"_sig, // 1.21.50
@@ -48,4 +62,27 @@ bgfx::DynamicIndexBufferHandle bgfx::createDynamicIndexBuffer(const bgfx::Memory
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x0F\xB7\xFA"_sig, // 1.21.50
         createDynamicIndexBuffer>;
     return (Hook::origin)(_mem, _flags);
+}
+
+void bgfx::allocInstanceDataBuffer(
+    bgfx::InstanceDataBuffer *_idb,
+    uint32_t                  _num,
+    uint16_t                  _stride
+) {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\x35\x00\x00\x00\x00\x4C\x8B\xF1"_sig, // 1.21.50
+        allocInstanceDataBuffer>;
+    (Hook::origin)(_idb, _num, _stride);
+}
+
+void bgfx::updateOffset(
+    bgfx::DynamicVertexBufferHandle _handle,
+    uint32_t                        _offset,
+    uint32_t                        _declStride,
+    const bgfx::Memory             *_mem
+) {
+    using Hook = sapphire::ApiLoader<
+        "\x40\x53\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x48\x8B\x2D"_sig, // 1.21.50
+        updateOffset>;
+    (Hook::origin)(_handle, _offset, _declStride, _mem);
 }

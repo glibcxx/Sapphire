@@ -4,6 +4,7 @@
 
 namespace dragon::memory {
 
+    // size: 48
     class BufferSource {
     public:
         // size: 1
@@ -14,12 +15,19 @@ namespace dragon::memory {
 
         // size: 32
         struct UseTracker {
-            const std::shared_ptr<const std::vector<unsigned char> > mOwnedMemory; // off+0
-            const std::weak_ptr<LifetimeToken>                       mLifetimePtr; // off+16
+            const std::shared_ptr<const std::vector<unsigned char>> mOwnedMemory; // off+0
+            const std::weak_ptr<LifetimeToken>                      mLifetimePtr; // off+16
 
             // vtb+0
             ~UseTracker();
         };
+
+        std::variant<
+            std::monostate,
+            std::shared_ptr<const std::vector<unsigned char>>,
+            std::pair<gsl::span<const unsigned char>, LifetimeWeakPtr>>
+                 mData; // off+0
+        uint64_t mSize; // off+40
     };
 
     template <>

@@ -162,6 +162,23 @@ uint32_t bgfx::Context::frame(uint32_t _flags) {
     return (this->*Hook::origin)(_flags);
 }
 
+bgfx::ShaderHandle bgfx::Context::createShader(const bgfx::Memory *_mem) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x0F\xB7\x38\xB8"_sig, // 1.21.50
+        &Context::createShader>;
+    return (this->*Hook::origin)(_mem);
+}
+
+bgfx::ProgramHandle bgfx::Context::createProgram(
+    bgfx::ShaderHandle _vsh,
+    bool               _destroyShader
+) {
+    using Hook = sapphire::ApiLoader<
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x0F\xB7\x00\x66\x3B\xD8"_sig, // 1.21.50
+        &Context::createProgram>;
+    return (this->*Hook::origin)(_vsh, _destroyShader);
+}
+
 void bgfx::EncoderImpl::setUniform(
     bgfx::UniformType::Enum _type,
     bgfx::UniformHandle     _handle,

@@ -132,10 +132,7 @@ namespace bgfx::d3d12 {
 
         char _fill13195728[32];
 
-        bgfx::VertexDecl m_vertexDecls[64]; // off+13195760
-
-        char _fill13200880[256];
-
+        bgfx::VertexDecl              m_vertexDecls[64];   // off+13195760
         bgfx::d3d12::FrameBufferD3D12 m_frameBuffers[128]; // off+13201136
         bgfx::UniformRegistry         m_uniformReg;        // off+13214448
 

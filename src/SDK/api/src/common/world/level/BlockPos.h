@@ -3,6 +3,7 @@
 #include "SDK/core/ApiManager.h"
 #include "SDK/api/src-deps/Core/Math/Math.h"
 
+// size: 12
 class BlockPos {
 public:
     int x, y, z;

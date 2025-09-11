@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BlockPos.h"
-#include "SDK/api/src-deps/Core/Math/Math.h"
 
 // size: 8
 class ChunkPos {

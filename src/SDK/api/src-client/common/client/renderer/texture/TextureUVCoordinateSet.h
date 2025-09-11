@@ -1,9 +1,9 @@
 #pragma once
 
 #include "IsotropicFaceData.h"
-
 #include "SDK/api/src-deps/Core/Resource/ResourceHelper.h"
 
+// size: 96
 struct TextureUVCoordinateSet {
     float             weight;
     float             _u0;

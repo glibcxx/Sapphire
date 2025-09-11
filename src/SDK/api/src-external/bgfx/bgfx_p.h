@@ -7,6 +7,11 @@
 #include "SDK/api/src-external/bx/thread.h"
 #include "platform.h"
 
+#define BGFX_SUBMIT_INTERNAL_NONE UINT8_C(0x00)
+#define BGFX_SUBMIT_INTERNAL_INDEX32 UINT8_C(0x40)
+#define BGFX_SUBMIT_INTERNAL_OCCLUSION_VISIBLE UINT8_C(0x80)
+#define BGFX_SUBMIT_INTERNAL_RESERVED_MASK UINT8_C(0xff)
+
 namespace bgfx {
 
     struct Frame;
@@ -162,11 +167,81 @@ namespace bgfx {
         uint8_t  m_trans;   // off+12
     };
 
+    // size: 4
+    struct IndexBuffer {
+        uint32_t m_size; // off+0
+    };
+
+    // size: 8
+    struct VertexBuffer {
+        uint32_t m_size;   // off+0
+        uint16_t m_stride; // off+4
+    };
+
+    // size: 20
+    struct DynamicIndexBuffer {
+        bgfx::IndexBufferHandle m_handle;     // off+0
+        uint32_t                m_offset;     // off+4
+        uint32_t                m_size;       // off+8
+        uint32_t                m_startIndex; // off+12
+        uint16_t                m_flags;      // off+16
+    };
+
+    // size: 28
+    struct DynamicVertexBuffer {
+        bgfx::VertexBufferHandle m_handle;      // off+0
+        uint32_t                 m_offset;      // off+4
+        uint32_t                 m_size;        // off+8
+        uint32_t                 m_startVertex; // off+12
+        uint32_t                 m_numVertices; // off+16
+        uint16_t                 m_stride;      // off+20
+        bgfx::VertexDeclHandle   m_decl;        // off+22
+        uint16_t                 m_flags;       // off+24
+    };
+
     // size: 8
     struct Stream {
         uint32_t                 m_startVertex; // off+0
         bgfx::VertexBufferHandle m_handle;      // off+4
         bgfx::VertexDeclHandle   m_decl;        // off+6
+    };
+
+    // size: 20
+    struct Binding {
+        enum class Enum : int {
+            Image = 0,
+            IndexBuffer = 1,
+            VertexBuffer = 2,
+            Texture = 3,
+            ShaderBuffer = 4,
+            Count = 5,
+        };
+
+        uint32_t mUnk0; // off+0
+        uint32_t mUnk4; // off+4
+        uint32_t mUnk8; // off+8
+        uint16_t m_idx; // off+12
+
+        // size: 4
+        union {
+            // size: 4
+            struct {
+                uint32_t m_textureFlags; // off+0
+            } m_draw;
+
+            // size: 3
+            struct {
+                uint8_t m_format; // off+0
+                uint8_t m_access; // off+1
+                uint8_t m_mip;    // off+2
+                uint8_t m_type;   // off+3
+            } m_compute;
+        } m_un; // off+8
+    };
+
+    // size: 1280
+    struct alignas(64) RenderBind {
+        bgfx::Binding m_bind[64]; // off+0
     };
 
     struct Frame {
@@ -186,7 +261,7 @@ namespace bgfx {
         uint32_t                   m_startMatrix = 0;        // off+60
         uint32_t                   m_startIndex = 0;         // off+64
         uint32_t                   m_numIndices = -1;        // off+68
-        uint32_t                   mUnk60 = 0;               // off+72
+        uint32_t                   m_indexSize = 0;          // off+72
         uint32_t                   m_numVertices = -1;       // off+76
         uint32_t                   m_instanceDataOffset = 0; // off+80
         uint32_t                   m_numInstances = 1;       // off+84
@@ -205,6 +280,31 @@ namespace bgfx {
         bgfx::VertexBufferHandle   m_instanceDataBuffer;     // off+118
         bgfx::IndirectBufferHandle m_indirectBuffer;         // off+120
         bgfx::OcclusionQueryHandle m_occlusionQuery;         // off+122
+
+        bool setStreamBit(uint8_t _stream, VertexBufferHandle _handle) {
+            const uint8_t bit = 1 << _stream;
+            const uint8_t mask = m_streamMask & ~bit;
+            const uint8_t tmp = isValid(_handle) ? bit : 0;
+            m_streamMask = mask | tmp;
+            return 0 != tmp;
+        }
+    };
+
+    // size: 64
+    struct alignas(64) RenderCompute {
+        uint32_t                   m_uniformBegin;   // off+0
+        uint32_t                   m_uniformEnd;     // off+4
+        uint32_t                   m_startMatrix;    // off+8
+        bgfx::IndirectBufferHandle m_indirectBuffer; // off+12
+        uint32_t                   m_numX;           // off+16
+        uint32_t                   m_numY;           // off+20
+        uint32_t                   m_numZ;           // off+24
+        uint16_t                   m_startIndirect;  // off+28
+        uint16_t                   m_numIndirect;    // off+30
+        uint16_t                   m_numMatrices;    // off+32
+        uint8_t                    m_submitFlags;    // off+34
+        uint8_t                    m_uniformIdx;     // off+35
+        bool                       m_isRayTracing;   // off+36
     };
 
     // size: 7176
@@ -214,6 +314,24 @@ namespace bgfx {
 
         UniformHashMap       m_uniforms;  // off+0
         bgfx::UniformRegInfo m_info[512]; // off+6152
+    };
+
+    // size: 56
+    class NonLocalAllocator {
+    public:
+        static constexpr const uint64_t kInvalidBlock = -1;
+        // size: 16
+        struct Allocation {
+            uint64_t m_ptr;    // off+0
+            uint32_t m_offset; // off+8
+        };
+        // size: 16
+        struct Free {
+            uint64_t m_ptr;  // off+0
+            uint32_t m_size; // off+8
+        };
+        uint64_t m_free[3]; // off+0
+        uint64_t m_used[4]; // off+24
     };
 
     // size: 8 (1.21.50)
@@ -424,13 +542,26 @@ namespace bgfx {
     struct Context {
         char _fill0[206604232];
 
-        Frame *m_submit; // off+206604232
-
-        char _fill206604240[950924];
-
-        bx::HandleAllocT<4096> m_indexBufferHandle;  // off+207555148
-        bx::HandleAllocT<64>   m_vertexDeclHandle;   // off+207571536
-        bx::HandleAllocT<4096> m_vertexBufferHandle; // off+207571796
+        Frame                          *m_submit;                              // off+206604232
+        uint64_t                        m_tempKeys[65535];                     // off+206604240
+        uint16_t                        m_tempValues[65535];                   // off+207128520
+        bgfx::IndexBuffer               m_indexBuffers[4096];                  // off+207259592
+        bgfx::VertexBuffer              m_vertexBuffers[4096];                 // off+207275976
+        bgfx::DynamicIndexBuffer        m_dynamicIndexBuffers[4096];           // off+207308744
+        bgfx::DynamicVertexBuffer       m_dynamicVertexBuffers[4096];          // off+207390664
+        uint16_t                        m_numFreeDynamicIndexBufferHandles;    // off+207505352
+        uint16_t                        m_numFreeDynamicVertexBufferHandles;   // off+207505354
+        uint16_t                        m_numFreeOcclusionQueryHandles;        // off+207505356
+        bgfx::DynamicIndexBufferHandle  m_freeDynamicIndexBufferHandle[4096];  // off+207505358
+        bgfx::DynamicVertexBufferHandle m_freeDynamicVertexBufferHandle[4096]; // off+207513550
+        bgfx::OcclusionQueryHandle      m_freeOcclusionQueryHandle[256];       // off+207521742
+        bgfx::NonLocalAllocator         m_dynIndexBufferAllocator;             // off+207522256
+        bx::HandleAllocT<4096>          m_dynamicIndexBufferHandle;            // off+207522312
+        bgfx::NonLocalAllocator         m_dynVertexBufferAllocator;            // off+207538704
+        bx::HandleAllocT<4096>          m_dynamicVertexBufferHandle;           // off+207538760
+        bx::HandleAllocT<4096>          m_indexBufferHandle;                   // off+207555148
+        bx::HandleAllocT<64>            m_vertexDeclHandle;                    // off+207571536
+        bx::HandleAllocT<4096>          m_vertexBufferHandle;                  // off+207571796
 
         Context() = delete;
 
@@ -476,6 +607,10 @@ namespace bgfx {
 
         SDK_API uint32_t frame(uint32_t _flags);
 
+        SDK_API bgfx::ShaderHandle createShader(const bgfx::Memory *_mem);
+
+        SDK_API bgfx::ProgramHandle createProgram(bgfx::ShaderHandle _vsh, bool _destroyShader);
+
         IndirectBufferHandle createIndirectBuffer(uint32_t _num) {
             IndirectBufferHandle handle = {m_vertexBufferHandle.alloc()};
 
@@ -504,11 +639,13 @@ namespace bgfx {
 
     // 1.21.50
     struct EncoderImpl {
-        bgfx::Frame     *m_frame; // off+0
-        bgfx::SortKey    m_key;   // off+8
-        bgfx::RenderDraw m_draw;  // off+64
+        bgfx::Frame        *m_frame;   // off+0
+        bgfx::SortKey       m_key;     // off+8
+        bgfx::RenderDraw    m_draw;    // off+64
+        bgfx::RenderCompute m_compute; // off+192
+        bgfx::RenderBind    m_bind;    // off+256
 
-        char _fill[1612 - 64 - sizeof(bgfx::RenderDraw)];
+        char _fill[1612 - 256 - sizeof(bgfx::RenderBind)];
 
         uint32_t m_numSubmitted;   // off+1612
         uint32_t m_numDropped;     // off+1616
@@ -530,8 +667,8 @@ namespace bgfx {
             ViewId                     _id,
             bgfx::ProgramHandle        _program,
             bgfx::OcclusionQueryHandle _occlusionQuery,
-            int32_t                    _depth,
-            bool                       _preserveState
+            int32_t                    _depth = 0,
+            bool                       _preserveState = false
         );
 
         void submit(
@@ -540,14 +677,46 @@ namespace bgfx {
             IndirectBufferHandle _indirectHandle,
             uint16_t             _start,
             uint16_t             _num,
-            uint32_t             _depth,
+            uint32_t             _depth = 0,
             bool                 _preserveState = false
         ) {
             m_draw.m_startIndirect = _start;
             m_draw.m_numIndirect = _num;
             m_draw.m_indirectBuffer = _indirectHandle;
+            m_draw.m_indexSize = 4;
             OcclusionQueryHandle handle{kInvalidHandle};
             submit(_id, _program, handle, _depth, _preserveState);
+        }
+
+        void setVertexBuffer(
+            uint8_t            _stream,
+            VertexBufferHandle _handle,
+            uint32_t           _startVertex = 0,
+            uint32_t           _numVertices = UINT32_MAX,
+            VertexDeclHandle   _decl = {bgfx::kInvalidHandle}
+        ) {
+            if (m_draw.setStreamBit(_stream, _handle)) {
+                Stream &stream = m_draw.m_stream[_stream];
+                stream.m_startVertex = _startVertex;
+                stream.m_handle = _handle;
+                stream.m_decl = _decl;
+                m_numVertices[_stream] = _numVertices;
+            }
+        }
+
+        void setIndexBuffer(IndexBufferHandle _handle, uint32_t _firstIndex = 0, uint32_t _numIndices = UINT32_MAX) {
+            m_draw.m_startIndex = _firstIndex;
+            m_draw.m_numIndices = _numIndices;
+            m_draw.m_indexBuffer = _handle;
+        }
+
+        void setInstanceDataBuffer(const InstanceDataBuffer *_idb, uint32_t _start = 0, uint32_t _num = UINT32_MAX) {
+            const uint32_t start = std::min(_start, _idb->num);
+            const uint32_t num = std::min(_idb->num - start, _num);
+            m_draw.m_instanceDataOffset = _idb->offset + start * _idb->stride;
+            m_draw.m_instanceDataStride = _idb->stride;
+            m_draw.m_numInstances = num;
+            m_draw.m_instanceDataBuffer = _idb->handle;
         }
     };
 

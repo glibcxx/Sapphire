@@ -48,7 +48,7 @@ public:
     std::string                mUnk264;        // off+264
     std::string                mUnk296;        // off+296
 
-    ToastMessage(
+    SDK_API ToastMessage(
         ToastMessageType   type,
         const std::string &title,
         const std::string &subtitle,

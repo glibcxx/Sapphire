@@ -5,6 +5,8 @@
 
 #include "SDK/core/ApiManager.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BufferResourceManager.h"
+#include "SDK/api/src-external/RenderDragon/Memory/BufferSource.h"
+#include "SDK/api/src-external/bgfx/bgfx.h"
 #include "IndexBufferResourceManagerTypes.h"
 
 namespace dragon::mesh {
@@ -23,7 +25,7 @@ namespace dragon::mesh {
 
         struct IndexBufferType {
             using HandleTypeKey = details::IndexBufferHandleTypeKey;
-            // using ResourceType = std::variant<bgfx::IndexBufferHandle, bgfx::DynamicIndexBufferHandle>;
+            using ResourceType = std::variant<bgfx::IndexBufferHandle, bgfx::DynamicIndexBufferHandle>;
             using ResolvedResourceType = std::optional<ResolvedIndexBuffer>;
             using ResourcePublicDescription = IndexBufferDescription;
         };

@@ -59,7 +59,7 @@ namespace dragon::rendering::drawcommands {
         uint16_t            mNum;    // off+16
     };
 
-    // size: 12
+    // size: 16
     struct BufferBinding {
         // size: 4
         struct ShaderBufferHandle {
@@ -77,6 +77,7 @@ namespace dragon::rendering::drawcommands {
             ShaderBufferHandle>
                            mHandle; // off+2
         bgfx::Access::Enum mAccess; // off+8
+        uint32_t           mUnk12;  // off+12
     };
 
     // size: 128 (1.21.50)
@@ -84,7 +85,7 @@ namespace dragon::rendering::drawcommands {
         dragon::rendering::CommandContext         &mCommands; // off+0
         std::vector<std::optional<TextureBinding>> mTextures; // off+8
         std::vector<UniformBindings>               mUniforms; // off+32
-        std::vector<BufferBinding>                 mBuffers;  // off+56
+        std::vector<std::vector<BufferBinding>>    mBuffers;  // off+56
         std::vector<std::aligned_storage_t<6, 2>>  mUnk80;    // off+80
         std::vector<std::aligned_storage_t<8, 4>>  mUnk104;   // off+104
     };

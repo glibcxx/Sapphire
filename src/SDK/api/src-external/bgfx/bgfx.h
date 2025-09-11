@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include "SDK/api/src-external/bx/allocator.h"
 #include "defines.h"
+#include "config.h"
 
 namespace bgfx {
 
@@ -225,6 +225,16 @@ namespace bgfx {
         };
     };
 
+    // size: 24
+    struct InstanceDataBuffer {
+        uint8_t                 *data;   // off+0
+        uint32_t                 size;   // off+8
+        uint32_t                 offset; // off+12
+        uint32_t                 num;    // off+16
+        uint16_t                 stride; // off+20
+        bgfx::VertexBufferHandle handle; // off+22
+    };
+
     // size: 12
     struct Resolution {
         uint32_t width;  // off+0
@@ -262,12 +272,12 @@ namespace bgfx {
         uint64_t           mUnk56;    // off+56
     };
 
-    // size: 80
+    // size: 84 (1.21.50)
     struct VertexDecl {
         uint32_t m_hash;           // off+0
         uint16_t m_stride;         // off+4
-        uint16_t m_offset[18];     // off+6
-        uint16_t m_attributes[18]; // off+42
+        uint16_t m_offset[19];     // off+6
+        uint16_t m_attributes[19]; // off+44
     };
 
     // size: 6
@@ -285,6 +295,15 @@ namespace bgfx {
     // size: 1
     struct Encoder {
         SDK_API uint16_t setScissor(uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height);
+
+        SDK_API void setVertexBuffer(
+            uint8_t                   _stream,
+            DynamicVertexBufferHandle _handle,
+            uint32_t                  _startVertex,
+            uint32_t                  _numVertices,
+            VertexDeclHandle          _decl,
+            uint32_t                  _stride
+        );
     };
 
     SDK_API int init(const Init &_init, bool a2);
@@ -320,6 +339,8 @@ namespace bgfx {
     );
 
     SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
+
+    SDK_API void allocInstanceDataBuffer(InstanceDataBuffer *_idb, uint32_t _num, uint16_t _stride);
 
     SDK_API void updateOffset(
         bgfx::DynamicVertexBufferHandle _handle, uint32_t _offset, uint32_t _declStride, const bgfx::Memory *_mem

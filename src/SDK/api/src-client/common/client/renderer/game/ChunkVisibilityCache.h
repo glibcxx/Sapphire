@@ -6,5 +6,4 @@
 class VisibilityNode {
 public:
     ByteMask mVisibility[6]; // off+0
-
-}; // class VisibilityNode
+};

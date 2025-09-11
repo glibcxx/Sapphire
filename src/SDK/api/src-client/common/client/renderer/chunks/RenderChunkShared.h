@@ -9,6 +9,9 @@
 
 class RenderChunkGeometry;
 class RenderChunkBuilder;
+namespace mce::framebuilder {
+    struct FrameLightingModelCapabilities;
+}
 
 enum class BakedBlockLightType : int {
     None = 0,
@@ -47,7 +50,8 @@ public:
     bool                                 mVisibilityMatrixChanged;     // off+62
     bool                                 mSkyLit;                      // off+63
     bool                                 mAllDark;                     // off+64
-    bool                                 mImmediateChangeRequested;    // off+65
+    bool                                 mUnk65;                       // off+65
+    bool                                 mImmediateChangeRequested;    // off+66
     std::shared_ptr<RenderChunkGeometry> mBuildingRenderChunkGeometry; // off+72
 
     // size: 24
@@ -74,12 +78,11 @@ public:
     SDK_API void startRebuild(RenderChunkBuilder &builder, const Vec3 &currentCameraPosition);
 
     SDK_API void rebuild(
-        RenderChunkBuilder &builder,
-        bool                transparentLeaves,
-        BakedBlockLightType lightingType,
-        bool                forExport,
-        bool                usePBRFormat,
-        bool                emitPointLights
+        RenderChunkBuilder                                      &builder,
+        bool                                                     transparentLeaves,
+        BakedBlockLightType                                      lightingType,
+        bool                                                     forExport,
+        const mce::framebuilder::FrameLightingModelCapabilities &lightingModelCapabilities
     );
 
     SDK_API void addEntityBlockSyncMessages(buffer_span<ActorBlockSyncMessage> syncMsgList);
