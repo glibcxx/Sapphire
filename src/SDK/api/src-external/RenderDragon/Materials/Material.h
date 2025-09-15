@@ -113,6 +113,8 @@ namespace dragon::materials {
             const std::unordered_map<std::string, std::string>      &globalFlags,
             const std::optional<dragon::platform::GraphicsPlatform> &platform
         );
+
+        SDK_API const Pass *tryGetPass(const HashedString &name) const;
     };
     static_assert(sizeof(Material) == 1024);
 

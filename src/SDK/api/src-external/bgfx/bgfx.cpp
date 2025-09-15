@@ -11,6 +11,13 @@ bx::AllocatorI *bgfx::g_allocator = sapphire::loadStatic<
     &bgfx::g_allocator,
     bx::AllocatorI *>();
 
+void bgfx::VertexDecl::end() {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x48\x8B\xEC\x48\x83\xEC\x00\x45\x33\xC9"_sig, // 1.21.50
+        &VertexDecl::end>;
+    (this->*Hook::origin)();
+}
+
 uint16_t bgfx::Encoder::setScissor(uint16_t _x, uint16_t _y, uint16_t _width, uint16_t _height) {
     using Hook = sapphire::ApiLoader<
         "\x48\x89\x5C\x24\x00\x48\x89\x7C\x24\x00\x4C\x8B\x11\x0F\xB7\xFA"_sig, // 1.21.50

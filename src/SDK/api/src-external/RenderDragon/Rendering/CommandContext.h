@@ -25,11 +25,11 @@ namespace dragon {
             dragon::platform::ResourcesManager          &mResourcesManager; // off+24
             dragon::ResolvedTextureResource             *mMissingTexture;   // off+32
 
-            // size: 32
+            // size: 40
             struct MaterialTextureBinding {
                 dragon::materials::MaterialUniformName nameHash;      // off+0
                 dragon::ServerTexture                  textureHandle; // off+8
-                uint32_t                               textureFlags;  // off+24
+                uint32_t                               textureFlags;  // off+32
             };
 
             std::vector<MaterialTextureBinding> mMaterialTextureBindings; // off+40

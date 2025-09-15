@@ -16,6 +16,7 @@ namespace bgfx::d3d12 {
 
     struct CommandList;
     struct CommandListD3D12;
+    struct RendererContextD3D12;
 
     // size: 24
     struct HeapProperty {
@@ -58,7 +59,32 @@ namespace bgfx::d3d12 {
         uint64_t                 m_completedNumber;   // off+48
     };
 
-    struct CommandContextD3D12 {};
+    struct CommandContextD3D12 {
+        SDK_API void setBlendState(D3D12_BLEND_DESC &_desc, uint64_t _state, uint32_t _rgba);
+
+        SDK_API uint32_t setInputLayout(
+            D3D12_INPUT_ELEMENT_DESC        *_vertexElements,
+            uint8_t                          _numStreams,
+            const bgfx::VertexDecl         **_vertexDecls,
+            const bgfx::d3d12::ProgramD3D12 &_program,
+            uint16_t                         _numInstanceData
+        );
+
+        SDK_API ID3D12PipelineState *getPipelineState(
+            bgfx::d3d12::RendererContextD3D12 &_context,
+            uint64_t                           _state,
+            uint64_t                           _stencil,
+            int32_t                            _biasConst,
+            float                              _biasSlope,
+            float                              _biasClamp,
+            uint8_t                            _numStreams,
+            const bgfx::VertexDecl           **_vertexDecls,
+            uint16_t                           _programIdx,
+            uint8_t                            _numInstanceData,
+            bgfx::FrameBufferHandle            _fbh,
+            const DXGI_SAMPLE_DESC            &_sampleDesc
+        );
+    };
 
     // size: 63265872 (1.21.50)
     struct RendererContextD3D12 : public bgfx::RendererContextI {
@@ -95,8 +121,9 @@ namespace bgfx::d3d12 {
         uint16_t                         m_numWindows;                 // off+848
         bgfx::FrameBufferHandle          m_windows[128];               // off+850
         ID3D12Device                    *m_device;                     // off+1112
+        ID3D12Device5                   *m_device5;                    // off+1120
 
-        char _fill1120[32566 - 1112 - 8];
+        char _fill1120[32566 - 1120 - 8];
 
         // bgfx::d3d12::TimerQueryD3D12     m_gpuTimer;       // off+
 
@@ -148,8 +175,11 @@ namespace bgfx::d3d12 {
 
         std::mutex m_cmdCreateMtx; // off+63265792
 
+        // vtb+7
+        SDK_API virtual void postFlip() override;
+
         // vtb+57
-        virtual bool init(const bgfx::Init &_init);
+        SDK_API virtual bool init(const bgfx::Init &_init);
 
         // vtb+58
         virtual void shutdown();
@@ -175,4 +205,7 @@ namespace bgfx::d3d12 {
             const bgfx::Matrix4                 &projMat
         );
     };
+
+    extern SDK_API RendererContextD3D12 *s_renderD3D12;
+
 } // namespace bgfx::d3d12

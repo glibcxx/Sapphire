@@ -50,7 +50,8 @@ namespace mce::framebuilder {
         std::map<uint8_t, glm::tvec3<float>>                                            mPreviousFramePlayerViewWorldOrigins;  // off+1088
         std::queue<std::pair<int64_t, std::shared_ptr<dragon::frameobject::GameFrame>>> mInFlightFrames;                       // off+1104
         std::unique_ptr<Pool<dragon::frameobject::GameFrame>>                           mFramePool;                            // off+1144
-        uint16_t                                                                        mUnk1152;                              // off+1152
+        uint8_t                                                                         mUnk1152;                              // off+1152
+        bool                                                                            mEnableVrMode;                         // off+1153
         glm::tvec2<uint16_t>                                                            mResolution;                           // off+1154
         glm::tvec2<uint16_t>                                                            mClientResolution;                     // off+1158
         bgfx::DLSSOptions                                                               mUpscalingOptions;                     // off+1164

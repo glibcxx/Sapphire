@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "SDK/api/src-deps/Core/Threading/MPMCQueue.h"
 #include "TaskGroup.h"
 

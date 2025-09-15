@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include "SDK/api/src-deps/Core/Threading/BurstWorkQueue.h"
 
 namespace cg {
 

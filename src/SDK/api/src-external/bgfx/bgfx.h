@@ -17,13 +17,24 @@ namespace bgfx {
 
     // size: 1
     struct Fatal {
-        enum class Enum : int {
+        enum Enum : int {
             DebugCheck = 0,
             InvalidShader = 1,
             UnableToInitialize = 2,
             UnableToCreateTexture = 3,
             DeviceLost = 4,
             Count = 5,
+        };
+    };
+
+    // size: 1
+    struct ViewMode {
+        enum Enum : int {
+            Default = 0,
+            Sequential = 1,
+            DepthAscending = 2,
+            DepthDescending = 3,
+            Count = 4,
         };
     };
 
@@ -146,7 +157,7 @@ namespace bgfx {
 
     // size: 1
     struct RendererType {
-        enum class Enum : int {
+        enum Enum : int {
             Noop = 0,
             Direct3D9 = 1,
             Direct3D11 = 2,
@@ -164,7 +175,7 @@ namespace bgfx {
 
     // size: 1
     struct TextureFormat {
-        enum class Enum : int {
+        enum Enum : int {
             BC1 = 0,
             BC2 = 1,
             BC3 = 2,
@@ -192,7 +203,7 @@ namespace bgfx {
 
     // size: 1
     struct UniformType {
-        enum class Enum : int {
+        enum Enum : int {
             Sampler = 0,
             End = 1,
             Vec4 = 2,
@@ -204,7 +215,7 @@ namespace bgfx {
 
     // size: 1
     struct AccelerationStructureBuildFlags {
-        enum class Enum : uint16_t {
+        enum Enum : uint16_t {
             NONE = 0,
             ALLOW_UPDATE = 1,
             ALLOW_COMPACTION = 2,
@@ -217,7 +228,7 @@ namespace bgfx {
 
     // size: 1
     struct Access {
-        enum class Enum : int {
+        enum Enum : int {
             Read = 0,
             Write = 1,
             ReadWrite = 2,
@@ -275,9 +286,11 @@ namespace bgfx {
     // size: 84 (1.21.50)
     struct VertexDecl {
         uint32_t m_hash;           // off+0
-        uint16_t m_stride;         // off+4
+        uint16_t m_stride = 0;     // off+4
         uint16_t m_offset[19];     // off+6
         uint16_t m_attributes[19]; // off+44
+
+        SDK_API void end();
     };
 
     // size: 6

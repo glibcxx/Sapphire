@@ -6,36 +6,36 @@
 
 namespace memory {
     template <typename T>
-    T &getField(void *obj, uintptr_t offset) {
+    constexpr T &getField(void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
         requires(std::is_reference_v<T>)
-    T &&getField(void *obj, uintptr_t offset) {
+    constexpr T &&getField(void *obj, uintptr_t offset) {
         using T_ = std::remove_reference_t<T>;
         return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
-    const T &getField(const void *obj, uintptr_t offset) {
+    constexpr const T &getField(const void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
         requires(std::is_reference_v<T>)
-    const T &&getField(const void *obj, uintptr_t offset) {
+    constexpr const T &&getField(const void *obj, uintptr_t offset) {
         using T_ = std::remove_reference_t<T>;
         return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T = void **>
-    T getVftable(void *obj) {
+    constexpr T getVftable(void *obj) {
         return std::bit_cast<T>(*reinterpret_cast<void ***>(obj));
     }
 
     template <typename T = void **>
-    T getVftable(const void *obj) {
+    constexpr T getVftable(const void *obj) {
         return std::bit_cast<T>(*reinterpret_cast<void ***>(const_cast<void *>(obj)));
     }
 
@@ -126,7 +126,7 @@ namespace memory {
     }
 
     template <typename T>
-    T deRef(T instrcutionAddr, AsmOperation opType) {
+    constexpr T deRef(T instrcutionAddr, AsmOperation opType) {
         return std::bit_cast<T>(deRef(std::bit_cast<uintptr_t>(instrcutionAddr), opType));
     }
 

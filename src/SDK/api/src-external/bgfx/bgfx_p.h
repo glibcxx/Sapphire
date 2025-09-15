@@ -5,6 +5,8 @@
 #include "SDK/api/src-external/bx/handlealloc.h"
 #include "SDK/api/src-external/bx/float4x4_t.h"
 #include "SDK/api/src-external/bx/thread.h"
+#include "SDK/api/src-external/bx/semaphore.h"
+#include "SDK/api/src-external/bx/mutex.h"
 #include "platform.h"
 
 #define BGFX_SUBMIT_INTERNAL_NONE UINT8_C(0x00)
@@ -34,7 +36,38 @@ namespace bgfx {
             UpdateDynamicIndexBuffer = 6,
             CreateDynamicVertexBuffer = 7,
             UpdateDynamicVertexBuffer = 8,
-            // ...
+            UnkEnum9 = 9,
+            CreateBottomLevelAccelerationStructure = 10,
+            CreateTopLevelAccelerationStructure = 11,
+            CreateShader = 12,
+            CreateProgram = 13,
+            CreateTexture = 14,
+            CreateShaderBuffer = 15,
+            UpdateTexture = 16,
+            ResizeTexture = 17,
+            WrapExternalTexture = 18,
+            UpdateShaderBuffer = 19,
+            CreateFrameBuffer = 20,
+            CreateUniform = 21,
+            UpdateViewName = 22,
+            InvalidateOcclusionQuery = 23,
+            SetName = 24,
+            End = 25,
+            RendererShutdownEnd = 26,
+            DestroyVertexDecl = 27,
+            DestroyIndexBuffer = 28,
+            DestroyVertexBuffer = 29,
+            DestroyDynamicIndexBuffer = 30,
+            DestroyDynamicVertexBuffer = 31,
+            DestroyShader = 32,
+            DestroyProgram = 33,
+            DestroyTexture = 34,
+            DestroyShaderBuffer = 35,
+            DestroyFrameBuffer = 36,
+            DestroyUniform = 37,
+            DestroyAccelerationStructure = 38,
+            ReadTexture = 39,
+            RequestScreenShot = 40,
         };
 
         CommandBuffer() = delete;
@@ -540,7 +573,13 @@ namespace bgfx {
 
     // 1.21.50
     struct Context {
-        char _fill0[206604232];
+        bx::Semaphore m_renderSem;       // off+0
+        bx::Semaphore m_apiSem;          // off+128
+        bx::Semaphore m_encoderEndSem;   // off+256
+        bx::Mutex     m_encoderApiLock;  // off+384
+        bx::Mutex     m_resourceApiLock; // off+448
+
+        char _fill512[206604232 - 448 - sizeof(m_resourceApiLock)]; // off+512
 
         Frame                          *m_submit;                              // off+206604232
         uint64_t                        m_tempKeys[65535];                     // off+206604240
@@ -611,15 +650,23 @@ namespace bgfx {
 
         SDK_API bgfx::ProgramHandle createProgram(bgfx::ShaderHandle _vsh, bool _destroyShader);
 
+        CommandBuffer &getCommandBuffer(CommandBuffer::Enum _cmd) {
+            CommandBuffer &cmdbuf = _cmd < CommandBuffer::Enum::End
+                                      ? memory::getField<CommandBuffer>(m_submit, 102553560 /*1.21.50*/)
+                                      : memory::getField<CommandBuffer>(m_submit, 1145141919810 /*FIXME*/);
+            uint8_t        cmd = (uint8_t)_cmd;
+            cmdbuf.write(cmd);
+            return cmdbuf;
+        }
+
         IndirectBufferHandle createIndirectBuffer(uint32_t _num) {
             IndirectBufferHandle handle = {m_vertexBufferHandle.alloc()};
 
             if (isValid(handle)) {
-                uint32_t size = _num * 32;
+                uint32_t size = _num * BGFX_CONFIG_DRAW_INDIRECT_STRIDE;
                 uint16_t flags = BGFX_BUFFER_DRAW_INDIRECT;
 
-                CommandBuffer &cmdbuf = memory::getField<CommandBuffer>(m_submit, 102553560 /*1.21.50*/);
-                cmdbuf.write((uint8_t)CommandBuffer::Enum::CreateDynamicVertexBuffer);
+                CommandBuffer &cmdbuf = getCommandBuffer(CommandBuffer::Enum::CreateDynamicVertexBuffer);
                 cmdbuf.write(handle);
                 cmdbuf.write(size);
                 cmdbuf.write(flags);
@@ -683,7 +730,7 @@ namespace bgfx {
             m_draw.m_startIndirect = _start;
             m_draw.m_numIndirect = _num;
             m_draw.m_indirectBuffer = _indirectHandle;
-            m_draw.m_indexSize = 4;
+            m_draw.m_indexSize = 2; // TODO: get size of an index
             OcclusionQueryHandle handle{kInvalidHandle};
             submit(_id, _program, handle, _depth, _preserveState);
         }

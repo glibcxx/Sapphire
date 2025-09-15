@@ -19,4 +19,13 @@ namespace dragon::materials {
         return (this->*Hook::origin)(materialDefinition, globalFlags, platform);
     }
 
+    const Pass *Material::tryGetPass(
+        const HashedString &name
+    ) const {
+        using Hook = sapphire::ApiLoader<
+            "\x40\x53\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x4C\x8B\x81\x00\x00\x00\x00\x4C\x8B\xCA"_sig,
+            &Material::tryGetPass>;
+        return (this->*Hook::origin)(name);
+    }
+
 } // namespace dragon::materials
