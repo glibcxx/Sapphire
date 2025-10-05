@@ -164,15 +164,9 @@ namespace sapphire::input {
         short dy,
         bool  forceMotionlessPointer
     ) {
-        InputInterceptor &interceptor = instance->mInputInterceptor;
-        if (interceptor.isAllMouseInputBlocked())
-            return;
-
         ImGuiIO &io = ImGui::GetIO();
         switch (actionButtonId) {
         case MouseAction::ActionType::ACTION_MOVE: {
-            if (interceptor.isMouseMoveBlocked())
-                return;
             break;
         }
         case MouseAction::ActionType::ACTION_LEFT:
@@ -186,19 +180,17 @@ namespace sapphire::input {
                 {(float)x, (float)y}
             );
             io.AddMouseButtonEvent(actionButtonId - MouseAction::ActionType::ACTION_LEFT, buttonData);
-            if (interceptor.isMouseButtonBlocked())
-                return;
             break;
         }
         case MouseAction::ActionType::ACTION_WHEEL: {
             instance->_onRawMouseWheel(0.0f, (float)buttonData);
             io.AddMouseWheelEvent(0.0f, (float)buttonData / WHEEL_DELTA);
-            if (interceptor.isMouseWheelBlocked())
-                return;
             break;
         }
         default: break;
         }
+        if (instance->mBlockInput)
+            return;
 
         this->origin(actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
     }
@@ -246,9 +238,15 @@ namespace sapphire::input {
         return mMouseWheel;
     }
 
-    InputManager::InputManager() :
-        mInputInterceptor(InputInterceptor::create()) {
+    bool sapphire::input::InputManager::isLMouseDoubleClicked() const {
+        return ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
     }
+
+    bool sapphire::input::InputManager::isRMouseDoubleClicked() const {
+        return ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right);
+    }
+
+    InputManager::InputManager() = default;
 
     InputManager::~InputManager() {
         MouseFeedHook::unhook();
@@ -310,8 +308,6 @@ namespace sapphire::input {
     }
 
     void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
-        InputInterceptor &interceptor = this->mInputInterceptor;
-
         winrt::Windows::System::VirtualKey vk = args.VirtualKey();
         CoreAcceleratorKeyEventType        eventType = args.EventType();
         CorePhysicalKeyStatus              keyStatus = args.KeyStatus();
@@ -345,13 +341,10 @@ namespace sapphire::input {
         default:
             if (ImGuiKey imguiKey = KeyEventToImGuiKey(static_cast<WPARAM>(vk)); imguiKey != ImGuiKey_None) {
                 syncKey(imguiKey);
-                if (interceptor.mBlockAllKeys || interceptor.isKeyBlocked(static_cast<KeyCode>(imguiKey))) {
-                    args.Handled(true);
-                }
             }
             break;
         }
-        if (interceptor.mBlockAllKeys) {
+        if (mBlockInput) {
             args.Handled(true);
         }
     }
@@ -364,8 +357,6 @@ namespace sapphire::input {
     }
 
     void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
-        InputInterceptor &interceptor = this->mInputInterceptor;
-
         ImGuiIO                      &io = ImGui::GetIO();
         Input::PointerPoint           point = args.CurrentPoint();
         Input::PointerPointProperties props = point.Properties();
@@ -388,14 +379,12 @@ namespace sapphire::input {
             io.AddMouseButtonEvent(button, true);
             this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), true, {pos.X, pos.Y});
         }
-        if (interceptor.isMouseButtonBlocked()) {
+        if (mBlockInput) {
             args.Handled(true);
         }
     }
 
     void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args) {
-        InputInterceptor &interceptor = this->mInputInterceptor;
-
         ImGuiIO                      &io = ImGui::GetIO();
         Input::PointerPoint           point = args.CurrentPoint();
         Input::PointerPointProperties props = point.Properties();
@@ -417,15 +406,12 @@ namespace sapphire::input {
             io.AddMouseButtonEvent(button, false);
             this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), false, {pos.X, pos.Y});
         }
-
-        if (interceptor.isMouseButtonBlocked()) {
+        if (mBlockInput) {
             args.Handled(true);
         }
     }
 
     void InputManager::onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
-        InputInterceptor &interceptor = this->mInputInterceptor;
-
         using namespace Input;
         ImGuiIO               &io = ImGui::GetIO();
         PointerPoint           point = args.CurrentPoint();
@@ -440,7 +426,7 @@ namespace sapphire::input {
             io.AddMouseWheelEvent(wheel_x, wheel_y);
             this->_onRawMouseWheel(wheel_x, wheel_y);
         }
-        if (interceptor.isMouseWheelBlocked()) {
+        if (mBlockInput) {
             args.Handled(true);
         }
     }
@@ -474,63 +460,6 @@ namespace sapphire::input {
         mMouseDelta.x = mMousePosition.x - mPreviousMousePosition.x;
         mMouseDelta.y = mMousePosition.y - mPreviousMousePosition.y;
         mPreviousMousePosition = mMousePosition;
-    }
-
-    void InputInterceptor::requestKeyBlock(KeyCode key) {
-        if (key < KeyCode::NamedKey_BEGIN || key >= KeyCode::NamedKey_END)
-            return;
-        size_t          idx = keycodeToIndex(key);
-        std::lock_guard lock(mMutex);
-        switch (key) {
-        case KeyCode::Mod_Shift:
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftShift));
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightShift));
-            break;
-        case KeyCode::Mod_Ctrl:
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftCtrl));
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightCtrl));
-            break;
-        case KeyCode::Mod_Alt:
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftAlt));
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightAlt));
-            break;
-        case KeyCode::Mod_Super:
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::LeftSuper));
-            mBlockedKeysAndButtons.set(static_cast<size_t>(KeyCode::RightSuper));
-            break;
-        default:
-            mBlockedKeysAndButtons.set(static_cast<size_t>(key));
-            break;
-        }
-    }
-
-    bool InputInterceptor::isKeyBlocked(KeyCode key) const {
-        return this->mBlockedKeysAndButtons.test(keycodeToIndex(key));
-    }
-
-    bool InputInterceptor::isMouseButtonBlocked() const {
-        return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseButton;
-    }
-
-    bool InputInterceptor::isMouseMoveBlocked() const {
-        return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseMove;
-    }
-
-    bool InputInterceptor::isMouseWheelBlocked() const {
-        return this->mBlockMouseStatus & MouseBlockStatus::BlockMouseWheel;
-    }
-
-    bool InputInterceptor::isAllMouseInputBlocked() const {
-        return this->mBlockMouseStatus == MouseBlockStatus::BlockAll;
-    }
-
-    void InputInterceptor::refresh() {
-        {
-            std::lock_guard lock(mMutex);
-            mBlockedKeysAndButtons = {};
-        }
-        mBlockMouseStatus = MouseBlockStatus::NoBlock;
-        mBlockAllKeys = false;
     }
 
 } // namespace sapphire::input

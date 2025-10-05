@@ -9,8 +9,6 @@
 
 namespace sapphire::input {
 
-    class InputInterceptor;
-
     // clang-format off
     // 复制自 ImGuiKey，便于与其直接转换
     enum class KeyCode : int {
@@ -140,6 +138,12 @@ namespace sapphire::input {
         SDK_API Vec2           getMouseDelta() const;
         SDK_API MouseWheelData getMouseWheelData() const;
 
+        SDK_API bool isLMouseDoubleClicked() const;
+        SDK_API bool isRMouseDoubleClicked() const;
+
+        void blockInput(bool block = true) { mBlockInput = block; }
+        bool isInputBlocked() const { return mBlockInput; }
+
         using CoreWindow = winrt::Windows::UI::Core::CoreWindow;
 
         InputManager();
@@ -170,8 +174,6 @@ namespace sapphire::input {
         Vec2           mMouseDelta{};
         MouseWheelData mMouseWheel{};
 
-        std::reference_wrapper<InputInterceptor> mInputInterceptor;
-
         // --- State variables ---
         std::map<KeyCode, bool> mCurrentKeyStates;
         std::map<KeyCode, bool> mPreviousKeyStates;
@@ -195,87 +197,8 @@ namespace sapphire::input {
         CoreWindow::PointerWheelChanged_revoker         mPointerWheelRevoker;
         CoreDispatcher::AcceleratorKeyActivated_revoker mAcceleratorRevoker;
         CoreWindow::CharacterReceived_revoker           mCharacterReceivedRevoker;
-    };
 
-    class InputInterceptor : public sapphire::Singleton<InputInterceptor> {
-        enum MouseBlockStatus : uint8_t {
-            NoBlock = 0,
-            BlockMouseMove = 1 << 0,
-            BlockMouseButton = 1 << 1,
-            BlockMouseWheel = 1 << 2,
-            BlockAll = BlockMouseMove | BlockMouseButton | BlockMouseWheel,
-        };
-
-    public:
-        /**
-         * @brief 请求在当前帧拦截一个或多个特定的按键。
-         * @param key 要拦截的按键。
-         */
-        SDK_API void requestKeyBlock(KeyCode key);
-
-        /**
-         * @brief 请求在当前帧拦截所有鼠标的按键。
-         */
-        void requestAllMouseButtonBlock() { mBlockMouseStatus |= MouseBlockStatus::BlockMouseButton; }
-
-        /**
-         * @brief 请求在当前帧拦截鼠标的移动。
-         */
-        void requestMouseMoveBlock() { mBlockMouseStatus |= MouseBlockStatus::BlockMouseMove; }
-
-        /**
-         * @brief 请求在当前帧拦截鼠标滚轮的滚动。
-         */
-        void requestMouseWheelBlock() {
-            mBlockMouseStatus |= MouseBlockStatus::BlockMouseWheel;
-        }
-
-        /**
-         * @brief 请求在当前帧拦截所有的键盘输入。
-         *        这通常用于ImGui窗口获得键盘焦点时。
-         */
-        void requestAllKeyboardBlock() { mBlockAllKeys = true; }
-
-        /**
-         * @brief 请求在当前帧拦截所有的鼠标输入（移动、点击、滚轮）。
-         *        这通常用于ImGui窗口获得鼠标焦点时。
-         */
-        void requestAllMouseInputBlock() { mBlockMouseStatus |= MouseBlockStatus::BlockAll; }
-
-        /**
-         * @brief 请求在当前帧拦截所有的输入。
-         */
-        void requestAllInputBlock() {
-            requestAllKeyboardBlock();
-            requestAllMouseInputBlock();
-        }
-
-    private:
-        friend class GuiOverlay;
-        friend class InputManager;
-
-        bool isKeyBlocked(KeyCode key) const;
-        bool isMouseButtonBlocked() const;
-        bool isMouseMoveBlocked() const;
-        bool isMouseWheelBlocked() const;
-        bool isAllMouseInputBlocked() const;
-
-        void refresh();
-
-        static constexpr size_t keycodeToIndex(KeyCode key) {
-            return static_cast<size_t>(key) - static_cast<size_t>(KeyCode::NamedKey_BEGIN);
-        }
-
-        std::atomic<bool>    mBlockAllKeys = false;                         // 键盘
-        std::atomic<uint8_t> mBlockMouseStatus = MouseBlockStatus::NoBlock; // 鼠标
-
-        static constexpr size_t KEY_CODE_COUNT =
-            static_cast<size_t>(KeyCode::NamedKey_END) - static_cast<size_t>(KeyCode::NamedKey_BEGIN);
-
-        // 不包含修饰键
-        std::bitset<KEY_CODE_COUNT> mBlockedKeysAndButtons;
-
-        mutable std::mutex mMutex;
+        bool mBlockInput = false;
     };
 
 } // namespace sapphire::input

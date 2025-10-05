@@ -4,8 +4,6 @@
 #include <Psapi.h>
 
 #include <string>
-#include "util/StringLiteral.hpp"
-#include "util/Memory.hpp"
 #include "ApiManager.h"
 #include "PluginManager.h"
 

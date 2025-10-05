@@ -57,6 +57,7 @@ namespace sapphire {
     }
 
     void Core::init() {
+        Logger::Info("[Core] Connecting Pipe...");
         HANDLE hPipe = INVALID_HANDLE_VALUE;
         while (true) {
             hPipe = CreateFile(
@@ -86,6 +87,7 @@ namespace sapphire {
                 throw std::runtime_error{"pipe connect timeout"};
             }
         }
+        Logger::Info("[Core] Connecting Pipe done.");
         bool res = this->_init();
 
         std::string_view msg = res ? "READY" : "ERROR";
@@ -183,6 +185,7 @@ namespace sapphire {
                 || entry.path().extension() != ".dll"
                 || filename == "sapphire_core.dll")
                 continue;
+            Logger::Info("[Core] 注入文件 {}...", filename);
             HMODULE handle = LoadLibrary(entry.path().c_str());
             if (!handle) {
                 Logger::Error("[Core] {} 注入失败！", filename);

@@ -2,7 +2,6 @@
 
 #include "macros/Macros.h"
 #include <source_location>
-#include "util/DecoratedName.hpp"
 #include "util/threading/ThreadPool.h"
 #include "util/Memory.hpp"
 #include "util/ApiUniqueId.hpp"

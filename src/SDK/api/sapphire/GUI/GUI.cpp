@@ -144,16 +144,6 @@ void GuiOverlay::handleHotkey() {
 }
 
 void GuiOverlay::frame() {
-    ImGuiIO &io = ImGui::GetIO();
-    auto    &interceptor = sapphire::input::InputInterceptor::getInstance();
-    interceptor.refresh();
-    if (GuiOverlay::sShowPannel)
-        interceptor.requestAllInputBlock();
-    else if (io.WantCaptureMouse)
-        interceptor.requestAllMouseInputBlock();
-    else if (io.WantCaptureKeyboard)
-        interceptor.requestAllKeyboardBlock();
-
     EventManager::getInstance().dispatchEvent(
         GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
     );

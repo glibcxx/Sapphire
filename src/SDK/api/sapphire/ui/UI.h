@@ -96,8 +96,14 @@ namespace sapphire::ui {
             onClick();
     }
 
-    inline void checkbox(std::string_view label, bool &boundValue, const Style &style) {
+    inline void checkbox(std::string_view label, bool &boundValue, const Style &style = {}) {
         ImGui::Checkbox(label.data(), &boundValue);
+    }
+
+    template <std::invocable Fn>
+    inline void checkbox(std::string_view label, bool &boundValue, Fn &&onChanged, const Style &style = {}) {
+        if (ImGui::Checkbox(label.data(), &boundValue))
+            onChanged();
     }
 
     inline void radioButton(std::string_view label, int &boundValue, int buttonValue) {
