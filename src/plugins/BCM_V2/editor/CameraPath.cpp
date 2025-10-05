@@ -6,6 +6,45 @@ namespace BCM_V2 {
 
     using namespace interpolation;
 
+    void recalculateHandlesFor(std::vector<Keyframe> &keyframes, size_t index) {
+        if (index >= keyframes.size()) return;
+
+        auto &kf = keyframes[index];
+
+        if (keyframes.size() < 2) {
+            kf.controlPointIn = kf.position;
+            kf.controlPointOut = kf.position;
+            return;
+        }
+
+        if (index == 0) {
+            kf.controlPointIn = kf.position;
+            if (!kf.controlPointOutIsUserModified) {
+                kf.controlPointOut = kf.position + (keyframes[index + 1].position - kf.position) * 0.333f;
+            }
+        } else if (index == keyframes.size() - 1) {
+            if (!kf.controlPointInIsUserModified) {
+                kf.controlPointIn = kf.position - (kf.position - keyframes[index - 1].position) * 0.333f;
+            }
+            kf.controlPointOut = kf.position;
+        } else {
+            glm::vec3 prev_pos = keyframes[index - 1].position;
+            glm::vec3 current_pos = kf.position;
+            glm::vec3 next_pos = keyframes[index + 1].position;
+
+            glm::vec3 tangent = glm::normalize(next_pos - prev_pos);
+            float     dist_prev = glm::distance(current_pos, prev_pos);
+            float     dist_next = glm::distance(current_pos, next_pos);
+
+            if (!kf.controlPointInIsUserModified) {
+                kf.controlPointIn = current_pos - tangent * dist_prev * 0.333f;
+            }
+            if (!kf.controlPointOutIsUserModified) {
+                kf.controlPointOut = current_pos + tangent * dist_next * 0.333f;
+            }
+        }
+    }
+
     void CameraPath::addKeyframe(const Keyframe &keyframe) {
         auto it = std::lower_bound(
             mKeyframes.begin(), mKeyframes.end(), keyframe, [](const Keyframe &a, const Keyframe &b) {
@@ -13,26 +52,46 @@ namespace BCM_V2 {
             }
         );
 
+        size_t index;
         if (it != mKeyframes.end() && it->tick == keyframe.tick) {
+            index = std::distance(mKeyframes.begin(), it);
             *it = keyframe;
         } else {
-            mKeyframes.insert(it, keyframe);
+            it = mKeyframes.insert(it, keyframe);
+            index = std::distance(mKeyframes.begin(), it);
         }
-        recalculateAllHandles();
+
+        recalculateHandlesFor(mKeyframes, index);
+        if (index > 0) {
+            recalculateHandlesFor(mKeyframes, index - 1);
+        }
+        if (index < mKeyframes.size() - 1) {
+            recalculateHandlesFor(mKeyframes, index + 1);
+        }
     }
 
     void CameraPath::removeKeyframe(size_t tick) {
-        std::erase_if(mKeyframes, [tick](const Keyframe &kf) {
+        auto it = std::remove_if(mKeyframes.begin(), mKeyframes.end(), [tick](const Keyframe &kf) {
             return kf.tick == tick;
         });
-        recalculateAllHandles();
+
+        if (it == mKeyframes.end()) return;
+
+        size_t index = std::distance(mKeyframes.begin(), it - 1);
+        mKeyframes.erase(it, mKeyframes.end());
+
+        if (mKeyframes.empty()) return;
+
+        if (index < mKeyframes.size()) {
+            recalculateHandlesFor(mKeyframes, index);
+        }
+        if (index > 0) {
+            recalculateHandlesFor(mKeyframes, index - 1);
+        }
     }
 
     std::optional<CameraState> CameraPath::getCameraState(size_t tick, float alpha) const {
-        if (mKeyframes.size() < 2) {
-            if (mKeyframes.size() == 1 && tick >= mKeyframes[0].tick) {
-                return CameraState{mKeyframes[0].position, mKeyframes[0].orientation};
-            }
+        if (mKeyframes.size() == 0 || tick > mKeyframes.back().tick || tick < mKeyframes.front().tick) {
             return std::nullopt;
         }
 
@@ -98,12 +157,7 @@ namespace BCM_V2 {
         return CameraState{pos, rot};
     }
 
-    void CameraPath::renderPath(
-        const std::optional<size_t> &hoveredTick,
-        SelectionMode                hoveredMode,
-        const std::optional<size_t> &selectedTick,
-        SelectionMode                selectedMode
-    ) {
+    void CameraPath::renderPath() {
         if (!mShowPath || mKeyframes.empty()) return;
 
         DrawUtils &du = DrawUtils::getInstance();
@@ -128,12 +182,12 @@ namespace BCM_V2 {
         }
 
         for (const auto &kf : mKeyframes) {
-            bool is_selected = selectedTick.has_value() && *selectedTick == kf.tick;
-            bool is_hovered = hoveredTick.has_value() && *hoveredTick == kf.tick;
+            bool is_selected = mSelectedKeyframeTick.has_value() && *mSelectedKeyframeTick == kf.tick;
+            bool is_hovered = mHoveredKeyframeTick.has_value() && *mHoveredKeyframeTick == kf.tick;
 
-            mce::Color kf_color = is_selected && selectedMode == SelectionMode::Keyframe
+            mce::Color kf_color = is_selected && mSelectedMode == SelectionMode::Keyframe
                                     ? mce::Colors::WHITE
-                                    : (is_hovered && hoveredMode == SelectionMode::Keyframe
+                                    : (is_hovered && mHoveredMode == SelectionMode::Keyframe
                                            ? mce::Colors::YELLOW
                                            : mce::Colors::RED);
             du.drawBox({kf.position - 0.1f, kf.position + 0.1f}, kf_color);
@@ -142,14 +196,14 @@ namespace BCM_V2 {
             du.drawLine(kf.position, kf.position - backward_vector * 2.0f, mce::Colors::CYAN);
 
             if (kf.interpToNext == InterpolationType::Bezier) {
-                mce::Color in_color = is_selected && selectedMode == SelectionMode::ControlPointIn
+                mce::Color in_color = is_selected && mSelectedMode == SelectionMode::ControlPointIn
                                         ? mce::Colors::WHITE
-                                        : (is_hovered && hoveredMode == SelectionMode::ControlPointIn
+                                        : (is_hovered && mHoveredMode == SelectionMode::ControlPointIn
                                                ? mce::Colors::YELLOW
                                                : mce::Colors::GREEN);
-                mce::Color out_color = is_selected && selectedMode == SelectionMode::ControlPointOut
+                mce::Color out_color = is_selected && mSelectedMode == SelectionMode::ControlPointOut
                                          ? mce::Colors::WHITE
-                                         : (is_hovered && hoveredMode == SelectionMode::ControlPointOut
+                                         : (is_hovered && mHoveredMode == SelectionMode::ControlPointOut
                                                 ? mce::Colors::YELLOW
                                                 : mce::Colors::BLUE);
 
@@ -157,39 +211,6 @@ namespace BCM_V2 {
                 du.drawBox({kf.controlPointOut - 0.05f, kf.controlPointOut + 0.05f}, out_color);
                 du.drawLine(kf.position, kf.controlPointIn, mce::Colors::GREY);
                 du.drawLine(kf.position, kf.controlPointOut, mce::Colors::GREY);
-            }
-        }
-    }
-
-    void CameraPath::recalculateAllHandles() {
-        if (mKeyframes.size() < 2) {
-            if (mKeyframes.size() == 1) {
-                mKeyframes[0].controlPointIn = mKeyframes[0].position;
-                mKeyframes[0].controlPointOut = mKeyframes[0].position;
-            }
-            return;
-        }
-
-        for (size_t i = 0; i < mKeyframes.size(); ++i) {
-            if (i == 0) {
-                mKeyframes[i].controlPointIn = mKeyframes[i].position;
-                mKeyframes[i].controlPointOut = mKeyframes[i].position
-                                              + (mKeyframes[i + 1].position - mKeyframes[i].position) * 0.333f;
-            } else if (i == mKeyframes.size() - 1) {
-                mKeyframes[i].controlPointIn = mKeyframes[i].position
-                                             - (mKeyframes[i].position - mKeyframes[i - 1].position) * 0.333f;
-                mKeyframes[i].controlPointOut = mKeyframes[i].position;
-            } else {
-                glm::vec3 prev_pos = mKeyframes[i - 1].position;
-                glm::vec3 current_pos = mKeyframes[i].position;
-                glm::vec3 next_pos = mKeyframes[i + 1].position;
-
-                glm::vec3 tangent = glm::normalize(next_pos - prev_pos);
-                float     dist_prev = glm::distance(current_pos, prev_pos);
-                float     dist_next = glm::distance(current_pos, next_pos);
-
-                mKeyframes[i].controlPointIn = current_pos - tangent * dist_prev * 0.333f;
-                mKeyframes[i].controlPointOut = current_pos + tangent * dist_next * 0.333f;
             }
         }
     }

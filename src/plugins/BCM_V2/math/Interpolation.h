@@ -6,14 +6,14 @@
 namespace interpolation {
 
     // A local implementation of Catmull-Rom spline interpolation for vectors to avoid the experimental spline header.
-    inline glm::vec3 catmullRom(const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, float t) {
+    constexpr inline glm::vec3 catmullRom(const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
         return 0.5f * ((2.0f * p1) + (-p0 + p2) * t + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
     }
 
     // A local implementation of cubic Bezier interpolation for vectors.
-    inline glm::vec3 bezier(const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, float t) {
+    constexpr inline glm::vec3 bezier(const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3, float t) {
         float u = 1.0f - t;
         float tt = t * t;
         float uu = u * u;
@@ -28,9 +28,9 @@ namespace interpolation {
     }
 
     // Quaternion logarithm: maps a quaternion to a vector in the tangent space.
-    inline glm::quat quat_log(const glm::quat &q) {
+    constexpr inline glm::quat quat_log(const glm::quat &q) {
         glm::vec3 v(q.x, q.y, q.z);
-        float     r = glm::length(v);
+        float     r = v.length();
 
         if (r < std::numeric_limits<float>::epsilon()) {
             // If q is a real quaternion, the log is (0, 0, 0, 0)
@@ -44,9 +44,9 @@ namespace interpolation {
 
     // Quaternion exponent: maps a vector from the tangent space back to the quaternion manifold.
     // Assumes input quaternion has w = 0.
-    inline glm::quat quat_exp(const glm::quat &q) {
+    constexpr inline glm::quat quat_exp(const glm::quat &q) {
         glm::vec3 v(q.x, q.y, q.z);
-        float     theta = glm::length(v);
+        float     theta = v.length();
 
         if (theta < std::numeric_limits<float>::epsilon()) {
             return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
@@ -58,7 +58,7 @@ namespace interpolation {
     }
 
     // Calculates an intermediate quaternion for the squad interpolation.
-    inline glm::quat squad_intermediate(const glm::quat &q0, const glm::quat &q1, const glm::quat &q2) {
+    constexpr inline glm::quat squad_intermediate(const glm::quat &q0, const glm::quat &q1, const glm::quat &q2) {
         glm::quat q1_inv = glm::inverse(q1);
         glm::quat term1 = quat_log(q1_inv * q0);
         glm::quat term2 = quat_log(q1_inv * q2);

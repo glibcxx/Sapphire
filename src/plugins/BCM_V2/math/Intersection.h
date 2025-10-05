@@ -6,7 +6,7 @@
 namespace intersection {
 
     // Slab method for ray-AABB intersection
-    inline bool rayAABB(const glm::vec3 &rayOrigin, const glm::vec3 &rayDir, const AABB &aabb, float &t) {
+    constexpr inline bool rayAABB(const glm::vec3 &rayOrigin, const glm::vec3 &rayDir, const AABB &aabb, float &t) {
         glm::vec3 invDir = 1.0f / rayDir;
         glm::vec3 tMin = (aabb.min - rayOrigin) * invDir;
         glm::vec3 tMax = (aabb.max - rayOrigin) * invDir;

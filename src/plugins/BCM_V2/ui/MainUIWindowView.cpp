@@ -8,7 +8,9 @@ namespace BCM_V2::ui {
     void mainWindowView(MainUIWindowViewModel &vm) {
         ui::button(vm.playingButtonText(), [&]() { vm.togglePlaying(); });
         ui::sameLine();
-        ui::button("Reset (R)", [&]() { vm.resetTime(); });
+        ui::button("Reset", [&]() { vm.resetTime(); });
+        ui::sameLine();
+        ui::checkbox("Preview with Camera", vm.mCameraPreview);
         ui::textF("Tick: {}", vm.getTimelineTick());
         ui::separator();
         timeline(vm.getTimelineWidget());

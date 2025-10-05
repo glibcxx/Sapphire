@@ -54,7 +54,12 @@ namespace BCM_V2 {
             }
         );
         renderEvent = eventMgr.registerAutoListener<RenderLevelEvent>([this](RenderLevelEvent &e) {
-            // render path
+            if (!mEditor->isEnabled())
+                return;
+            auto &path = mEditor->getPath();
+            path.renderPath();
+            if (!this->mViewModel->mIsOnFocus)
+                mEditor->handleInput(e.mScreen);
         });
     }
 
@@ -76,12 +81,22 @@ namespace BCM_V2 {
                  }
              }}
         );
+
+        GuiOverlay::registerHotkey(
+            {.triggerKey = ImGuiKey_Tab,
+             .description = "Toggle Focus",
+             .action = [this]() {
+                 if (!this->mViewModel->mIsOpen)
+                     return;
+                 this->mViewModel->mIsOnFocus = !this->mViewModel->mIsOnFocus;
+             }}
+        );
     }
 
     void BCMPlugin::setupSettingsMenu() {
         GuiOverlay::registerPluginSettings(
             {.name = "BCM",
-             .description = "A camera path editor based on MVVM.",
+             .description = "BCM",
              .drawSettings = [this]() {
              }}
         );

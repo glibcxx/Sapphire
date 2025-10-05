@@ -10,7 +10,10 @@ namespace BCM_V2::ui {
 
     struct MainUIWindowViewModel : public sapphire::ui::WindowViewModel {
         MainUIWindowViewModel(FreeCameraPlugin &freeCam, Editor &editor) :
-            mFreeCam(freeCam), mTimelineWidget(editor), mEditor(editor) {}
+            mFreeCam(freeCam),
+            mTimelineWidget(editor),
+            mEditor(editor),
+            mCameraPreview(editor.getCameraPreview()) {}
 
         void update(float alpha) {
             if (isPlaying())
@@ -32,11 +35,15 @@ namespace BCM_V2::ui {
         }
 
         void resetTime() {
-            mEditor.getTimeline().reset();
+            auto &path = mEditor.getPath();
+            if (!path.empty())
+                mEditor.getTimeline().setTick(path.front().tick);
+            else
+                mEditor.getTimeline().reset();
         }
 
         std::string_view playingButtonText() const {
-            return mEditor.isPlaying() ? "Pause (P)" : "Play (P)";
+            return mEditor.isPlaying() ? "Pause" : "Play";
         }
 
         TimelineWidgetViewModel &getTimelineWidget() { return mTimelineWidget; }
@@ -45,6 +52,9 @@ namespace BCM_V2::ui {
         TimelineWidgetViewModel mTimelineWidget;
         FreeCameraPlugin       &mFreeCam;
         Editor                 &mEditor;
+
+    public:
+        bool &mCameraPreview;
     };
 
 } // namespace BCM_V2::ui

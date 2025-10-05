@@ -57,15 +57,15 @@ HOOK_TYPE(
             float up = moveInput->mRawInputState.mJumpDown - moveInput->mRawInputState.mSneakDown;
             float baseMoveSpeed = freeCam->mBaseCameraMoveSpeed;
             auto &io = ImGui::GetIO();
-            if (moveInput->mRawInputState.mSprintDown) {
-                auto &ins = sapphire::input::InputInterceptor::getInstance();
-                ins.requestMouseWheelBlock();
-            }
-            if (moveInput->mRawInputState.mSprintDown) {
-                freeCam->mBaseCameraMoveSpeed += io.MouseWheel;
-                freeCam->mBaseCameraMoveSpeed = std::clamp(freeCam->mBaseCameraMoveSpeed, 1.0f, 50.0f);
-                baseMoveSpeed *= 5.0f;
-            }
+            // if (moveInput->mRawInputState.mSprintDown) {
+            //     auto &ins = sapphire::input::InputInterceptor::getInstance();
+            //     ins.requestMouseWheelBlock();
+            // }
+            // if (moveInput->mRawInputState.mSprintDown) {
+            //     freeCam->mBaseCameraMoveSpeed += io.MouseWheel;
+            //     freeCam->mBaseCameraMoveSpeed = std::clamp(freeCam->mBaseCameraMoveSpeed, 1.0f, 50.0f);
+            //     baseMoveSpeed *= 5.0f;
+            // }
 
             float deltaTime = ImGui::GetIO().DeltaTime;
             float moveSpeed = baseMoveSpeed * deltaTime;

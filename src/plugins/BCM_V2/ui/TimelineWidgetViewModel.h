@@ -52,7 +52,7 @@ namespace BCM_V2::ui {
             } else if (mInputManager.isKeyPressed(sapphire::input::KeyCode::MouseLeft)) {
                 handleScrubbing(mousePosLocal);
             }
-            if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+            if (mInputManager.isLMouseDoubleClicked()) {
                 handleAddKeyframe(input, mousePosLocal);
             }
             clampState(canvas.canvasSize.x);
@@ -161,16 +161,19 @@ namespace BCM_V2::ui {
                 mEditorRef.togglePlaying();
             if (mZoom > 0.0f) {
                 const auto       &path = mEditorRef.getPath();
+                auto             &timeline = mEditorRef.getTimeline();
                 const std::size_t maxTick = path.empty() ? 2000 : path.back().tick + 800;
                 const size_t      newTick = std::max(0.0f, this->mOffset + mousePosLocal.x / this->mZoom);
-                mEditorRef.getTimeline().setTick(std::min(newTick, maxTick));
+                timeline.setTick(std::min(newTick, maxTick));
                 if (newTick > mEndTick) {
                     const float scrollOffset = newTick - mEndTick;
-                    if (mZoom > 0.0f) mOffset += scrollOffset / mZoom * 0.5f;
+                    mOffset += scrollOffset / mZoom * 0.5f;
                 } else if (newTick < mOffset) {
                     const float scrollOffset = mOffset - newTick;
-                    if (mZoom > 0.0f) mOffset -= scrollOffset / mZoom * 0.5f;
+                    mOffset -= scrollOffset / mZoom * 0.5f;
                 }
+                auto cam = path.getCameraState(timeline.getTick(), timeline.getAlpha());
+                if (cam) mEditorRef.preview(*cam);
             }
         }
 

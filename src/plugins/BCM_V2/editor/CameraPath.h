@@ -35,6 +35,8 @@ namespace BCM_V2 {
         // 贝塞尔曲线的控制点
         glm::vec3 controlPointIn;
         glm::vec3 controlPointOut;
+        bool      controlPointInIsUserModified = false;
+        bool      controlPointOutIsUserModified = false;
 
         friend constexpr auto operator<=>(const Keyframe &k, size_t tick) { return k.tick <=> tick; }
         friend constexpr auto operator<=>(size_t tick, const Keyframe &k) { return tick <=> k.tick; }
@@ -49,31 +51,36 @@ namespace BCM_V2 {
 
         std::optional<CameraState> getCameraState(size_t tick, float alpha) const;
 
-        auto begin() { return mKeyframes.begin(); }
-        auto end() { return mKeyframes.end(); }
-        auto begin() const { return mKeyframes.cbegin(); }
-        auto end() const { return mKeyframes.cend(); }
-        auto cbegin() const { return mKeyframes.cbegin(); }
-        auto cend() const { return mKeyframes.cend(); }
+        constexpr auto begin() { return mKeyframes.begin(); }
+        constexpr auto end() { return mKeyframes.end(); }
+        constexpr auto begin() const { return mKeyframes.cbegin(); }
+        constexpr auto end() const { return mKeyframes.cend(); }
+        constexpr auto cbegin() const { return mKeyframes.cbegin(); }
+        constexpr auto cend() const { return mKeyframes.cend(); }
 
-        bool            empty() const { return mKeyframes.empty(); }
-        size_t          size() const { return mKeyframes.size(); }
-        const Keyframe &front() const { return mKeyframes.front(); }
-        const Keyframe &back() const { return mKeyframes.back(); }
+        constexpr bool            empty() const { return mKeyframes.empty(); }
+        constexpr size_t          size() const { return mKeyframes.size(); }
+        constexpr const Keyframe &front() const { return mKeyframes.front(); }
+        constexpr const Keyframe &back() const { return mKeyframes.back(); }
 
-        void renderPath(
-            const std::optional<size_t> &hoveredTick,
-            SelectionMode                hoveredMode,
-            const std::optional<size_t> &selectedTick,
-            SelectionMode                selectedMode
-        );
+        void renderPath();
 
-        void recalculateAllHandles();
+        auto findKeyframe(size_t tick) {
+            return std::find_if(mKeyframes.begin(), mKeyframes.end(), [tick](const Keyframe &kf) {
+                return kf.tick == tick;
+            });
+        }
 
     private:
         std::vector<Keyframe> mKeyframes;
 
     public:
+        std::optional<size_t> mHoveredKeyframeTick;
+        SelectionMode         mHoveredMode = SelectionMode::None;
+
+        std::optional<size_t> mSelectedKeyframeTick;
+        SelectionMode         mSelectedMode = SelectionMode::None;
+
         bool mShowPath = true;
         int  mPathDensity = 1;
     };
