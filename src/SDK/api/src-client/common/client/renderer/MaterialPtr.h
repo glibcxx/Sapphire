@@ -14,3 +14,10 @@ namespace mce {
     };
 
 } // namespace mce
+
+// size: 32
+class MaterialVariants {
+public:
+    mce::MaterialPtr mSkinningMaterialPtr;      // off+0
+    mce::MaterialPtr mSkinningColorMaterialPtr; // off+16
+};

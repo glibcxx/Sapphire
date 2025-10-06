@@ -7,6 +7,12 @@ typedef uint64_t HashType64;
 
 class HashedString {
 public:
+    constexpr HashedString() :
+        mStrHash(0) {}
+
+    constexpr HashedString(std::nullptr_t) :
+        mStrHash(0) {}
+
     constexpr HashedString(HashType64 hash, const char *str) :
         mStrHash(hash),
         mStr(str) {}
