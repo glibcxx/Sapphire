@@ -163,7 +163,7 @@ namespace sapphire {
 
     template <signature::Signature Sig, auto Api>
     void *const *loadVftable() {
-        return loadStatic<Sig, Api, void *const *>();
+        return &loadStatic<deRefLea | Sig, Api, void *const>();
     };
 
 } // namespace sapphire
