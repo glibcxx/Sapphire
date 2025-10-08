@@ -132,7 +132,7 @@ namespace sapphire::inline hook {
         }
         found->second.insert(priority, {detour, &trampoline});
         MH_STATUS res = MH_EnableHook((LPVOID)target);
-        if (res != MH_OK) {
+        if (res != MH_OK && res != MH_ERROR_ENABLED) {
             unhook(target, detour, priority);
             return false;
         }
@@ -149,4 +149,4 @@ namespace sapphire::inline hook {
         if (list.empty()) this->mHookedFunctions.erase(found);
     }
 
-} // namespace sapphire::hook
+} // namespace sapphire::inline hook
