@@ -77,21 +77,21 @@ namespace dragon::task {
             InitializationState *ctor(const InitializationState &other);
         };
 
-        std::thread::id                                       mRendererThreadId;          // off+0
-        bool                                                  mInitialized;               // off+4
-        bool                                                  mSkipPresenting;            // off+5
-        ExecutionMode                                         mExecutionMode;             // off+8
-        gsl::not_null<WorkerPool *>                           mRendererPool;              // off+16
-        std::vector<std::reference_wrapper<WorkerPool>>       mHelperPools;               // off+24
-        gsl::not_null<Scheduler *>                            mClientScheduler;           // off+48
-        std::shared_ptr<MPMCQueue<std::function<void(void)>>> mUnk56;                     // off+56
-        std::shared_ptr<MPMCQueue<std::function<void(void)>>> mUnk72;                     // off+72
-        std::shared_ptr<MPMCQueue<std::function<void(void)>>> mResourceTasks;             // off+88
-        std::shared_ptr<MPMCQueue<std::function<void(void)>>> mRenderingTasks;            // off+104
-        std::shared_ptr<MPMCQueue<std::function<void(void)>>> mRenderingPostTasks;        // off+120
-        std::shared_ptr<Core::DeferredTask>                   mFrameContentCallback;      // off+136
-        std::shared_ptr<Core::DeferredTask>                   mRenderingFrameWorker;      // off+152
-        Scheduler                                             mRenderingCommandScheduler; // off+168
+        std::thread::id                                   mRendererThreadId;          // off+0
+        bool                                              mInitialized;               // off+4
+        bool                                              mSkipPresenting;            // off+5
+        ExecutionMode                                     mExecutionMode;             // off+8
+        gsl::not_null<WorkerPool *>                       mRendererPool;              // off+16
+        std::vector<std::reference_wrapper<WorkerPool>>   mHelperPools;               // off+24
+        gsl::not_null<Scheduler *>                        mClientScheduler;           // off+48
+        std::shared_ptr<MPMCQueue<std::function<void()>>> mUnk56;                     // off+56
+        std::shared_ptr<MPMCQueue<std::function<void()>>> mUnk72;                     // off+72
+        std::shared_ptr<MPMCQueue<std::function<void()>>> mResourceTasks;             // off+88
+        std::shared_ptr<MPMCQueue<std::function<void()>>> mRenderingTasks;            // off+104
+        std::shared_ptr<MPMCQueue<std::function<void()>>> mRenderingPostTasks;        // off+120
+        std::shared_ptr<Core::DeferredTask>               mFrameContentCallback;      // off+136
+        std::shared_ptr<Core::DeferredTask>               mRenderingFrameWorker;      // off+152
+        Scheduler                                         mRenderingCommandScheduler; // off+168
         cg::TaskDispatcher<
             cg::TaskScheduler<
                 cg::LambdaExecutor<
@@ -124,12 +124,12 @@ namespace dragon::task {
 
         SDK_API InitializationState continueInit(InitializationState initState);
 
-        SDK_API bool _queueMainFrameRenderTask(const std::function<void(void)> &task);
+        SDK_API bool _queueMainFrameRenderTask(const std::function<void()> &task);
 
         SDK_API void waitForPreviousFrame();
 
         SDK_API void frame(
-            const std::function<void(void)>                                                               &frameContentCallback,
+            const std::function<void()>                                                                   &frameContentCallback,
             const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
         );
 

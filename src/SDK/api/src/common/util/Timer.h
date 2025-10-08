@@ -16,11 +16,11 @@ public:
 #if MC_VERSION >= v1_21_60
     float mOverflowTime;
 #endif
-    int64_t              mLastMs;
-    int64_t              mLastMsSysTime;
-    float                mAdjustTime = 1.0f;
-    int                  mSteppingTick = -1;
-    std::function<int()> mGetTimeMSCallback;
+    int64_t                  mLastMs;
+    int64_t                  mLastMsSysTime;
+    float                    mAdjustTime = 1.0f;
+    int                      mSteppingTick = -1;
+    std::function<int64_t()> mGetTimeMSCallback;
 
     SDK_API void advanceTime(float preferredFrameStep);
 };

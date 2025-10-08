@@ -14,7 +14,7 @@ namespace sapphire {
     public:
         using ApiMap = std::unordered_map<std::string_view, uintptr_t>;
 
-        SDK_API static IatPatcher &getInstance();
+        SPHR_API static IatPatcher &getInstance();
 
         void patchModule(HMODULE hModule, const ApiMap &apiMap);
 

@@ -17,7 +17,7 @@ public:
 #endif
 
     // vtb+0
-    SDK_API virtual ~AppPlatformListener();
+    SPHR_API virtual ~AppPlatformListener();
 
 #if MC_VERSION < v1_21_60
     virtual void onLowMemory() {}

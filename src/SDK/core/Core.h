@@ -8,8 +8,8 @@
 #include "PluginManager.h"
 
 namespace moduleInfo {
-    SDK_API extern HWND     gMainWindow;
-    SDK_API extern uint64_t gStartTime;
+    SPHR_API extern HWND     gMainWindow;
+    SPHR_API extern uint64_t gStartTime;
 
 } // namespace moduleInfo
 
@@ -23,7 +23,7 @@ namespace sapphire {
 
         SapphireModuleInfo();
 
-        SDK_API static SapphireModuleInfo &get();
+        SPHR_API static SapphireModuleInfo &get();
     };
 
     class Core {
@@ -44,7 +44,7 @@ namespace sapphire {
         Core(const Core &) = delete;
         Core &operator=(const Core &) = delete;
 
-        SDK_API static Core &getInstance();
+        SPHR_API static Core &getInstance();
 
         uintptr_t getImagebase() {
             return (uintptr_t)this->mMainModuleHandle;

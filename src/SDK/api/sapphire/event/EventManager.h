@@ -85,7 +85,7 @@ namespace sapphire::event {
 
     class EventManager {
     public:
-        SDK_API static EventManager &getInstance();
+        SPHR_API static EventManager &getInstance();
 
         EventManager(const EventManager &) = delete;
         EventManager &operator=(const EventManager &) = delete;
@@ -153,7 +153,7 @@ namespace sapphire::event {
 
         std::mutex mMutex;
 
-        SDK_API static ListenerId sNextListenerId;
+        SPHR_API static ListenerId sNextListenerId;
     };
 
     template <class EventType>

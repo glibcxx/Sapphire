@@ -79,7 +79,7 @@ namespace sapphire::inline config {
         ConfigManager();
 
     public:
-        SDK_API static ConfigManager &getInstance();
+        SPHR_API static ConfigManager &getInstance();
 
         void save() {
             for (auto &&[filename, config] : mConfigs) {

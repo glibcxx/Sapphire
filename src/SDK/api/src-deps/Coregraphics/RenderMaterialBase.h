@@ -7,13 +7,15 @@
 
 namespace cg {
 
+    // size: 32
     struct VariationMap {
     public:
         std::map<std::string, cg::VariationMap> mMaterialJsonVariationMap; // off+0
-        Json::Value                                mVariantJson;           // off+16
+        Json::Value                             mVariantJson;              // off+16
     };
     static_assert(sizeof(VariationMap) == 32);
 
+    // size: 456 (1.21.2/1.21.50), 368 (1.21.60)
     class RenderMaterialBase {
     public:
         std::map<std::string, std::shared_ptr<cg::RenderMaterialBase>> mMaterialVariations; // off+8
@@ -36,8 +38,7 @@ namespace cg {
         SemVersion                    mVersion;          // off+336
         bool                          mUnkByte;
 
-        virtual ~RenderMaterialBase() = 0;
+        virtual ~RenderMaterialBase();
     };
-    static_assert(offsetof(RenderMaterialBase, mVersion) == 336);
 
 } // namespace cg

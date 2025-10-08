@@ -9,8 +9,10 @@
 
 #ifdef DLLEXPORT
 #    define SDK_API EXPORT_DLL
+#    define SPHR_API EXPORT_DLL
 #else
 #    define SDK_API IMPORT_DLL
+#    define SPHR_API IMPORT_DLL
 #endif
 
 #ifndef IMGUI_API

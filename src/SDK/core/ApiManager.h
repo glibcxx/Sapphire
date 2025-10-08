@@ -21,14 +21,14 @@ namespace sapphire {
 
         mutable std::mutex mLock;
 
-        SDK_API uintptr_t _scanApi(const char *sig, size_t sigLength);
+        SPHR_API uintptr_t _scanApi(const char *sig, size_t sigLength);
 
         void _submitAsyncScanTask(std::function<void()> &&task) {
             this->mThreadPool.enqueue(std::move(task));
         }
 
     public:
-        SDK_API static ApiManager &getInstance();
+        SPHR_API static ApiManager &getInstance();
 
         const std::unordered_map<std::string_view, uintptr_t> &getApiDecoratedName2TargetAddr() const {
             return this->mApiDecoratedName2TargetAddr;

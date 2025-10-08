@@ -21,14 +21,14 @@ class DrawUtils {
     static mce::MaterialPtr sDrawMat;
 
 public:
-    SDK_API void drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color = mce::Colors::RED) const;
+    SPHR_API void drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color = mce::Colors::RED) const;
 
-    SDK_API void drawBox(
+    SPHR_API void drawBox(
         const AABB       &aabb,
         const mce::Color &color = mce::Colors::RED
     ) const;
 
-    SDK_API void drawQuard(
+    SPHR_API void drawQuard(
         const Vec3 &a,
         const Vec3 &b,
         const Vec3 &c,
@@ -44,9 +44,9 @@ public:
         drawBox({min, max}, color);
     }
 
-    SDK_API void flush();
+    SPHR_API void flush();
 
-    SDK_API static DrawUtils &getInstance();
+    SPHR_API static DrawUtils &getInstance();
 
     Tessellator *getTessellator() { return mTess; }
 };

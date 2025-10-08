@@ -7,7 +7,7 @@ namespace sapphire {
 
     template <typename T>
     class Singleton {
-        SDK_API inline static std::unique_ptr<T> sInstance;
+        SPHR_API inline static std::unique_ptr<T> sInstance;
 
     public:
         Singleton() = default;

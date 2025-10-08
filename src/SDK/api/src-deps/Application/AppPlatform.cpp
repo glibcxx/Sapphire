@@ -29,7 +29,7 @@ void AppPlatform::addListener(Listener *l, float priority) {
     (this->*Hook::origin)(l, priority);
 }
 
-SDK_API void AppPlatform::removeListener(Listener *l) {
+void AppPlatform::removeListener(Listener *l) {
     using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x8B\xF2\x48\x81\xC1\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x85\xC0\x74\x00\x8B\xC8\xFF\x15\x00\x00\x00\x00\xCC\x48\x8B\x47"_sig,

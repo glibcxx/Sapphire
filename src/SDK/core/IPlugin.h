@@ -6,7 +6,7 @@ namespace sapphire {
 
     class IPlugin {
     public:
-        SDK_API IPlugin();
+        SPHR_API IPlugin();
 
         virtual ~IPlugin() = default;
 

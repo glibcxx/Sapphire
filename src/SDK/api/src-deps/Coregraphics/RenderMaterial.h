@@ -11,9 +11,11 @@ namespace mce {
         // ...
     };
 
+    // size: 72
     class RenderMaterialInfo : public std::enable_shared_from_this<RenderMaterialInfo> {
     public:
-        HashedString                         mHashedName;
-        std::unique_ptr<mce::RenderMaterial> mPtr;
+        HashedString                         mHashedName; // off+16
+        std::unique_ptr<mce::RenderMaterial> mPtr;        // off+64
     };
-}
+
+} // namespace mce

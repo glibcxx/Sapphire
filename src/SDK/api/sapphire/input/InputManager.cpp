@@ -164,7 +164,6 @@ namespace sapphire::input {
         short dy,
         bool  forceMotionlessPointer
     ) {
-        ImGuiIO &io = ImGui::GetIO();
         switch (actionButtonId) {
         case MouseAction::ActionType::ACTION_MOVE: {
             break;
@@ -174,6 +173,7 @@ namespace sapphire::input {
         case MouseAction::ActionType::ACTION_MIDDLE:
         case MouseAction::ActionType::ACTION_X1:
         case MouseAction::ActionType::ACTION_X2: {
+            ImGuiIO &io = ImGui::GetIO();
             instance->_onRawMouseButtonEvent(
                 mouseButtonToKeyCode(actionButtonId - MouseAction::ActionType::ACTION_LEFT),
                 buttonData,
@@ -183,6 +183,7 @@ namespace sapphire::input {
             break;
         }
         case MouseAction::ActionType::ACTION_WHEEL: {
+            ImGuiIO &io = ImGui::GetIO();
             instance->_onRawMouseWheel(0.0f, (float)buttonData);
             io.AddMouseWheelEvent(0.0f, (float)buttonData / WHEEL_DELTA);
             break;
@@ -344,7 +345,7 @@ namespace sapphire::input {
             }
             break;
         }
-        if (mBlockInput) {
+        if (mBlockInput && !io.WantTextInput) {
             args.Handled(true);
         }
     }

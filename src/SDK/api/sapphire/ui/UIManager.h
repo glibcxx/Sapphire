@@ -20,7 +20,7 @@ namespace sapphire::ui {
 
     class UIManager {
     public:
-        SDK_API static UIManager &getInstance();
+        SPHR_API static UIManager &getInstance();
 
         template <typename TView, typename TViewModel>
             requires std::invocable<TView, TViewModel &> && std::derived_from<TViewModel, WindowViewModel>

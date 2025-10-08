@@ -128,18 +128,18 @@ namespace sapphire::input {
         class MouseFeedHook;
 
         // 按键按下的瞬间
-        SDK_API bool isKeyDown(KeyCode key) const;
+        SPHR_API bool isKeyDown(KeyCode key) const;
         // 按键抬起的瞬间
-        SDK_API bool isKeyUp(KeyCode key) const;
+        SPHR_API bool isKeyUp(KeyCode key) const;
         // 按键按住状态
-        SDK_API bool isKeyPressed(KeyCode key) const;
+        SPHR_API bool isKeyPressed(KeyCode key) const;
 
-        SDK_API Vec2           getMousePosition() const;
-        SDK_API Vec2           getMouseDelta() const;
-        SDK_API MouseWheelData getMouseWheelData() const;
+        SPHR_API Vec2           getMousePosition() const;
+        SPHR_API Vec2           getMouseDelta() const;
+        SPHR_API MouseWheelData getMouseWheelData() const;
 
-        SDK_API bool isLMouseDoubleClicked() const;
-        SDK_API bool isRMouseDoubleClicked() const;
+        SPHR_API bool isLMouseDoubleClicked() const;
+        SPHR_API bool isRMouseDoubleClicked() const;
 
         void blockInput(bool block = true) { mBlockInput = block; }
         bool isInputBlocked() const { return mBlockInput; }
@@ -151,7 +151,7 @@ namespace sapphire::input {
 
         void init(CoreWindow &coreWindow);
 
-        SDK_API static InputManager &getInstance();
+        SPHR_API static InputManager &getInstance();
 
     private:
         using CoreDispatcher = winrt::Windows::UI::Core::CoreDispatcher;

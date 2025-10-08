@@ -27,18 +27,18 @@ public:
         std::function<void()> action;
     };
 
-    SDK_API static void registerPluginSettings(PluginSettings &&settings);
+    SPHR_API static void registerPluginSettings(PluginSettings &&settings);
 
     static void registerPluginSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
         return registerPluginSettings({name, description, drawSettings});
     }
 
-    SDK_API static void registerHotkey(Hotkey &&hotkey);
+    SPHR_API static void registerHotkey(Hotkey &&hotkey);
 
-    SDK_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
+    SPHR_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
 
-    SDK_API static void gameTryGrabMouse();
-    SDK_API static void gameReleaseMouse();
+    SPHR_API static void gameTryGrabMouse();
+    SPHR_API static void gameReleaseMouse();
 
 private:
     friend class DX12Hook;

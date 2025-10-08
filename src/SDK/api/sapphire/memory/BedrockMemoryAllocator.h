@@ -14,7 +14,7 @@ namespace sapphire::inline memory {
     public:
         virtual ~BedrockMemoryAllocator() = default;
 
-        static SDK_API BedrockMemoryAllocator &getInstance();
+        static SPHR_API BedrockMemoryAllocator &getInstance();
 
         virtual void *allocate(const size_t size) override {
             return ::malloc(size ? size : 1);

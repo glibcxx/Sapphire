@@ -36,7 +36,7 @@ namespace Logger {
         ~Loggers() = default;
 
     public:
-        SDK_API static Loggers &getInstance();
+        SPHR_API static Loggers &getInstance();
 
         GameLogger &getGameLogger() {
             return mGameLogger;

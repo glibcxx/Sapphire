@@ -128,6 +128,46 @@ namespace sapphire::ui {
         ImGui::InputTextMultiline(label.data(), &textBuffer, N, size);
     }
 
+    inline void inputFloat(
+        std::string_view label, float &v, float step = 0.0f, float stepFast = 0.0f, const Style &style = {}
+    ) {
+        ImGui::InputFloat(label.data(), &v, step, stepFast);
+    }
+
+    template <std::size_t N>
+    inline void inputFloat(
+        std::string_view label, float (&v)[N], float step = 0.0f, float stepFast = 0.0f, const Style &style = {}
+    ) {
+        if constexpr (N == 1)
+            ImGui::InputFloat(label.data(), &v, step, stepFast);
+        else if constexpr (N == 2)
+            ImGui::InputFloat2(label.data(), &v, step, stepFast);
+        else if constexpr (N == 3)
+            ImGui::InputFloat3(label.data(), &v, step, stepFast);
+        else if constexpr (N == 4)
+            ImGui::InputFloat4(label.data(), &v, step, stepFast);
+        else
+            static_assert(false, "Invalid range");
+    }
+
+    inline void inputInt(std::string_view label, int &v, int step = 0, int stepFast = 0, const Style &style = {}) {
+        ImGui::InputInt(label.data(), &v, step, stepFast);
+    }
+
+    template <std::size_t N>
+    inline void inputInt(std::string_view label, int (&v)[N], int step = 0, int stepFast = 0, const Style &style = {}) {
+        if constexpr (N == 1)
+            ImGui::InputInt(label.data(), &v, step, stepFast);
+        else if constexpr (N == 2)
+            ImGui::InputInt2(label.data(), &v, step, stepFast);
+        else if constexpr (N == 3)
+            ImGui::InputInt3(label.data(), &v, step, stepFast);
+        else if constexpr (N == 4)
+            ImGui::InputInt4(label.data(), &v, step, stepFast);
+        else
+            static_assert(false, "Invalid range");
+    }
+
     inline void comboBox(std::string_view label, int &bound_selected_index, std::span<std::string> &items) {
         ImGui::Combo(
             label.data(),

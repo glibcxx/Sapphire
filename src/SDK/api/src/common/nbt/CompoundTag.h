@@ -36,6 +36,43 @@ public:
     // vtb+10
     virtual size_t hash() const override;
 
+    const Tag *get(StringView name) const;
+
+    Tag *get(StringView name);
+
+    bool contains(StringView name, Tag::Type type) const {
+        const Tag *tag = this->get(name);
+        return tag && tag->getId() == type;
+    }
+
+    bool contains(StringView name) const {
+        return this->get(name) != nullptr;
+    }
+
+    CompoundTagVariant &operator[](StringView name) { return mTags[std::string{name}]; }
+
+    CompoundTagVariant &at(StringView name) { return mTags.at(std::string{name}); }
+
+    const CompoundTagVariant &at(StringView name) const { return mTags.at(std::string{name}); }
+
     TagMap mTags; // off+8
 };
 static_assert(sizeof(CompoundTag) == 24);
+
+#include "CompoundTagVariant.h"
+
+inline const Tag *CompoundTag::get(StringView name) const {
+    auto elem = this->mTags.find(name);
+    if (elem != this->mTags.end())
+        return elem->second.get();
+    else
+        return nullptr;
+}
+
+inline Tag *CompoundTag::get(StringView name) {
+    auto elem = this->mTags.find(name);
+    if (elem != this->mTags.end())
+        return elem->second.get();
+    else
+        return nullptr;
+}

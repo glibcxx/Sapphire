@@ -23,7 +23,7 @@ namespace dragon::task {
         return (this->*Hook::origin)(std::move(initState));
     }
 
-    bool GraphicsTasks::_queueMainFrameRenderTask(const std::function<void(void)> &task) {
+    bool GraphicsTasks::_queueMainFrameRenderTask(const std::function<void()> &task) {
         using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x41\x0F\x94\xC7\x48\x8B\x4C\x24"_sig,
@@ -42,7 +42,7 @@ namespace dragon::task {
     }
 
     void GraphicsTasks::frame(
-        const std::function<void(void)>                                                               &frameContentCallback,
+        const std::function<void()>                                                                   &frameContentCallback,
         const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
     ) {
         using Hook = sapphire::ApiLoader<

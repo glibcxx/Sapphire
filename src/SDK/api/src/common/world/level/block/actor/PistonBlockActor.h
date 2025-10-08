@@ -29,6 +29,11 @@ public:
     std::optional<std::vector<BlockPos>> mFutureClientAttachedBlocks;
     std::vector<BlockPos>                mBreakBlocks;
 
+    SDK_API PistonBlockActor(const BlockPos &pos, bool isSticky);
+#pragma SPHR_LINKER_SYM_ALIAS("??0PistonBlockActor@@QEAA@AEBVBlockPos@@_N@Z", "?ctor@PistonBlockActor@@QEAAPEAV1@AEBVBlockPos@@_N@Z")
+
+    SDK_API PistonBlockActor *ctor(const BlockPos &pos, bool isSticky);
+
     float getProgress(float a) {
         if (a > 1.0f) a = 1.0f;
         return this->mLastProgress + (this->mProgress - this->mLastProgress) * a;

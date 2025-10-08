@@ -29,12 +29,12 @@ namespace sapphire::inline hook {
         ~HookManager();
 
     public:
-        SDK_API static HookManager &getInstance();
+        SPHR_API static HookManager &getInstance();
 
         void teardown();
 
-        SDK_API bool hook(uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline);
-        SDK_API void unhook(uintptr_t target, uintptr_t detour, HookPriority priority);
+        SPHR_API bool hook(uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline);
+        SPHR_API void unhook(uintptr_t target, uintptr_t detour, HookPriority priority);
 
         template <typename T, typename U, typename Trampline>
         bool hook(T target, U detour, HookPriority priority, Trampline &trampoline) {

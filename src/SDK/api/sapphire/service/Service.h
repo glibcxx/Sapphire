@@ -12,15 +12,15 @@ namespace sapphire::inline service {
         return ClientInstance::primaryClientInstance;
     }
 
-    SDK_API Level *getServerLevel();
+    SPHR_API Level *getServerLevel();
 
-    SDK_API Level *getMultiPlayerLevel();
+    SPHR_API Level *getMultiPlayerLevel();
 
-    SDK_API ServerInstance *getServerInstance();
+    SPHR_API ServerInstance *getServerInstance();
 
-    SDK_API LocalPlayer *getLocalPlayer();
+    SPHR_API LocalPlayer *getLocalPlayer();
 
-    SDK_API Bedrock::NonOwnerPointer<Minecraft> getClientMinecraft();
+    SPHR_API Bedrock::NonOwnerPointer<Minecraft> getClientMinecraft();
 
     void init();
     void uninit();

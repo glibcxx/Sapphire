@@ -5,6 +5,7 @@
 
 typedef uint64_t HashType64;
 
+// size: 48
 class HashedString {
 public:
     constexpr HashedString() :
@@ -57,11 +58,10 @@ public:
         return this->mStr != rhs;
     }
 
-private:
-    HashType64  mStrHash;
-    std::string mStr;
+    HashType64  mStrHash; // off+0
+    std::string mStr;     // off+8
 
-    const HashedString *mLastMatch = nullptr;
+    const HashedString *mLastMatch = nullptr; // off+40
 };
 
 static_assert(sizeof(HashedString) == 48);
