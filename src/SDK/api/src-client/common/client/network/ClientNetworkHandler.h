@@ -4,6 +4,7 @@
 #include <memory>
 #include "SDK/api/src/common/network/NetEventCallback.h"
 #include "SDK/api/src/common/world/level/ChunkPos.h"
+#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 
 #if MC_VERSION == v1_21_60
 #    include "SDK/api/src-deps/Core/Threading/TaskGroup.h"
@@ -15,6 +16,7 @@ class PacketSender;
 class PrivateKeyManager;
 class MinecraftCommands;
 class Level;
+class ILevel;
 class BlockSource;
 class Dimension;
 namespace ClientBlobCache {
@@ -37,9 +39,9 @@ public:
     PacketSender      &mPacketSender;      // off+104
     PrivateKeyManager &mClientKeys;        // off+112
     MinecraftCommands &mMinecraftCommands; // off+120
-    Level             *mLevel;             // off+128
+    uint64_t           mUnk128;            // off+128
 
-    std::shared_ptr<void> mUnk136; // off+136
+    Bedrock::NonOwnerPointer<int> mLevel; // off+136
 
     bool mHasMessage; // off+152
     bool mIsLoggedIn; // off+153
@@ -60,8 +62,6 @@ static_assert(sizeof(ClientNetworkHandler) == 304);
 // size: 320
 class ClientNetworkHandler : public NetEventCallback {
 public:
-    virtual ~ClientNetworkHandler() override {}
-
     std::shared_ptr<ClientBlobCache::Cache> mBlobCache; // off+24
     std::shared_ptr<void>                   mUnk40;     // off+40
     std::shared_ptr<void>                   mUnk56;     // off+56
@@ -73,9 +73,9 @@ public:
     PacketSender      &mPacketSender;      // off+112
     PrivateKeyManager &mClientKeys;        // off+120
     MinecraftCommands &mMinecraftCommands; // off+128
-    Level             *mLevel;             // off+136
+    uint64_t           mUnk136;            // off+136
 
-    uint64_t mUnk136[3]; // off+144
+    Bedrock::NonOwnerPointer<ILevel> mLevel; // off+144
 
     bool mHasMessage; // off+168
     bool mIsLoggedIn; // off+169
@@ -89,6 +89,9 @@ public:
     using ChunkCallbackKey = std::tuple<NetworkIdentifier, const Dimension *, ChunkPos>;
 
     uint64_t mConnectionPausedCallbacks[8]; // off+256, std::unordered_map<ChunkCallbackKey, std::function<void(BlockSource &)> /*todo: hasher*/>
+
+    // vtb+0
+    virtual ~ClientNetworkHandler() override;
 };
 static_assert(sizeof(ClientNetworkHandler) == 320);
 
@@ -109,9 +112,9 @@ public:
     PacketSender      &mPacketSender;      // off+112
     PrivateKeyManager &mClientKeys;        // off+120
     MinecraftCommands &mMinecraftCommands; // off+128
-    Level             *mLevel;             // off+136
+    uint64_t           mUnk136;            // off+136
 
-    uint64_t mUnk136[3]; // off+144
+    Bedrock::NonOwnerPointer<ILevel> mLevel; // off+144
 
     bool mHasMessage; // off+168
     bool mIsLoggedIn; // off+169

@@ -13,3 +13,14 @@ void PistonBlockActor::tick(class BlockSource &region) {
         &PistonBlockActor::tick>;
     (this->*Hook::origin)(region);
 }
+
+void PistonBlockActor::_spawnBlocks(BlockSource &region) {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+        "\x40\x55\x56\x41\x55\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\x02\x4C\x8B\xF2\x4C\x8B\xE1"_sig,
+#endif
+        &PistonBlockActor::_spawnBlocks>;
+    (this->*Hook::origin)(region);
+}

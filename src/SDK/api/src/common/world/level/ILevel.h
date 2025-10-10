@@ -9,7 +9,7 @@
 class LevelSettings;
 class Experiments;
 
-// incomplete
+// size: 24, incomplete
 class ILevel : public Bedrock::EnableNonOwnerReferences {
 public:
     // vtb+0

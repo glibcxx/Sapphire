@@ -40,4 +40,8 @@ public:
     }
 
     SDK_API void tick(BlockSource &region);
+
+    SDK_API void _spawnBlocks(BlockSource &region);
+
+    SDK_API void _spawnMovingBlock(BlockSource &region, const BlockPos &blockPos);
 };
