@@ -3,8 +3,8 @@
 #include "ILevel.h"
 #include "SDK/api/src/common/world/level/BlockSourceListener.h"
 #include "SDK/api/src/common/world/level/IWorldRegistriesProvider.h"
-#include "SDK/api/src/common/world/event/ServerPlayerEventCoordinator.h"
-#include "SDK/api/src/common/world/event/ClientPlayerEventCoordinator.h"
+#include "SDK/api/src/common/world/events/ServerPlayerEventCoordinator.h"
+#include "SDK/api/src/common/world/events/ClientPlayerEventCoordinator.h"
 
 class Level : public ILevel,
               public BlockSourceListener,

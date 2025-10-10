@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef SPPHR_INCLUDE_ENTITYCONTEXT_H
+#ifndef SPHRINCLUDE_ENTITYCONTEXT_H
 #    error "do not include StackResultStorageEntity.h directly, please include EntityContext.h"
 #endif
 

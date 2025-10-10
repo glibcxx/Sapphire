@@ -1,7 +1,7 @@
 #include "Editor.h"
 #include "plugins/freecamera/FreeCamera.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
-#include "SDK/api/src-client/common/client/gui/screen/ScreenContext.h"
+#include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
 #include "SDK/api/sapphire/input/InputManager.h"
 
 #include <limits>

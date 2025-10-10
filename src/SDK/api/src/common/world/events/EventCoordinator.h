@@ -6,6 +6,7 @@
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "EventResult.h"
 
+// size: 88
 template <typename ListenerType>
 class EventCoordinator : public Bedrock::EnableNonOwnerReferences {
 public:

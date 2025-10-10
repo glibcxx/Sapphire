@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef SPPHR_INCLUDE_ENTITYCONTEXT_H
-#    define SPPHR_INCLUDE_ENTITYCONTEXT_H
+#ifndef SPHRINCLUDE_ENTITYCONTEXT_H
+#    define SPHRINCLUDE_ENTITYCONTEXT_H
 #endif
 
 #include <entt/entt.hpp>
