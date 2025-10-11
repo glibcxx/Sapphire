@@ -10,14 +10,14 @@ public:
     virtual ~ClientHitDetectListener() = default;
 
     // vtb+1
-    virtual EventResult onChangedHitResult(HitResult &hitResult);
+    virtual EventResult onChangedHitResult(HitResult &hitResult) { return EventResult::KeepGoing; }
 
     // vtb+2
-    virtual EventResult onContinuousHitResult(HitResult &hitResult);
+    virtual EventResult onContinuousHitResult(HitResult &hitResult) { return EventResult::KeepGoing; }
 
     // vtb+3
-    virtual EventResult onChangedPickHitResult(HitResult &hitResult);
+    virtual EventResult onChangedPickHitResult(HitResult &hitResult) { return EventResult::KeepGoing; }
 
     // vtb+4
-    virtual EventResult onContinuousPickHitResult(HitResult &hitResult);
+    virtual EventResult onContinuousPickHitResult(HitResult &hitResult) { return EventResult::KeepGoing; }
 };
