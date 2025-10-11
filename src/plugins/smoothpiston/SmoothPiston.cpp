@@ -1,14 +1,14 @@
 #include "SmoothPiston.h"
 
 #include "SDK/api/sapphire/hook/Hook.h"
+#include "SDK/api/sapphire/GUI/GUI.h"
 
 #include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/PistonBlockActorRenerer.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/MovingBlockActorRenderer.h"
-
-#include "SDK/api/sapphire/GUI/GUI.h"
+#include "SDK/api/src/common/dataloadhelper/DefaultDataLoadHelper.h"
 
 static SmoothPistonPlugin *plugin = nullptr;
 
@@ -50,6 +50,61 @@ static constexpr void twoStageLerp(float &alpha, PistonBlockActor &piston, Fn le
 }
 
 HOOK_TYPE(
+    SmoothPistonPlugin::OnPistonUpdatePacketHook,
+    PistonBlockActor,
+    sapphire::hook::HookPriority::Normal,
+    PistonBlockActor::_onUpdatePacket,
+    void,
+    const CompoundTag &data,
+    BlockSource       &region
+) {
+    if (!plugin->mEnableSmoothPiston || region.mOwnerThreadID != plugin->mRenderThread)
+        return this->origin(data, region);
+    PistonState           oldState = this->mState;
+    DefaultDataLoadHelper dataLoadHelper{};
+    this->load(region.mLevel, data, dataLoadHelper);
+    auto &needSpawnMB = memory::getField<bool>(&this->mSticky, 1);
+    needSpawnMB = false;
+    needSpawnMB = oldState != this->mState
+               && (this->mState == PistonState::Expanding && this->mProgress == 0.0f
+                   || this->mState == PistonState::Retracting && this->mProgress == 1.0f);
+}
+
+HOOK_TYPE(
+    SmoothPistonPlugin::OnPistonSpawnMBHook,
+    PistonBlockActor,
+    sapphire::hook::HookPriority::Normal,
+    PistonBlockActor::_spawnMovingBlock,
+    void,
+    BlockSource    &region,
+    const BlockPos &blockPos
+) {
+    if (!plugin->mEnableSmoothPiston || region.mOwnerThreadID != plugin->mRenderThread)
+        return this->origin(region, blockPos);
+    if (auto blockActor = region.getBlockEntity(blockPos);
+        blockActor && blockActor->mType == BlockActorType::MovingBlock) {
+        auto mb = static_cast<const MovingBlockActor *>(blockActor);
+        bool hasBlockActor = mb->mBlockEntity.get();
+        if (!mb->mBlock)
+            return this->origin(region, blockPos);
+        Logger::Debug(
+            "[OnPistonSpawnMB] piston {}, MB at {} spawned.",
+            this->mPosition.toString(),
+            blockPos.toString()
+        );
+        region.setBlock(blockPos, *mb->mBlock, 3, nullptr, nullptr);
+        if (hasBlockActor) {
+            blockActor = region.getBlockEntity(blockPos);
+            if (!blockActor)
+                return this->origin(region, blockPos);
+            const_cast<BlockActor *>(blockActor)->mTerrainInterlockData.mRenderVisibilityState =
+                ActorTerrainInterlockData::VisibilityState::Visible;
+        }
+    }
+    this->origin(region, blockPos);
+}
+
+HOOK_TYPE(
     SmoothPistonPlugin::PistonActorTickHook,
     PistonBlockActor,
     sapphire::hook::HookPriority::Normal,
@@ -57,7 +112,42 @@ HOOK_TYPE(
     void,
     BlockSource &region
 ) {
+    bool &needSpawnMB = memory::getField<bool>(&this->mSticky, 1);
+    if (needSpawnMB) {
+        needSpawnMB = false;
+        this->_sortAttachedBlocks(region);
+        for (auto &&pos : this->mAttachedBlocks) {
+            this->_spawnMovingBlock(region, pos);
+        }
+    }
+    if (plugin->mEnableSmoothPiston && plugin->mRenderThread == region.mOwnerThreadID && this->mAttachedBlocks.size()) {
+        if (this->mState == PistonState::Expanded || this->mState == PistonState::Retracted) {
+            Logger::Debug(
+                "[ClientPistonTick] piston at {}, {} blocks spawned.",
+                this->mPosition.toString(),
+                this->mAttachedBlocks.size()
+            );
+            this->_spawnBlocks(region);
+            // for (auto &&pos : this->mAttachedBlocks) {
+            //     auto blockEntity = region.getBlockEntity(pos);
+            //     if (blockEntity && blockEntity->mType == BlockActorType::PistonArm) {
+            //         const_cast<BlockActor *>(blockEntity)->mTerrainInterlockData.mRenderVisibilityState =
+            //             ActorTerrainInterlockData::VisibilityState::Visible;
+            //     }
+            // }
+        }
+    }
+    auto oldState = this->mState;
+    auto lastp = this->mLastProgress;
     this->origin(region);
+    if (plugin->mRenderThread == region.mOwnerThreadID && (oldState != this->mState || lastp != this->mLastProgress)) {
+        Logger::Debug(
+            "[ClientPistonTick] piston at {}, state from {} to {}.",
+            this->mPosition.toString(),
+            (int)oldState,
+            (int)this->mState
+        );
+    }
     if (plugin->mEnablePistonTickOrderSeparator) {
         // 复用一个gap用来存储本活塞的更新顺序
         uint32_t &gapReuseTickOrder = *(uint32_t *)((uintptr_t)&this->mTickCount + 4);
@@ -78,14 +168,8 @@ HOOK_TYPE(
             if (plugin->mRenderThread == region.mOwnerThreadID)
                 gapReuseTickOrder = plugin->mTotalTicked = plugin->mCurrentOrder++;
         } else if (this->mLastProgress == 0.5f) {
-            plugin->mRenderThread = std::thread::id{};
             plugin->mCurrentOrder = 0;
         }
-    }
-    if (plugin->mRenderThread == region.mOwnerThreadID) {
-        // if (this->mPosition.x > 0 && this->mPosition.x < 4)
-        //     Logger::Debug("{}, {}", this->mPosition.toString(), (int)this->mTerrainInterlockData.mRenderVisibilityState);
-        this->mTerrainInterlockData.mRenderVisibilityState = ActorTerrainInterlockData::VisibilityState::Visible;
     }
 }
 
@@ -102,16 +186,19 @@ HOOK_TYPE(
     auto  &movingBlock = static_cast<MovingBlockActor &>(renderData.entity);
     float &alpha = context.mFrameAlpha;
     if (plugin->mEnableSmoothPiston) {
-        /*
-            提前返回可以终止本帧渲染。
-            一行代码（大概）修复拖影问题，不要问为啥，反正这么写就是目前最佳方案。
-        */
-        if (movingBlock.mPreserved == true) return;
-        /*
-            这一行可以干掉拖影，但是会有别的问题，也就是活塞被另一个活塞推就位时会短暂不渲染活塞臂，
-            这个问题在慢速情况下会得到缓解，因为其不受游戏内Timer计时器控制，活塞臂消失的时间不会变化，
-            解决办法是前面 PistonActorTickHook 中插入 mRenderVisibilityState 置 Visible 的代码
-        */
+        if (movingBlock.mTerrainInterlockData.mHasBeenDelayedDeleted) {
+            movingBlock.mTerrainInterlockData.mRenderVisibilityState =
+                ActorTerrainInterlockData::VisibilityState::DelayedDestructionNotVisible;
+            return;
+        } else {
+            auto maybeMB = region.getBlockEntity(movingBlock.mPosition);
+            if (maybeMB != &movingBlock) {
+                movingBlock.mTerrainInterlockData.mHasBeenDelayedDeleted = true;
+                if (maybeMB)
+                    const_cast<BlockActor *>(maybeMB)->mTerrainInterlockData.mRenderVisibilityState =
+                        ActorTerrainInterlockData::VisibilityState::Visible;
+            }
+        }
     }
 
     /*
@@ -120,8 +207,8 @@ HOOK_TYPE(
         需要临时修改mLastProgress和mProgress以修改活塞的初末状态...反正比较复杂。
     */
     if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
-        auto ownerPistonBlockActor = memory::vCall<PistonBlockActor *>(&region, 4, movingBlock.mPistonPos);
-        if (!ownerPistonBlockActor) // 这个的确可能是nullptr
+        auto ownerPistonBlockActor = (PistonBlockActor *)region.getBlockEntity(movingBlock.mPistonPos);
+        if (!ownerPistonBlockActor)
             return this->origin(context, renderData);
         float    oldAlpha = alpha;
         float    oldLastProgress = ownerPistonBlockActor->mLastProgress;
@@ -155,8 +242,7 @@ HOOK_TYPE(
     auto  &region = renderData.renderSource;
     auto  &pistonActor = static_cast<PistonBlockActor &>(renderData.entity);
     float &alpha = context.mFrameAlpha;
-    if (plugin->mRenderThread == std::thread::id{})
-        plugin->mRenderThread = region.mOwnerThreadID;
+    plugin->mRenderThread = region.mOwnerThreadID;
 
     // 上面只会影响MovingBlock，这个是活塞臂
 
@@ -177,6 +263,37 @@ HOOK_TYPE(
     }
 }
 
+template <typename Ret, size_t VIndex>
+class VCall_t {};
+
+template <typename Ret, size_t VIndex>
+constexpr VCall_t<Ret, VIndex> vCall;
+
+template <typename Ret, typename T, size_t VIndex>
+class VCall : public VCall_t<Ret, VIndex> {
+    T *objPtr;
+
+public:
+    constexpr VCall(T *obj) :
+        objPtr(obj) {}
+
+    template <typename... Args>
+    constexpr Ret operator()(Args &&...args) const {
+        return memory::vCall<Ret>(objPtr, VIndex, std::forward<Args>(args)...);
+    }
+};
+
+template <typename T, typename Ret, size_t VIndex>
+constexpr auto operator->*(T *obj, VCall_t<Ret, VIndex>) {
+    return VCall<Ret, T, VIndex>{obj};
+}
+
+template <typename T, typename Ret, size_t VIndex>
+    requires(!std::is_pointer_v<std::remove_reference_t<T>>)
+constexpr auto operator->*(T &obj, VCall_t<Ret, VIndex>) {
+    return VCall<Ret, std::remove_reference_t<T>, VIndex>{std::addressof(obj)};
+}
+
 SmoothPistonPlugin::SmoothPistonPlugin() {
     plugin = this;
     if (!SmoothMovingBlockHook::hook())
@@ -193,6 +310,12 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
         Logger::Error("[Better Piston & MovingBlock] PistonSeparatorHook 安装失败!");
     else
         Logger::Debug("[Better Piston & MovingBlock] PistonSeparatorHook 安装成功！");
+
+    if (!OnPistonSpawnMBHook::hook())
+        Logger::Error("[Better Piston & MovingBlock] OnPistonSpawnMBHook 安装失败！");
+
+    if (!OnPistonUpdatePacketHook::hook())
+        Logger::Error("[Better Piston & MovingBlock] OnPistonUpdatePacketHook 安装失败！");
 
     GuiOverlay::registerPluginSettings(
         {

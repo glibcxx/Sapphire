@@ -7,6 +7,8 @@ public:
     class PistonActorTickHook;
     class SmoothMovingBlockHook;
     class SmoothPistonArmHook;
+    class OnPistonSpawnMBHook;
+    class OnPistonUpdatePacketHook;
 
     static SmoothPistonPlugin &getInstance();
 
