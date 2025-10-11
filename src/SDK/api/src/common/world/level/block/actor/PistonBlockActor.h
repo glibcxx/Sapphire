@@ -3,6 +3,7 @@
 #include "MovingBlockActor.h"
 
 class BlockSource;
+class CompoundTag;
 
 class PistonBlockActor : public BlockActor {
 public:
@@ -34,14 +35,21 @@ public:
 
     SDK_API PistonBlockActor *ctor(const BlockPos &pos, bool isSticky);
 
+    SDK_API virtual void load(Level &level, const CompoundTag &tag, DataLoadHelper &dataLoadHelper) override;
+
+    // vtb+7
+    SDK_API virtual void tick(BlockSource &region) override;
+
+    SDK_API /*virtual*/ void _onUpdatePacket(const CompoundTag &data, BlockSource &region) /*override*/;
+
+    SDK_API void _spawnBlocks(BlockSource &region);
+
+    SDK_API void _spawnMovingBlock(BlockSource &region, const BlockPos &blockPos);
+
     float getProgress(float a) {
         if (a > 1.0f) a = 1.0f;
         return this->mLastProgress + (this->mProgress - this->mLastProgress) * a;
     }
 
-    SDK_API void tick(BlockSource &region);
-
-    SDK_API void _spawnBlocks(BlockSource &region);
-
-    SDK_API void _spawnMovingBlock(BlockSource &region, const BlockPos &blockPos);
+    SDK_API void _sortAttachedBlocks(BlockSource &region);
 };

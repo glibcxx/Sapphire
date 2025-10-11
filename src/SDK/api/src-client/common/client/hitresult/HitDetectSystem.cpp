@@ -17,22 +17,25 @@ void HitDetectSystem::dtor() noexcept {
 void HitDetectSystem::reset() {
     using Hook = sapphire::ApiLoader<
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x8B\x05"_sig,
-        &HitDetectSystem::dtor>;
+        &HitDetectSystem::reset,
+        SPHR_FUNCDNAME>;
     (this->*Hook::origin)();
 }
 
 void HitDetectSystem::tick() {
     using Hook = sapphire::ApiLoader<
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x56\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x48\x8B\xF9\x80\x79"_sig,
-        &HitDetectSystem::dtor>;
+        &HitDetectSystem::tick,
+        SPHR_FUNCDNAME>;
     (this->*Hook::origin)();
 }
 
 void HitDetectSystem::evaluate(IClientInstance &client, float a) {
     using Hook = sapphire::ApiLoader<
         "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\x02\x48\x8B\xF9\x0F\x29\x74\x24\x00\x48\x8B\xCA\x0F\x28\xF2\x48\x8B\xDA\x48\x8B\x80"_sig,
-        &HitDetectSystem::dtor>;
-    (this->*Hook::origin)();
+        &HitDetectSystem::evaluate,
+        SPHR_FUNCDNAME>;
+    (this->*Hook::origin)(client, a);
 }
 
 void HitDetectSystem::_evaluateType(
@@ -50,6 +53,7 @@ void HitDetectSystem::_evaluateType(
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x8B\xC4\x55\x53\x56\x57\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x44\x0F\x29\x40\x00\x44\x0F\x29\x48\x00\x44\x0F\x29\x90\x00\x00\x00\x00\x44\x0F\x29\x98\x00\x00\x00\x00\x48\x8B\x05"_sig,
 #endif
-        &HitDetectSystem::dtor>;
-    (this->*Hook::origin)();
+        &HitDetectSystem::_evaluateType,
+        SPHR_FUNCDNAME>;
+    (this->*Hook::origin)(client, a, cameraEntity, player, isPicking, hitResult, liquidHitResult);
 }
