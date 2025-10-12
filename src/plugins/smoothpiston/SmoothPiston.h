@@ -2,17 +2,19 @@
 
 #include <thread>
 
+class Level;
+
 class SmoothPistonPlugin {
 public:
+    class PistonActorUpdatePacketHook;
     class PistonActorTickHook;
     class SmoothMovingBlockHook;
     class SmoothPistonArmHook;
-    class OnPistonSpawnMBHook;
-    class OnPistonUpdatePacketHook;
 
     static SmoothPistonPlugin &getInstance();
 
-    float mTimeScale = 1.0f;
+    std::thread::id mClientMainThread{};
+    float           mTimeScale = 1.0f;
 
 private:
     SmoothPistonPlugin();
@@ -21,9 +23,6 @@ private:
 
     bool mEnableSmoothPiston = true;
     bool mEnablePistonTickOrderSeparator = false;
-
-    // ServerLevel和ClientLevel各有一个BlockActor
-    std::thread::id mRenderThread = {};
 
     uint32_t mCurrentOrder = 0;
     uint32_t mTotalTicked = 0;
