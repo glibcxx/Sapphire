@@ -15,4 +15,6 @@ public:
     int                         mPreservedLifespan;
 
     SDK_API Vec3 getDrawPos(const IConstBlockSource &region, float alpha) const;
+
+    SDK_API void moveCollidedEntities(PistonBlockActor &pistonBlock, BlockSource &region);
 };

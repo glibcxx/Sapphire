@@ -63,8 +63,16 @@ public:
         return *this;
     }
 
-    operator glm::vec3() const {
+    constexpr operator glm::vec3() const {
         return {x, y, z};
+    }
+
+    static constexpr Vec3 min(const Vec3 &a, const Vec3 &b) {
+        return {std::min(a.x, b.x), std::min(a.y, b.y), std::min(a.z, b.z)};
+    }
+
+    static constexpr Vec3 max(const Vec3 &a, const Vec3 &b) {
+        return {std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z)};
     }
 
     std::string toString() const {

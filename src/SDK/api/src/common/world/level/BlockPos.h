@@ -39,6 +39,10 @@ public:
         return BlockPos(x * other.x, y * other.y, z * other.z);
     }
 
+    constexpr BlockPos operator/(const BlockPos &other) const {
+        return BlockPos(x / other.x, y / other.y, z / other.z);
+    }
+
     constexpr BlockPos &operator+=(const BlockPos &other) {
         x += other.x, y += other.y, z += other.z;
         return *this;
@@ -61,6 +65,11 @@ public:
 
     constexpr BlockPos &operator*=(const BlockPos &other) {
         x *= other.x, y *= other.y, z *= other.z;
+        return *this;
+    }
+
+    constexpr BlockPos operator/=(const BlockPos &other) {
+        x /= other.x, y /= other.y, z /= other.z;
         return *this;
     }
 
