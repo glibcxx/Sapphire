@@ -35,6 +35,7 @@ public:
 
     SDK_API PistonBlockActor *ctor(const BlockPos &pos, bool isSticky);
 
+    // vtb+1
     SDK_API virtual void load(Level &level, const CompoundTag &tag, DataLoadHelper &dataLoadHelper) override;
 
     // vtb+7

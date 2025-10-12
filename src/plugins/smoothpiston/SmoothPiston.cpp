@@ -43,10 +43,30 @@ public:
 
     BlockPos getTargetMovingBlockPosOffset(BlockSource &region) const {
         auto &facingDir = this->getFacingDir(region);
-        return this->mState == PistonState::Expanded ? facingDir : -facingDir;
+        return (this->mState == PistonState::Expanded || this->mState == PistonState::Expanding) ? facingDir : -facingDir;
+    }
+
+    void cacheSpawnMovingBlocks(BlockSource &region) {
+        this->mFutureClientAttachedBlocks.reset();
+        ::memset((void *)&this->mFutureClientAttachedBlocks, 0, sizeof(std::vector<const Block *>));
+        auto &cachedBlocks = memory::getField<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
+        cachedBlocks.reserve(this->mAttachedBlocks.size());
+        for (auto &&pos : this->mAttachedBlocks) {
+            auto actor = region.getBlockEntity(pos);
+            if (actor && actor->mType == BlockActorType::MovingBlock) {
+                auto mb = static_cast<const MovingBlockActor *>(actor);
+                cachedBlocks.emplace_back(mb->mBlock);
+            } else {
+                auto &block = region.getBlock(pos);
+                cachedBlocks.emplace_back(&block);
+            }
+        }
     }
 
     void spawnMovingBlocks(BlockSource &region) {
+        size_t i = 0;
+        auto  &cachedBlocks = memory::getField<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
+        auto   tagetPosOffset = this->getTargetMovingBlockPosOffset(region);
         for (auto &&pos : this->mAttachedBlocks) {
             auto blockEntity = region.getBlockEntity(pos);
             if (blockEntity && blockEntity->mType == BlockActorType::MovingBlock) {
@@ -58,8 +78,16 @@ public:
                     const_cast<ClientPistonBlockActor *>(piston)->_spawnBlocks(region);
                 }
             }
+            auto &notair = region.getBlock(pos);
             this->_spawnMovingBlock(region, pos);
+            blockEntity = region.getBlockEntity(pos + tagetPosOffset);
+            if (blockEntity && blockEntity->mType == BlockActorType::MovingBlock && cachedBlocks.size()) {
+                auto mb = static_cast<const MovingBlockActor *>(blockEntity);
+                const_cast<MovingBlockActor *>(mb)->mBlock = cachedBlocks[i];
+            }
+            ++i;
         }
+        std::vector<const Block *>{}.swap(cachedBlocks);
     }
 
     void clearMovingBlocksRenderState(BlockSource &region) const {
@@ -108,10 +136,13 @@ HOOK_TYPE(
     auto &clientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 1);
     auto &nextClientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 2);
     if (oldState != this->mState) {
-        if (this->mState == PistonState::Expanding)
+        if (this->mState == PistonState::Expanding) {
             nextClientPistonState = clientPistonState = ClientPistonState::ExpandingNeeded;
-        else if (this->mState == PistonState::Retracting)
+            this->cacheSpawnMovingBlocks(region);
+        } else if (this->mState == PistonState::Retracting) {
             nextClientPistonState = clientPistonState = ClientPistonState::RetractingNeeded;
+            this->cacheSpawnMovingBlocks(region);
+        }
     }
 }
 
@@ -135,6 +166,7 @@ HOOK_TYPE(
             clientPistonState = nextClientPistonState = ClientPistonState::Expanded;
         else if (this->mState == PistonState::Retracted || this->mState == PistonState::Retracting)
             clientPistonState = nextClientPistonState = ClientPistonState::Retracted;
+        this->mFutureClientAttachedBlocks.reset();
     }
 
     const BlockPos &facingDir = this->getFacingDir(region);
