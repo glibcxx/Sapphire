@@ -128,7 +128,7 @@ HOOK_TYPE(
     const CompoundTag &data,
     BlockSource       &region
 ) {
-    if (!memory::vCall<bool>(&region.mLevel, 299))
+    if (!plugin->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
         return this->origin(data, region);
     PistonState           oldState = this->mState;
     DefaultDataLoadHelper helper{};
@@ -154,7 +154,7 @@ HOOK_TYPE(
     void,
     BlockSource &region
 ) {
-    if (!memory::vCall<bool>(&region.mLevel, 299))
+    if (!plugin->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
         return this->origin(region);
     ++this->mTickCount; // BlockActor::tick
 
@@ -239,16 +239,17 @@ HOOK_TYPE(
     auto  &movingBlock = static_cast<MovingBlockActor &>(renderData.entity);
     auto  &region = renderData.renderSource;
     float &alpha = context.mFrameAlpha;
-
-    auto  maybeMB = renderData.renderSource.getBlockEntity(movingBlock.mPosition);
-    auto &interlock = movingBlock.mTerrainInterlockData;
-    if (interlock.mHasBeenDelayedDeleted) {
-        if (std::chrono::system_clock::now() - interlock.mCreationTime >= 35ms)
-            interlock.mRenderVisibilityState =
-                ActorTerrainInterlockData::VisibilityState::DelayedDestructionNotVisible;
-    } else if (maybeMB != &movingBlock) {
-        interlock.mHasBeenDelayedDeleted = true;
-        interlock.mCreationTime = std::chrono::system_clock::now();
+    if (plugin->mEnableSmoothPiston) {
+        auto  maybeMB = renderData.renderSource.getBlockEntity(movingBlock.mPosition);
+        auto &interlock = movingBlock.mTerrainInterlockData;
+        if (interlock.mHasBeenDelayedDeleted) {
+            if (std::chrono::system_clock::now() - interlock.mCreationTime >= 35ms)
+                interlock.mRenderVisibilityState =
+                    ActorTerrainInterlockData::VisibilityState::DelayedDestructionNotVisible;
+        } else if (maybeMB != &movingBlock) {
+            interlock.mHasBeenDelayedDeleted = true;
+            interlock.mCreationTime = std::chrono::system_clock::now();
+        }
     }
 
     if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
@@ -323,6 +324,7 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
             .name = "Better Piston",
             .description = "Better Piston, Visualize Tick Order",
             .drawSettings = [this]() {
+                ImGui::Checkbox("Smooth Piston", &this->mEnableSmoothPiston);
                 ImGui::Checkbox("Visualize Tick Order", &this->mEnablePistonTickOrderSeparator);
             },
         }
