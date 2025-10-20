@@ -56,7 +56,7 @@ public:
     virtual std::string getName() const = 0;
 
     // vtb+3
-    virtual Bedrock::Result<void> checkSize(size_t packetSize, bool receiverIsServer) const;
+    SDK_API virtual Bedrock::Result<void> checkSize(size_t packetSize, bool receiverIsServer) const;
 
     // vtb+4
     virtual void write(BinaryStream &stream) const = 0;
@@ -72,6 +72,8 @@ public:
 
     // vtb+8
     virtual Bedrock::Result<void> _read(ReadOnlyBinaryStream &stream) = 0;
+
+    SDK_API Bedrock::Result<void> readNoHeader(ReadOnlyBinaryStream &bitstream, const SubClientId &subid);
 };
 static_assert(sizeof(Packet) == 48);
 

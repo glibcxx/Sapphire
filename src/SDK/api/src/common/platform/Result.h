@@ -16,9 +16,11 @@ namespace Bedrock {
         };
 
         bool m_has_value = false;
+
+        ~Result();
     };
 
-    // size: 72 (Result\<void, std::error_code \>)
+    // size: 72 (Result<void, std::error_code>)
     template <typename E>
     class Result<void, E> {
     public:
@@ -32,7 +34,15 @@ namespace Bedrock {
 
         bool m_has_value = false;
 
-        ~Result() = delete;
+        Result(Result &&other) {
+            if (!other.m_has_value)
+                new (&m_error) error_type(std::move(other.m_error));
+        }
+
+        ~Result() {
+            if (!m_has_value)
+                m_error.~error_type();
+        }
     };
     static_assert(sizeof(Result<void>) == 72);
 
