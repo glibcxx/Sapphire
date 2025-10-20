@@ -27,8 +27,6 @@ namespace ClientBlobCache {
 // size: 304
 class ClientNetworkHandler : public NetEventCallback {
 public:
-    virtual ~ClientNetworkHandler() override {}
-
     std::shared_ptr<ClientBlobCache::Cache> mBlobCache; // off+24
     std::shared_ptr<void>                   mUnk40;     // off+40
     std::shared_ptr<void>                   mUnk56;     // off+56
@@ -55,6 +53,8 @@ public:
     using ChunkCallbackKey = std::tuple<NetworkIdentifier, const Dimension *, ChunkPos>;
 
     uint64_t mConnectionPausedCallbacks[8]; // off+240, std::unordered_map<ChunkCallbackKey, std::function<void(BlockSource &)> /*todo: hasher*/>
+
+    virtual ~ClientNetworkHandler() override;
 };
 static_assert(sizeof(ClientNetworkHandler) == 304);
 
@@ -99,8 +99,6 @@ static_assert(sizeof(ClientNetworkHandler) == 320);
 // size: 392
 class ClientNetworkHandler : public NetEventCallback {
 public:
-    virtual ~ClientNetworkHandler() override {}
-
     std::shared_ptr<ClientBlobCache::Cache> mBlobCache; // off+24
     std::shared_ptr<void>                   mUnk40;     // off+40
     std::shared_ptr<void>                   mUnk56;     // off+56
@@ -130,6 +128,8 @@ public:
     uint64_t                   mConnectionPausedCallbacks[8]; // off+256, std::unordered_map<ChunkCallbackKey, std::function<void(BlockSource &)> /*todo: hasher*/>
     uint64_t                   mUnkMap320[8];                 // off+320, std::unordered_map<???>
     std::unique_ptr<TaskGroup> mFileDownloadManager;          // off+384
+
+    virtual ~ClientNetworkHandler() override;
 };
 static_assert(sizeof(ClientNetworkHandler) == 392);
 #endif

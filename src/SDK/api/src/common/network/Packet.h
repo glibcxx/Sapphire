@@ -16,6 +16,25 @@ enum class MinecraftPacketIds : int {
     // ...
 };
 
+// size: 4
+class PacketHeader {
+public:
+    static constexpr uint32_t NUM_CHANNEL_BITS = 1;
+    static constexpr uint32_t NUM_CHANNELS = 2;
+    static constexpr uint32_t NUM_BITS_FOR_SUBID = 2;
+
+    // size: 4
+    union /*`anonymous'*/ {
+        uint32_t mRaw;
+        // size: 4
+        struct /*`anonymous'*/ {
+            uint32_t mPacketId : 10;
+            uint32_t mSenderSubId : NUM_BITS_FOR_SUBID;
+            uint32_t mClientSubId : NUM_BITS_FOR_SUBID;
+        } mBits;
+    } mData; // off+0
+};
+
 // size: 48
 class Packet {
 public:
@@ -68,7 +87,12 @@ public:
 template <typename T, bool SHARED>
 class PacketHandlerDispatcherInstance : public IPacketHandlerDispatcher {
 public:
-    virtual void handle(const NetworkIdentifier &source, class NetEventCallback &callback, std::shared_ptr<Packet> &packet) const {
-        callback.handle(source, static_cast<T &>(*packet));
-    }
+    // vtb+1
+    virtual void handle(const NetworkIdentifier &source, class NetEventCallback &callback, std::shared_ptr<Packet> &packet) const;
+};
+
+// size: 1
+class MinecraftPackets {
+public:
+    SDK_API static std::shared_ptr<Packet> createPacket(MinecraftPacketIds id);
 };
