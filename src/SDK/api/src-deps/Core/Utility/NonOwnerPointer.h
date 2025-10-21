@@ -52,6 +52,50 @@ namespace Bedrock {
         bool operator==(nullptr_t) const { return isValid(); }
     };
 
+    template <>
+    class NonOwnerPointer<void> {
+    public:
+        std::shared_ptr<EnableNonOwnerReferences::ControlBlock> mControlBlock; // off+0
+#if MC_VERSION >= v1_21_50
+        void *mPtr = nullptr; // off+16
+#endif
+
+        NonOwnerPointer() = default;
+
+        NonOwnerPointer(std::shared_ptr<EnableNonOwnerReferences::ControlBlock> cb, void *ptr) :
+            mControlBlock(std::move(cb))
+#if MC_VERSION >= v1_21_50
+            ,
+            mPtr(ptr)
+#endif
+        {
+        }
+
+        bool isValid() const {
+#if MC_VERSION == v1_21_2
+            return mControlBlock && mControlBlock->mPtr;
+#elif MC_VERSION >= v1_21_50
+            return mControlBlock && mControlBlock->mIsValid;
+#endif
+        }
+
+        operator bool() const { return isValid(); }
+
+        void *access() const {
+#if MC_VERSION == v1_21_2
+            return isValid() ? static_cast<T *>(mControlBlock->mPtr) : nullptr;
+#elif MC_VERSION >= v1_21_50
+            return isValid() ? mPtr : nullptr;
+#endif
+        }
+
+        void *operator->() const { return access(); }
+
+        bool operator==(const NonOwnerPointer &other) const { return access() == other.access(); }
+
+        bool operator==(nullptr_t) const { return isValid(); }
+    };
+
     template <typename T>
     using NotNullNonOwnerPtr = gsl::not_null<NonOwnerPointer<T>>;
 

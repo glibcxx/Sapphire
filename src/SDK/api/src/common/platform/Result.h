@@ -15,9 +15,45 @@ namespace Bedrock {
             error_type m_error;
         };
 
-        bool m_has_value = false;
+        bool m_has_value;
 
-        ~Result();
+        constexpr Result() :
+            m_has_value(true) {}
+
+        constexpr Result(const Result &other) :
+            m_has_value(other.m_has_value) {
+            if (m_has_value)
+                new (&m_value) value_type(other.m_value);
+            else
+                new (&m_error) error_type(other.m_error);
+        }
+
+        constexpr Result(Result &&other) :
+            m_has_value(other.m_has_value) {
+            if (m_has_value)
+                new (&m_value) value_type(std::move(other.m_value));
+            else
+                new (&m_error) error_type(std::move(other.m_error));
+        };
+
+        template <std::convertible_to<error_type> U>
+        constexpr Result(U &&val) :
+            m_has_value(false) {
+            new (&m_error) error_type(std::forward<U>(val));
+        }
+
+        template <std::convertible_to<value_type> U>
+        constexpr Result(U &&val) :
+            m_has_value(true) {
+            new (&m_value) value_type(std::forward<U>(val));
+        }
+
+        constexpr ~Result() {
+            if (m_has_value)
+                m_error.~error_type();
+            else
+                m_value.~value_type();
+        }
     };
 
     // size: 72 (Result<void, std::error_code>)
@@ -32,14 +68,24 @@ namespace Bedrock {
             error_type m_error;
         };
 
-        bool m_has_value = false;
+        bool m_has_value;
 
-        Result(Result &&other) {
-            if (!other.m_has_value)
-                new (&m_error) error_type(std::move(other.m_error));
+        constexpr Result() :
+            m_has_value(true) {}
+
+        constexpr Result(const Result &other) :
+            m_has_value(other.m_has_value) {
+            if (!m_has_value)
+                new (&m_error) error_type(other.m_error);
         }
 
-        ~Result() {
+        constexpr Result(Result &&other) :
+            m_has_value(other.m_has_value) {
+            if (!m_has_value)
+                new (&m_error) error_type(std::move(other.m_error));
+        };
+
+        constexpr ~Result() {
             if (!m_has_value)
                 m_error.~error_type();
         }

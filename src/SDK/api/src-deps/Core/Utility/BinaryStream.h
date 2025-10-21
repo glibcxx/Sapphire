@@ -30,6 +30,14 @@ public:
 
     // vtb+1
     virtual Bedrock::Result<void> read(void *target, size_t num);
+
+    template <typename T>
+        requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+    Bedrock::Result<T> readType() {
+        T res;
+        this->read(&res, sizeof(T));
+        return Bedrock::Result<T>{res};
+    }
 };
 
 // size: 104 (1.21.2), 80 (1.21.50/1.21.60)
@@ -58,4 +66,17 @@ public:
 
     // vtb+0
     virtual ~BinaryStream();
+
+    void write(const void *origin, size_t num) {
+        this->mBuffer.append(static_cast<const char *>(origin), num);
+#if MC_VERSION == v1_21_50 || v1_21_60
+        this->mView = this->mBuffer;
+#endif
+    }
+
+    template <typename T>
+        requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+    void writeType(T &&value) {
+        this->write(&value, sizeof(T));
+    }
 };
