@@ -7,6 +7,7 @@
 #include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-client/common/client/player/LocalPlayer.h"
 #include "SDK/api/src/common/entity/systems/ClientInputUpdateSystem.h"
+#include "SDK/api/src/common/entity/components/RenderCameraComponent.h"
 
 #include "SDK/api/src/common/network/packet/TextPacket.h"
 #include "SDK/api/src/common/world/Minecraft.h"

@@ -6,7 +6,6 @@
 #include "SDK/api/src/common/entity/WeakEntityRef.h"
 #include "SDK/api/src/common/world/actor/bhave/BehaviorStatus.h"
 #include "SDK/api/src/common/world/actor/player/PlayerListener.h"
-#include "SDK/api/src/common/entity/components/RenderCameraComponent.h"
 #include "SDK/api/src-client/common/client/gui/oreui/OreUITelemetry.h"
 #include "SDK/api/src-client/common/client/gui/screens/models/PlayScreenModel.h"
 #include "SDK/api/src-client/common/client/util/ClipboardProxy.h"
@@ -67,6 +66,7 @@ class PlayerReportHandler;
 class GameMode;
 class HitResult;
 class EducationOptions;
+struct RenderCameraComponent;
 // clang-format off
 namespace mce { class Texture; }
 namespace persona { class PersonaPieceCollectionModel; }
@@ -324,12 +324,6 @@ public:
         memory::vCall(this, 333);
 #endif
     }
-
-#if MC_VERSION == v1_21_50
-    /*virtual*/ ToastManager &getToastManager() /*override*/ {
-        return *memory::getField<std::shared_ptr<ToastManager>>(this, 1448);
-    }
-#endif
 
     SDK_API RenderCameraComponent *getRenderCameraComponent() const;
 

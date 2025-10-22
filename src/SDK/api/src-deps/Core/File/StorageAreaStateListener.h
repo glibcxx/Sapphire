@@ -22,23 +22,28 @@ namespace Core {
     // size: 104
     class StorageAreaStateListener {
     public:
-        std::shared_ptr<FileStorageArea> mFileStorageArea;
-        Bedrock::Threading::Mutex        mMutex;
+        std::shared_ptr<FileStorageArea> mFileStorageArea; // off+8
+        Bedrock::Threading::Mutex        mMutex;           // off+24
 
-        virtual ~StorageAreaStateListener() = 0;
+        // vtb+0
+        virtual ~StorageAreaStateListener();
 
+        // vtb+1
         virtual void onExtendDiskSpace(
             const bool                      bSet,
             std::weak_ptr<FileStorageArea> &fileStorageAreaWeakPtr,
             uint64_t                        freeSpace,
             std::function<void()>           onHandledEventCallback
-        ) = 0;
+        );
 
-        virtual void onLowDiskSpace(const bool bSet) = 0;
+        // vtb+2
+        virtual void onLowDiskSpace(const bool bSet);
 
-        virtual void onOutOfDiskSpace(const bool bSet) = 0;
+        // vtb+3
+        virtual void onOutOfDiskSpace(const bool bSet);
 
-        virtual void onCriticalDiskError(const bool bSet, const LevelStorageState &errorCode) = 0;
+        // vtb+4
+        virtual void onCriticalDiskError(const bool bSet, const LevelStorageState &errorCode);
     };
 
 } // namespace Core

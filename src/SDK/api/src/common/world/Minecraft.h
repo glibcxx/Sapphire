@@ -28,7 +28,7 @@ namespace Core {
 // size: 8
 class GameCallbacks {
 public:
-    virtual ~GameCallbacks() = 0;
+    virtual ~GameCallbacks();
 
     virtual void onLevelCorrupt() = 0;
 
@@ -36,7 +36,7 @@ public:
 
     virtual void onGameModeChanged() = 0;
 
-    virtual void onBeforeSimTick() = 0;
+    virtual void onBeforeSimTick();
 
     virtual void onTick(int a, int b) = 0;
 
@@ -83,7 +83,7 @@ public:
     std::unique_ptr<void>                              mLevelSubscribers;      // off+296
 
     // vtb+0
-    virtual ~Minecraft() = 0;
+    virtual ~Minecraft() override;
 
     SDK_API void startClientGame(std::unique_ptr<NetEventCallback> legacyClientNetworkHandler);
 };

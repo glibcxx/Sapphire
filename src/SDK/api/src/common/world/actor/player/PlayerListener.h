@@ -6,14 +6,14 @@ class Player;
 class PlayerListener {
 public:
     // vtb+0
-    virtual ~PlayerListener() = 0;
+    virtual ~PlayerListener();
 
     // vtb+1
-    virtual void onWillChangeDimension(Player &player) = 0;
+    virtual void onWillChangeDimension(Player &player);
 
     // vtb+2
-    virtual void onDimensionChanged(Player &player) = 0;
+    virtual void onDimensionChanged(Player &player);
 
     // vtb+3
-    virtual void onPlayerDestruction(Player &player) = 0;
+    virtual void onPlayerDestruction(Player &player);
 };
