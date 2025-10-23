@@ -83,7 +83,7 @@ namespace Bedrock {
 
         void *access() const {
 #if MC_VERSION == v1_21_2
-            return isValid() ? static_cast<T *>(mControlBlock->mPtr) : nullptr;
+            return isValid() ? static_cast<void *>(mControlBlock->mPtr) : nullptr;
 #elif MC_VERSION >= v1_21_50
             return isValid() ? mPtr : nullptr;
 #endif

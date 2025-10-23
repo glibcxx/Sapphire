@@ -3,7 +3,8 @@
 void MinecraftGame::update() {
     using Hook = sapphire::ApiLoader<
         "\x40\x53\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x8B\x00\x00\x00\x00\xBA"_sig,
-        &MinecraftGame::update>;
+        &MinecraftGame::update,
+        SPHR_FUNCDNAME>;
     return (this->*Hook::origin)();
 }
 

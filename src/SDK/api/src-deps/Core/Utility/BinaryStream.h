@@ -10,7 +10,7 @@ public:
     bool               mHasOverflowed = false; // off+16
     const std::string  mOwnedBuffer;           // off+24
     const std::string &mBuffer;                // off+56
-#elif MC_VERSION == v1_21_50 || v1_21_60
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     std::string      mOwnedBuffer;           // off+8
     std::string_view mView;                  // off+40
     size_t           mReadPointer = 0;       // off+56
@@ -20,7 +20,7 @@ public:
 #if MC_VERSION <= v1_21_2
     ReadOnlyBinaryStream(std::string &buffer, bool copyBuffer) :
         mOwnedBuffer(buffer), mBuffer(copyBuffer ? mOwnedBuffer : "") {}
-#elif MC_VERSION == v1_21_50 || v1_21_60
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     ReadOnlyBinaryStream(std::string &buffer, bool copyBuffer) :
         mOwnedBuffer(buffer), mView(copyBuffer ? std::string_view{mOwnedBuffer} : std::string_view{}) {}
 #endif
@@ -54,7 +54,7 @@ public:
     BinaryStream(std::string &buffer, bool copyBuffer) :
         ReadOnlyBinaryStream(buffer, copyBuffer), mOwnedBuffer(copyBuffer ? buffer : ""), mBuffer(mOwnedBuffer) {
     }
-#elif MC_VERSION == v1_21_50 || v1_21_60
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     SDK_API BinaryStream(std::string &buffer, bool copyBuffer);
 #    pragma SPHR_LINKER_SYM_ALIAS(                                                                            \
         "??0BinaryStream@@QEAA@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z",        \
@@ -69,7 +69,7 @@ public:
 
     void write(const void *origin, size_t num) {
         this->mBuffer.append(static_cast<const char *>(origin), num);
-#if MC_VERSION == v1_21_50 || v1_21_60
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         this->mView = this->mBuffer;
 #endif
     }
