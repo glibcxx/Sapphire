@@ -18,15 +18,10 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
 
-      - name: Setup Windows 10 SDK Action
-        uses: GuillaumeFalourd/setup-windows10-sdk-action@v2.4
-        with:
-          sdk-version: 22621
-
       - name: Configure CMake
         run: |
           New-Item -Path "build/.cmake/api/v1/query/codemodel-v2" -ItemType File -Force | Out-Null
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_SYSTEM_VERSION="10.0.22621.0" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install"
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install"
 
       - name: Build and Package
         run: |
