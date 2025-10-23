@@ -72,7 +72,8 @@ struct ClientHMDState {
 // size: 24
 class IClientInstance : public Bedrock::EnableNonOwnerReferences {
 public:
-    virtual ~IClientInstance() = 0;
+    // vtb+0
+    virtual ~IClientInstance();
 
     SDK_API static void *const *__vftable;
 };

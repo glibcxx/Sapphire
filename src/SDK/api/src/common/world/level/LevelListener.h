@@ -112,11 +112,13 @@ public:
     // vtb+27
     virtual void playerListChanged() {}
 
+#if MC_VERSION >= v1_21_60
     // vtb+28
     virtual void onLevelDataCommandsChanged(bool change) {}
 
     // vtb+29
     virtual void onLevelDataWorldTemplateOptionsUnlocked() {}
+#endif
 };
 
 static_assert(sizeof(LevelListener) == 8);

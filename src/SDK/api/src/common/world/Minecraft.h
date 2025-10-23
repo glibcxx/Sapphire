@@ -28,26 +28,37 @@ namespace Core {
 // size: 8
 class GameCallbacks {
 public:
+    // vtb+0
     virtual ~GameCallbacks();
 
+    // vtb+1
     virtual void onLevelCorrupt() = 0;
 
+    // vtb+2
     virtual void onCriticalScriptError(const char *, const char *) = 0;
 
+    // vtb+3
     virtual void onGameModeChanged() = 0;
 
+    // vtb+4
     virtual void onBeforeSimTick();
 
+    // vtb+5
     virtual void onTick(int a, int b) = 0;
 
+    // vtb+6
     virtual void onInternetUpdate() = 0;
 
+    // vtb+7
     virtual void onGameSessionReset() = 0;
 
+    // vtb+8
     virtual void onLevelExit() = 0;
 
+    // vtb+9
     virtual void onRequestResourceReload() = 0;
 
+    // vtb+10
     virtual void updateScreens() = 0;
 };
 
