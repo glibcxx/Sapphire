@@ -80,6 +80,7 @@ target_link_directories(SapphireCommon INTERFACE
 )
 target_link_libraries(SapphireCommon INTERFACE
     fmod
+    WindowsApp
     $<BUILD_INTERFACE:SapphireDeps>
 )
 
