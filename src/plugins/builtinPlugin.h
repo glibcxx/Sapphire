@@ -4,7 +4,11 @@
 
 class BuiltinPlugin : public sapphire::IPlugin {
 public:
-    virtual void init() override;
+    virtual void onLoaded() override;
 
-    virtual void uninit() override;
+    virtual void onUnload() override;
+
+    virtual void onInit() override;
+
+    virtual void onUnInit() override;
 };

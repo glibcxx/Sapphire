@@ -10,9 +10,13 @@ namespace sapphire {
 
         virtual ~IPlugin() = default;
 
-        virtual void init() = 0;
+        virtual void onLoaded() = 0;
 
-        virtual void uninit() = 0;
+        virtual void onUnload() = 0;
+
+        virtual void onInit() = 0;
+
+        virtual void onUnInit() = 0;
     };
 
 } // namespace sapphire

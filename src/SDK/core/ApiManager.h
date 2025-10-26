@@ -58,7 +58,7 @@ namespace sapphire {
 
         template <auto ptr>
         uintptr_t findTarget() {
-            return findTarget(util::Decorator<ptr, true>::value.view());
+            return findTarget(util::Decorator<ptr, true, true>::value.view());
         }
 
         void startThreadPool() {
@@ -110,7 +110,7 @@ namespace sapphire {
     template <signature::Signature Sig, auto Api>
     class ApiLoader<Sig, Api, nullptr> {
         using ApiType = decltype(Api);
-        using Decorated = util::Decorator<Api, true>;
+        using Decorated = util::Decorator<Api, true, true>;
         static_assert(
             !Decorated::value.view().starts_with("??_9"),
             "Please use ApiLoader<..., ..., SPHR_FUNCDNAME> for virtual function"
@@ -128,7 +128,7 @@ namespace sapphire {
     template <signature::Signature Sig, auto Api, util::StringLiteral RawDecoratedName>
     class ApiLoader<Sig, Api, RawDecoratedName> {
         using ApiType = decltype(Api);
-        using Decorated = util::Decorator<Api, true>;
+        using Decorated = util::Decorator<Api, true, true>;
         static_assert(
             Decorated::value.view().starts_with("??_9"),
             "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion"
@@ -139,11 +139,9 @@ namespace sapphire {
 
     private:
         inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            Decorated::value.view(), origin
+            Decorated::value.view(), RawDecoratedName.view(), origin
         );
     };
-
-    class ApiAlias {};
 
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
     constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };

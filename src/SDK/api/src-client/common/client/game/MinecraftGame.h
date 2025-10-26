@@ -122,6 +122,7 @@ class MainChunkSource;
 class CachedScenes;
 class WatchdogTimer;
 class ChunkPerformanceData;
+class ScopedCPUBoost;
 template <typename T>
 class DeferredTasksManager;
 namespace World {
@@ -228,6 +229,12 @@ public:
         Suspended = 1,
         Resuming = 2,
         Running = 3,
+    };
+
+    // size: 32
+    struct InitContext {
+        std::shared_ptr<IClientInstance> mIncompletePrimaryClient; // off+0
+        std::shared_ptr<ScopedCPUBoost>  mCPUBoost;                // off+16
     };
 
     std::shared_ptr<void>                         mUnk216;                             // off+216
@@ -564,6 +571,9 @@ public:
     // vtb+2
     SDK_API virtual void update() override;
 
+    // vtb+1 (for IGameServerShutdown)
+    SDK_API virtual void requestLeaveGame(bool switchScreen, bool sync) override;
+
     SDK_API void startFrame();
 
     SDK_API void endFrame();
@@ -575,4 +585,8 @@ public:
     SDK_API void _update();
 
     SDK_API bool _clientUpdate();
+
+    SDK_API void _InitComplete();
+
+    SDK_API SerialWorkList::WorkResult _initFinish(std::shared_ptr<InitContext> &initContext);
 };

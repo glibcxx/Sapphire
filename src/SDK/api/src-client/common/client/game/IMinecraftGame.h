@@ -17,17 +17,17 @@ enum class LocalServerStartupState : int {
 };
 
 // size: 88 (1.21.2), 96 (1.21.50/1.21.60)
-class IMinecraftGame : public Bedrock::EnableNonOwnerReferences,
-                       public Bedrock::AppIsland,
-                       public IMinecraftApp,
-                       public IGameServerStartup,
-                       public IGameServerShutdown,
-                       public INetworkGameConnector,
-                       public IClientInstances,
-                       public IWorldTransfer
+class IMinecraftGame : public /* off+0  */ Bedrock::EnableNonOwnerReferences,
+                       public /* off+24 */ Bedrock::AppIsland,
+                       public /* off+40 */ IMinecraftApp,
+                       public /* off+48 */ IGameServerStartup,
+                       public /* off+56 */ IGameServerShutdown,
+                       public /* off+64 */ INetworkGameConnector,
+                       public /* off+72 */ IClientInstances,
+                       public /* off+80 */ IWorldTransfer
 #if MC_VERSION >= v1_21_50
     ,
-                       public ISplitScreenChangedPublisher
+                       public /* off+88 */ ISplitScreenChangedPublisher
 #endif
 {
 public:

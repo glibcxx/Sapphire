@@ -136,11 +136,9 @@ namespace sapphire {
             if (!this->loadAllPlugins())
                 return false;
             apiManager.waitAllFinished();
-            Logger::Info("[Core] 加载完毕...");
 
-            Logger::Info("[Core] 初始化插件...");
-            this->mPluginManager.initAllPlugins();
-            Logger::Info("[Core] 初始化完毕...");
+            this->mPluginManager.pluginsOnLoaded();
+            Logger::Info("[Core] 加载完毕...");
 
             apiManager.stopThreadPool();
         }
@@ -154,8 +152,9 @@ namespace sapphire {
 
     void Core::_uninit() noexcept {
         if (!mInitialized) return;
-        this->mPluginManager.uninitAllPlugins();
-        this->mPluginManager.freeAllPlugins();
+        Logger::Info("[Core] 卸载插件...");
+        this->mPluginManager.unloadAllPlugins();
+        Logger::Info("[Core] 卸载完成...");
         sapphire::service::uninit();
         event::EventHooks::uninit();
         DX12Hook::uninstall();

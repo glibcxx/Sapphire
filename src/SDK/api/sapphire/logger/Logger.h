@@ -1,12 +1,8 @@
 #pragma once
 
-#include <fstream>
-#include <mutex>
-#include <Windows.h>
-#include <winrt/Windows.Storage.h>
+#include "LogBox.hpp"
 #include "impl/GameLogger.h"
 #include "impl/LogFile.h"
-#include "LogBox.hpp"
 
 namespace Logger {
 

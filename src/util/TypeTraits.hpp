@@ -11,6 +11,6 @@ namespace util::type_traits {
                               || std::is_member_function_pointer_v<T>;
 
     template <auto ptr>
-    constexpr bool is_virtual_thunk = ::util::Decorator<ptr, true>::value.view().starts_with("??_9");
+    constexpr bool is_virtual_thunk = ::util::Decorator<ptr, true, true>::value.view().starts_with("??_9");
 
 } // namespace util::type_traits

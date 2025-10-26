@@ -11,17 +11,21 @@ namespace sapphire {
         friend class Core;
         friend class IatPatcher;
 
+        class OnMinecraftGameInitCompleteHook;
+        class OnMinecraftGameLeaveGameHook;
+
         class LoadedPlugin {
         public:
             HMODULE  handle;
             IPlugin *instance;
-            bool     inited = false;
+            bool     loaded = false;
+            bool     initialized = false;
 
             LoadedPlugin(HMODULE handle, IPlugin *instance) :
                 handle(handle), instance(instance) {}
 
             ~LoadedPlugin() {
-                if (inited) instance->uninit();
+                if (loaded) instance->onUnload();
                 FreeLibrary(handle);
             }
         };
@@ -29,33 +33,15 @@ namespace sapphire {
         std::vector<LoadedPlugin> mLoadedPlugins;
 
         PluginManager() = default;
-        ~PluginManager() {
-            this->uninitAllPlugins();
-        }
+        ~PluginManager() = default;
 
-        void initAllPlugins() {
-            for (auto &&plg : this->mLoadedPlugins) {
-                plg.instance->init();
-                plg.inited = true;
-            }
-        }
+        void pluginsOnLoaded();
 
-        void uninitAllPlugins() {
-            for (auto &&plg : std::views::reverse(this->mLoadedPlugins)) {
-                if (plg.inited)
-                    plg.instance->uninit();
-                plg.inited = false;
-            }
-        }
+        void unloadAllPlugins();
 
-        void freeAllPlugins() {
-            for (auto &&plg : std::views::reverse(this->mLoadedPlugins)) {
-                if (plg.handle)
-                    FreeLibrary(plg.handle);
-                plg.handle = nullptr;
-            }
-            this->mLoadedPlugins.clear();
-        }
+        void _onInitPlugins();
+
+        void _onUnInitPlugins();
 
     public:
         PluginManager(const PluginManager &) = delete;

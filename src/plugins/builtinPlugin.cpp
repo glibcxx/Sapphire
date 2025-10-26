@@ -8,7 +8,7 @@
 #include "freecamera/FreeCamera.h"
 #include "BCM_V2/BCMPlugin.h"
 
-void BuiltinPlugin::init() {
+void BuiltinPlugin::onLoaded() {
     TickRatePlugin::getInstance();
     SmoothPistonPlugin::getInstance();
     FreeCameraPlugin::getInstance();
@@ -16,7 +16,15 @@ void BuiltinPlugin::init() {
     BCM_V2::BCMPlugin::getInstance();
 }
 
-void BuiltinPlugin::uninit() {
+void BuiltinPlugin::onUnload() {
+}
+
+void BuiltinPlugin::onInit() {
+    Logger::Debug("[BuiltinPlugin] onInit!");
+}
+
+void BuiltinPlugin::onUnInit() {
+    Logger::Debug("[BuiltinPlugin] onUnInit!");
 }
 
 static BuiltinPlugin instance{};

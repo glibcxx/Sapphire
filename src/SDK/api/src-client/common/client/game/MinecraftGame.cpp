@@ -33,6 +33,14 @@ void MinecraftGame::update() {
     return (this->*Hook::origin)();
 }
 
+void MinecraftGame::requestLeaveGame(bool switchScreen, bool sync) {
+    using Hook = sapphire::ApiLoader<
+        "\x48\x89\x5C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\x41\x00\x48\x8B\xF9"_sig,
+        &MinecraftGame::requestLeaveGame,
+        SPHR_FUNCDNAME>;
+    return (this->*Hook::origin)(switchScreen, sync);
+}
+
 void MinecraftGame::startFrame() {
     using Hook = sapphire::ApiLoader<
 #if MC_VERSION == v1_21_2
@@ -90,4 +98,28 @@ bool MinecraftGame::_clientUpdate() {
 #endif
         &MinecraftGame::_clientUpdate>;
     return (this->*Hook::origin)();
+}
+
+void MinecraftGame::_InitComplete() {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+        [](uintptr_t addr) { return memory::deRef(addr + 3, memory::AsmOperation::CALL); }
+            | "\x48\x8B\xCE\xE8\x00\x00\x00\x00\x48\x8B\x8E\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x49\x8B\x16"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x49\x8B\xBE\x00\x00\x00\x00\x48\x8B\x07\x48\x85\xC0"_sig,
+#endif
+        &MinecraftGame::_InitComplete>;
+    auto r = sizeof(&MinecraftGame::mExternalServer);
+    return (this->*Hook::origin)();
+}
+
+SerialWorkList::WorkResult MinecraftGame::_initFinish(std::shared_ptr<MinecraftGame::InitContext> &initContext) {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+        "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xF2\x48\x8B\xF1\x45\x33\xFF"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xE2\x4C\x8B\xF1\x45\x33\xED"_sig,
+#endif
+        &MinecraftGame::_initFinish>;
+    return (this->*Hook::origin)(initContext);
 }

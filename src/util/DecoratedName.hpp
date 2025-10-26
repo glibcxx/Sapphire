@@ -41,7 +41,7 @@ namespace util {
         }
     } // namespace detail
 
-    template <auto Ptr, bool AllowVirtualThunk = false>
+    template <auto Ptr, bool AllowVirtualThunk = false, bool VirtualThunkAsPtr = false>
         requires std::is_pointer_v<decltype(Ptr)> || std::is_member_function_pointer_v<decltype(Ptr)>
     class Decorator {
         constexpr static auto get() {
@@ -81,6 +81,10 @@ namespace util {
                 if constexpr (!isVirtualThunk) {
                     // Function symbols always end with 'Z', and <number> never contains 'Z'
                     constexpr auto symbolEnd = name.rfind('Z', tpltArgEnd) + 1;
+                    constexpr auto length = symbolEnd - symbolBegin;
+                    return StringLiteral<length>{name.substr(symbolBegin, length)};
+                } else if constexpr (VirtualThunkAsPtr) {
+                    constexpr auto symbolEnd = tpltArgEnd;
                     constexpr auto length = symbolEnd - symbolBegin;
                     return StringLiteral<length>{name.substr(symbolBegin, length)};
                 } else {
