@@ -10,6 +10,12 @@
 #include "IWorldTransfer.h"
 #include "ISplitScreenChangedPublisher.h"
 
+enum class LocalServerStartupState : int {
+    NotStarted = 0,
+    Starting = 1,
+    Started = 2,
+};
+
 // size: 88 (1.21.2), 96 (1.21.50/1.21.60)
 class IMinecraftGame : public Bedrock::EnableNonOwnerReferences,
                        public Bedrock::AppIsland,

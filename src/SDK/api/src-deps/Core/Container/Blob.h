@@ -32,6 +32,8 @@ namespace mce {
 
         pointer_type mBlob; // off+0
         size_type    mSize; // off+16
+
+        static void defaultDeleter(value_type *ptr); // ?defaultDeleter@Blob@mce@@CAXPEAE@Z
     };
 
 } // namespace mce

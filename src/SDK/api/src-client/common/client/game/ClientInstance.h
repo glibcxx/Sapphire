@@ -63,6 +63,7 @@ class IGameConnectionListener;
 class ContentCatalogService;
 class ClientScriptManager;
 class PlayerReportHandler;
+class NetworkSession;
 class GameMode;
 class HitResult;
 class EducationOptions;
@@ -97,6 +98,8 @@ enum class ClientPlayMode : int {
     ExitLevelLivingRoom = 8,
     NumModes = 9,
 };
+
+// https://github.com/LiteLDev/LeviLamina/blob/4d08de07ef76fb4f101aebb8b251e2652dc4cfbd/src/mc/client/game/ClientInstance.h#L183
 
 // size: 3208 (1.21.2), 3328 (1.21.50), 3368 (1.21.60)
 class ClientInstance : public /* off+0   */ IClientInstance,
@@ -270,8 +273,8 @@ public:
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     std::optional<std::aligned_storage_t<48, 8>> mUnk3088; // off+3088
 #endif
-    __int64                           mUnk3144; // off+3144
-    Bedrock::NotNullNonOwnerPtr<void> mUnk3152; // off+3152
+    __int64                                     mUnk3144;        // off+3144
+    Bedrock::NotNullNonOwnerPtr<NetworkSession> mNetworkSession; // off+3152
 #if MC_VERSION == v1_21_60
     Bedrock::NotNullNonOwnerPtr<void> mUnk3176; // off+3176
 #endif
