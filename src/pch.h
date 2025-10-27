@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
-
 // C++ Standard Library
 #include <iostream>
 #include <memory>
@@ -35,6 +33,8 @@
 #include <minwindef.h>
 #include <winnt.h>
 #include <winrt/base.h>
+
+#include "SDK/core/ApiManager.h"
 
 // Third-party Libraries
 #include <glm/glm.hpp>
