@@ -54,6 +54,18 @@ void *const *ClientInstance::__vftable3 = reinterpret_cast<void *const *>(
 
 ClientInstance *ClientInstance::primaryClientInstance = nullptr;
 
+void ClientInstance::onDestroyMinecraftGame() {
+    using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+        "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x03"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+        "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\xF9\xE8\x00\x00\x00\x00\x48\x8B\x07"_sig,
+#endif
+        &ClientInstance::onDestroyMinecraftGame,
+        SPHR_FUNCDNAME>;
+    (this->*Hook::origin)();
+}
+
 RenderCameraComponent *ClientInstance::getRenderCameraComponent() const {
     using Hook = sapphire::ApiLoader<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x00\xF3\x0F\x10\x58\x00\xF3\x0F\x10\x05"_sig,

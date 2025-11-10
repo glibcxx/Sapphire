@@ -12,7 +12,7 @@ namespace sapphire {
         friend class IatPatcher;
 
         class OnMinecraftGameInitCompleteHook;
-        class OnMinecraftGameLeaveGameHook;
+        class OnDestroyMinecraftGameHook;
 
         class LoadedPlugin {
         public:

@@ -3,6 +3,7 @@
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "SDK/api/src-client/common/client/game/MinecraftGame.h"
+#include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
 namespace sapphire {
 
@@ -24,16 +25,14 @@ namespace sapphire {
     }
 
     INDIRECT_HOOK_TYPE(
-        PluginManager::OnMinecraftGameLeaveGameHook,
-        MinecraftGame,
+        PluginManager::OnDestroyMinecraftGameHook,
+        ClientInstance,
         HookPriority::Normal,
-        MinecraftGame::requestLeaveGame,
-        void,
-        bool switchScreen,
-        bool sync
+        ClientInstance::onDestroyMinecraftGame,
+        void
     ) {
         gPluginManager->_onUnInitPlugins();
-        this->origin(switchScreen, sync);
+        this->origin();
     }
 
     void sapphire::PluginManager::pluginsOnLoaded() {
@@ -44,12 +43,12 @@ namespace sapphire {
         gPluginManager = this;
         if (!OnMinecraftGameInitCompleteHook::hook())
             Logger::Error("[PluginManager] failed to install OnMinecraftGameInitCompleteHook");
-        if (!OnMinecraftGameLeaveGameHook::hook())
-            Logger::Error("[PluginManager] failed to install OnMinecraftGameLeaveGameHook");
+        if (!OnDestroyMinecraftGameHook::hook())
+            Logger::Error("[PluginManager] failed to install OnDestroyMinecraftGameHook");
     }
 
     void sapphire::PluginManager::unloadAllPlugins() {
-        OnMinecraftGameLeaveGameHook::unhook();
+        OnDestroyMinecraftGameHook::unhook();
         OnMinecraftGameInitCompleteHook::unhook();
         gPluginManager = nullptr;
         this->mLoadedPlugins.clear();

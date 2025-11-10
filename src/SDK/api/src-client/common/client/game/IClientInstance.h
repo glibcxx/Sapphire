@@ -75,5 +75,13 @@ public:
     // vtb+0
     virtual ~IClientInstance();
 
+    // vtb+1
+    virtual void onInitMinecraftGame() = 0;
+
+    // vtb+2
+    virtual void onDestroyMinecraftGame() = 0;
+
+    // ...
+
     SDK_API static void *const *__vftable;
 };
