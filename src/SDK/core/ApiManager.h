@@ -17,7 +17,10 @@ namespace sapphire {
         MainModuleInfo   mMainModuleInfo;
         util::ThreadPool mThreadPool;
 
-        std::unordered_map<std::string_view, uintptr_t> mApiDecoratedName2TargetAddr;
+        using ApiMap = std::unordered_map<std::string_view, uintptr_t>;
+
+        ApiMap mFunctionApiMap;
+        ApiMap mDataApiMap;
 
         mutable std::mutex mLock;
 
@@ -30,15 +33,21 @@ namespace sapphire {
     public:
         SPHR_API static ApiManager &getInstance();
 
-        const std::unordered_map<std::string_view, uintptr_t> &getApiDecoratedName2TargetAddr() const {
-            return this->mApiDecoratedName2TargetAddr;
+        const ApiMap &getFunctionApiMap() const {
+            return this->mFunctionApiMap;
+        }
+        const ApiMap &getDataApiMap() const {
+            return this->mDataApiMap;
         }
 
-        bool addDecoratedName(std::string_view dName, uintptr_t addr) {
+        bool addDecoratedName(std::string_view dName, uintptr_t addr, bool functionApi) {
             bool success = false;
             {
                 std::unique_lock lock{mLock};
-                success = this->mApiDecoratedName2TargetAddr.try_emplace(dName, addr).second;
+                if (functionApi)
+                    success = this->mFunctionApiMap.try_emplace(dName, addr).second;
+                else
+                    success = this->mDataApiMap.try_emplace(dName, addr).second;
             }
 #ifdef SPHR_DEBUG
             if (!success)
@@ -49,8 +58,8 @@ namespace sapphire {
 
         uintptr_t findTarget(std::string_view dName) {
             std::unique_lock lock{mLock};
-            auto             it = this->mApiDecoratedName2TargetAddr.find(dName);
-            if (it == this->mApiDecoratedName2TargetAddr.end())
+            auto             it = this->mFunctionApiMap.find(dName);
+            if (it == this->mFunctionApiMap.end())
                 return 0;
             else
                 return it->second;
@@ -74,30 +83,32 @@ namespace sapphire {
         }
 
         template <signature::Signature Sig>
-        uintptr_t scanAndRegisterApi(std::string_view dName) {
+        uintptr_t scanAndRegisterApi(std::string_view dName, bool functionApi) {
             uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
             if (!origin) {
                 Logger::Error("[ApiManager] Failed to find api: {}", dName);
                 return 0;
             }
             origin = Sig(origin);
-            this->addDecoratedName(dName, origin);
+            this->addDecoratedName(dName, origin, functionApi);
             return origin;
         }
 
         template <signature::Signature Sig, typename ApiType>
-        int scanAndRegisterApiAsync(std::string_view dName, ApiType &result) {
-            this->_submitAsyncScanTask([this, dName, &result] {
-                result = memory::toMemberFunc<ApiType>(scanAndRegisterApi<Sig>(dName));
+        int scanAndRegisterApiAsync(std::string_view dName, ApiType &result, bool functionApi) {
+            this->_submitAsyncScanTask([this, dName, &result, functionApi] {
+                result = memory::toMemberFunc<ApiType>(scanAndRegisterApi<Sig>(dName, functionApi));
             });
             return 0;
         }
 
         template <signature::Signature Sig, typename ApiType>
-        int scanAndRegisterApiAsync(std::string_view dName, std::string_view dName2, ApiType &result) {
-            this->_submitAsyncScanTask([this, dName, dName2, &result] {
-                auto addr = scanAndRegisterApi<Sig>(dName);
-                this->addDecoratedName(dName2, addr);
+        int scanAndRegisterApiAsync(
+            std::string_view dName, std::string_view dName2, ApiType &result, bool functionApi
+        ) {
+            this->_submitAsyncScanTask([this, dName, dName2, &result, functionApi] {
+                auto addr = scanAndRegisterApi<Sig>(dName, functionApi);
+                this->addDecoratedName(dName2, addr, functionApi);
                 result = memory::toMemberFunc<ApiType>(addr);
             });
             return 0;
@@ -121,7 +132,7 @@ namespace sapphire {
 
     private:
         inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            Decorated::value.view(), origin
+            Decorated::value.view(), origin, true
         );
     };
 
@@ -139,7 +150,7 @@ namespace sapphire {
 
     private:
         inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            Decorated::value.view(), RawDecoratedName.view(), origin
+            Decorated::value.view(), RawDecoratedName.view(), origin, true
         );
     };
 
@@ -151,11 +162,11 @@ namespace sapphire {
     DataType &loadStatic() {
         if constexpr (std::is_reference_v<DataType>)
             return **std::bit_cast<std::remove_reference_t<DataType> **>(
-                ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(util::Decorator<Api>::value.view())
+                ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(util::Decorator<Api>::value.view(), false)
             );
         else
             return *std::bit_cast<DataType *>(ApiManager::getInstance().scanAndRegisterApi<Sig>(
-                util::Decorator<Api>::value.view()
+                util::Decorator<Api>::value.view(), false
             ));
     };
 

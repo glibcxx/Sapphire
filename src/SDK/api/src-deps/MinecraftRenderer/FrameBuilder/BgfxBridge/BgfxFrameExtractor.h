@@ -3,6 +3,7 @@
 #include "SDK/api/src-external/RenderDragon/Rendering/ClipSpaceOrigin.h"
 #include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
+#include "SDK/api/src-external/RenderDragon/Rendering/LightingModels.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialResourceManager.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/Frame.h"
 #include "SDK/api/src-deps/MinecraftRenderer/Resources/TextureResourceService.h"
@@ -16,6 +17,8 @@ namespace mce::framebuilder {
         const dragon::ServerTexture                           mRenderTargetTexture; // off+0
         gsl::span<const BlitFlipbookSingleTextureDescription> mTextures;            // off+24
     };
+
+    struct RenderMeshFallbackDescription;
 
     struct GamefaceRenderTarget {
         std::variant<std::monostate, dragon::ClientTexture, mce::ClientTexture> mColorTargetTextureHandle; // off+0
@@ -65,7 +68,7 @@ namespace mce::framebuilder {
             dragon::rendering::BgfxPrimitiveIndexBuffer  &mQuadIndexBuffer;         // off+88
             dragon::rendering::BgfxPrimitiveIndexBuffer  &mSequenceIndexBuffer;     // off+96
             dragon::materials::MaterialResourceManager   &mMaterialsManager;        // off+104
-            uint32_t                                      mUnk112;                  // off+112
+            dragon::rendering::LightingModels             mLightingModels;          // off+112
             uint8_t                                       mUnk116;                  // off+116
         };
 
@@ -96,6 +99,11 @@ namespace mce::framebuilder {
             SDK_API void _insert(
                 const EntityCreationContext          &entityContext,
                 const BlitFlipbookTextureDescription &descriptions
+            );
+
+            SDK_API void _insert(
+                const EntityCreationContext         &entityContext,
+                const RenderMeshFallbackDescription &descriptions
             );
         };
 

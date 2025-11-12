@@ -7,8 +7,8 @@ namespace mce {
 
     class RenderMaterialGroup : public RenderMaterialGroupBase {
     public:
-        SDK_API static RenderMaterialGroup      *common;
-        SDK_API static mce::RenderMaterialGroup *switchable;
+        SDK_API static RenderMaterialGroup *common;
+        SDK_API static RenderMaterialGroup *switchable;
     };
 
 } // namespace mce

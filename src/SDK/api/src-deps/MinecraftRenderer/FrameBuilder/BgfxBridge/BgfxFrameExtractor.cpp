@@ -33,4 +33,16 @@ namespace mce::framebuilder::bgfxbridge {
         (this->*Hook::origin)(entityContext, descriptions);
     }
 
+    void BgfxFrameExtractor::_insert(const EntityCreationContext &entityContext, const RenderMeshFallbackDescription &descriptions) {
+        using Fn = void (BgfxFrameExtractor::*)(const EntityCreationContext &, const RenderMeshFallbackDescription &);
+        using Hook = sapphire::ApiLoader<
+#if MC_VERSION == v1_21_2
+            "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8\x48\x89\x54\x24"_sig,
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+            "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF0\x48\x89\x54\x24\x00\x48\x89\x4C\x24"_sig,
+#endif
+            (Fn)&BgfxFrameExtractor::_insert>;
+        (this->*Hook::origin)(entityContext, descriptions);
+    }
+
 } // namespace mce::framebuilder::bgfxbridge

@@ -174,7 +174,7 @@ namespace sapphire {
             return false;
         }
 
-        auto  &apiMap = ApiManager::getInstance().getApiDecoratedName2TargetAddr();
+        auto  &apiMap = ApiManager::getInstance().getFunctionApiMap();
         auto  &iatPatcher = IatPatcher::getInstance();
         auto  &plugins = this->mPluginManager.mLoadedPlugins;
         size_t loaded = plugins.size();
