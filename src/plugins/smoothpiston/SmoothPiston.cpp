@@ -10,6 +10,10 @@
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/PistonBlockActorRenerer.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/MovingBlockActorRenderer.h"
+#include "SDK/api/src-deps/MinecraftRenderer/frameBuilder/bgfxBridge/BgfxFrameExtractor.h"
+#include "SDK/api/src-deps/MinecraftRenderer/framebuilder/RenderMeshFallbackDescription.h"
+#include "SDK/api/src-deps/MinecraftRenderer/framebuilder/bgfxbridge/RTXUtils.h"
+#include "SDK/api/src-deps/MinecraftRenderer/framebuilder/bgfxbridge/RayTraceableMesh.h"
 #include "PistonLerpTools.h"
 
 static SmoothPistonPlugin *plugin = nullptr;
@@ -226,6 +230,67 @@ HOOK_TYPE(
     }
 }
 
+static bool isMBMesh = false;
+
+static dragon::guarded::Guarded<
+    std::unordered_map<
+        mce::framebuilder::bgfxbridge::RayTraceableMeshKey,
+        std::unique_ptr<mce::framebuilder::bgfxbridge::RayTraceableMesh>,
+        mce::framebuilder::bgfxbridge::RayTraceableMeshKeyHasher>>
+    meshCacheForMovingBlock;
+
+HOOK_STATIC(
+    RedirectMovingBlockMeshCacheHook,
+    sapphire::hook::HookPriority::Normal,
+    mce::framebuilder::bgfxbridge::rtxutils::tryGetRayTraceableMesh,
+    const mce::framebuilder::bgfxbridge::RayTraceableMesh *,
+    const mce::framebuilder::bgfxbridge::EntityCreationContext &entityContext,
+    const mce::Mesh                                            &staticMesh,
+    dragon::guarded::Guarded<
+        std::unordered_map<
+            mce::framebuilder::bgfxbridge::RayTraceableMeshKey,
+            std::unique_ptr<mce::framebuilder::bgfxbridge::RayTraceableMesh>,
+            mce::framebuilder::bgfxbridge::RayTraceableMeshKeyHasher>> &meshCache,
+    dragon::rendering::BgfxPrimitiveIndexBuffer                        &quadIndexBuffer
+) {
+    if (isMBMesh) {
+        meshCacheForMovingBlock.mValue.clear();
+        return origin(entityContext, staticMesh, meshCacheForMovingBlock, quadIndexBuffer);
+    }
+    return origin(entityContext, staticMesh, meshCache, quadIndexBuffer);
+}
+
+HOOK_TYPE(
+    ForceMovingBlockRenderAsEntityAlphatestHook,
+    mce::framebuilder::bgfxbridge::BgfxFrameExtractor,
+    sapphire::hook::HookPriority::Normal,
+    mce::framebuilder::bgfxbridge::BgfxFrameExtractor::_insert,
+    void,
+    const mce::framebuilder::bgfxbridge::EntityCreationContext &entityContext,
+    const mce::framebuilder::RenderMeshFallbackDescription     &descriptions
+) {
+    if (entityContext.mLightingModels == dragon::rendering::LightingModels::FullPathTraced
+        && descriptions.mOldMat.mRenderMaterialInfoPtr) {
+        auto &hashedName = descriptions.mOldMat.mRenderMaterialInfoPtr->mHashedName;
+        if (hashedName == HashedString::computeHash("moving_block")
+            || hashedName == HashedString::computeHash("moving_block_seasons")
+            || hashedName == HashedString::computeHash("moving_block_alpha_seasons")
+            || hashedName == HashedString::computeHash("moving_block_alpha_single_side")
+            || hashedName == HashedString::computeHash("moving_block_alpha")
+            || hashedName == HashedString::computeHash("moving_block_double_side")
+            || hashedName == HashedString::computeHash("moving_block_blend")) {
+            auto &_descriptions = const_cast<mce::framebuilder::RenderMeshFallbackDescription &>(descriptions);
+            _descriptions.mIsDrawingFirstPersonObjects = true;
+            isMBMesh = true;
+            this->origin(entityContext, descriptions);
+            isMBMesh = false;
+            _descriptions.mIsDrawingFirstPersonObjects = false;
+            return;
+        }
+    }
+    this->origin(entityContext, descriptions);
+}
+
 HOOK_TYPE(
     SmoothPistonPlugin::SmoothMovingBlockHook,
     MovingBlockActorRenderer,
@@ -318,6 +383,10 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
         Logger::Error("[SmoothPiston] PistonActorUpdatePacketHook 安装失败!");
     if (!PistonCtorHook::hook())
         Logger::Error("[SmoothPiston] PistonCtorHook 安装失败!");
+    if (!ForceMovingBlockRenderAsEntityAlphatestHook::hook())
+        Logger::Error("[SmoothPiston] ForceMovingBlockRenderAsEntityAlphatestHook 安装失败!");
+    if (!RedirectMovingBlockMeshCacheHook::hook())
+        Logger::Error("[SmoothPiston] RedirectMovingBlockMeshCacheHook 安装失败!");
 
     GuiOverlay::registerPluginSettings(
         {
@@ -337,6 +406,8 @@ SmoothPistonPlugin::~SmoothPistonPlugin() {
     PistonActorTickHook::unhook();
     PistonActorUpdatePacketHook::unhook();
     PistonCtorHook::unhook();
+    ForceMovingBlockRenderAsEntityAlphatestHook::unhook();
+    RedirectMovingBlockMeshCacheHook::unhook();
     plugin = nullptr;
 }
 
