@@ -137,15 +137,40 @@ namespace sapphire::input {
         }
     }
 
-    static KeyCode mouseButtonToKeyCode(int button) {
+    static KeyCode mouseActionToKeyCode(MouseAction::ActionType action) {
+        switch (action) {
+        case MouseAction::ActionType::ACTION_LEFT: return KeyCode::MouseLeft;
+        case MouseAction::ActionType::ACTION_RIGHT: return KeyCode::MouseRight;
+        case MouseAction::ActionType::ACTION_MIDDLE: return KeyCode::MouseMiddle;
+        case MouseAction::ActionType::ACTION_X1: return KeyCode::MouseX1;
+        case MouseAction::ActionType::ACTION_X2: return KeyCode::MouseX2;
+        default: assert("mouse Action must be a Button");
+        }
+        return KeyCode::None;
+    }
+
+    static int mouseActionToMouseButtonId(MouseAction::ActionType action) {
+        switch (action) {
+        case MouseAction::ActionType::ACTION_LEFT: return 0;
+        case MouseAction::ActionType::ACTION_RIGHT: return 1;
+        case MouseAction::ActionType::ACTION_MIDDLE: return 2;
+        case MouseAction::ActionType::ACTION_X1: return 3;
+        case MouseAction::ActionType::ACTION_X2: return 4;
+        default: assert("mouse Action must be a Button");
+        };
+        return -1;
+    }
+
+    static KeyCode mouseButtonIdToKeyCode(int button) {
         switch (button) {
         case 0: return KeyCode::MouseLeft;
         case 1: return KeyCode::MouseRight;
         case 2: return KeyCode::MouseMiddle;
         case 3: return KeyCode::MouseX1;
         case 4: return KeyCode::MouseX2;
-        default: return KeyCode::None;
+        default: assert("Invalid Button ID");
         }
+        return KeyCode::None;
     }
 
     InputManager *instance = nullptr;
@@ -175,11 +200,11 @@ namespace sapphire::input {
         case MouseAction::ActionType::ACTION_X2: {
             ImGuiIO &io = ImGui::GetIO();
             instance->_onRawMouseButtonEvent(
-                mouseButtonToKeyCode(actionButtonId - MouseAction::ActionType::ACTION_LEFT),
+                mouseActionToKeyCode(MouseAction::ActionType::ACTION_LEFT),
                 buttonData,
                 {(float)x, (float)y}
             );
-            io.AddMouseButtonEvent(actionButtonId - MouseAction::ActionType::ACTION_LEFT, buttonData);
+            io.AddMouseButtonEvent(mouseActionToMouseButtonId(MouseAction::ActionType::ACTION_LEFT), buttonData);
             break;
         }
         case MouseAction::ActionType::ACTION_WHEEL: {
@@ -378,7 +403,7 @@ namespace sapphire::input {
 
         if (button != -1) {
             io.AddMouseButtonEvent(button, true);
-            this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), true, {pos.X, pos.Y});
+            this->_onRawMouseButtonEvent(mouseButtonIdToKeyCode(button), true, {pos.X, pos.Y});
         }
         if (mBlockInput) {
             args.Handled(true);
@@ -405,7 +430,7 @@ namespace sapphire::input {
         }
         if (button != -1) {
             io.AddMouseButtonEvent(button, false);
-            this->_onRawMouseButtonEvent(mouseButtonToKeyCode(button), false, {pos.X, pos.Y});
+            this->_onRawMouseButtonEvent(mouseButtonIdToKeyCode(button), false, {pos.X, pos.Y});
         }
         if (mBlockInput) {
             args.Handled(true);
