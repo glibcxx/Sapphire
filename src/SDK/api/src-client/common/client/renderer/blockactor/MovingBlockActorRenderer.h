@@ -4,6 +4,9 @@
 #include "SDK/api/src-deps/MinecraftRenderer/Renderer/TexturePtr.h"
 
 class BlockTessellator;
+namespace mce {
+    class TextureGroup;
+}
 
 // size: 384 (1.21.2), 400 (1.21.50/1.21.60)
 class MovingBlockActorRenderer : public BlockActorRenderer {
@@ -26,6 +29,14 @@ public:
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     mce::MaterialPtr mBlockMaterials[15]; // off+160
 #endif
+
+    SDK_API MovingBlockActorRenderer(std::shared_ptr<mce::TextureGroup> textures, BlockTessellator &blockTessellator);
+#pragma SPHR_LINKER_SYM_ALIAS(                                                                                  \
+    "??0MovingBlockActorRenderer@@QEAA@V?$shared_ptr@VTextureGroup@mce@@@std@@AEAVBlockTessellator@@@Z",        \
+    "?ctor@MovingBlockActorRenderer@@QEAAPEAV1@V?$shared_ptr@VTextureGroup@mce@@@std@@AEAVBlockTessellator@@@Z" \
+)
+
+    SDK_API MovingBlockActorRenderer *ctor(std::shared_ptr<mce::TextureGroup> textures, BlockTessellator &blockTessellator);
 
     // vtb+2
     SDK_API virtual void render(BaseActorRenderContext &context, BlockActorRenderData &renderData) override;

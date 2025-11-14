@@ -46,7 +46,10 @@ namespace mce {
         bool isUsingVRPatch;              // off+112
         bool isDrawingEnvironmentalText;  // off+113
         bool mUnk114;                     // off+114
-        // padding: 5 bytes
+#if MC_VERSION == v1_21_60
+        bool mUnk115; // off+115
+        bool mUnk116; // off+116
+#endif
     };
     static_assert(sizeof(MeshContext::immediateBuffer) == 24);
     static_assert(sizeof(MeshContext) == 120);

@@ -37,6 +37,11 @@ namespace mce {
 #pragma SPHR_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
 
         SDK_API Mesh *ctor(mce::Mesh &&c);
+
+        SDK_API ~Mesh() noexcept;
+#pragma SPHR_LINKER_SYM_ALIAS("??1Mesh@mce@@QEAA@XZ", "?dtor@Mesh@mce@@QEAAXXZ")
+
+        SDK_API void dtor() noexcept;
     };
 #if MC_VERSION == v1_21_2
     static_assert(sizeof(Mesh) == 536);
