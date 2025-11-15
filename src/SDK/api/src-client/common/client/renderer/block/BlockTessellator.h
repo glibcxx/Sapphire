@@ -12,6 +12,10 @@
 
 class Block;
 class BlockSource;
+class Tessellator;
+class LightTexture;
+class BlockOccluder;
+struct AirAndSimpleBlockBits;
 namespace mce {
     class Mesh;
 }
@@ -98,4 +102,55 @@ public:
 #pragma SPHR_LINKER_SYM_ALIAS("??1BlockTessellator@@QEAA@XZ", "?dtor@BlockTessellator@@QEAAXXZ")
 
     SDK_API void dtor() noexcept;
+
+    SDK_API mce::Mesh &getMeshForBlockInWorld(
+        Tessellator     &tessellator,
+        const Block     &block,
+        BlockPos        &blockPos,
+        BlockRenderLayer layer,
+        const void      *owner,
+        bool             useOccluder,
+        bool             tmpUseRegion,
+        LightTexture    &lightTexture
+    );
+
+    SDK_API void setBlockExtraDataMap(BlockTessellatorCustomExtraData::Map map);
+
+    SDK_API bool tessellateInWorld(
+        Tessellator &tessellator, const Block &block, const BlockPos &pos, bool renderBothSides
+    );
+
+    SDK_API bool tessellateBlockInWorld(
+        Tessellator                 &tessellator,
+        const Block                 &block,
+        const BlockPos              &pos,
+        int                          faces,
+        const AirAndSimpleBlockBits *airAndSimpleBlocks
+    );
+
+    SDK_API bool tessellateBlockInWorldFlat(
+        Tessellator      &tessellator,
+        const Block      &block,
+        const BlockPos   &pos,
+        const mce::Color &base,
+        BlockOccluder    *occluder,
+        int               faces,
+        int               forcedVariant
+    );
+
+    SDK_API bool tessellateBlockInWorldWithAmbienceOcclusion(
+        Tessellator      &tessellator,
+        const Block      &block,
+        BlockPos         *p,
+        const mce::Color &base,
+        BlockOccluder    *occluder,
+        int               faces,
+        int               forcedVariant
+    );
+
+    SDK_API const TextureUVCoordinateSet &_getTexture(
+        const BlockPos &pos, const Block &block, FacingID face, int forcedVariant, BlockGraphics *blockGraphics
+    ) const;
+
+    SDK_API const AABB &getCurrentShape();
 };
