@@ -13,15 +13,18 @@
 #include "SDK/api/src-deps/Renderer/Camera.h"
 #include "SDK/api/src-deps/Renderer/ViewportInfo.h"
 #include "SDK/api/src-deps/Core/File/StorageAreaStateListener.h"
+#include "SDK/api/src-deps/Core/Utility/pubsub/Subscription.h"
 #include "SDK/api/src-deps/MinecraftRenderer/renderer/TexturePtr.h"
 
 class ToastManager;
 class Certificate;
 class LegacyClientNetworkHandler;
 class LevelListener;
+class IAdvancedGraphicsOptions;
 class IMinecraftGame;
 class ClientInstanceEventCoordinator;
 class ClientNetworkEventCoordinator;
+class HitDetectEventListener;
 class ClientScriptEventCoordinator;
 class KeyboardManager;
 class GuiData;
@@ -140,29 +143,29 @@ public:
         WYSIWYGState       mWYSIWYGState;                    // off+28
     };
 
-    ;                                                                  // off+(1.21.50)
-    ClientInstanceState                     mClientState;              // off+160
-    IMinecraftApp                          &mApp;                      // off+168
-    LevelListener                          &mLevelListener;            // off+176
-    Bedrock::NotNullNonOwnerPtr<void>       mUnk184;                   // off+184
-    IMinecraftGame                         &mMinecraftGame;            // off+208
-    std::unique_ptr<Minecraft>              mMinecraft;                // off+216
-    bool                                    mIsFullVanillaPackOnStack; // off+224
-    std::unique_ptr<LevelRenderer>          mLevelRenderer;            // off+232
-    std::unique_ptr<LightTexture>           mLightTexture;             // off+240
-    std::unique_ptr<LoopbackPacketSender>   mPacketSender;             // off+248
-    std::unique_ptr<HolographicPlatform>    mHoloInput;                // off+256
-    std::unique_ptr<VoiceSystem>            mVoiceSystem;              // off+264
-    std::unique_ptr<ClientMoveInputHandler> mClientMoveInputHandler;   // off+272
-    std::unique_ptr<ClientInputHandler>     mClientInputHandler;       // off+280
-    std::unique_ptr<KeyboardManager>        mKeyboardManager;          // off+288
-    std::unique_ptr<HitDetectSystem>        mHitDetectSystem;          // off+296
-    std::shared_ptr<UserAuthentication>     mUserAuthentication;       // off+304
-    std::unique_ptr<SceneFactory>           mSceneFactory;             // off+320
-    std::unique_ptr<CachedScenes>           mCachesScenes;             // off+328
-    WeakEntityRef                           mCameraEntity;             // off+336
-    WeakEntityRef                           mCameraTargetEntity;       // off+360
-    WeakEntityRef                           mPlayer;                   // off+384
+    ;                                                                                // off+(1.21.50)
+    ClientInstanceState                                   mClientState;              // off+160
+    IMinecraftApp                                        &mApp;                      // off+168
+    LevelListener                                        &mLevelListener;            // off+176
+    Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions> mAdvancedGraphicsOptions;  // off+184
+    IMinecraftGame                                       &mMinecraftGame;            // off+208
+    std::unique_ptr<Minecraft>                            mMinecraft;                // off+216
+    bool                                                  mIsFullVanillaPackOnStack; // off+224
+    std::unique_ptr<LevelRenderer>                        mLevelRenderer;            // off+232
+    std::unique_ptr<LightTexture>                         mLightTexture;             // off+240
+    std::unique_ptr<LoopbackPacketSender>                 mPacketSender;             // off+248
+    std::unique_ptr<HolographicPlatform>                  mHoloInput;                // off+256
+    std::unique_ptr<VoiceSystem>                          mVoiceSystem;              // off+264
+    std::unique_ptr<ClientMoveInputHandler>               mClientMoveInputHandler;   // off+272
+    std::unique_ptr<ClientInputHandler>                   mClientInputHandler;       // off+280
+    std::unique_ptr<KeyboardManager>                      mKeyboardManager;          // off+288
+    std::unique_ptr<HitDetectSystem>                      mHitDetectSystem;          // off+296
+    std::shared_ptr<UserAuthentication>                   mUserAuthentication;       // off+304
+    std::unique_ptr<SceneFactory>                         mSceneFactory;             // off+320
+    std::unique_ptr<CachedScenes>                         mCachesScenes;             // off+328
+    WeakEntityRef                                         mCameraEntity;             // off+336
+    WeakEntityRef                                         mCameraTargetEntity;       // off+360
+    WeakEntityRef                                         mLocalPlayer;              // off+384
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     __int64 mUnk408[6]; // off+408
 #endif
@@ -212,25 +215,26 @@ public:
     std::shared_ptr<ToastManager>               mToastManager;                   // off+1448
     const SubClientId                           mClientSubId;                    // off+1464
     std::unique_ptr<ClipboardProxy<ApplicationSignal::ClipboardCopy, ApplicationSignal::ClipboardPasteRequest>>
-                                                                mClipboardManager;              // off+1472
-    std::unique_ptr<SkinRepositoryClientInterface>              mSkinRepositoryClientInterface; // off+1480
-    std::shared_ptr<persona::PersonaPieceCollectionModel>       mPersonaPieceCollectionModel;   // off+1488
-    ClientHMDState                                              mHMDState;                      // off+1504
-    std::unique_ptr<FogDefinitionRegistry>                      mFogDefinitionRegistry;         // off+2144
-    std::unique_ptr<FogManager>                                 mFogManager;                    // off+2152
-    bool                                                        mIsSceneStackChanging;          // off+2160
-    std::unique_ptr<ScreenLoadTimeTracker>                      mScreenLoadTimeTracker;         // off+2168
-    float                                                       mRemoteServerTimeMs;            // off+2176
-    float                                                       mRemoteServerNetworkTimeMs;     // off+2180
-    std::shared_ptr<PlayerReportHandler>                        mPlayerReportHandler;           // off+2184
-    bool                                                        mHasSwitchedScreen;             // off+2200
-    bool                                                        mShouldLeaveGame;               // off+2201
-    bool                                                        mPreparingToLeaveGame;          // off+2202
-    bool                                                        mIsLeavingGame;                 // off+2203
-    bool                                                        mSyncLeaveGame;                 // off+2204
-    bool                                                        mDestroyingGame;                // off+2205
-    bool                                                        mShuttingDown;                  // off+2206
-    std::optional<std::aligned_storage_t<424 - 8, 8>>           mUnk2208;                       // off+2208
+                                                          mClipboardManager;              // off+1472
+    std::unique_ptr<SkinRepositoryClientInterface>        mSkinRepositoryClientInterface; // off+1480
+    std::shared_ptr<persona::PersonaPieceCollectionModel> mPersonaPieceCollectionModel;   // off+1488
+    ClientHMDState                                        mHMDState;                      // off+1504
+    std::unique_ptr<FogDefinitionRegistry>                mFogDefinitionRegistry;         // off+2144
+    std::unique_ptr<FogManager>                           mFogManager;                    // off+2152
+    bool                                                  mIsSceneStackChanging;          // off+2160
+    std::unique_ptr<ScreenLoadTimeTracker>                mScreenLoadTimeTracker;         // off+2168
+    float                                                 mRemoteServerTimeMs;            // off+2176
+    float                                                 mRemoteServerNetworkTimeMs;     // off+2180
+    std::shared_ptr<PlayerReportHandler>                  mPlayerReportHandler;           // off+2184
+    bool                                                  mHasSwitchedScreen;             // off+2200
+    bool                                                  mShouldLeaveGame;               // off+2201
+    bool                                                  mPreparingToLeaveGame;          // off+2202
+    bool                                                  mIsLeavingGame;                 // off+2203
+    bool                                                  mSyncLeaveGame;                 // off+2204
+    bool                                                  mDestroyingGame;                // off+2205
+    bool                                                  mShuttingDown;                  // off+2206
+    std::optional<std::aligned_storage_t<424 - 8, 8> /*Social::GameConnectionInfo*/>
+                                                                mGameConnectionInfo;            // off+2208
     char                                                        mUnk2632;                       // off+2632
     char                                                        mUnk2633;                       // off+2633
     char                                                        mUnk2634;                       // off+2634
@@ -245,7 +249,7 @@ public:
     std::unique_ptr<UIEventCoordinator>                         mUIEventCoordinator;            // off+2824
     std::unique_ptr<ClientHitDetectCoordinator>                 mHitEventCoordinator;           // off+2832
     std::unique_ptr<ClientNetworkEventCoordinator>              mClientNetworkEventCoordinator; // off+2840
-    std::unique_ptr<__int64>                                    mUnk2848;                       // off+2848
+    std::unique_ptr<HitDetectEventListener>                     mHitDetectEventListener;        // off+2848
     std::unique_ptr<ClientScriptEventCoordinator>               mClientScriptEventCoordinator;  // off+2856
     std::unique_ptr<EducationOptions>                           mEducationOptions;              // off+2864
     std::shared_ptr<Core::FileStorageArea>                      mActiveFileStorageArea;         // off+2872
@@ -256,7 +260,7 @@ public:
     std::unique_ptr<GameModuleClient>                           mGameModule;                    // off+2920
     Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> mEventCoordinator;              // off+2928
     std::unique_ptr<ClientScriptManager>                        mClientScriptManager;           // off+2952
-    std::aligned_storage_t<16, 8>                               mUnk2960;                       // off+2960
+    Bedrock::PubSub::Subscription                               mUnk2960;                       // off+2960
     std::unique_ptr<PlayerCapabilities::IClientController>      mClientCapabilities;            // off+2976
     std::unique_ptr<OreUI::SceneProvider>                       mSceneProvider;                 // off+2984
     std::unique_ptr<ui::ScreenTechStackSelector>                mScreenTechStackSelector;       // off+2992
@@ -281,7 +285,7 @@ public:
     bool                          mClientUpdateAndRenderThrottlingEnabled;   // off+3176
     int                           mClientUpdateAndRenderThrottlingThreshold; // off+3180
     float                         mClientUpdateAndRenderThrottlingScalar;    // off+3184
-    std::aligned_storage_t<16, 8> mUnk3192;                                  // off+3192
+    Bedrock::PubSub::Subscription mUnk3192;                                  // off+3192
     std::mutex                    mUserLock;                                 // off+3208
     std::shared_ptr<Social::User> mUser;                                     // off+3288
 #if MC_VERSION == v1_21_60
