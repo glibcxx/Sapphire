@@ -38,7 +38,7 @@ namespace mce::framebuilder {
         std::unique_ptr<dragon::rendering::BgfxPrimitiveIndexBuffer>                    mQuadIndexBuffer;                      // off+608
         std::unique_ptr<dragon::rendering::BgfxPrimitiveIndexBuffer>                    mSequenceIndexBuffer;                  // off+616
         uint8_t                                                                         _fill624[212];                         // off+624
-        uint32_t                                                                        mUnk836;                               // off+836
+        dragon::rendering::LightingModels                                               mLightingModel;                        // off+836
         uint8_t                                                                         mUnk840;                               // off+840
         uint8_t                                                                         _fill841[31];                          // off+841
         std::shared_ptr<dragon::frameobject::GameFrame>                                 mTransactionConsumerFrame;             // off+872
@@ -61,6 +61,16 @@ namespace mce::framebuilder {
         std::vector<dragon::rendering::Camera>                                          mDebugCameras;                         // off+1208
         std::optional<bgfxbridge::UITarget>                                             mPersistentUiView;                     // off+1232
         std::optional<bgfxbridge::UITarget>                                             mUnk1288;                              // off+1288
+
+        SDK_API BgfxFrameBuilder(
+            WorkerPool                                   &rendererWorkerPool,
+            gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
+            Scheduler                                    &scheduler
+        );
+#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                         \
+    "??0BgfxFrameBuilder@framebuilder@mce@@QEAA@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z",          \
+    "?ctor@BgfxFrameBuilder@framebuilder@mce@@QEAAPEAV123@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z" \
+)
 
         SDK_API BgfxFrameBuilder *ctor(
             WorkerPool                                   &rendererWorkerPool,
