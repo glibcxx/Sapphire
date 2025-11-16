@@ -2,6 +2,7 @@
 
 #include "SDK/api/src/common/world/level/ChunkPos.h"
 #include "SDK/api/src/common/world/phys/Vec3.h"
+#include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
 #include "SDK/api/sapphire/event/EventManager.h"

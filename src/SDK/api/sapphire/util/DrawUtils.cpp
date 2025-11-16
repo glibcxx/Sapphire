@@ -2,6 +2,7 @@
 
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src-client/common/client/renderer/MeshHelpers.h"
+#include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-deps/Coregraphics/RenderMaterialGroup.h"
 #include "util/ScopeGuard.hpp"
 

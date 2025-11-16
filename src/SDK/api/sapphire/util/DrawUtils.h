@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include "SDK/api/src/common/world/phys/AABB.h"
 #include "SDK/api/src-client/common/client/renderer/Tessellator.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src-client/common/client/renderer/game/LevelRenderer.h"

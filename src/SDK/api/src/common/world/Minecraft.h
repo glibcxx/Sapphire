@@ -62,6 +62,7 @@ public:
     virtual void updateScreens() = 0;
 };
 
+// size: 304 (1.21.50)
 class Minecraft : public IEntityRegistryOwner {
 public:
     GameCallbacks                                     &mGameCallbacks;         // off+24
