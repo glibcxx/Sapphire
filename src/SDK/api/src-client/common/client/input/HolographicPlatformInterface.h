@@ -189,4 +189,8 @@ public:
 
     // vtb+0
     virtual ~HolographicPlatform();
+
+    SDK_API Matrix _getTransform(TransformSpace spaceA, TransformSpace spaceB);
+
+    SDK_API void _makeTransform(TransformSpace spaceA, TransformSpace spaceB);
 };
