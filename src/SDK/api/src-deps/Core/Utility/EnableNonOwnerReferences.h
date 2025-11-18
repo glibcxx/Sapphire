@@ -10,10 +10,17 @@ namespace Bedrock {
     public:
         struct ControlBlock {
 #if MC_VERSION == v1_21_2
-            EnableNonOwnerReferences* mPtr;
+            EnableNonOwnerReferences *mPtr;
 #elif MC_VERSION >= v1_21_50
-            bool mIsValid;
+            bool mIsValid = true;
 #endif
+            ~ControlBlock() {
+#if MC_VERSION == v1_21_2
+                mPtr = nullptr;
+#elif MC_VERSION >= v1_21_50
+                mIsValid = false;
+#endif
+            }
         };
 
         std::shared_ptr<ControlBlock> mControlBlock; // off+8

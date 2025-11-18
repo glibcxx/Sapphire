@@ -3,6 +3,7 @@
 #include "SDK/api/src/common/CommonTypes.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 #include "SDK/api/src/common/entity/gamerefs_entity/IEntityRegistryOwner.h"
+#include "SDK/api/src/common/network/ClientOrServerNetworkSystemRef.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 
 class IMinecraftEventing;
@@ -87,7 +88,7 @@ public:
     std::unique_ptr<MinecraftGameTest>                 mGameTest;              // off+216
     Timer                                             &mSimTimer;              // off+224
     Timer                                             &mRealTimer;             // off+232
-    std::aligned_storage_t<16, 8>                      mNetwork;               // off+240
+    ClientOrServerNetworkSystemRef                     mNetwork;               // off+240
     PacketSender                                      &mPacketSender;          // off+256
     IMinecraftApp                                     &mApp;                   // off+264
     SubClientId                                        mClientSubId;           // off+272
