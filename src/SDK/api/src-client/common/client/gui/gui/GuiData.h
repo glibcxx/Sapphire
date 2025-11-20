@@ -1,6 +1,5 @@
 #pragma once
 
-#include <set>
 #include "SDK/api/src-client/common/client/game/IConfigListener.h"
 #include "SDK/api/src/common/AppPlatformListener.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
@@ -18,7 +17,6 @@ class IClientInstance;
 class DevConsoleLogger;
 
 enum class ContainerID : signed char;
-
 
 #if MC_VERSION == v1_21_2 || MC_VERSION == v1_21_50
 // size: 2504 (1.21.2), 2704 (1.21.50)

@@ -9,6 +9,8 @@ class ActorUniqueID;
 class WeakEntityRef;
 class Dimension;
 class ExpressionNode;
+class ParticleRenderData;
+class ClientFrameUpdateContext;
 
 namespace ParticleSystem {
 
@@ -83,10 +85,10 @@ namespace ParticleSystem {
         virtual void tick(const std::chrono::nanoseconds &dtIn, const float a) = 0;
 
         // vtb+22
-        virtual void frameUpdate(class ClientFrameUpdateContext &clientFrameUpdateContext) = 0;
+        virtual void frameUpdate(ClientFrameUpdateContext &clientFrameUpdateContext) = 0;
 
         // vtb+23
-        virtual void extractForRendering(class ParticleRenderData &particleRenderData, float a) = 0;
+        virtual void extractForRendering(ParticleRenderData &particleRenderData, float a) = 0;
 
         // vtb+24
         virtual void setManualParticleEmission(bool manualParticleEmission) = 0;

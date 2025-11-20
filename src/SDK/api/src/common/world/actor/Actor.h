@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDK/api/src/common/ActorUniqueID.h"
 #include "SDK/api/src/common/entity/gamerefs_entity/EntityContext.h"
 
 class Actor {
@@ -8,7 +9,10 @@ public:
 
     // ...
 
-    virtual ~Actor() {}
+    // vtb+0
+    virtual ~Actor();
+
+    SDK_API const ActorUniqueID &getOrCreateUniqueID() const;
 
     template <typename T>
     T *tryGetComponent() {
