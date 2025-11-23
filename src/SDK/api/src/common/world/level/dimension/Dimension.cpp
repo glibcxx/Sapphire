@@ -3,8 +3,8 @@
 Dimension *Dimension::ctor(
     ILevel &level, DimensionType dimId, DimensionHeightRange heightRange, Scheduler &callbackContext, std::string name
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86"_sig,
         &Dimension::ctor>;
-    return (this->*Hook::origin)(level, dimId, heightRange, callbackContext, name);
+    return (this->*Bind::origin)(level, dimId, heightRange, callbackContext, name);
 }

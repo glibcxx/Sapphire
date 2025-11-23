@@ -1,7 +1,8 @@
 #include "ClientInstance.h"
 
-#include "SDK/core/Core.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/api/sapphire/platform/Environment.h"
+#include "SDK/core/Runtime.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "util/ScopeGuard.hpp"
 
@@ -9,7 +10,7 @@
 #include "SDK/api/src-client/common/client/network/LegacyClientNetworkHandler.h"
 
 void *const *ClientInstance::__vftable0 = reinterpret_cast<void *const *>(
-    sapphire::Core::getInstance().getImagebase()
+    sapphire::platform::Environment::getInstance().getImagebase()
 #if MC_VERSION == v1_21_2
     + 0x4CBCB68
 #elif MC_VERSION == v1_21_50
@@ -20,7 +21,7 @@ void *const *ClientInstance::__vftable0 = reinterpret_cast<void *const *>(
 );
 
 void *const *ClientInstance::__vftable1 = reinterpret_cast<void *const *>(
-    sapphire::Core::getInstance().getImagebase()
+    sapphire::platform::Environment::getInstance().getImagebase()
 #if MC_VERSION == v1_21_2
     + 0x4CBD920
 #elif MC_VERSION == v1_21_50
@@ -31,7 +32,7 @@ void *const *ClientInstance::__vftable1 = reinterpret_cast<void *const *>(
 );
 
 void *const *ClientInstance::__vftable2 = reinterpret_cast<void *const *>(
-    sapphire::Core::getInstance().getImagebase()
+    sapphire::platform::Environment::getInstance().getImagebase()
 #if MC_VERSION == v1_21_2
     + 0x4CBD948
 #elif MC_VERSION == v1_21_50
@@ -42,7 +43,7 @@ void *const *ClientInstance::__vftable2 = reinterpret_cast<void *const *>(
 );
 
 void *const *ClientInstance::__vftable3 = reinterpret_cast<void *const *>(
-    sapphire::Core::getInstance().getImagebase()
+    sapphire::platform::Environment::getInstance().getImagebase()
 #if MC_VERSION == v1_21_2
     + 0x4CBD9A0
 #elif MC_VERSION == v1_21_50
@@ -55,7 +56,7 @@ void *const *ClientInstance::__vftable3 = reinterpret_cast<void *const *>(
 ClientInstance *ClientInstance::primaryClientInstance = nullptr;
 
 void ClientInstance::onDestroyMinecraftGame() {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x03"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
@@ -63,18 +64,18 @@ void ClientInstance::onDestroyMinecraftGame() {
 #endif
         &ClientInstance::onDestroyMinecraftGame,
         SPHR_FUNCDNAME>;
-    (this->*Hook::origin)();
+    (this->*Bind::origin)();
 }
 
 RenderCameraComponent *ClientInstance::getRenderCameraComponent() const {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x85\xC0\x74\x00\xF3\x0F\x10\x58\x00\xF3\x0F\x10\x05"_sig,
         &ClientInstance::getRenderCameraComponent>;
-    return (this->*Hook::origin)();
+    return (this->*Bind::origin)();
 }
 
 bool ClientInstance::getRenderPlayerModel() const {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x0F\x57\xC0"_sig,
 #elif MC_VERSION == v1_21_50
@@ -83,11 +84,11 @@ bool ClientInstance::getRenderPlayerModel() const {
         "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x70\x00\x48\x89\x78\x00\x55\x41\x56\x41\x57\x48\x8D\x68\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4C\x8B\xF1"_sig,
 #endif
         &ClientInstance::getRenderPlayerModel>;
-    return (this->*Hook::origin)();
+    return (this->*Bind::origin)();
 }
 
 std::unique_ptr<LegacyClientNetworkHandler> ClientInstance::_createNetworkHandler(std::unique_ptr<Certificate> cert) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x48\x89\x38\x48\x89\x54\x24\x00\x48\x8D\x54\x24\x00\x48\x8B\xCB\xE8\x00\x00\x00\x00\x90\x48\x8B\x4C\x24"_sig,
 #elif MC_VERSION == v1_21_50
@@ -96,5 +97,5 @@ std::unique_ptr<LegacyClientNetworkHandler> ClientInstance::_createNetworkHandle
         "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x33\xED"_sig,
 #endif
         &ClientInstance::_createNetworkHandler>;
-    return (this->*Hook::origin)(std::move(cert));
+    return (this->*Bind::origin)(std::move(cert));
 }

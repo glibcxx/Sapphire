@@ -17,6 +17,7 @@
 #include "PistonLerpTools.h"
 
 static SmoothPistonPlugin *plugin = nullptr;
+static sapphire::Logger    sLogger{"SmoothPiston"};
 
 class ClientPistonBlockActor : public PistonBlockActor {
 public:
@@ -374,19 +375,19 @@ HOOK_TYPE(
 SmoothPistonPlugin::SmoothPistonPlugin() {
     plugin = this;
     if (!SmoothMovingBlockHook::hook())
-        Logger::Error("[SmoothPiston] SmoothMovingBlockHook 安装失败!");
+        sLogger.error("SmoothMovingBlockHook 安装失败!");
     if (!SmoothPistonArmHook::hook())
-        Logger::Error("[SmoothPiston] SmoothPistonArmHook 安装失败！");
+        sLogger.error("SmoothPistonArmHook 安装失败！");
     if (!PistonActorTickHook::hook())
-        Logger::Error("[SmoothPiston] PistonSeparatorHook 安装失败!");
+        sLogger.error("PistonSeparatorHook 安装失败!");
     if (!PistonActorUpdatePacketHook::hook())
-        Logger::Error("[SmoothPiston] PistonActorUpdatePacketHook 安装失败!");
+        sLogger.error("PistonActorUpdatePacketHook 安装失败!");
     if (!PistonCtorHook::hook())
-        Logger::Error("[SmoothPiston] PistonCtorHook 安装失败!");
+        sLogger.error("PistonCtorHook 安装失败!");
     if (!ForceMovingBlockRenderAsEntityAlphatestHook::hook())
-        Logger::Error("[SmoothPiston] ForceMovingBlockRenderAsEntityAlphatestHook 安装失败!");
+        sLogger.error("ForceMovingBlockRenderAsEntityAlphatestHook 安装失败!");
     if (!RedirectMovingBlockMeshCacheHook::hook())
-        Logger::Error("[SmoothPiston] RedirectMovingBlockMeshCacheHook 安装失败!");
+        sLogger.error("RedirectMovingBlockMeshCacheHook 安装失败!");
 
     GuiOverlay::registerPluginSettings(
         {

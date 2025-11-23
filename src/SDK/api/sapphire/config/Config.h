@@ -7,7 +7,6 @@
 #include <optional>
 #include <nlohmann/json.hpp>
 
-#include "SDK/core/ApiManager.h"
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "imgui.h"
 
@@ -50,7 +49,7 @@ namespace sapphire::inline config {
             if (ofs.is_open()) {
                 ofs << mData.dump(4);
             }
-            Logger::Debug("[Config] saved: {}", mPath.string());
+            sapphire::debug("Config: saved: {}", mPath.string());
             mIsDirty = false;
         }
 
@@ -58,9 +57,9 @@ namespace sapphire::inline config {
             std::ifstream ifs{mPath};
             if (ifs.is_open()) {
                 ifs >> mData;
-                Logger::Debug("[Config] loaded: {}", mPath.string());
+                sapphire::debug("Config: loaded: {}", mPath.string());
             } else {
-                Logger::Debug("[Config] new Config: {}", mPath.string());
+                sapphire::debug("Config: new Config: {}", mPath.string());
                 save();
             }
             mIsDirty = false;

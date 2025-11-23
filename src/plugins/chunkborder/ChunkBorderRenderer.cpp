@@ -5,7 +5,7 @@
 #include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
-#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 
@@ -107,9 +107,8 @@ void setupSettings() {
 }
 
 void installChunkBorderRender() {
-    Logger::Debug("installChunkBorderRender()");
     drawUtils = &DrawUtils::getInstance();
-    renderListener = sapphire::event::EventManager::getInstance()
+    renderListener = sapphire::event::EventBus::getInstance()
                          .registerAutoListener<sapphire::event::RenderLevelEvent>(onRenderLevel);
     setupSettings();
 }

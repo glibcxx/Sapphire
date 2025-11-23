@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "IMinecraftGame.h"
 #include "SDK/api/src/common/App.h"
 #include "SDK/api/src/common/CommonTypes.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "SDK/api/src-client/common/client/renderer/game/HoloHudDriftDynamics.h"
 #include "SDK/api/src-client/common/client/input/HolographicPlatformInterface.h"

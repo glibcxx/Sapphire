@@ -1,11 +1,11 @@
 #include "PistonBlockActor.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 PistonBlockActor *PistonBlockActor::ctor(const BlockPos &pos, bool isSticky) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x40\x53\x48\x83\xEC\x00\x45\x0F\xB6\xD0"_sig,
         &PistonBlockActor::ctor>;
-    return (this->*Hook::origin)(pos, isSticky);
+    return (this->*Bind::origin)(pos, isSticky);
 }
 
 void PistonBlockActor::load(
@@ -13,7 +13,7 @@ void PistonBlockActor::load(
     const CompoundTag &tag,
     DataLoadHelper    &dataLoadHelper
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\xB4\x24\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4C\x89\x4D"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
@@ -21,45 +21,45 @@ void PistonBlockActor::load(
 #endif
         &PistonBlockActor::load,
         SPHR_FUNCDNAME>;
-    (this->*Hook::origin)(level, tag, dataLoadHelper);
+    (this->*Bind::origin)(level, tag, dataLoadHelper);
 }
 
 void PistonBlockActor::tick(class BlockSource &region) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x44\x0F\x29\x40\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x4C\x8B\xF2\x48\x8B\xF1"_sig,
         &PistonBlockActor::tick,
         SPHR_FUNCDNAME>;
-    (this->*Hook::origin)(region);
+    (this->*Bind::origin)(region);
 }
 
 void PistonBlockActor::_onUpdatePacket(const CompoundTag &data, BlockSource &region) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x40\x53\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x0F\xB6\xB9"_sig,
         &PistonBlockActor::_onUpdatePacket>;
-    (this->*Hook::origin)(data, region);
+    (this->*Bind::origin)(data, region);
 }
 
 void PistonBlockActor::_spawnBlocks(BlockSource &region) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x55\x56\x41\x55\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\x02\x4C\x8B\xF2\x4C\x8B\xE1"_sig,
 #endif
         &PistonBlockActor::_spawnBlocks>;
-    (this->*Hook::origin)(region);
+    (this->*Bind::origin)(region);
 }
 
 void PistonBlockActor::_spawnMovingBlock(BlockSource &region, const BlockPos &blockPos) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x83\xC3\x0C\x48\x3B\xDF\x75\x00\x48\x8B\x4C\x24"_sig,
         &PistonBlockActor::_spawnMovingBlock>;
-    (this->*Hook::origin)(region, blockPos);
+    (this->*Bind::origin)(region, blockPos);
 }
 
 void PistonBlockActor::_sortAttachedBlocks(BlockSource &region) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x40\x53\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x48\x8B\x02\x4C\x8B\xC2"_sig,
         &PistonBlockActor::_sortAttachedBlocks>;
-    (this->*Hook::origin)(region);
+    (this->*Bind::origin)(region);
 }

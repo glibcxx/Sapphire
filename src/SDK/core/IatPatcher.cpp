@@ -2,29 +2,13 @@
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "PluginManager.h"
 
-namespace sapphire {
+namespace sapphire::core {
 
-    IatPatcher &IatPatcher::getInstance() {
-        static IatPatcher instance;
-        return instance;
-    }
+    static int dummy;
 
-    IatPatcher::IatPatcher() {
-        HMODULE hSelf = nullptr;
-        GetModuleHandleExA(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-            (LPCSTR)&IatPatcher::getInstance,
-            &hSelf
-        );
-
-        char szSdkPath[MAX_PATH];
-        GetModuleFileNameA(hSelf, szSdkPath, MAX_PATH);
-
-        const char *pFileName = strrchr(szSdkPath, '\\');
-        if (pFileName) {
-            mDllNames.emplace_back(pFileName + 1);
-            Logger::Debug("[IatPatcher] Patcher initialized. SDK module name: {}", pFileName + 1);
-        }
+    IatPatcher::IatPatcher(const std::string &sapphireCoreDllName) {
+        mDllNames.emplace_back(sapphireCoreDllName);
+        sapphire::debug("IatPatcher: Patcher initialized. SDK module name: {}", sapphireCoreDllName);
     }
 
     void IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap) {
@@ -49,7 +33,7 @@ namespace sapphire {
         auto pNtHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(pImageBase + pDosHeader->e_lfanew);
         if (pNtHeaders->Signature != IMAGE_NT_SIGNATURE) return false;
 
-        Logger::Debug("[IatPatcher] Patching module at '{}'", (void *)pImageBase);
+        sapphire::debug("IatPatcher: Patching module at '{}'", (void *)pImageBase);
 
         IMAGE_DATA_DIRECTORY &importDirectory = pNtHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
         if (importDirectory.VirtualAddress == 0) return true;
@@ -82,8 +66,8 @@ namespace sapphire {
                 auto it = apiMap.find(functionName);
                 if (it != apiMap.end()) {
                     auto realAddress = it->second;
-                    Logger::Debug(
-                        "[IatPatcher]  -> Redirecting function '{}' to address {}", functionName, realAddress
+                    sapphire::debug(
+                        "IatPatcher:  -> Redirecting function '{}' to address {}", functionName, realAddress
                     );
 
                     DWORD oldProtect;
@@ -96,7 +80,7 @@ namespace sapphire {
                     std::string_view n{functionName};
                     if (n.find("sapphire@@") == std::string_view::npos
                         && n.find("ImGui@@") == std::string_view::npos)
-                        Logger::Debug("[IatPatcher]  -> function '{}' not found in api map", functionName);
+                        sapphire::debug("IatPatcher:  -> function '{}' not found in api map", functionName);
 #endif
                 }
             }
@@ -104,4 +88,4 @@ namespace sapphire {
         return true;
     }
 
-} // namespace sapphire
+} // namespace sapphire::core

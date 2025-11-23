@@ -1,10 +1,10 @@
-#include "ApiManager.h"
+#include "SymbolResolver.h"
 
 #include "util/MemoryScanning.hpp"
 
 namespace sapphire {
 
-    uintptr_t ApiManager::_scanApi(const char *sig, size_t sigLength) {
+    uintptr_t SymbolResolver::_scanApi(const char *sig, size_t sigLength) {
         return memory::scanSignature(
             this->mMainModuleInfo.mTextSectionStart,
             this->mMainModuleInfo.mTextSectionSize,
@@ -13,10 +13,9 @@ namespace sapphire {
         );
     }
 
-    ApiManager &ApiManager::getInstance() {
-        static ApiManager instance;
+    SymbolResolver &SymbolResolver::getInstance() {
+        static SymbolResolver instance;
         return instance;
     }
-
 
 } // namespace sapphire

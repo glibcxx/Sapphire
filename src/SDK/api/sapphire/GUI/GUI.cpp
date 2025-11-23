@@ -1,10 +1,11 @@
 #include "GUI.h"
 
-#include "SDK/core/Core.h"
-#include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "SDK/core/Runtime.h"
+#include "SDK/api/sapphire/platform/Environment.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
-#include "SDK/api/sapphire/event/EventManager.h"
 #include "SDK/api/sapphire/input/InputManager.h"
+#include "SDK/api/src-client/common/client/game/ClientInstance.h"
 
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
@@ -12,10 +13,138 @@
 using namespace std::chrono_literals;
 using namespace sapphire::event;
 
+namespace {
+
+    class GuiSink : public sapphire::ILogSink {
+        std::vector<sapphire::LogEvent> mItems;
+        ImGuiTextFilter                 mTextFilter;
+        bool                            mWordWrap = false;
+        bool                            mAutoScroll = true;
+
+        std::array<bool, 4> mLevelFilters = {true, true, true, true};
+
+        bool mShowTimestamp = false;
+        bool mShowLogLevel = true;
+        bool mShowModuleName = true;
+
+    public:
+        void emit(const sapphire::LogEvent &event) override {
+            mItems.push_back(event);
+        }
+
+        void clearLogs() {
+            mItems.clear();
+        }
+
+        void draw(const char *title, bool *p_open = nullptr) {
+            ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+            if (!ImGui::Begin(title, p_open)) {
+                ImGui::End();
+                return;
+            }
+
+            if (ImGui::Button("Clear")) clearLogs();
+            ImGui::SameLine();
+            ImGui::Checkbox("Auto-scroll", &mAutoScroll);
+            ImGui::SameLine();
+            ImGui::Checkbox("Word wrap", &mWordWrap);
+            ImGui::SameLine();
+            ImGui::Checkbox("Timestamp", &mShowTimestamp);
+            ImGui::SameLine();
+            ImGui::Checkbox("Level", &mShowLogLevel);
+            ImGui::SameLine();
+
+            ImGui::Checkbox("Module Name", &mShowModuleName);
+            mTextFilter.Draw("Filter", -100.0f);
+
+            ImGui::Separator();
+
+            ImGui::Checkbox("Debug", &mLevelFilters[0]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Info", &mLevelFilters[1]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Warn", &mLevelFilters[2]);
+            ImGui::SameLine();
+            ImGui::Checkbox("Error", &mLevelFilters[3]);
+
+            ImGui::Separator();
+
+            ImGui::BeginChild("ScrollingRegion", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+            ImGuiListClipper                        clipper;
+            std::vector<const sapphire::LogEvent *> filteredItems;
+            filteredItems.reserve(mItems.size());
+            for (const auto &item : mItems) {
+                if (!mLevelFilters[(int)item.level]) continue;
+                if (!mTextFilter.PassFilter(item.moduleName) && !mTextFilter.PassFilter(item.message.c_str())) continue;
+                filteredItems.push_back(&item);
+            }
+
+            clipper.Begin(filteredItems.size());
+            while (clipper.Step()) {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+                    const auto &item = *filteredItems[i];
+
+                    ImVec4 color;
+                    bool   hasColor = true;
+                    switch (item.level) {
+                    case sapphire::LogLevel::Error: color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); break;
+                    case sapphire::LogLevel::Warn: color = ImVec4(1.0f, 1.0f, 0.f, 1.0f); break;
+                    case sapphire::LogLevel::Info: color = ImVec4(0.4f, 0.7f, 1.0f, 1.0f); break;
+                    default: hasColor = false; break;
+                    }
+
+                    if (hasColor) ImGui::PushStyleColor(ImGuiCol_Text, color);
+
+                    std::string logText;
+                    if (mShowTimestamp) {
+                        std::chrono::zoned_time zt{std::chrono::current_zone(), item.time};
+                        logText += std::format("{:%H:%M:%S} ", zt);
+                    }
+                    if (mShowLogLevel) {
+                        logText += std::format("[{}]", sapphire::logLevelToString(item.level));
+                    }
+                    if (mShowModuleName) {
+                        logText += std::format("[{}]", item.moduleName);
+                    }
+                    logText += " ";
+                    logText += item.message;
+
+                    if (mWordWrap) {
+                        ImGui::PushTextWrapPos(ImGui::GetContentRegionAvail().x);
+                        ImGui::TextUnformatted(logText.data(), logText.data() + logText.size());
+                        ImGui::PopTextWrapPos();
+                    } else {
+                        ImGui::TextUnformatted(logText.data(), logText.data() + logText.size());
+                    }
+
+                    if (hasColor) ImGui::PopStyleColor();
+                }
+            }
+            clipper.End();
+
+            if (mAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+
+            ImGui::EndChild();
+            ImGui::End();
+        }
+    };
+
+    std::shared_ptr<GuiSink> gGuiLogSink = std::make_shared<GuiSink>();
+
+} // namespace
+
 std::vector<GuiOverlay::PluginSettings>   GuiOverlay::sPluginSettings{};
 std::vector<GuiOverlay::Hotkey>           GuiOverlay::sRegisteredHotkeys{};
 std::vector<std::string>                  GuiOverlay::sToastMessages{};
 std::shared_ptr<sapphire::config::Config> GuiOverlay::sConfig{};
+
+void GuiOverlay::init() {
+    sapphire::LogManager::getInstance().addSink(gGuiLogSink);
+}
+
+void GuiOverlay::uninit() {
+}
 
 void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
     sPluginSettings.push_back(std::move(settings));
@@ -144,7 +273,7 @@ void GuiOverlay::handleHotkey() {
 }
 
 void GuiOverlay::frame() {
-    EventManager::getInstance().dispatchEvent(
+    EventBus::getInstance().dispatchEvent(
         GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
     );
 #ifndef NDEBUG
@@ -154,7 +283,7 @@ void GuiOverlay::frame() {
 #endif
 
     if (GuiOverlay::sShowLogWindow)
-        Logger::Loggers::getInstance().getGameLogger().draw("Log Window", &GuiOverlay::sShowLogWindow);
+        gGuiLogSink->draw("Log Window", &GuiOverlay::sShowLogWindow);
 
     if (GuiOverlay::sShowToast)
         GuiOverlay::drawToast();
@@ -166,7 +295,7 @@ void GuiOverlay::refreshCursorPos() {
     ImGuiIO &io = ImGui::GetIO();
     POINT    mousePos;
     if (GetCursorPos(&mousePos)) {
-        ScreenToClient(moduleInfo::gMainWindow, &mousePos);
+        ScreenToClient(sapphire::platform::Environment::getInstance().getMainWindow(), &mousePos);
         io.AddMousePosEvent((float)mousePos.x, (float)mousePos.y);
     }
     INT64 currentTime;
@@ -181,7 +310,7 @@ void GuiOverlay::refreshCursorPos() {
 void GuiOverlay::saveConfig() {
     if (ImGui::GetIO().WantSaveIniSettings) {
         if (ImGui::GetCurrentContext() == nullptr) {
-            Logger::Warn("[GuiOverlay] ImGui context not available for saveConfig.");
+            sapphire::warn("GuiOverlay: ImGui context not available for saveConfig.");
             return;
         }
 
@@ -191,12 +320,12 @@ void GuiOverlay::saveConfig() {
             try {
                 sConfig->set("imgui", std::string{imgui_ini_data, imgui_ini_size});
                 sConfig->save();
-                Logger::Info("[GuiOverlay] ImGui settings Saved.");
+                sapphire::info("GuiOverlay: ImGui settings Saved.");
             } catch (const nlohmann::json::exception &e) {
-                Logger::Error("[GuiOverlay] Error saving ImGui settings: {}", e.what());
+                sapphire::error("GuiOverlay: Error saving ImGui settings: {}", e.what());
             }
         } else {
-            Logger::Info("[GuiOverlay] No ImGui settings to save.");
+            sapphire::info("GuiOverlay: No ImGui settings to save.");
         }
         ImGui::GetIO().WantSaveIniSettings = false;
     }
@@ -204,19 +333,19 @@ void GuiOverlay::saveConfig() {
 
 void GuiOverlay::loadConfig() {
     if (ImGui::GetCurrentContext() == nullptr) {
-        Logger::Warn("[GuiOverlay] ImGui context not available for LoadImGuiSettings.");
+        sapphire::warn("GuiOverlay: ImGui context not available for LoadImGuiSettings.");
         return;
     }
     try {
         auto imguiIni = sConfig->try_get<std::string>("imgui");
         if (imguiIni && !imguiIni->empty()) {
             ImGui::LoadIniSettingsFromMemory(imguiIni->c_str(), imguiIni->length());
-            Logger::Info("[GuiOverlay] Loaded ImGui settings from config file.");
+            sapphire::info("GuiOverlay: Loaded ImGui settings from config file.");
         } else {
-            Logger::Info("[GuiOverlay] No ImGui settings in config file.");
+            sapphire::info("GuiOverlay: No ImGui settings in config file.");
         }
     } catch (const nlohmann::json::exception &e) {
-        Logger::Error("[GuiOverlay] Error loading ImGui settings: {}", e.what());
+        sapphire::error("GuiOverlay: Error loading ImGui settings: {}", e.what());
     }
 }
 

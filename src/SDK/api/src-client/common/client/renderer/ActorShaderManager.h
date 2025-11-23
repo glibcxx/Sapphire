@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src/common/world/phys/Vec2.h"

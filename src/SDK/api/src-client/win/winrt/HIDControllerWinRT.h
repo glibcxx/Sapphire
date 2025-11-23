@@ -5,7 +5,7 @@
 #include <winrt/windows.ui.text.core.h>
 #include <winrt/windows.devices.input.h>
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 class AppPlatformWinRTDispatcher;
 class GameControllerHandler;

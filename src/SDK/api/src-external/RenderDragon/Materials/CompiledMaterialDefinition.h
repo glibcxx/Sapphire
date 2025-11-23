@@ -4,7 +4,7 @@
 #include <variant>
 #include <bitset>
 #include <map>
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 #include "Definition/MaterialDefinition.h"
 #include "Definition/MaterialShared.h"

@@ -3,7 +3,7 @@
 #include <optional>
 #include <shared_mutex>
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-external/RenderDragon/Endstone/Guarded.hpp"
 #include "SDK/api/src-deps/Core/Threading/InstancedThreadLocal.h"
 

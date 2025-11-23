@@ -2,7 +2,7 @@
 
 #if MC_VERSION >= v1_21_50
 
-#    include "SDK/core/ApiManager.h"
+#    include "SDK/core/SymbolResolver.h"
 #    include "IntProviderType.h"
 
 // size: 16

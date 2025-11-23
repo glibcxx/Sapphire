@@ -2,7 +2,7 @@
 
 #include "SDK/api/sapphire/ui/UIManager.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
-#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/GameUpdateGraphicEvent.h"
 #include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
@@ -45,7 +45,7 @@ namespace BCM_V2 {
     BCMPlugin::~BCMPlugin() = default;
 
     void BCMPlugin::setupEventListeners() {
-        auto &eventMgr = EventManager::getInstance();
+        auto &eventMgr = EventBus::getInstance();
         updateGraphicListener = eventMgr.registerAutoListener<GameUpdateGraphicEvent>(
             [this](GameUpdateGraphicEvent &e) {
                 if (mViewModel->isPlaying())

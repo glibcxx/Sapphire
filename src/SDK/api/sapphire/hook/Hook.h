@@ -6,7 +6,7 @@
 #include "macros/Macros.h"
 #include "util/Memory.hpp"
 #include "util/TypeTraits.hpp"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 namespace sapphire::inline hook {
 
@@ -17,7 +17,7 @@ namespace sapphire::inline hook {
         Count
     };
 
-    class DummyClass2 {};
+    class DummyClass {};
 
     class HookManager {
         class PrioritizedHookFuncList;
@@ -73,12 +73,12 @@ namespace sapphire::inline hook {
         static bool hook() {                                                                                       \
             auto &hookMgr = sapphire::hook::HookManager::getInstance();                                            \
             if constexpr (IndirectHook || util::type_traits::is_virtual_thunk<(FuncPtrType) & targetFunc>) {       \
-                auto &apiMgr = sapphire::ApiManager::getInstance();                                                \
+                auto &apiMgr = sapphire::SymbolResolver::getInstance();                                            \
                 if ((sdkOriginal = apiMgr.findTarget<(FuncPtrType) & targetFunc>())) {                             \
-                    Logger::Debug("[Hook] Target [" #targetFunc "] found at {:#X}!", sdkOriginal);                 \
+                    sapphire::debug("[Hook] Target [" #targetFunc "] found at {:#X}!", sdkOriginal);               \
                     return hookMgr.hook(sdkOriginal, &HookName::detour, Priority, trampoline);                     \
                 }                                                                                                  \
-                Logger::Error("[Hook] Target [" #targetFunc "] not found! The SDK might be broken.");              \
+                sapphire::error("[Hook] Target [" #targetFunc "] not found! The SDK might be broken.");            \
                 return false;                                                                                      \
             } else {                                                                                               \
                 sdkOriginal = memory::toRawFunc((FuncPtrType) & targetFunc);                                       \
@@ -95,7 +95,7 @@ namespace sapphire::inline hook {
     inline RetType HookName::detour(__VA_ARGS__) Const
 
 #define HOOK_STATIC(HookName, Priority, targetFunc, RetType, ...) \
-    IMPL_HOOK(static, , (*), trampoline, HookName, sapphire::DummyClass2, Priority, targetFunc, RetType, false, __VA_ARGS__)
+    IMPL_HOOK(static, , (*), trampoline, HookName, sapphire::DummyClass, Priority, targetFunc, RetType, false, __VA_ARGS__)
 
 #define HOOK_TYPE(HookName, TypeName, Priority, targetFunc, RetType, ...) \
     IMPL_HOOK(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetFunc, RetType, false, __VA_ARGS__)
@@ -103,12 +103,12 @@ namespace sapphire::inline hook {
 #define HOOK_TYPE_CONST(HookName, TypeName, Priority, targetFunc, RetType, ...) \
     IMPL_HOOK(, const, (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetFunc, RetType, false, __VA_ARGS__)
 
-// 什么叫indirect hook？就是被 hook 的函数地址不是 &funcName 表达式取得的地址，而是从 ApiManager 查表拿到的地址。
+// 什么叫indirect hook？就是被 hook 的函数地址不是 &funcName 表达式取得的地址，而是从 SymbolResolver 查表拿到的地址。
 // SDK 内部必须使用 indirect hook，虚函数需要indirect hook (因为取虚函数的地址得到的是virtual thunk的地址)。
 // 但是虚函数会自动使用 indirect hook，不必换为 INDIRECT_HOOK_xxx。
 
 #define INDIRECT_HOOK_STATIC(HookName, Priority, targetFunc, RetType, ...) \
-    IMPL_HOOK(static, , (*), trampoline, HookName, sapphire::DummyClass2, Priority, targetFunc, RetType, true, __VA_ARGS__)
+    IMPL_HOOK(static, , (*), trampoline, HookName, sapphire::DummyClass, Priority, targetFunc, RetType, true, __VA_ARGS__)
 
 #define INDIRECT_HOOK_TYPE(HookName, TypeName, Priority, targetFunc, RetType, ...) \
     IMPL_HOOK(, , (TypeName::*), (this->*trampoline), HookName, TypeName, Priority, targetFunc, RetType, true, __VA_ARGS__)

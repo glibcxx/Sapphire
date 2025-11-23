@@ -3,7 +3,7 @@
 #include <optional>
 #include <variant>
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BufferResourceManager.h"
 #include "SDK/api/src-external/RenderDragon/Memory/BufferSource.h"
 #include "SDK/api/src-external/bgfx/bgfx.h"

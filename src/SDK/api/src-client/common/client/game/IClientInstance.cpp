@@ -1,10 +1,11 @@
 #include "IClientInstance.h"
 
-#include "SDK/core/Core.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/api/sapphire/platform/Environment.h"
+#include "SDK/core/Runtime.h"
+#include "SDK/core/SymbolResolver.h"
 
 void *const *IClientInstance::__vftable = reinterpret_cast<void *const *>(
-    sapphire::Core::getInstance().getImagebase()
+    sapphire::platform::Environment::getInstance().getImagebase()
 #if MC_VERSION == v1_21_2
     + 0x4CBD9C0 // \x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x33\xC0
 #elif MC_VERSION == v1_21_50

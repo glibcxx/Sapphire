@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/raknet/raknet/PacketPriority.h"
 #include "SDK/api/src/common/platform/Result.h"
 #include "NetworkPeer.h"

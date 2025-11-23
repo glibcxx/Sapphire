@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 #include <variant>
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"

@@ -10,6 +10,8 @@ class NetEventCallback;
 class Minecraft;
 
 class FreeCameraPlugin {
+    sapphire::Logger mLogger{"FreeCamera"};
+
 public:
     friend class CaptureClientMinecraftHook;
 

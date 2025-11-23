@@ -1,20 +1,20 @@
 #include "renderer_d3d12.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 namespace bgfx::d3d12 {
 
     BufferHeapBlock *BufferHeapBlock::ctor() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x33\xDB\x48\x85\xDB"_sig, // 1.21.50
             &BufferHeapBlock::ctor>;
-        return (this->*Hook::origin)();
+        return (this->*Bind::origin)();
     }
 
     BufferHeap *BufferHeap::ctor() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x33\xFF\x0F\x57\xC0\x0F\x11\x01"_sig, // 1.21.50
             &BufferHeap::ctor>;
-        return (this->*Hook::origin)();
+        return (this->*Bind::origin)();
     }
 
     bool BufferHeapBlock::init(
@@ -23,17 +23,17 @@ namespace bgfx::d3d12 {
         uint64_t      blockSizeInBytes,
         uint64_t      alignment
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\x48\x8B\x4C\x24\x00\x48\x8B\x01"_sig, // 1.21.50
             &BufferHeapBlock::init>;
-        return (this->*Hook::origin)(pDevice, pHeap, blockSizeInBytes, alignment);
+        return (this->*Bind::origin)(pDevice, pHeap, blockSizeInBytes, alignment);
     }
 
     size_t BufferHeapBlock::popInactiveBlockIndex() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x4C\x8B\xC0\x48\x8B\x5E"_sig, // 1.21.50
             &BufferHeapBlock::popInactiveBlockIndex>;
-        return (this->*Hook::origin)();
+        return (this->*Bind::origin)();
     }
 
     // template <bool A>
@@ -91,10 +91,10 @@ namespace bgfx::d3d12 {
         unsigned int                 initialBlocks,
         unsigned int                 maxPreallocBlocks
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\x48\xC7\x45"_sig, // 1.21.50
             &BufferHeap::init<true>>;
-        return (this->*Hook::origin)(_name, device, heapProps, heapFlags, blockSizeInBytes, alignment, initialBlocks, maxPreallocBlocks);
+        return (this->*Bind::origin)(_name, device, heapProps, heapFlags, blockSizeInBytes, alignment, initialBlocks, maxPreallocBlocks);
     }
 
     template <>
@@ -108,48 +108,48 @@ namespace bgfx::d3d12 {
         unsigned int                 initialBlocks,
         unsigned int                 maxPreallocBlocks
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\xEB"_sig, // 1.21.50
             &BufferHeap::init<false>>;
-        return (this->*Hook::origin)(_name, device, heapProps, heapFlags, blockSizeInBytes, alignment, initialBlocks, maxPreallocBlocks);
+        return (this->*Bind::origin)(_name, device, heapProps, heapFlags, blockSizeInBytes, alignment, initialBlocks, maxPreallocBlocks);
     }
 
     template <>
     BufferHeapBlock *BufferHeap::allocHeapBlock<true>(size_t blockSize) const {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xE8\x48\x85\xC0\x74\x00\x48\x8D\x5F"_sig, // 1.21.50
             &BufferHeap::allocHeapBlock<true>>;
-        return (this->*Hook::origin)(blockSize);
+        return (this->*Bind::origin)(blockSize);
     }
 
     template <>
     void BufferHeap::preallocateHeaps<true>() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefLea | "\x48\x8D\x0D\x00\x00\x00\x00\x48\x89\x48\x00\xEB\x00\x49\x8B\xC7\x48\x89\x44\x24"_sig, // 1.21.50
             &BufferHeap::preallocateHeaps<true>>;
-        (this->*Hook::origin)();
+        (this->*Bind::origin)();
     }
 
     void BufferHeap::addHeapBlock(BufferHeapBlock *pHeapBlock) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x83\xEF\x00\x75\x00\x66\x89\xBE"_sig, // 1.21.50
             &BufferHeap::addHeapBlock>;
-        (this->*Hook::origin)(pHeapBlock);
+        (this->*Bind::origin)(pHeapBlock);
     }
 
     void setDebugObjectName(ID3D12Object *_object, const char *_format, ...) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xEB\x00\x45\x33\xE4\x4C\x89\xA7"_sig, // 1.21.50
             &setDebugObjectName>;
-        Hook::origin(_object, _format);
+        Bind::origin(_object, _format);
         // we can't forward variant args, but we don't need to, because it's an empty function.
     }
 
     const char *getLostReason(HRESULT _hr) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             "\x81\xF9\x20\x00\x7A\x88\x7F\x00\x74\x00\x81\xF9"_sig,
             &getLostReason>;
-        return Hook::origin(_hr);
+        return Bind::origin(_hr);
     }
 
 } // namespace bgfx::d3d12

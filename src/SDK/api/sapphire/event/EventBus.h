@@ -50,7 +50,7 @@ namespace sapphire::event {
     template <typename EventType>
     class EventListenerList : public ListenerList {
     public:
-        friend class EventManager;
+        friend class EventBus;
 
         struct ListeningFuntion {
             std::function<void(EventType &)> mFn;
@@ -83,12 +83,12 @@ namespace sapphire::event {
         std::vector<ListeningFuntion> mListeners;
     };
 
-    class EventManager {
+    class EventBus {
     public:
-        SPHR_API static EventManager &getInstance();
+        SPHR_API static EventBus &getInstance();
 
-        EventManager(const EventManager &) = delete;
-        EventManager &operator=(const EventManager &) = delete;
+        EventBus(const EventBus &) = delete;
+        EventBus &operator=(const EventBus &) = delete;
 
         template <typename EventType, typename Func>
             requires std::is_base_of_v<Event, EventType> && std::is_invocable_v<Func, EventType &>
@@ -146,8 +146,8 @@ namespace sapphire::event {
         }
 
     private:
-        EventManager() = default;
-        ~EventManager() = default;
+        EventBus() = default;
+        ~EventBus() = default;
 
         std::unordered_map<std::type_index, std::shared_ptr<ListenerList>> mListeners;
 
@@ -159,7 +159,7 @@ namespace sapphire::event {
     template <class EventType>
     void AutoListener<EventType>::remove() {
         if (this->mId)
-            EventManager::getInstance().unregisterListener<EventType>(this->mId);
+            EventBus::getInstance().unregisterListener<EventType>(this->mId);
     }
 
 } // namespace sapphire::event

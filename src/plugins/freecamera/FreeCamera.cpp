@@ -113,21 +113,21 @@ FreeCameraPlugin::FreeCameraPlugin() {
     _setupSettingGui();
     freeCam = this;
     if (ForceDrawPlayerHook::hook())
-        Logger::Debug("[FreeCameraPlugin] ForceDrawPlayerHook initialized!");
+        mLogger.debug("[FreeCameraPlugin] ForceDrawPlayerHook initialized!");
     else
-        Logger::Error("[FreeCameraPlugin] ForceDrawPlayerHook::hook failed!");
+        mLogger.error("[FreeCameraPlugin] ForceDrawPlayerHook::hook failed!");
     if (SetCameraPosHook::hook())
-        Logger::Debug("[FreeCameraPlugin] SetCameraPosHook initialized!");
+        mLogger.debug("[FreeCameraPlugin] SetCameraPosHook initialized!");
     else
-        Logger::Error("[FreeCameraPlugin] SetCameraPosHook::hook failed!");
+        mLogger.error("[FreeCameraPlugin] SetCameraPosHook::hook failed!");
     if (OnPlayerTurnHook::hook())
-        Logger::Debug("[FreeCameraPlugin] OnPlayerTurnHook initialized!");
+        mLogger.debug("[FreeCameraPlugin] OnPlayerTurnHook initialized!");
     else
-        Logger::Error("[FreeCameraPlugin] OnPlayerTurnHook::hook failed!");
+        mLogger.error("[FreeCameraPlugin] OnPlayerTurnHook::hook failed!");
     if (!ClientInputUpdateSystemTickHook::hook())
-        Logger::Error("[FreeCameraPlugin] ClientInputUpdateSystemTickHook::hook failed!");
+        mLogger.error("[FreeCameraPlugin] ClientInputUpdateSystemTickHook::hook failed!");
     else
-        Logger::Debug("[FreeCameraPlugin] ClientInputUpdateSystemTickHook initialized!");
+        mLogger.debug("[FreeCameraPlugin] ClientInputUpdateSystemTickHook initialized!");
 }
 
 FreeCameraPlugin::~FreeCameraPlugin() {

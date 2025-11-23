@@ -4,7 +4,7 @@
 #include "SDK/api/src-deps/Core/Platform/PlatformTypes.h"
 #include "SDK/api/src-deps/Core/Utility/pubsub/Subscription.h"
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 // size: 16, 32 (1.21.60+)
 class AppPlatformListener {

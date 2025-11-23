@@ -5,7 +5,7 @@ namespace mce::framebuilder {
     BgfxFrameBuilder *BgfxFrameBuilder::ctor(
         WorkerPool &rendererWorkerPool, gsl::span<std::reference_wrapper<WorkerPool>> helperPools, Scheduler &scheduler
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x4C\x8B\xDC\x49\x89\x5B\x00\x49\x89\x4B\x00\x55\x56\x57\x41\x54"_sig,
 #elif MC_VERSION == v1_21_50
@@ -14,22 +14,22 @@ namespace mce::framebuilder {
             "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x49\x8B\xF9\x49\x8B\xD8"_sig,
 #endif
             &BgfxFrameBuilder::ctor>;
-        return (this->*Hook::origin)(rendererWorkerPool, helperPools, scheduler);
+        return (this->*Bind::origin)(rendererWorkerPool, helperPools, scheduler);
     }
 
     void BgfxFrameBuilder::destroy() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x40\x56\x41\x56\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x48\x8B\xF1"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x48\x8B\xF1\x48\x81\xC1"_sig,
 #endif
             &BgfxFrameBuilder::destroy>;
-        (this->*Hook::origin)();
+        (this->*Bind::origin)();
     }
 
     void BgfxFrameBuilder::startFrame() {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x54\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x48\x8B\xD9\x45\x33\xF6"_sig,
 #elif MC_VERSION == v1_21_50
@@ -38,18 +38,18 @@ namespace mce::framebuilder {
             "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x70\x00\x48\x89\x78\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x48\x8B\xF9\x45\x33\xED"_sig,
 #endif
             &BgfxFrameBuilder::startFrame>;
-        (this->*Hook::origin)();
+        (this->*Bind::origin)();
     }
 
     void BgfxFrameBuilder::endFrame(mce::framebuilder::FrameBuilderContext &&frameBuilderContext) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x0F\x29\xB4\x24\x00\x00\x00\x00\x0F\x29\xBC\x24\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x48\x8B\xF2\x48\x89\x55"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\xB8\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x2B\xE0\x0F\x29\xB4\x24\x00\x00\x00\x00\x0F\x29\xBC\x24\x00\x00\x00\x00\x44\x0F\x29\x84\x24\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x4C\x8B"_sig,
 #endif
             &BgfxFrameBuilder::endFrame>;
-        (this->*Hook::origin)(std::move(frameBuilderContext));
+        (this->*Bind::origin)(std::move(frameBuilderContext));
     }
 
     void BgfxFrameBuilder::generateRenderChunkVertexData(
@@ -60,21 +60,21 @@ namespace mce::framebuilder {
         const mce::VertexFormat            &mceFormat,
         const int                          *absoluteBlockPosition
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             "\x48\x81\xEC\x00\x00\x00\x00\x44\x8B\x15"_sig,
             &BgfxFrameBuilder::generateRenderChunkVertexData>;
-        (this->*Hook::origin)(renderChunkDirectVertexData, layerRanges, chunkData, vertexCount, mceFormat, absoluteBlockPosition);
+        (this->*Bind::origin)(renderChunkDirectVertexData, layerRanges, chunkData, vertexCount, mceFormat, absoluteBlockPosition);
     }
 
     void BgfxFrameBuilder::lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame::operator()() const {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x56\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xF1\x0F\x57\xC0\x0F\x11\x45"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x57\x41\x54\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xD9\x45\x33\xE4\x0F\x57\xC0"_sig,
 #endif
             &BgfxFrameBuilder::lambda_at_mce__framebuilder__BgfxFrameBuilder__endFrame::operator()>;
-        (this->*Hook::origin)();
+        (this->*Bind::origin)();
     }
 
 } // namespace mce::framebuilder

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <gsl/gsl>
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "UniformDataVector.h"
 #include "MaterialUniform.h"
 #include "MaterialUniformName.h"

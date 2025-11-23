@@ -2,7 +2,7 @@
 
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/src-deps/Application/AppPlatform.h"
-#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "../AppInitializedEvent.h"
 #include "../FrameEvents.h"
 #include "../ClientUpdateEvent.h"
@@ -23,7 +23,7 @@ namespace sapphire::event {
         void
     ) {
         this->origin();
-        EventManager::getInstance().dispatchEvent(AppInitializedEvent{*this});
+        EventBus::getInstance().dispatchEvent(AppInitializedEvent{*this});
         gAppPlatformListener = std::make_unique<SapphireEventAppPlatformListener>();
     }
 
@@ -38,7 +38,7 @@ namespace sapphire::event {
         MinecraftGame::startFrame,
         void
     ) {
-        EventManager::getInstance().dispatchEvent(MinecraftGameStartFrameEvent{*this});
+        EventBus::getInstance().dispatchEvent(MinecraftGameStartFrameEvent{*this});
         this->origin();
     }
 
@@ -50,7 +50,7 @@ namespace sapphire::event {
         void
     ) {
         this->origin();
-        EventManager::getInstance().dispatchEvent(MinecraftGameEndFrameEvent{*this});
+        EventBus::getInstance().dispatchEvent(MinecraftGameEndFrameEvent{*this});
     }
 
     INDIRECT_HOOK_TYPE(
@@ -60,7 +60,7 @@ namespace sapphire::event {
         mce::framebuilder::BgfxFrameBuilder::startFrame,
         void
     ) {
-        EventManager::getInstance().dispatchEvent(FrameBuilderStartFrameEvent{*this});
+        EventBus::getInstance().dispatchEvent(FrameBuilderStartFrameEvent{*this});
         this->origin();
     }
 
@@ -73,7 +73,7 @@ namespace sapphire::event {
         mce::framebuilder::FrameBuilderContext &&frameBuilderContext
     ) {
         this->origin(std::move(frameBuilderContext));
-        EventManager::getInstance().dispatchEvent(FrameBuilderEndFrameEvent{*this, frameBuilderContext});
+        EventBus::getInstance().dispatchEvent(FrameBuilderEndFrameEvent{*this, frameBuilderContext});
     }
 
     /**
@@ -87,7 +87,7 @@ namespace sapphire::event {
         MinecraftGame::_update,
         void
     ) {
-        EventManager::getInstance().dispatchEvent(MinecraftGameUpdateEvent{*this});
+        EventBus::getInstance().dispatchEvent(MinecraftGameUpdateEvent{*this});
         this->origin();
     }
 
@@ -98,7 +98,7 @@ namespace sapphire::event {
         MinecraftGame::_clientUpdate,
         bool
     ) {
-        EventManager::getInstance().dispatchEvent(ClientUpdateEvent{*this});
+        EventBus::getInstance().dispatchEvent(ClientUpdateEvent{*this});
         return this->origin();
     }
 
@@ -111,27 +111,27 @@ namespace sapphire::event {
         IClientInstance &client,
         const Timer     &timer
     ) {
-        EventManager::getInstance().dispatchEvent(GameUpdateGraphicEvent{*this, client, timer});
+        EventBus::getInstance().dispatchEvent(GameUpdateGraphicEvent{*this, client, timer});
         this->origin(client, timer);
     }
 
     void EventHooks::init() {
         if (!AppPlatformHook::hook())
-            Logger::Error("[EventHooks] AppPlatformHook::hook failed!");
+            sapphire::error("EventHooks: AppPlatformHook::hook failed!");
         if (!MinecraftGameStartFrameHook::hook())
-            Logger::Error("[EventHooks] MinecraftGameStartFrameHook::hook failed!");
+            sapphire::error("EventHooks: MinecraftGameStartFrameHook::hook failed!");
         if (!MinecraftGameEndFrameHook::hook())
-            Logger::Error("[EventHooks] MinecraftGameEndFrameHook::hook failed!");
+            sapphire::error("EventHooks: MinecraftGameEndFrameHook::hook failed!");
         if (!FrameBuilderStartFrameHook::hook())
-            Logger::Error("[EventHooks] FrameBuilderStartFrameHook::hook failed!");
+            sapphire::error("EventHooks: FrameBuilderStartFrameHook::hook failed!");
         if (!FrameBuilderEndFrameHook::hook())
-            Logger::Error("[EventHooks] FrameBuilderEndFrameHook::hook failed!");
+            sapphire::error("EventHooks: FrameBuilderEndFrameHook::hook failed!");
         if (!MinecraftGameUpdateHook::hook())
-            Logger::Error("[EventHooks] MinecraftGameUpdateHook::hook failed!");
+            sapphire::error("EventHooks: MinecraftGameUpdateHook::hook failed!");
         if (!ClientUpdateHook::hook())
-            Logger::Error("[EventHooks] ClientUpdateHook::hook failed!");
+            sapphire::error("EventHooks: ClientUpdateHook::hook failed!");
         if (!GameUpdateGraphicHook::hook())
-            Logger::Error("[EventHooks] GameUpdateGraphicHook::hook failed!");
+            sapphire::error("EventHooks: GameUpdateGraphicHook::hook failed!");
     }
 
     void EventHooks::uninit() {

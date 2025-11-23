@@ -1,7 +1,7 @@
 #include "BaseActorRenderer.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
-const mce::Color *BaseActorRenderer::NAME_TAG_COLOR = &sapphire::loadStatic<
+const mce::Color *BaseActorRenderer::NAME_TAG_COLOR = &sapphire::bind::data<
 #if MC_VERSION == v1_21_2
     sapphire::deRefMov | "\x0F\x10\x05\x00\x00\x00\x00\x0F\x28\x25"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
@@ -18,10 +18,10 @@ std::vector<NameTagRenderObject> BaseActorRenderer::extractRenderTextObjects(
     const mce::Color       &color,
     bool                    realityFullVRMode
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xC3\x48\x83\xC4\x00\x5B\xC3\x4C\x89\x53"_sig,
         &BaseActorRenderer::extractRenderTextObjects>;
-    return (this->*Hook::origin)(tessellator, str, widths, pos, color, realityFullVRMode);
+    return (this->*Bind::origin)(tessellator, str, widths, pos, color, realityFullVRMode);
 }
 
 void BaseActorRenderer::renderText(
@@ -31,8 +31,8 @@ void BaseActorRenderer::renderText(
     Font                      &font,
     float                      size
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x83\xC3\x70\x48\x3B\x00\x75\xD3"_sig,
         &BaseActorRenderer::renderText>;
-    Hook::origin(screenContext, viewData, tagData, font, size);
+    Bind::origin(screenContext, viewData, tagData, font, size);
 }

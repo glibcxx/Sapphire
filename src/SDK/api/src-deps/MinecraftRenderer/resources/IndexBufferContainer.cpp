@@ -9,8 +9,8 @@ void mce::IndexBufferContainer::loadIndexBuffer(
 ) {
     // search "loadIndexBuffer"
 
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x41\x8B\x00\x00\x89\x43\x20\x48\x8D"_sig,
         &IndexBufferContainer::loadIndexBuffer>;
-    (this->*Hook::origin)(bufferResourceService, stride, data, count, debugName);
+    (this->*Bind::origin)(bufferResourceService, stride, data, count, debugName);
 }

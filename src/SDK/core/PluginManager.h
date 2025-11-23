@@ -3,14 +3,11 @@
 #include <minwindef.h>
 #include <vector>
 #include <ranges>
-#include "IPlugin.h"
+#include "SDK/api/sapphire/IPlugin.h"
 
-namespace sapphire {
+namespace sapphire::core {
 
     class PluginManager {
-        friend class Core;
-        friend class IatPatcher;
-
         class OnMinecraftGameInitCompleteHook;
         class OnDestroyMinecraftGameHook;
 
@@ -32,24 +29,27 @@ namespace sapphire {
 
         std::vector<LoadedPlugin> mLoadedPlugins;
 
+    public:
         PluginManager() = default;
         ~PluginManager() = default;
+
+        PluginManager(const PluginManager &) = delete;
+        PluginManager &operator=(const PluginManager &) = delete;
+
+        bool loadAllPlugins();
 
         void pluginsOnLoaded();
 
         void unloadAllPlugins();
 
-        void _onInitPlugins();
-
-        void _onUnInitPlugins();
-
-    public:
-        PluginManager(const PluginManager &) = delete;
-        PluginManager &operator=(const PluginManager &) = delete;
-
         void registerPlugin(IPlugin &plugin) {
             this->mLoadedPlugins.emplace_back(nullptr, &plugin);
         }
+
+    private:
+        void _onInitPlugins(const PluginInitContext &ctx);
+
+        void _onUnInitPlugins();
     };
 
-} // namespace sapphire
+} // namespace sapphire::core

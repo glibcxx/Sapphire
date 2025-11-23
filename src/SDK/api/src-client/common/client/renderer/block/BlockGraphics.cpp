@@ -1,7 +1,7 @@
 #include "BlockGraphics.h"
 
 const BlockGraphics *BlockGraphics::getForBlock(const Block &block) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x80\xB9\x00\x00\x00\x00\x00\x74\x00\x4C\x8D\x81"_sig,
 #elif MC_VERSION == v1_21_50
@@ -10,5 +10,5 @@ const BlockGraphics *BlockGraphics::getForBlock(const Block &block) {
         "\x48\x8B\x81\x00\x00\x00\x00\x4C\x8B\xC1\x48\x85\xC0\x0F\x85"_sig,
 #endif
         &BlockGraphics::getForBlock>;
-    return Hook::origin(block);
+    return Bind::origin(block);
 }

@@ -5,7 +5,7 @@ ClientInputHandler *ClientInputHandler::ctor(
     InputHandler                                       &inputHandler,
     IGameModuleApp                                     &gameModuleApp
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4C\x89\x4C\x24\x00\x48\x8B\xF2"_sig,
 #elif MC_VERSION == v1_21_50
@@ -14,5 +14,5 @@ ClientInputHandler *ClientInputHandler::ctor(
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4D\x8B\xE9\x48\x8B\xFA"_sig,
 #endif
         &ClientInputHandler::ctor>;
-    return (this->*Hook::origin)(client, inputHandler, gameModuleApp);
+    return (this->*Bind::origin)(client, inputHandler, gameModuleApp);
 }

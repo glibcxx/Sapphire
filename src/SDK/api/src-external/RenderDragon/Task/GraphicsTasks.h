@@ -2,7 +2,7 @@
 
 #include <variant>
 #include <gsl/gsl>
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/Threading/BurstWorkQueue.h"
 #include "SDK/api/src-deps/Core/Threading/DeferredTask.h"
 #include "SDK/api/src-deps/Core/Threading/Scheduler.h"

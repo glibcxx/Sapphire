@@ -2,7 +2,7 @@
 
 #include <bitset>
 #include <glm/glm.hpp>
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 #include "../Materials/Definition/MaterialShared.h"
 
 namespace dragon::materials {

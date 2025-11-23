@@ -5,7 +5,7 @@
 #include <memory>
 #include "macros/Macros.h"
 #include <imgui.h>
-#include "../event/EventManager.h"
+#include "../event/EventBus.h"
 #include "WindowViewModel.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 

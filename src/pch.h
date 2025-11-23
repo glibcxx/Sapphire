@@ -34,7 +34,7 @@
 #include <winnt.h>
 #include <winrt/base.h>
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 // Third-party Libraries
 #include <glm/glm.hpp>

@@ -1,41 +1,41 @@
 #include "HolographicPlatformInterface.h"
 
 HolographicPlatform::HoloFrameOfReferenceSetupData *HolographicPlatform::HoloFrameOfReferenceSetupData::ctor() {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x33\xC0\x48\xC7\x41\x00\x00\x00\x00\x00\x48\x89\x01\x48\x89\x41\x00\x89\x41"_sig,
         &HolographicPlatform::HoloFrameOfReferenceSetupData::ctor>;
-    return (this->*Hook::origin)();
+    return (this->*Bind::origin)();
 }
 
 HolographicPlatform *HolographicPlatform::ctor() {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x83\xC1\x00\xE8"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x83\xC1\x00\xE8"_sig,
 #endif
         &HolographicPlatform::ctor>;
-    return (this->*Hook::origin)();
+    return (this->*Bind::origin)();
 }
 
 Matrix HolographicPlatform::_getTransform(TransformSpace spaceA, TransformSpace spaceB) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x80\xB9\x00\x00\x00\x00\x00\x45\x8B\xE1"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xF3\x44\x0F\x10\x65\x00\x0F\x28\xD6"_sig,
 #endif
         &HolographicPlatform::_getTransform>;
-    return (this->*Hook::origin)(spaceA, spaceB);
+    return (this->*Bind::origin)(spaceA, spaceB);
 }
 
 void HolographicPlatform::_makeTransform(TransformSpace spaceA, TransformSpace spaceB) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x7C\x24\x00\x55\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xF9\x83\xFA"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x55\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\xD9\x83\xFA"_sig,
 #endif
         &HolographicPlatform::_makeTransform>;
-    return (this->*Hook::origin)(spaceA, spaceB);
+    return (this->*Bind::origin)(spaceA, spaceB);
 }

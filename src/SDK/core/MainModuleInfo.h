@@ -19,19 +19,19 @@ namespace sapphire {
             uintptr_t moduleBase = reinterpret_cast<uintptr_t>(mMainModule);
 
             if (!moduleBase) {
-                Logger::Error("[MainModuleInfo] Failed to get main module handle.");
+                sapphire::error("MainModuleInfo: Failed to get main module handle.");
                 return;
             }
 
             PIMAGE_DOS_HEADER dosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(moduleBase);
             if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
-                Logger::Error("[MainModuleInfo] Invalid DOS signature for main module.");
+                sapphire::error("MainModuleInfo: Invalid DOS signature for main module.");
                 return;
             }
 
             PIMAGE_NT_HEADERS ntHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(moduleBase + dosHeader->e_lfanew);
             if (ntHeaders->Signature != IMAGE_NT_SIGNATURE) {
-                Logger::Error("[MainModuleInfo] Invalid NT signature for main module.");
+                sapphire::error("MainModuleInfo: Invalid NT signature for main module.");
                 return;
             }
 
@@ -45,8 +45,8 @@ namespace sapphire {
                         mTextSectionSize = section->SizeOfRawData;
                     }
                     foundTextSection = true;
-                    Logger::Debug(
-                        "[MainModuleInfo] Found .text section in main module: VA=0x{:X}, Address=0x{:X}, Size=0x{:X}",
+                    sapphire::debug(
+                        "MainModuleInfo: Found .text section in main module: VA=0x{:X}, Address=0x{:X}, Size=0x{:X}",
                         section->VirtualAddress,
                         mTextSectionStart,
                         mTextSectionSize
@@ -56,7 +56,7 @@ namespace sapphire {
             }
 
             if (!foundTextSection || mTextSectionStart == 0 || mTextSectionSize == 0) {
-                Logger::Error("[MainModuleInfo] .text section not found or invalid in main module. Signature scanning for main module will fail.");
+                sapphire::error("MainModuleInfo: .text section not found or invalid in main module. Signature scanning for main module will fail.");
                 mTextSectionStart = 0; // Ensure these are zero if not found
                 mTextSectionSize = 0;
             }

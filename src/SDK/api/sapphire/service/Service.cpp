@@ -21,14 +21,14 @@ namespace {
         /*
             search "onClientCreatedLevel"
         */
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8\x4C\x8B\xFA\x4C\x8B\xF1\x48\x89\x95"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
             "\x48\x89\x5C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8"_sig,
 #endif
             &onClientCreatedLevel>;
-        Hook::origin(This, std::move(level), localPlayer);
+        Bind::origin(This, std::move(level), localPlayer);
     }
 
     INDIRECT_HOOK_STATIC(
@@ -50,7 +50,7 @@ namespace {
         /*
             search "sendServerLevelInitialized"
         */
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x41\x80\xBC\x24"_sig,
 #elif MC_VERSION == v1_21_50
@@ -59,7 +59,7 @@ namespace {
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x00\x8B\x85\x00\x00\x00\x00\x48\x8B\x88"_sig,
 #endif
             &ServerInstanceEventCoordinator__sendServerLevelInitialized>;
-        return Hook::origin(This, serverInstance, level);
+        return Bind::origin(This, serverInstance, level);
     }
 
     INDIRECT_HOOK_STATIC(
@@ -91,7 +91,7 @@ namespace {
         void        *a12,
         void        *a13
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xF0\x48\x89\x33\x48\x8B\xC3\x48\x81\xC4\x00\x00\x00\x00\x41\x5F\x41\x5E\x41\x5D"_sig,
 #elif MC_VERSION == v1_21_50
@@ -100,7 +100,7 @@ namespace {
             sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xD8\x33\xFF\xEB\x00\x33\xFF\x8B\xDF\x48\x89\x5D"_sig,
 #endif
             &LocalPlayer_ctor>;
-        return Hook::origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        return Bind::origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
     }
 
     INDIRECT_HOOK_STATIC(
@@ -129,7 +129,7 @@ namespace {
     static void makeClientInstance(
         ClientInstance *ret, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6, uint64_t a7, uint64_t a8, uint64_t a9, uint64_t a10
     ) {
-        sapphire::ApiLoader<
+        sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x49\x8B\xF9\x49\x8B\xF0\x48\x8B\xEA"_sig,
 #elif MC_VERSION == v1_21_50
@@ -157,7 +157,7 @@ namespace {
         uint64_t        a10
     ) {
         origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-        Logger::Debug("[[sapphire service] primaryClientInstance found: {:#X}", (uintptr_t)ret);
+        sapphire::debug("[service: primaryClientInstance found: {:#X}", (uintptr_t)ret);
         ClientInstance::primaryClientInstance = ret;
     }
 
@@ -197,15 +197,15 @@ Bedrock::NonOwnerPointer<Minecraft> sapphire::service::getClientMinecraft() {
 
 void sapphire::service::init() {
     if (!GetClientLevelHook::hook())
-        Logger::Error("[sapphire service] GetClientLevelHook::hook failed!");
+        sapphire::error("service: GetClientLevelHook::hook failed!");
     if (!GetServerLevelHook::hook())
-        Logger::Error("[sapphire service] GetServerLevelHook::hook failed!");
+        sapphire::error("service: GetServerLevelHook::hook failed!");
     if (!GetLocalPlayerHook::hook())
-        Logger::Error("[sapphire service] GetLocalPlayerHook::hook failed!");
+        sapphire::error("service: GetLocalPlayerHook::hook failed!");
     if (!GetClientInstance::hook())
-        Logger::Error("[sapphire service] GetClientInstance::hook failed!");
+        sapphire::error("service: GetClientInstance::hook failed!");
     if (!GetClientMinecraftHook::hook())
-        Logger::Error("[sapphire service] GetClientMinecraftHook::hook failed!");
+        sapphire::error("service: GetClientMinecraftHook::hook failed!");
 }
 
 void sapphire::service::uninit() {

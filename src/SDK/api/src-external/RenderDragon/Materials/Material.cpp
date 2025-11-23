@@ -7,7 +7,7 @@ namespace dragon::materials {
         const std::unordered_map<std::string, std::string>      &globalFlags,
         const std::optional<dragon::platform::GraphicsPlatform> &platform
     ) {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
             "\x4C\x8B\xDC\x53\x55\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x49\x8B\xF9\x49\x8B\xE8\x48\x8B\xF2"_sig,
 #elif MC_VERSION == v1_21_50
@@ -16,16 +16,16 @@ namespace dragon::materials {
             "\x4C\x8B\xDC\x53\x55\x56\x57\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x49\x8B\xF1\x4D\x8B\xF0\x48\x8B\xEA"_sig,
 #endif
             &Material::ctor>;
-        return (this->*Hook::origin)(materialDefinition, globalFlags, platform);
+        return (this->*Bind::origin)(materialDefinition, globalFlags, platform);
     }
 
     const Pass *Material::tryGetPass(
         const HashedString &name
     ) const {
-        using Hook = sapphire::ApiLoader<
+        using Bind = sapphire::bind::Fn<
             "\x40\x53\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x4C\x8B\x81\x00\x00\x00\x00\x4C\x8B\xCA"_sig,
             &Material::tryGetPass>;
-        return (this->*Hook::origin)(name);
+        return (this->*Bind::origin)(name);
     }
 
 } // namespace dragon::materials

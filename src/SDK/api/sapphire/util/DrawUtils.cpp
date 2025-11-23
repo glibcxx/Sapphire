@@ -6,7 +6,7 @@
 #include "SDK/api/src-deps/Coregraphics/RenderMaterialGroup.h"
 #include "util/ScopeGuard.hpp"
 
-#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
 
 mce::MaterialPtr DrawUtils::sDrawMat{};
@@ -26,7 +26,7 @@ INDIRECT_HOOK_TYPE(
     drawUtils->mScreenCtx = &ctx;
     drawUtils->mTess = &ctx.tessellator;
     this->origin(ctx, obj);
-    sapphire::event::EventManager::getInstance().dispatchEvent(sapphire::event::RenderLevelEvent{*this, ctx});
+    sapphire::event::EventBus::getInstance().dispatchEvent(sapphire::event::RenderLevelEvent{*this, ctx});
 
     drawUtils->flush();
 }
@@ -34,9 +34,9 @@ INDIRECT_HOOK_TYPE(
 DrawUtils::DrawUtils(Tessellator *tess) :
     mTess(tess) {
     if (!RenderLevelMainFuncHook::hook())
-        Logger::Error("[DrawUtils] RenderLevelMainFuncHook::hook failed!");
+        sapphire::error("DrawUtils: RenderLevelMainFuncHook::hook failed!");
     else
-        Logger::Debug("[DrawUtils] initialized!");
+        sapphire::debug("DrawUtils: initialized!");
 }
 
 DrawUtils::~DrawUtils() {
@@ -45,7 +45,7 @@ DrawUtils::~DrawUtils() {
 
 void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &color) const {
     if (!this->mLevelRenderer) {
-        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        sapphire::error("DrawUtils: mLevelRenderer is nullptr");
         return;
     }
     Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
@@ -58,7 +58,7 @@ void DrawUtils::drawLine(const Vec3 &from, const Vec3 &to, const mce::Color &col
 
 void DrawUtils::drawQuard(const Vec3 &a, const Vec3 &b, const Vec3 &c, const Vec3 &d, const mce::Color &color) const {
     if (!this->mLevelRenderer) {
-        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        sapphire::error("DrawUtils: mLevelRenderer is nullptr");
         return;
     }
     Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
@@ -82,7 +82,7 @@ void DrawUtils::drawQuard(const Vec3 &a, const Vec3 &b, const Vec3 &c, const Vec
 // clang-format off
 void DrawUtils::drawBox(const AABB &aabb, const mce::Color &color) const {
     if (!this->mLevelRenderer) {
-        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        sapphire::error("DrawUtils: mLevelRenderer is nullptr");
         return;
     }
     Vec3           &camPos = this->mLevelRenderer->getLevelRendererPlayer().getCameraPos();
@@ -124,7 +124,7 @@ void DrawUtils::drawBox(const AABB &aabb, const mce::Color &color) const {
 
 void DrawUtils::flush() {
     if (!this->mLevelRenderer) {
-        Logger::Error("[DrawUtils] mLevelRenderer is nullptr");
+        sapphire::error("DrawUtils: mLevelRenderer is nullptr");
         return;
     }
 
@@ -134,7 +134,7 @@ void DrawUtils::flush() {
         if (matInfo.mPtr)
             sDrawMat.mRenderMaterialInfoPtr = matInfo.shared_from_this();
         if (!sDrawMat.mRenderMaterialInfoPtr)
-            Logger::Warn("Material `wireframe` not found!");
+            sapphire::warn("DrawUtils:Material `wireframe` not found!");
     }
 
     char a4[64] = {};

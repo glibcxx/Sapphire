@@ -8,7 +8,8 @@
 
 #include "../smoothpiston/SmoothPiston.h"
 
-static TickRatePlugin *plugin = nullptr;
+static TickRatePlugin  *plugin = nullptr;
+static sapphire::Logger sLogger{"TickRate"};
 
 static void convertListToString(const std::vector<float> &list, char *out_buf, size_t buf_size) {
     if (list.empty()) {
@@ -242,7 +243,7 @@ HOOK_TYPE(
     const std::chrono::nanoseconds &dtIn,
     float                           a
 ) {
-    // Logger::Debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
+    // sLogger.debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
     origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * plugin->mTimeScale), a);
 }
 
@@ -262,9 +263,9 @@ TickRatePlugin::TickRatePlugin() {
         mInputValid = true;
         mInputErrorMsg.clear();
         mInputChangedSinceLastApply = false;
-        Logger::Debug("[Tickrate] Tickrate 安装成功！");
+        sLogger.debug("Tickrate 安装成功！");
     } else {
-        Logger::Error("[Tickrate] Tickrate 安装失败！");
+        sLogger.error("Tickrate 安装失败！");
     }
 }
 

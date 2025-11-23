@@ -5,7 +5,7 @@
 #include <mutex>
 #include <functional>
 
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 namespace dragon::rendering {
     class GraphicsTasks;

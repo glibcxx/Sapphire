@@ -6,7 +6,7 @@
 #include <vector>
 #include "macros/Macros.h"
 
-namespace sapphire {
+namespace sapphire::core {
 
     class PluginManager;
 
@@ -14,19 +14,18 @@ namespace sapphire {
     public:
         using ApiMap = std::unordered_map<std::string_view, uintptr_t>;
 
-        SPHR_API static IatPatcher &getInstance();
-
         void patchModule(HMODULE hModule, const ApiMap &apiMap);
 
-    private:
-        IatPatcher();
+        IatPatcher(const std::string &sapphireCoreDllName);
         ~IatPatcher() = default;
+
         IatPatcher(const IatPatcher &) = delete;
         IatPatcher &operator=(const IatPatcher &) = delete;
 
+    private:
         bool patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap);
 
         std::vector<std::string> mDllNames;
     };
 
-} // namespace sapphire
+} // namespace sapphire::core

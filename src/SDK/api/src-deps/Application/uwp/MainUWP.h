@@ -2,7 +2,7 @@
 
 #include <winrt/windows.applicationmodel.core.h>
 #include "SDK/api/src-deps/Core/Platform/ActivationArguments.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 namespace Bedrock {
 

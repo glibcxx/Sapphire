@@ -1,26 +1,26 @@
 #include "BlockTessellator.h"
-#include "SDK/core/ApiManager.h"
+#include "SDK/core/SymbolResolver.h"
 
 BlockTessellator *BlockTessellator::ctor(BlockSource *level) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xF2\x48\x8B\xF1"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\xC0\x00\x00\x00\x4C\x8B\xFA\x48\x8B\xF9\x48\x89\x4D"_sig,
 #endif
         &BlockTessellator::ctor>;
-    return (this->*Hook::origin)(level);
+    return (this->*Bind::origin)(level);
 }
 
 void BlockTessellator::dtor() noexcept {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x81\xC1\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x8B\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x8B\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x8B\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x8B\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\x8B\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8D\xBB"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x81\xC1\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x8B\x00\x00\x00\x00\x33\xED\x48\x85\xC9\x74\x00\x48\x8B\x93"_sig,
 #endif
         &BlockTessellator::dtor>;
-    (this->*Hook::origin)();
+    (this->*Bind::origin)();
 }
 
 mce::Mesh &BlockTessellator::getMeshForBlockInWorld(
@@ -33,7 +33,7 @@ mce::Mesh &BlockTessellator::getMeshForBlockInWorld(
     bool             tmpUseRegion,
     LightTexture    &lightTexture
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x8B\xC4\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x4D\x8B\xF1\x49\x8B\xC0"_sig,
 #elif MC_VERSION == v1_21_50
@@ -42,24 +42,24 @@ mce::Mesh &BlockTessellator::getMeshForBlockInWorld(
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x49\x8D\x4C\x24\x00\x4C\x89\x75"_sig,
 #endif
         &BlockTessellator::getMeshForBlockInWorld>;
-    return (this->*Hook::origin)(tessellator, block, blockPos, layer, owner, useOccluder, tmpUseRegion, lightTexture);
+    return (this->*Bind::origin)(tessellator, block, blockPos, layer, owner, useOccluder, tmpUseRegion, lightTexture);
 }
 
 void BlockTessellator::setBlockExtraDataMap(BlockTessellatorCustomExtraData::Map map) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xD9\x48\x3B\xCA\x74\x00\xE8\x00\x00\x00\x00\x8B\x07\x89\x03\x48\x8B\x47\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x8B\x47\x00\x48\x89\x4F\x00\x48\x8B\x4B\x00\x48\x89\x43\x00\x48\x89\x4F\x00\x48\x8B\xC3\x48\x8B\x5C\x24\x00\x48\x83\xC4\x00\x5F\xC3\xCC\xCC\xCC\xCC\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\xE8"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\xF2\x48\x8B\xD9\x33\xED\x48\x3B\xCA\x0F\x84"_sig,
 #endif
         &BlockTessellator::setBlockExtraDataMap>;
-    return (this->*Hook::origin)(std::move(map));
+    return (this->*Bind::origin)(std::move(map));
 }
 
 bool BlockTessellator::tessellateInWorld(
     Tessellator &tessellator, const Block &block, const BlockPos &pos, bool renderBothSides
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x53\x55\x56\x57\x41\x56\x48\x83\xEC\x00\x80\x79"_sig,
 #elif MC_VERSION == v1_21_50
@@ -68,7 +68,7 @@ bool BlockTessellator::tessellateInWorld(
         sapphire::deRefCall | "\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x33\xDB\xE9"_sig,
 #endif
         &BlockTessellator::tessellateInWorld>;
-    return (this->*Hook::origin)(tessellator, block, pos, renderBothSides);
+    return (this->*Bind::origin)(tessellator, block, pos, renderBothSides);
 }
 
 bool BlockTessellator::tessellateBlockInWorld(
@@ -78,7 +78,7 @@ bool BlockTessellator::tessellateBlockInWorld(
     int                          faces,
     const AirAndSimpleBlockBits *airAndSimpleBlocks
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x80\xB9\x00\x00\x00\x00\x00\x49\x8B\xE9"_sig,
 #elif MC_VERSION == v1_21_50
@@ -87,7 +87,7 @@ bool BlockTessellator::tessellateBlockInWorld(
         "\x40\x55\x56\x57\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05"_sig,
 #endif
         &BlockTessellator::tessellateBlockInWorld>;
-    return (this->*Hook::origin)(tessellator, block, pos, faces, airAndSimpleBlocks);
+    return (this->*Bind::origin)(tessellator, block, pos, faces, airAndSimpleBlocks);
 }
 
 bool BlockTessellator::tessellateBlockInWorldFlat(
@@ -99,7 +99,7 @@ bool BlockTessellator::tessellateBlockInWorldFlat(
     int               faces,
     int               forcedVariant
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x8B\xC4\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x44\x0F\x29\x88"_sig,
 #elif MC_VERSION == v1_21_50
@@ -108,7 +108,7 @@ bool BlockTessellator::tessellateBlockInWorldFlat(
         "\x48\x8B\xC4\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x44\x0F\x29\x40\x00\x44\x0F\x29\x88\x00\x00\x00\x00\x44\x0F\x29\x90\x00\x00\x00\x00\x44\x0F\x29\xB0"_sig,
 #endif
         &BlockTessellator::tessellateBlockInWorldFlat>;
-    return (this->*Hook::origin)(tessellator, block, pos, base, occluder, faces, forcedVariant);
+    return (this->*Bind::origin)(tessellator, block, pos, base, occluder, faces, forcedVariant);
 }
 
 bool BlockTessellator::tessellateBlockInWorldWithAmbienceOcclusion(
@@ -120,7 +120,7 @@ bool BlockTessellator::tessellateBlockInWorldWithAmbienceOcclusion(
     int               faces,
     int               forcedVariant
 ) {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x40\x55\x56\x57\x41\x54\x41\x55\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85"_sig,
 #elif MC_VERSION == v1_21_50
@@ -129,7 +129,7 @@ bool BlockTessellator::tessellateBlockInWorldWithAmbienceOcclusion(
         "\x40\x55\x53\x56\x57\x41\x54\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\xB4\x24"_sig,
 #endif
         &BlockTessellator::tessellateBlockInWorldWithAmbienceOcclusion>;
-    return (this->*Hook::origin)(tessellator, block, p, base, occluder, faces, forcedVariant);
+    return (this->*Bind::origin)(tessellator, block, p, base, occluder, faces, forcedVariant);
 }
 
 const TextureUVCoordinateSet &BlockTessellator::_getTexture(
@@ -139,19 +139,19 @@ const TextureUVCoordinateSet &BlockTessellator::_getTexture(
     int             forcedVariant,
     BlockGraphics  *blockGraphics
 ) const {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
 #if MC_VERSION == v1_21_2
         "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x00\x48\x8B\x7C\x24\x00\x49\x8B\xD8"_sig,
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
         "\x48\x89\x5C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\x7C\x24"_sig,
 #endif
         &BlockTessellator::_getTexture>;
-    return (this->*Hook::origin)(pos, block, face, forcedVariant, blockGraphics);
+    return (this->*Bind::origin)(pos, block, face, forcedVariant, blockGraphics);
 }
 
 const AABB &BlockTessellator::getCurrentShape() {
-    using Hook = sapphire::ApiLoader<
+    using Bind = sapphire::bind::Fn<
         "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x80\xB9\x00\x00\x00\x00\x00\x48\x8B\xD9\x0F\x85"_sig,
         &BlockTessellator::getCurrentShape>;
-    return (this->*Hook::origin)();
+    return (this->*Bind::origin)();
 }

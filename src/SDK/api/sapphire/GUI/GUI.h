@@ -12,6 +12,10 @@
 
 #include "SDK/api/sapphire/config/Config.h"
 
+namespace sapphire::core {
+    class RenderBackend;
+}
+
 class GuiOverlay {
 public:
     struct PluginSettings {
@@ -27,6 +31,9 @@ public:
         std::function<void()> action;
     };
 
+    static void init();
+    static void uninit();
+
     SPHR_API static void registerPluginSettings(PluginSettings &&settings);
 
     static void registerPluginSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
@@ -41,7 +48,7 @@ public:
     SPHR_API static void gameReleaseMouse();
 
 private:
-    friend class DX12Hook;
+    friend class sapphire::core::RenderBackend;
 
     inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
     inline static std::chrono::steady_clock::duration   sToastShowingDuration{};

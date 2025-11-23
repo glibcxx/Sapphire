@@ -19,12 +19,16 @@ void BuiltinPlugin::onLoaded() {
 void BuiltinPlugin::onUnload() {
 }
 
-void BuiltinPlugin::onInit() {
-    Logger::Debug("[BuiltinPlugin] onInit!");
+void BuiltinPlugin::onInit(const sapphire::PluginInitContext &context) {
+    mLog.debug("onInit!");
 }
 
 void BuiltinPlugin::onUnInit() {
-    Logger::Debug("[BuiltinPlugin] onUnInit!");
+    mLog.debug("onUnInit!");
 }
 
 static BuiltinPlugin instance{};
+
+sapphire::Logger &BuiltinPlugin::getLogger() {
+    return instance.mLog;
+}

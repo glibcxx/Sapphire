@@ -1,5 +1,5 @@
 #include "EventAtAppPlatformListener.h"
-#include "SDK/api/sapphire/event/EventManager.h"
+#include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/AppTerminateEvent.h"
 
 namespace sapphire::event {
@@ -13,7 +13,7 @@ namespace sapphire::event {
     }
 
     void SapphireEventAppPlatformListener::onAppTerminated() {
-        EventManager::getInstance().dispatchEvent(AppTerminateEvent{*mPlatform});
+        EventBus::getInstance().dispatchEvent(AppTerminateEvent{*mPlatform});
     }
 
 } // namespace sapphire::event

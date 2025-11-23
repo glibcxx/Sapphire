@@ -13,7 +13,7 @@ namespace sapphire::ui {
 
     UIManager::UIManager() :
         mInputManager(sapphire::input::InputManager::getInstance()) {
-        this->mOnFrame = event::EventManager::getInstance().registerAutoListener<event::GuiOverlayFrameEvent>(
+        this->mOnFrame = event::EventBus::getInstance().registerAutoListener<event::GuiOverlayFrameEvent>(
             [this](event::GuiOverlayFrameEvent &e) {
                 this->frame(e);
             }

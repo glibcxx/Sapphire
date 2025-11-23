@@ -17,26 +17,25 @@
 static FMOD::System      *gSystem = nullptr;
 static FMOD_DSP_RESAMPLER currentResamplerMethod = FMOD_DSP_RESAMPLER_LINEAR;
 
-static float gSpeedFactor = 1.0f;
-static float gLastSpeedFactor = 1.0f;
+static float            gSpeedFactor = 1.0f;
+static float            gLastSpeedFactor = 1.0f;
+static sapphire::Logger sLogger{"TickRate"};
 
 static void setResamplerMethod(FMOD::System &sys, FMOD_DSP_RESAMPLER resampler) {
     FMOD_ADVANCEDSETTINGS advSettings = {};
     advSettings.cbSize = sizeof(FMOD_ADVANCEDSETTINGS);
     FMOD_RESULT getAdvRes = sys.getAdvancedSettings(&advSettings);
     if (getAdvRes != FMOD_OK) {
-        Logger::Warn(
-            "[Tickrate][AudioSpeed] Failed to get original FMOD advanced settings: {}", (int)getAdvRes
-        );
+        sLogger.warn("[AudioSpeed] Failed to get original FMOD advanced settings: {}", (int)getAdvRes);
     }
-    Logger::Debug(
-        "[Tickrate][AudioSpeed] resamplerMethod changed from {} to {}", (int)advSettings.resamplerMethod, (int)resampler
+    sLogger.debug(
+        "[AudioSpeed] resamplerMethod changed from {} to {}", (int)advSettings.resamplerMethod, (int)resampler
     );
     advSettings.resamplerMethod = resampler;
     FMOD_RESULT setAdvRes = sys.setAdvancedSettings(&advSettings);
     if (setAdvRes != FMOD_OK) {
-        Logger::Warn(
-            "[Tickrate][AudioSpeed] Failed to set FMOD advanced resampling method: {}. This might ignore the setting.",
+        sLogger.warn(
+            "[AudioSpeed] Failed to set FMOD advanced resampling method: {}. This might ignore the setting.",
             (int)setAdvRes
         );
     }
@@ -130,12 +129,12 @@ void UpdateAudioSpeed(float speed) {
 // 安装 Hook
 void installFMODHooks() {
     if (!FMODSystemInitHook::hook() || !FMODSystemPlaySoundHook::hook()) {
-        Logger::Error("[Tickrate][AudioSpeed] FMOD Hook 安装失败!");
+        sLogger.error("FMOD Hook 安装失败!");
         FMODSystemInitHook::unhook();
         FMODSystemPlaySoundHook::unhook();
         return;
     } else {
-        Logger::Debug("[Tickrate][AudioSpeed] FMOD Hook 安装成功！");
+        sLogger.debug("FMOD Hook 安装成功！");
     }
 }
 

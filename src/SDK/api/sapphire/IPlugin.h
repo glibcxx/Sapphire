@@ -2,7 +2,15 @@
 
 #include "macros/Macros.h"
 
+class MinecraftGame;
+class IClientInstance;
+
 namespace sapphire {
+
+    struct PluginInitContext {
+        MinecraftGame   &mMinecrftGame;
+        IClientInstance &mClientInstance;
+    };
 
     class IPlugin {
     public:
@@ -14,7 +22,7 @@ namespace sapphire {
 
         virtual void onUnload() = 0;
 
-        virtual void onInit() = 0;
+        virtual void onInit(const PluginInitContext &context) = 0;
 
         virtual void onUnInit() = 0;
     };

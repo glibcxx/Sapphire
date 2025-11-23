@@ -13,7 +13,7 @@
 
 namespace sapphire {
 
-    class ApiManager {
+    class SymbolResolver {
         MainModuleInfo   mMainModuleInfo;
         util::ThreadPool mThreadPool;
 
@@ -31,7 +31,7 @@ namespace sapphire {
         }
 
     public:
-        SPHR_API static ApiManager &getInstance();
+        SPHR_API static SymbolResolver &getInstance();
 
         const ApiMap &getFunctionApiMap() const {
             return this->mFunctionApiMap;
@@ -51,7 +51,7 @@ namespace sapphire {
             }
 #ifdef SPHR_DEBUG
             if (!success)
-                Logger::Warn("[ApiManager] Api with name {} already exists", dName);
+                sapphire::warn("SymbolResolver: Api with name {} already exists", dName);
 #endif
             return success;
         }
@@ -70,15 +70,15 @@ namespace sapphire {
             return findTarget(util::Decorator<ptr, true, true>::value.view());
         }
 
-        void startThreadPool() {
+        void startResolvingThreads() {
             this->mThreadPool.start();
         }
 
-        void stopThreadPool() {
+        void stopResolvingThreads() {
             this->mThreadPool.stop();
         }
 
-        void waitAllFinished() {
+        void resolveAll() {
             this->mThreadPool.wait_all_finished();
         }
 
@@ -86,7 +86,7 @@ namespace sapphire {
         uintptr_t scanAndRegisterApi(std::string_view dName, bool functionApi) {
             uintptr_t origin = this->_scanApi(Sig.mSig.value, Sig.mSig.size - 1);
             if (!origin) {
-                Logger::Error("[ApiManager] Failed to find api: {}", dName);
+                sapphire::error("SymbolResolver: Failed to find api: {}", dName);
                 return 0;
             }
             origin = Sig(origin);
@@ -115,64 +115,68 @@ namespace sapphire {
         }
     };
 
-    template <signature::Signature Sig, auto Api, auto = nullptr>
-    class ApiLoader;
-
-    template <signature::Signature Sig, auto Api>
-    class ApiLoader<Sig, Api, nullptr> {
-        using ApiType = decltype(Api);
-        using Decorated = util::Decorator<Api, true, true>;
-        static_assert(
-            !Decorated::value.view().starts_with("??_9"),
-            "Please use ApiLoader<..., ..., SPHR_FUNCDNAME> for virtual function"
-        );
-
-    public:
-        inline static ApiType origin;
-
-    private:
-        inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            Decorated::value.view(), origin, true
-        );
-    };
-
-    template <signature::Signature Sig, auto Api, util::StringLiteral RawDecoratedName>
-    class ApiLoader<Sig, Api, RawDecoratedName> {
-        using ApiType = decltype(Api);
-        using Decorated = util::Decorator<Api, true, true>;
-        static_assert(
-            Decorated::value.view().starts_with("??_9"),
-            "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion"
-        );
-
-    public:
-        inline static ApiType origin;
-
-    private:
-        inline static int async = ApiManager::getInstance().scanAndRegisterApiAsync<Sig>(
-            Decorated::value.view(), RawDecoratedName.view(), origin, true
-        );
-    };
-
     constexpr auto deRefLea = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::LEA); };
     constexpr auto deRefCall = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::CALL); };
     constexpr auto deRefMov = [](uintptr_t addr) { return memory::deRef(addr, memory::AsmOperation::MOV); };
 
-    template <signature::Signature Sig, auto Api, typename DataType>
-    DataType &loadStatic() {
-        if constexpr (std::is_reference_v<DataType>)
-            return **std::bit_cast<std::remove_reference_t<DataType> **>(
-                ApiManager::getInstance().scanAndRegisterApi<Sig, Api>(util::Decorator<Api>::value.view(), false)
-            );
-        else
-            return *std::bit_cast<DataType *>(ApiManager::getInstance().scanAndRegisterApi<Sig>(
-                util::Decorator<Api>::value.view(), false
-            ));
-    };
+    namespace bind {
 
-    template <signature::Signature Sig, auto Api>
-    void *const *loadVftable() {
-        return &loadStatic<deRefLea | Sig, Api, void *const>();
-    };
+        template <signature::Signature Sig, auto Api, auto = nullptr>
+        class Fn;
+
+        template <signature::Signature Sig, auto Api>
+        class Fn<Sig, Api, nullptr> {
+            using ApiType = decltype(Api);
+            using Decorated = util::Decorator<Api, true, true>;
+            static_assert(
+                !Decorated::value.view().starts_with("??_9"),
+                "Please use sapphire::bind::Fn<..., ..., SPHR_FUNCDNAME> for virtual function"
+            );
+
+        public:
+            inline static ApiType origin;
+
+        private:
+            inline static int async = SymbolResolver::getInstance().scanAndRegisterApiAsync<Sig>(
+                Decorated::value.view(), origin, true
+            );
+        };
+
+        template <signature::Signature Sig, auto Api, util::StringLiteral RawDecoratedName>
+        class Fn<Sig, Api, RawDecoratedName> {
+            using ApiType = decltype(Api);
+            using Decorated = util::Decorator<Api, true, true>;
+            static_assert(
+                Decorated::value.view().starts_with("??_9"),
+                "Implicit template param 'RawDecoratedName' can only be specified by virtual fucntion"
+            );
+
+        public:
+            inline static ApiType origin;
+
+        private:
+            inline static int async = SymbolResolver::getInstance().scanAndRegisterApiAsync<Sig>(
+                Decorated::value.view(), RawDecoratedName.view(), origin, true
+            );
+        };
+
+        template <signature::Signature Sig, auto Api, typename DataType>
+        DataType &data() {
+            if constexpr (std::is_reference_v<DataType>)
+                return **std::bit_cast<std::remove_reference_t<DataType> **>(
+                    SymbolResolver::getInstance().scanAndRegisterApi<Sig, Api>(util::Decorator<Api>::value.view(), false)
+                );
+            else
+                return *std::bit_cast<DataType *>(SymbolResolver::getInstance().scanAndRegisterApi<Sig>(
+                    util::Decorator<Api>::value.view(), false
+                ));
+        };
+
+        template <signature::Signature Sig, auto Api>
+        void *const *vftbl() {
+            return &data<deRefLea | Sig, Api, void *const>();
+        };
+
+    } // namespace bind
 
 } // namespace sapphire

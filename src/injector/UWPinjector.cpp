@@ -3,7 +3,6 @@
 #include <regex>
 #include <map>
 
-#include "SDK/api/sapphire/logger/LogBox.hpp"
 #include "util/ScopeGuard.hpp"
 
 #include <winrt/Windows.Foundation.h>
@@ -26,10 +25,24 @@ using namespace winrt;
 using namespace Windows::Management::Deployment;
 using namespace Windows::ApplicationModel;
 namespace fs = std::filesystem;
-using namespace Logger;
 
 typedef LONG(NTAPI *NtResumeProcess_t)(HANDLE ProcessHandle);
 NtResumeProcess_t NtResumeProcess = (NtResumeProcess_t)GetProcAddress(GetModuleHandle(TEXT("ntdll")), "NtResumeProcess");
+
+template <typename... Args>
+inline void InfoBox(std::wformat_string<Args...> fmt, Args &&...args) {
+    MessageBox(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Info", MB_ICONINFORMATION);
+}
+
+template <typename... Args>
+inline void ErrorBox(std::wformat_string<Args...> fmt, Args &&...args) {
+    MessageBox(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Error", MB_ICONERROR);
+}
+
+template <typename... Args>
+inline void WarnBox(std::wformat_string<Args...> fmt, Args &&...args) {
+    MessageBox(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Warning", MB_ICONWARNING);
+}
 
 // https://www.unknowncheats.me/forum/general-programming-and-reversing/177183-basic-intermediate-techniques-uwp-app-modding.html
 DWORD SetPermissions(const std::wstring &wstrFilePath, DWORD permission = GENERIC_READ | GENERIC_EXECUTE) {
@@ -160,7 +173,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
         PAGE_READWRITE
     )};
     if (!pRemotePath) {
-        Logger::ErrorBox(L"[injector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        ErrorBox(L"[injector][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -172,7 +185,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
             (dllPathStr.size() + 1) * sizeof(wchar_t),
             nullptr
         )) {
-        Logger::ErrorBox(L"[injector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        ErrorBox(L"[injector][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
 
@@ -181,7 +194,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
         CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
     };
     if (!hThread) {
-        Logger::ErrorBox(L"[injector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+        ErrorBox(L"[injector][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
         return false;
     }
     // 等待线程结束
@@ -190,7 +203,7 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
     DWORD exitCode;
     GetExitCodeThread(hThread.get(), &exitCode);
     if (exitCode == STILL_ACTIVE)
-        Logger::WarnBox(L"[injector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
+        WarnBox(L"[injector][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
 
     return exitCode;
 }
@@ -274,7 +287,7 @@ int main(int argc, char **argv) {
 
     HRESULT hResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hResult)) {
-        Logger::ErrorBox(L"[injector] CoInitializeEx 失败 (错误码: {})", hResult);
+        ErrorBox(L"[injector] CoInitializeEx 失败 (错误码: {})", hResult);
         return 1;
     }
 
@@ -306,12 +319,12 @@ int main(int argc, char **argv) {
         };
         auto mcVersion = getMinecraftVersion();
         if (!mcVersion) {
-            Logger::ErrorBox(L"[injector] 无法获取游戏版本信息。");
+            ErrorBox(L"[injector] 无法获取游戏版本信息。");
             return 1;
         }
         auto dllPath = getBestCompatibleVersion(*mcVersion, currentDir);
         if (dllPath.empty()) {
-            Logger::ErrorBox(
+            ErrorBox(
                 L"[injector] 无法找到一个兼容游戏的 Sapphire 版本。游戏版本：{}.{}.{}.{}",
                 mcVersion->Major,
                 mcVersion->Minor,
@@ -325,7 +338,7 @@ int main(int argc, char **argv) {
             currentDir = fs::path{argv[0]}.parent_path();
             dllPath = currentDir / L"sapphire_core.dll";
             if (!fs::exists(dllPath)) {
-                Logger::ErrorBox(L"[injector] 未找到dll内核：{}", dllPath.c_str());
+                ErrorBox(L"[injector] 未找到dll内核：{}", dllPath.c_str());
                 return 1;
             }
         }
@@ -339,7 +352,7 @@ int main(int argc, char **argv) {
         SetPermissions(modsPath, GENERIC_READ | GENERIC_EXECUTE);
         AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId)};
         if (!hProcess && hProcess.get() == INVALID_HANDLE_VALUE) {
-            Logger::ErrorBox(L"[injector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+            ErrorBox(L"[injector][{}]\n打开进程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
             return 1;
         }
 
@@ -368,36 +381,39 @@ int main(int argc, char **argv) {
 
         if (p_sd) LocalFree(p_sd);
         if (h_pipe.get() == INVALID_HANDLE_VALUE) {
-            Logger::ErrorBox(L"[injector] 无法打开通信管道 (错误码: {})", GetLastError());
+            ErrorBox(L"[injector] 无法打开通信管道 (错误码: {})", GetLastError());
             return 1;
         }
 
         DWORD code = injectDll(hProcess.get(), dllPath);
         if (code == 0) {
-            Logger::ErrorBox(L"[injector] sapphire_core.dll 注入失败！");
+            ErrorBox(L"[injector] sapphire_core.dll 注入失败！");
             return 1;
         }
         BOOL b_connected = ConnectNamedPipe(h_pipe.get(), nullptr);
         if (!b_connected) {
             if (GetLastError() != ERROR_PIPE_CONNECTED) {
-                Logger::ErrorBox(L"[injector] 连接通信管道失败 (错误码: {})", GetLastError());
+                ErrorBox(L"[injector] 连接通信管道失败 (错误码: {})", GetLastError());
                 return 1;
             }
         }
 
+        SetConsoleOutputCP(65001);
+        SetConsoleCP(65001);
+
         char  buffer[256] = {0};
         DWORD bytes_read = 0;
-        BOOL  b_result = ReadFile(h_pipe.get(), buffer, sizeof(buffer) - 1, &bytes_read, nullptr);
-        if (b_result && bytes_read > 0) {
-            if (strcmp(buffer, "READY") == 0) {
-                std::cout << "'Ready' signal received.\n";
+        while (true) {
+            BOOL b_result = ReadFile(h_pipe.get(), buffer, sizeof(buffer) - 1, &bytes_read, nullptr);
+            if (b_result && bytes_read > 0) {
                 injectionSuccessful = true;
-            } else {
+                std::cout << buffer;
+            } else if (!injectionSuccessful) {
+                ErrorBox(L"[injector] 读取通信管道失败 (错误码: {})", GetLastError());
                 return 1;
+            } else {
+                break;
             }
-        } else {
-            Logger::ErrorBox(L"[injector] 读取通信管道失败 (错误码: {})", GetLastError());
-            return 1;
         }
     }
     CoUninitialize();
