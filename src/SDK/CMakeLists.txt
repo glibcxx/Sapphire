@@ -34,6 +34,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     )
     install(FILES $<TARGET_PDB_FILE:${SAPPHIRE_TARGET_NAME}>
         DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
+        OPTIONAL
     )
 
     sapphire_add_install_target(
