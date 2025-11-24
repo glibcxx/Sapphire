@@ -164,6 +164,12 @@ DWORD injectDll(HANDLE hProcess, const fs::path &dllPath) {
     std::wstring dllPathStr = dllPath;
     SetPermissions(dllPath);
 
+    fs::path pdbPath = dllPath;
+    pdbPath.replace_extension(".pdb");
+    if (fs::exists(pdbPath)) {
+        SetPermissions(pdbPath, GENERIC_READ);
+    }
+
     // 在目标进程分配内存
     AutoVirtualFree pRemotePath{VirtualAllocEx(
         hProcess,

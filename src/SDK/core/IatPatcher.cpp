@@ -4,8 +4,6 @@
 
 namespace sapphire::core {
 
-    static int dummy;
-
     IatPatcher::IatPatcher(const std::string &sapphireCoreDllName) {
         mDllNames.emplace_back(sapphireCoreDllName);
         sapphire::debug("IatPatcher: Patcher initialized. SDK module name: {}", sapphireCoreDllName);

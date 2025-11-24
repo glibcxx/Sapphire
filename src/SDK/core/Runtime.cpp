@@ -1,17 +1,16 @@
 #include "Runtime.h"
 
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <thread>
 
+#include "CrashLog.h"
+#include "IatPatcher.h"
+#include "RenderBackend.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/sapphire/logger/Logger.h"
-#include "util/MemoryScanning.hpp"
-#include "util/time.h"
-
-#include "IatPatcher.h"
-#include "RenderBackend.h"
 #include "SDK/api/sapphire/util/DrawUtils.h"
 #include "SDK/api/sapphire/config/Config.h"
 #include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
@@ -20,7 +19,7 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/service/Service.h"
 
-#include "util/threading/ThreadPool.h"
+#include "util/MemoryScanning.hpp"
 #include "util/ScopedTimer.hpp"
 
 namespace sapphire::core {
@@ -30,8 +29,12 @@ namespace sapphire::core {
         return instance;
     }
 
+    Runtime::Runtime() : mCrashLogger(std::make_unique<CrashLogger>()) {
+    }
+
     Runtime::~Runtime() noexcept {
         this->shutdown();
+        mCrashLogger.reset();
     }
 
     void Runtime::init() {

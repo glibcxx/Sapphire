@@ -28,6 +28,8 @@ namespace {
         void emit(const sapphire::LogEvent &event) override {
             if (mLogFileStream.is_open()) {
                 mLogFileStream << event.toString();
+                if (event.level == sapphire::LogLevel::Error)
+                    mLogFileStream.flush();
             }
         }
 

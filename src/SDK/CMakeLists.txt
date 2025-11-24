@@ -32,6 +32,9 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     install(TARGETS ${SAPPHIRE_TARGET_NAME}
         RUNTIME DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
     )
+    install(FILES $<TARGET_PDB_FILE:${SAPPHIRE_TARGET_NAME}>
+        DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
+    )
 
     sapphire_add_install_target(
         install-${SAPPHIRE_TARGET_NAME}
@@ -56,7 +59,7 @@ endif()
 add_custom_target(sapphire_core DEPENDS ${SAPPHIRE_CORE_TARGETS})
 sapphire_add_install_target(
     install-sapphire_core
-    DEPENDS ${INSTALL_SAPPHIRE_CORE_TARGETS} 
+    DEPENDS ${INSTALL_SAPPHIRE_CORE_TARGETS}
 )
 
 
