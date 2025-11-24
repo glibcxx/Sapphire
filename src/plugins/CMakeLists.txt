@@ -35,6 +35,7 @@ function(sapphire_builtin_plugin_add_target BUILDING_MC_VERSION)
     )
     install(FILES $<TARGET_PDB_FILE:${MOD_TARGET_NAME}>
         DESTINATION Sapphire/sapphire/mods COMPONENT ${MOD_TARGET_NAME}
+        OPTIONAL
     )
 
     sapphire_add_install_target(install-${MOD_TARGET_NAME} COMPONENT ${MOD_TARGET_NAME})
