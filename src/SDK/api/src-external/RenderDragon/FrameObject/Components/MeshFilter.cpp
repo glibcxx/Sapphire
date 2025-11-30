@@ -1,8 +1,0 @@
-#include "MeshFilter.h"
-
-void DFC::MeshFilter::dtor() noexcept {
-    using Bind = sapphire::bind::Fn<
-        "\x40\x53\x48\x83\xEC\x00\x48\x0F\xBE\x41\x00\x48\x8B\xD9\x48\x83\xC1\x00\x48\x83\xC0\x00\x74\x00\x48\x83\xE8\x00\x74\x00\x48\x83\xE8"_sig,
-        &MeshFilter::dtor>;
-    (this->*Bind::origin)();
-}

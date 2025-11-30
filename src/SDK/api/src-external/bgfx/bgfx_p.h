@@ -794,9 +794,6 @@ namespace bgfx {
 
     SAPPHIRE_API("1.21.50", "\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55")
     SDK_API void fatal(bgfx::Fatal::Enum _code, const char *_format, ...);
-    namespace sphr_none_export {
-        extern SDK_API decltype(&fatal) fpFatal;
-    }
 
     template <typename... Args>
     void fatal(bgfx::Fatal::Enum _code, const char *_format, Args &&...args) {

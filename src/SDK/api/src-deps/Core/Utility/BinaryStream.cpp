@@ -8,12 +8,3 @@ void *const *BinaryStream::__vftable = sapphire::bind::vftbl<
     "\x48\x8D\x05\x00\x00\x00\x00\x48\xC7\x43\x00\x00\x00\x00\x00\x48\x89\x03\x48\x8B\xC3\x0F\x11\x43"_sig,
 #endif
     &BinaryStream::__vftable>();
-
-#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-BinaryStream *BinaryStream::ctor(std::string &buffer, bool copyBuffer) {
-    using Bind = sapphire::bind::Fn<
-        "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x89\x4C\x24\x00\x48\x8B\xFA"_sig,
-        &BinaryStream::ctor>;
-    return (this->*Bind::origin)(buffer, copyBuffer);
-}
-#endif
