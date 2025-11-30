@@ -60,8 +60,10 @@ namespace bgfx::d3d12 {
     };
 
     struct CommandContextD3D12 {
+        SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x4C\x8D\x1D") // 1.21.50
         SDK_API void setBlendState(D3D12_BLEND_DESC &_desc, uint64_t _state, uint32_t _rgba);
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x48\x8B\x45\x00\x49\x8B\xF1") // 1.21.50
         SDK_API uint32_t setInputLayout(
             D3D12_INPUT_ELEMENT_DESC        *_vertexElements,
             uint8_t                          _numStreams,
@@ -70,6 +72,7 @@ namespace bgfx::d3d12 {
             uint16_t                         _numInstanceData
         );
 
+        SAPPHIRE_API("1.21.50", "disp:5,call", "\x44\x89\x6C\x24\x00\xE8\x00\x00\x00\x00\x4C\x8B\xC0") // 1.21.50
         SDK_API ID3D12PipelineState *getPipelineState(
             bgfx::d3d12::RendererContextD3D12 &_context,
             uint64_t                           _state,
@@ -176,9 +179,11 @@ namespace bgfx::d3d12 {
         std::mutex m_cmdCreateMtx; // off+63265792
 
         // vtb+7
+        SAPPHIRE_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x48\x83\xB9\x00\x00\x00\x00\x00\x48\x8B\xD9\x0F\x84") // 1.21.50
         SDK_API virtual void postFlip() override;
 
         // vtb+57
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x44\x0F\xB6\xF0\x84\xC0\x74") // 1.21.50
         SDK_API virtual bool init(const bgfx::Init &_init);
 
         // vtb+58
@@ -206,6 +211,7 @@ namespace bgfx::d3d12 {
         );
     };
 
+    SAPPHIRE_API("1.21.50", "mov", "\x48\x8B\x05\x00\x00\x00\x00\x48\x8B\xF9\x33\xD2")
     extern SDK_API RendererContextD3D12 *s_renderD3D12;
 
 } // namespace bgfx::d3d12

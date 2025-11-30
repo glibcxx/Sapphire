@@ -73,10 +73,13 @@ public:
     SDK_API RenderChunkShared(const BlockPos &p);
 #pragma SPHR_LINKER_SYM_ALIAS("??0RenderChunkShared@@QEAA@AEBVBlockPos@@@Z", "?ctor@RenderChunkShared@@QEAAPEAV1@AEBVBlockPos@@@Z")
 
+    SAPPHIRE_API("1.21.50", "\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xFD\xC7\x44\x24")
     SDK_API RenderChunkShared *ctor(const BlockPos &p);
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x49\x8B\x17\x8B\x42")
     SDK_API void startRebuild(RenderChunkBuilder &builder, const Vec3 &currentCameraPosition);
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x5F\x00\x48\x8B\x4B")
     SDK_API void rebuild(
         RenderChunkBuilder                                      &builder,
         bool                                                     transparentLeaves,
@@ -85,7 +88,9 @@ public:
         const mce::framebuilder::FrameLightingModelCapabilities &lightingModelCapabilities
     );
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD7\x49\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x4C\x89\x65")
     SDK_API void addEntityBlockSyncMessages(buffer_span<ActorBlockSyncMessage> syncMsgList);
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD7\x49\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x8B\x45")
     SDK_API void addBlockEntityBlockSyncMessages(buffer_span<BlockActorBlockSyncMessage> syncMsgList);
 };

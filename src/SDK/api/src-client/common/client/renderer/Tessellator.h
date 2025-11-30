@@ -13,14 +13,19 @@ public:
         Never = 2,
     };
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x83\xC3\x00\x00\x8D\x00\xE0\x04")
     SDK_API void begin(const mce::PrimitiveMode mode, const int numVertices, const bool buildFaceData = false);
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xF3\x0F\x10\x5B\x00\xF3\x0F\x10\x13")
     SDK_API void vertex(float x, float y, float z);
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x48\x83\xEC\x00\x80\xB9\x00\x00\x00\x00\x00\x0F\x57\xE4")
     SDK_API void vertexUV(float x, float y, float z, float u, float v);
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x80\xB9\x00\x00\x00\x00\x00\x4C\x8B\xC1\x75")
     SDK_API void color(float r, float g, float b, float a);
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x49\x8B\x45\x00\x48\xC7\x44\x24")
     SDK_API mce::Mesh end(UploadMode uploadMode, std::string_view debugName, bool a3);
 
     void vertex(const Vec3 &pos) {

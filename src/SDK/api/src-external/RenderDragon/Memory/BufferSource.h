@@ -34,6 +34,7 @@ namespace dragon::memory {
     struct BgfxDataWrapper<BufferSource::UseTracker> {
         const std::shared_ptr<BufferSource::UseTracker> mData; // off+0
 
+        SAPPHIRE_API("1.21.50", "\x48\x85\xD2\x74\x00\x57\x48\x83\xEC") // 1.21.50
         SDK_API static void _bgfxDeleter(void *a1, void *userData);
     };
 

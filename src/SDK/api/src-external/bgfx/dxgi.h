@@ -26,6 +26,7 @@ namespace bgfx {
         AdapterI *m_adapter; // off+432
         OutputI  *m_output;  // off+440
 
+        SAPPHIRE_API("1.21.50", "lea", "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\x41\xBD") // 1.21.50
         SDK_API bool init(bgfx::Caps &_caps);
     };
 

@@ -12,6 +12,7 @@ namespace DFC /*dragon::frameobject::components*/ {
         dragon::materials::MaterialUniformMap                     mUniforms;  // off+8
         Core::CpuRingBufferAllocator<uint8_t>                    &mAllocator; // off+128
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x4C\x8B\x59\x00\x49\x8B\xF9")
         SDK_API std::optional<dragon::materials::ParameterId> setTexture(
             const dragon::materials::MaterialUniformName &propertyName,
             const dragon::ServerTexture                  &texture,

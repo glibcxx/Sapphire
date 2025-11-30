@@ -278,8 +278,10 @@ namespace bgfx {
     };
 
     struct Frame {
+       SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x40\x38\x35")
         SDK_API void create();
 
+       SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
         SDK_API void destroy();
     };
 
@@ -604,50 +606,70 @@ namespace bgfx {
 
         Context() = delete;
 
+        SAPPHIRE_API("1.21.50", "lea", "\x4C\x8D\x05\x00\x00\x00\x00\x48\x89\x7B")
         SDK_API static int32_t renderThread(bx::Thread *, void *);
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x0F\xB6\xFA\xBE")
         SDK_API int init(bool a2);
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x81\xA1")
         SDK_API void initRenderer();
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x83\xF8\x00\x75\x00\x48\x89\x7C\x24")
         SDK_API bgfx::RenderFrame::Enum renderFrame(int32_t _msecs);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x80\xBF\x00\x00\x00\x00\x00\x48\xC7\x05")
         SDK_API bool apiSemWait(int32_t _msecs);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x41\xFF\xC1\x41\x81\xF9")
         SDK_API void resetView(uint16_t _id);
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x4C\x8B\x81\x00\x00\x00\x00\x48\x8B\xD9\x49\x81\xC0")
         SDK_API void frameNoRenderWait(bool a2);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x41\x80\xBE\x00\x00\x00\x00\x00\x75\x00\x45\x33\xC0")
         SDK_API void swap();
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\xBF")
         SDK_API void freeDynamicBuffers();
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x4C\x8B\x93\x00\x00\x00\x00\x4C\x8B\xCE")
         SDK_API void freeAllHandles(bgfx::Frame *_frame);
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x56\x48\x83\xEC\x00\x45\x0F\xB7\xF1")
         SDK_API bgfx::IndexBufferHandle createIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = BGFX_BUFFER_NONE);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xCB\xE8\x00\x00\x00\x00\x48\x85\xC0\x75\x00\x0F\xB7\x95\x00\x00\x00\x00\xBF\x00\x00\x00\x00\x48\x83\xC2\x00\x49\x83\xC4\x00\x48\x8D\x04\x32")
         SDK_API void destroyIndexBuffer(bgfx::IndexBufferHandle _handle);
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xE1\x49\x8B\xF8")
         SDK_API bgfx::VertexBufferHandle createVertexBuffer(
             const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = BGFX_BUFFER_NONE
         );
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x0F\xB7\x08\x66\x89\x0B\xC6\x43\x00\x00\xEB\x00\x80\xBA")
         SDK_API bgfx::DynamicVertexBufferHandle createDynamicVertexBuffer(
             uint32_t _num, const bgfx::VertexDecl &_decl, uint16_t _flags = BGFX_BUFFER_NONE
         );
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x45\x0F\xB7\xF9")
         SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(
             uint32_t _num, uint16_t _flags = BGFX_BUFFER_NONE
         );
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xF9\x45\x8B\xE0")
         SDK_API void update(bgfx::DynamicVertexBufferHandle _handle, uint32_t _startVertex, const bgfx::Memory *_mem);
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xE9\x45\x8B\xE0")
         SDK_API void update(bgfx::DynamicIndexBufferHandle _handle, uint32_t _startIndex, const bgfx::Memory *_mem);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x87\x83\x00\x00\x00\x00\x48\x8B\x4B\x00\xC6\x43\x00\x00\xE8")
         SDK_API uint32_t frame(uint32_t _flags);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x0F\xB7\x38\xB8")
         SDK_API bgfx::ShaderHandle createShader(const bgfx::Memory *_mem);
 
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x0F\xB7\x00\x66\x3B\xD8")
         SDK_API bgfx::ProgramHandle createProgram(bgfx::ShaderHandle _vsh, bool _destroyShader);
 
         CommandBuffer &getCommandBuffer(CommandBuffer::Enum _cmd) {
@@ -704,12 +726,15 @@ namespace bgfx {
 
         EncoderImpl() = delete;
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\x01\x4D\x8B\xF9")
         SDK_API void setUniform(
             bgfx::UniformType::Enum _type, bgfx::UniformHandle _handle, const void *_value, uint16_t _num
         );
 
+        SAPPHIRE_API("1.21.50", "\x48\x89\x6C\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x00\x48\x8B\xF9")
         SDK_API void discard();
 
+        SAPPHIRE_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x80\xB9\x00\x00\x00\x00\x00\x48\x8B\xD9\x44\x0F\xB7\xD2")
         SDK_API void submit(
             ViewId                     _id,
             bgfx::ProgramHandle        _program,
@@ -767,6 +792,7 @@ namespace bgfx {
         }
     };
 
+    SAPPHIRE_API("1.21.50", "\x48\x89\x54\x24\x00\x4C\x89\x44\x24\x00\x4C\x89\x4C\x24\x00\x55\x53\x56\x57\x41\x54\x41\x55")
     SDK_API void fatal(bgfx::Fatal::Enum _code, const char *_format, ...);
     namespace sphr_none_export {
         extern SDK_API decltype(&fatal) fpFatal;

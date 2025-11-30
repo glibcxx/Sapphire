@@ -101,16 +101,19 @@ namespace dragon::rendering::drawcommands {
 
     void debugMarker(GraphicsCommandContext &commands, const char *name);
 
+    SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x41\x80\x78\x00\x00\x48\x8B\xF9") // 1.21.50
     SDK_API void applyState(
         DrawCommandContext                &commands,
         const cg::math::Rect<uint16_t>    &scissorRect,
         const dragon::rendering::GPUState &state
     );
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x0F\x84\x00\x00\x00\x00\x48\x8D\x56\x00\x48\x8D\x8D") // 1.21.50
     SDK_API bool bindMesh(DrawCommandContext &commands, const DFC::MeshFilter &meshFilter);
 
     bool bindMeshIndexBuffer(DrawCommandContext &commands, const DFC::MeshFilter &meshFilter);
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x49\x8B\x06\x48\x8B\x08") // 1.21.50
     SDK_API bool extractUniforms(
         GraphicsCommandContext                            &commands,
         dragon::materials::definition::ShaderPipeline      pipeline,
@@ -118,9 +121,11 @@ namespace dragon::rendering::drawcommands {
         const dragon::materials::MaterialUniformOverrides *uniformOverrides
     );
 
+    SAPPHIRE_API("1.21.50", "\x48\x8B\xC4\x53\x56\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x39") // 1.21.50
     SDK_API void bindUniforms(GraphicsCommandContext &commands);
 
     // partial inlined
+    SAPPHIRE_API("1.21.50", "\x48\x83\xEC\x00\x49\x0F\xBE\x41\x00\x4C\x8B\xD9") // 1.21.50
     SDK_API bool submit(
         DrawCommandContext            &commands,
         bool                           preserveState,
@@ -130,6 +135,7 @@ namespace dragon::rendering::drawcommands {
         int                            depth = 0
     );
 
+    SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xF9\x45\x0F\xB7\xF0") // 1.21.50
     SDK_API bool submit(
         DrawCommandContext            &commands,
         bool                           preserveState,
@@ -139,6 +145,7 @@ namespace dragon::rendering::drawcommands {
         int                            depth = 0
     );
 
+    SAPPHIRE_API("1.21.50", "\x40\x55\x56\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\xB4\x24") // 1.21.50
     SDK_API bool submit(
         DrawCommandContext                         &commands,
         bool                                        preserveState,
@@ -157,6 +164,7 @@ namespace dragon::rendering::drawcommands {
         int                                         depth = 0
     );
 
+    SAPPHIRE_API("1.21.50", "\x4C\x8B\xDC\x55\x57\x41\x54\x41\x56\x41\x57") // 1.21.50
     SDK_API bool submitInstanced(
         DrawCommandContext                         &commands,
         bool                                        preserveState,
@@ -166,6 +174,7 @@ namespace dragon::rendering::drawcommands {
         int                                         depth = 0
     );
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x44\x89\x74\x24\x00\x48\x89\x54\x24") // 1.21.50
     SDK_API bool submitInstanced(
         DrawCommandContext                  &commands,
         bool                                 preserveState,
@@ -175,6 +184,7 @@ namespace dragon::rendering::drawcommands {
         int                                  depth = 0
     );
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x80\xBB\x00\x00\x00\x00\x00\x74") // 1.21.50
     SDK_API bool submitInstanced(
         DrawCommandContext                         &commands,
         bool                                        preserveState,

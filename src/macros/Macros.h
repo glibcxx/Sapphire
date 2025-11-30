@@ -58,3 +58,9 @@
 #ifndef ENABLE_SAFE_HOOK
 #    define ENABLE_SAFE_HOOK 1
 #endif
+
+#ifdef SAPPHIRE_CODEGEN_PASS
+#    define SAPPHIRE_API(...) [[clang::annotate("sapphire::bind", __VA_ARGS__)]]
+#else
+#    define SAPPHIRE_API(...)
+#endif

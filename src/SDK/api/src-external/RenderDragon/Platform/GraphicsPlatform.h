@@ -32,7 +32,10 @@ namespace dragon::platform {
         uint64_t                              mReservedVideoMemory;    // off+248
         uint8_t                               mUnk256;                 // off+256
 
+        SAPPHIRE_API("1.21.50", "call", "\x0F\xB6\x02\x0F\x57\xC0\x88\x01\x0F\xB6\x42\x00\x88\x41\x00\x33\xC0")
         GraphicsPlatform *ctor(GraphicsPlatform &&that);
+
+        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x90\xBB\x00\x00\x00\x00\xEB\x00\x48\x8D\x4C\x24\x00\xE8\x00\x00\x00\x00\x90\xBB\x00\x00\x00\x00\x89\x5C\x24\x00\x48\x8B\xD0\x48\x8B\xCE")
         GraphicsPlatform *ctor(const GraphicsPlatform &that);
     };
 

@@ -108,6 +108,8 @@ public:
     "?ctor@LevelRenderer@@QEAAPEAV1@AEAVIClientInstance@@AEAVMultiPlayerLevel@@V?$shared_ptr@VOptions@@@std@@V?$shared_ptr@VTextureGroup@mce@@@5@AEBV?$not_null@V?$NonOwnerPointer@$$CBVTextureAtlas@@@Bedrock@@@gsl@@VWeakEntityRef@@AEAVHolographicPlatform@@AEAVGameRenderer@@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@8@AEBV?$not_null@V?$NonOwnerPointer@VGeometryGroup@@@Bedrock@@@8@AEBVSoundMapping@@AEBV?$not_null@V?$NonOwnerPointer@VActorResourceDefinitionGroup@@@Bedrock@@@8@@Z" \
 )
 
+    SAPPHIRE_API("1.21.2", "\x40\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xC1\x48\x89\x45\x00\x4D\x8B\xF8")
+    SAPPHIRE_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xC1\x48\x89\x45")
     SDK_API LevelRenderer *ctor(
         IClientInstance                                                 &clientInstance,
         MultiPlayerLevel                                                &level,
@@ -127,10 +129,16 @@ public:
     SDK_API virtual ~LevelRenderer() noexcept override;
 #pragma SPHR_LINKER_SYM_ALIAS("??1LevelRenderer@@UEAA@XZ", "?dtor@LevelRenderer@@QEAAXXZ")
 
+    SAPPHIRE_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x05")
+    SAPPHIRE_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x48\x8B\xF1\x48\x8D\x05")
     SDK_API void dtor() noexcept;
 
+    SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x45\x32\xE4\x48\x8B\x07")
+    SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xC6\x44\x24\x00\x00\x48\x8B\x86\x00\x00\x00\x00\x48\x85\xC0")
     SDK_API void renderLevel(ScreenContext &screenCtx, const FrameRenderObject &frameRenderObj);
 
+    SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x4D\x00\x48\x8B\xCE")
+    SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xF3\x41\x0F\x10\x4C\x24\x00\x48\x8B\xCE")
     SDK_API void preRenderUpdate(ScreenContext &screenCtx, LevelRenderPreRenderUpdateParameters &params);
 
     LevelRendererPlayer &getLevelRendererPlayer() const { return *this->mLevelRendererPlayer; }

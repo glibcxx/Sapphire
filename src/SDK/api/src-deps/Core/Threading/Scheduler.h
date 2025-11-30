@@ -21,6 +21,7 @@ public:
     std::chrono::steady_clock::time_point mNextStarveCheckTime;     // off+88
     std::thread::id                       mThreadId;                // off+96
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\x48\x8B\x0D\x00\x00\x00\x00\x48\x89\x1D")
     SDK_API Scheduler *ctor(std::string name, uint32_t FPS);
 };
 static_assert(sizeof(Scheduler) == 104);

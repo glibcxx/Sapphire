@@ -53,6 +53,7 @@ public:
     std::vector<mce::PointLight>         mPointLights;                     // off+528
     uint32_t                             mUnk552;                          // off+552
 
+    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xB9\x00\x00\x00\x00\x33\xC0\xF0\x0F\xB1\x4B")
     SDK_API void endRebuild(
         RenderChunkBuilder           &builder,
         mce::BufferResourceService   &bufferResourceService,

@@ -19,10 +19,11 @@ public:
 
 #if MC_VERSION <= v1_21_2
     ReadOnlyBinaryStream(std::string &buffer, bool copyBuffer) :
-        mOwnedBuffer(buffer), mBuffer(copyBuffer ? mOwnedBuffer : "") {}
+        mOwnedBuffer(copyBuffer ? buffer : ""), mBuffer(copyBuffer ? mOwnedBuffer : buffer) {}
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     ReadOnlyBinaryStream(std::string &buffer, bool copyBuffer) :
-        mOwnedBuffer(buffer), mView(copyBuffer ? std::string_view{mOwnedBuffer} : std::string_view{}) {}
+        mOwnedBuffer(copyBuffer ? buffer : ""),
+        mView(copyBuffer ? std::string_view{mOwnedBuffer} : std::string_view{buffer}) {}
 #endif
 
     // vtb+0
@@ -48,6 +49,8 @@ public:
 #endif
     std::string &mBuffer;
 
+    SAPPHIRE_API("1.21.2", "\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x89\x01\x48\x83\xC1\x00\xE8\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8D\x4B")
+    SAPPHIRE_API("1.21.50,1.21.60", "\x48\x8D\x05\x00\x00\x00\x00\x48\xC7\x43\x00\x00\x00\x00\x00\x48\x89\x03\x48\x8B\xC3\x0F\x11\x43")
     static void *const *__vftable;
 
 #if MC_VERSION == v1_21_2
@@ -61,6 +64,7 @@ public:
         "?ctor@BinaryStream@@QEAAPEAV1@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z" \
     )
 
+    SAPPHIRE_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x89\x4C\x24\x00\x48\x8B\xFA")
     SDK_API BinaryStream *ctor(std::string &buffer, bool copyBuffer);
 #endif
 

@@ -28,7 +28,7 @@ public:
         uint32_t mRaw;
         // size: 4
         struct /*`anonymous'*/ {
-            uint32_t mPacketId : 10;
+            uint32_t mPacketId    : 10;
             uint32_t mSenderSubId : NUM_BITS_FOR_SUBID;
             uint32_t mClientSubId : NUM_BITS_FOR_SUBID;
         } mBits;
@@ -56,6 +56,7 @@ public:
     virtual std::string getName() const = 0;
 
     // vtb+3
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x4C\x8B\xDC\x4D\x89\x43\x00\x53\x48\x81\xEC")
     SDK_API virtual Bedrock::Result<void> checkSize(size_t packetSize, bool receiverIsServer) const;
 
     // vtb+4
@@ -73,6 +74,7 @@ public:
     // vtb+8
     virtual Bedrock::Result<void> _read(ReadOnlyBinaryStream &stream) = 0;
 
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "disp:7,call", "\x48\x8D\x55\x00\x49\x8B\x0F\xE8\x00\x00\x00\x00\x48\x8B\xD0")
     SDK_API Bedrock::Result<void> readNoHeader(ReadOnlyBinaryStream &bitstream, const SubClientId &subid);
 };
 static_assert(sizeof(Packet) == 48);
@@ -96,5 +98,6 @@ public:
 // size: 1
 class MinecraftPackets {
 public:
+    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x83\xBD\x00\x00\x00\x00\x00\x0F\x84\x00\x00\x00\x00\xFF\x15")
     SDK_API static std::shared_ptr<Packet> createPacket(MinecraftPacketIds id);
 };

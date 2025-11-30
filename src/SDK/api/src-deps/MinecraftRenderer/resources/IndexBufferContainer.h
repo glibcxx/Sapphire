@@ -29,6 +29,7 @@ namespace mce {
         uint32_t mIndexSize;   // off+28
         int32_t  mIteration;   // off+32
 
+        SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x41\x8B\x00\x00\x89\x43\x20\x48\x8D")
         SDK_API void loadIndexBuffer(
             mce::BufferResourceService &bufferResourceService,
             const uint32_t              stride,
