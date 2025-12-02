@@ -1,8 +1,5 @@
 #pragma once
 
-#include <variant>
-#include <gsl/gsl>
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/Threading/BurstWorkQueue.h"
 #include "SDK/api/src-deps/Core/Threading/DeferredTask.h"
 #include "SDK/api/src-deps/Core/Threading/Scheduler.h"
@@ -75,8 +72,8 @@ namespace dragon::task {
         // size: 72
         struct InitializationState
             : public std::variant<std::monostate, InitBegin, InitPending, InitFinalize, InitEnd> {
-            SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x8B\xD0")
-            SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x83\xC0")
+            SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x8B\xD0")
+            SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x83\xC0")
             InitializationState *ctor(const InitializationState &other);
         };
 
@@ -119,26 +116,26 @@ namespace dragon::task {
         size_t                              mWorkersCount;              // off+320
         std::chrono::steady_clock::duration mUnk328;                    // off+328
 
-        SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "disp:15,call", "\x4C\x8D\x44\x24\x00\x00\x8B\x00\x00\x8D\x00\x08\x01\x00\x00\xE8\x00\x00\x00\x00\x90\x00\x89")
+        SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:15,call", "\x4C\x8D\x44\x24\x00\x00\x8B\x00\x00\x8D\x00\x08\x01\x00\x00\xE8\x00\x00\x00\x00\x90\x00\x89")
         SDK_API GraphicsTasks *ctor(
             WorkerPool                                   &rendererPool,
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &clientScheduler
         );
 
-        SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x0F\xBE\x4D\x00\x48\x83\xF9\x00\x75")
-        SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x80\x7D\x00\x00\x75\x00\x0F\xB6\x45")
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x0F\xBE\x4D\x00\x48\x83\xF9\x00\x75")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x80\x7D\x00\x00\x75\x00\x0F\xB6\x45")
         SDK_API InitializationState continueInit(InitializationState initState);
 
-        SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x41\x0F\x94\xC7\x48\x8B\x4C\x24")
-        SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\xB3\x01\x00\x8B")
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x41\x0F\x94\xC7\x48\x8B\x4C\x24")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\xB3\x01\x00\x8B")
         SDK_API bool _queueMainFrameRenderTask(const std::function<void()> &task);
 
-        SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x96\x00\x00\x00\x00\x48\x83\xEA\x00\x4C")
+        SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x96\x00\x00\x00\x00\x48\x83\xEA\x00\x4C")
         SDK_API void waitForPreviousFrame();
 
-        SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\x80\xBD")
-        SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\xBF")
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\x80\xBD")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x8D\x00\x00\x00\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x95\x00\x00\x00\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x90\xBF")
         SDK_API void frame(
             const std::function<void()>                                                                   &frameContentCallback,
             const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
@@ -148,8 +145,8 @@ namespace dragon::task {
         public:
             GraphicsTasks *__this;
 
-            SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC7\x48\x8D\x55")
-            SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC3\x48\x8D\x54\x24\x00\x48\x8D\x8C\x24")
+            SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC7\x48\x8D\x55")
+            SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x4C\x8B\xC3\x48\x8D\x54\x24\x00\x48\x8D\x8C\x24")
             SDK_API std::variant<std::monostate, InitBegin, InitPending, InitFinalize, InitEnd> operator()(const InitBegin &begin) const;
         };
     };

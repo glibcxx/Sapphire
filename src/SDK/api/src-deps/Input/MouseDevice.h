@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include "MouseAction.h"
 
 // size: 56
@@ -19,7 +18,7 @@ public:
     std::vector<MouseAction> _inputs{};              // off+24
     int                      _firstMovementType = 0; // off+48
 
-    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x68\x00\x48\x89\x70\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x44\x0F\xB7\xBC\x24")
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x68\x00\x48\x89\x70\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x44\x0F\xB7\xBC\x24")
     SDK_API void feed(
         char  actionButtonId,
         char  buttonData,

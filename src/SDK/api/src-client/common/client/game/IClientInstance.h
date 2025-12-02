@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "SDK/api/src-client/common/client/renderer/game/HoloHudDriftDynamics.h"
 #include "SDK/api/src-client/common/client/input/HolographicPlatformInterface.h"
@@ -83,5 +82,5 @@ public:
 
     // ...
 
-    SDK_API static void *const *__vftable;
+    SPHR_API static void *const *__vftable;
 };

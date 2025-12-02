@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#include "SDK/api/sapphire/logger/Logger.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src/common/world/phys/Vec2.h"
 

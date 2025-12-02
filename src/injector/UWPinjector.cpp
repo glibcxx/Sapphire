@@ -234,49 +234,6 @@ struct VersionInfo {
     constexpr std::strong_ordering operator<=>(const VersionInfo &rhs) const = default;
 };
 
-std::optional<VersionInfo> getMinecraftVersion() {
-    try {
-        PackageManager packageManager;
-        for (auto &&package : packageManager.FindPackagesForUser(L"", L"Microsoft.MinecraftUWP_8wekyb3d8bbwe")) {
-            return package.Id().Version();
-        }
-    } catch (const winrt::hresult_error &ex) {
-        std::wcerr << L"Error: " << ex.message().c_str() << std::endl;
-    }
-    return std::nullopt;
-}
-
-std::filesystem::path getBestCompatibleVersion(const VersionInfo &uwpInternalVersion, const std::filesystem::path &path) {
-    std::map<VersionInfo, std::filesystem::path, std::greater<VersionInfo>> versions;
-    for (auto &&entry : fs::directory_iterator{path}) {
-        if (!entry.is_regular_file())
-            continue;
-        auto        filename = entry.path().filename().string();
-        std::regex  reg{"sapphire_core_for_v(\\d+)_(\\d+)_(\\d+)\\.dll"};
-        std::smatch matched;
-        if (!std::regex_match(filename, matched, reg))
-            continue;
-        VersionInfo ver{
-            (uint16_t)std::stoi(matched[1].str()),
-            (uint16_t)std::stoi(matched[2].str()),
-            (uint16_t)std::stoi(matched[3].str())
-        };
-        versions.emplace(ver, entry.path());
-    }
-    if (versions.empty())
-        return {};
-    VersionInfo serverSideVersion{
-        uwpInternalVersion.Major,
-        uwpInternalVersion.Minor,
-        (uint16_t)(uwpInternalVersion.Build / 100),
-        (uint16_t)(uwpInternalVersion.Build % 100)
-    };
-    auto it = versions.lower_bound(serverSideVersion);
-    if (it == versions.end())
-        return {};
-    return it->second;
-}
-
 int main(int argc, char **argv) {
     /*
         UWP的启动方式与普通的Win32程序不同，这里的思路来自上面那个链接里的帖子。
@@ -323,37 +280,21 @@ int main(int argc, char **argv) {
                 }
             }
         };
-        auto mcVersion = getMinecraftVersion();
-        if (!mcVersion) {
-            ErrorBox(L"[injector] 无法获取游戏版本信息。");
-            return 1;
-        }
-        auto dllPath = getBestCompatibleVersion(*mcVersion, currentDir);
-        if (dllPath.empty()) {
-            ErrorBox(
-                L"[injector] 无法找到一个兼容游戏的 Sapphire 版本。游戏版本：{}.{}.{}.{}",
-                mcVersion->Major,
-                mcVersion->Minor,
-                mcVersion->Build,
-                mcVersion->Revision
-            );
-            return 1;
-        }
-
+        auto dllPath = currentDir / "bin" / "sapphire_bootloader.dll";
         if (!fs::exists(dllPath)) {
-            currentDir = fs::path{argv[0]}.parent_path();
-            dllPath = currentDir / L"sapphire_core.dll";
-            if (!fs::exists(dllPath)) {
-                ErrorBox(L"[injector] 未找到dll内核：{}", dllPath.c_str());
-                return 1;
-            }
+            ErrorBox(L"[injector] 未找到dll内核：{}", dllPath.c_str());
+            return 1;
         }
-        fs::path homePath = currentDir / L"sapphire";
+        fs::path binPath = currentDir / "bin";
+        if (!std::filesystem::exists(binPath))
+            std::filesystem::create_directories(binPath);
+        fs::path homePath = currentDir / "sapphire";
         if (!std::filesystem::exists(homePath))
             std::filesystem::create_directories(homePath);
         fs::path modsPath = homePath / "mods";
         if (!std::filesystem::exists(modsPath))
             std::filesystem::create_directories(modsPath);
+        SetPermissions(binPath, GENERIC_READ | GENERIC_EXECUTE);
         SetPermissions(homePath, GENERIC_READ | GENERIC_WRITE);
         SetPermissions(modsPath, GENERIC_READ | GENERIC_EXECUTE);
         AutoCloseHandle hProcess{OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId)};
@@ -393,7 +334,7 @@ int main(int argc, char **argv) {
 
         DWORD code = injectDll(hProcess.get(), dllPath);
         if (code == 0) {
-            ErrorBox(L"[injector] sapphire_core.dll 注入失败！");
+            ErrorBox(L"[injector] sapphire_bootstrap.dll 注入失败！");
             return 1;
         }
         BOOL b_connected = ConnectNamedPipe(h_pipe.get(), nullptr);

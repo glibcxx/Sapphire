@@ -12,7 +12,7 @@ public:
     bool                  mCheckValidity;
     class Level          &mLevel;
 
-    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x45\x8B\xE9")
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x45\x8B\xE9")
     SDK_API bool setBlock(
         const BlockPos              &pos,
         const Block                 &block,

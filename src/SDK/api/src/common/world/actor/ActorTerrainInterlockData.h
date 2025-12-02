@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
-
 #include <chrono>
 
 class ActorTerrainInterlockData {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include "SDK/core/SymbolResolver.h"
 
 namespace Bedrock {
 

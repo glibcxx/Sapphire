@@ -17,6 +17,7 @@ sapphire::platform::Environment::Environment() {
     wchar_t modulePathBuf[MAX_PATH] = {0};
     if (GetModuleFileName(mSapphireModule, modulePathBuf, MAX_PATH) != 0) {
         mSapphireCorePath = modulePathBuf;
-        mSapphireHomePath = mSapphireCorePath.parent_path() / HOME_FOLDER_NAME;
+        mSapphireBinPath = mSapphireCorePath.parent_path();
+        mSapphireHomePath = mSapphireBinPath.parent_path() / SPHR_HOME_FOLDER_NAME;
     }
 }

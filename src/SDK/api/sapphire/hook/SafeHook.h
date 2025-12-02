@@ -25,9 +25,9 @@ namespace sapphire::inline hook::detail {
         static_assert(sizeof(::sapphire::detail::set_hookable<__VA_ARGS__>));
 
 // 你永远可以相信msvc的与众不同，这个逼在类内作用域取虚函数成员指针的结果是错的
-#    define MARK_VIRTUAL_HOOKABLE(...)                                              \
-        friend void CONCAT(mark_virtual_hookable_workaround_for_msvc, __LINE__)() { \
-            ::sapphire::detail::set_hookable<__VA_ARGS__>{};                        \
+#    define MARK_VIRTUAL_HOOKABLE(...)                                                   \
+        friend void SPHR_CONCAT(mark_virtual_hookable_workaround_for_msvc, __LINE__)() { \
+            ::sapphire::detail::set_hookable<__VA_ARGS__>{};                             \
         }
 
 #    define ASSERT_HOOKABLE(MSG, ...) \
@@ -48,7 +48,7 @@ namespace sapphire::inline hook::detail {
 #    define IS_VALID_OVERLOAD(TYPE, NAME) \
         HAS_OVERLOAD(NAME)                \
         ? requires { TYPE & NAME; }       \
-        : [](auto p) constexpr { return requires(decltype(p)) { TYPE &NAME == &NAME; }; }(int{})
+        : [](auto p) constexpr { return requires(decltype(p)) { TYPE & NAME == &NAME; }; }(int{})
 
 #    define ASSERT_VALID_OVERLOAD(MSG, TYPE, NAME) \
         static_assert(IS_VALID_OVERLOAD(TYPE, NAME), MSG);

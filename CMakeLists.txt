@@ -39,6 +39,7 @@ add_subdirectory(external/minhook EXCLUDE_FROM_ALL)
 add_subdirectory(external/imgui EXCLUDE_FROM_ALL)
 include(cmake/SapphireDependencies.cmake)
 sapphire_resolve_dependencies()
+include(cmake/SapphireCodeGen.cmake)
 
 # --- Dependency Grouping ---
 add_library(SapphireDeps INTERFACE)
@@ -81,7 +82,11 @@ target_link_directories(SapphireCommon INTERFACE
 target_link_libraries(SapphireCommon INTERFACE
     fmod
     WindowsApp
+    delayimp
     $<BUILD_INTERFACE:SapphireDeps>
+)
+target_link_options(SapphireCommon INTERFACE
+    "/DELAYLOAD:sapphire_bootloader.dll"
 )
 
 target_compile_options(SapphireCommon INTERFACE
@@ -100,6 +105,7 @@ target_compile_definitions(SapphireCommon INTERFACE
 
 add_subdirectory(src/plugins)
 add_subdirectory(src/injector)
+add_subdirectory(src/bootloader)
 add_subdirectory(src/SDK)
 
 # --- Installation Rules ---
@@ -175,4 +181,9 @@ sapphire_add_install_target(
 sapphire_add_install_target(
     install-sapphire_SDK
     DEPENDS install-sapphire_SDK_headers install-sapphire_SDK_resource install-sapphire_SDK_lib
+)
+
+sapphire_add_install_target(
+    install-sapphire_sig_database
+    COMPONENT sapphire_sig_database
 )

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <string>
-#include <filesystem>
-
 namespace A {
     class B;
 }
@@ -15,6 +12,7 @@ namespace sapphire::platform {
 
         const std::filesystem::path &getSapphireHomePath() const { return mSapphireHomePath; }
         const std::filesystem::path &getSapphireCorePath() const { return mSapphireCorePath; }
+        const std::filesystem::path &getSapphireBinPath() const { return mSapphireBinPath; }
 
         HMODULE getGameModule() const { return mGameModule; }
         HMODULE getSapphireModule() const { return mSapphireModule; }
@@ -36,6 +34,7 @@ namespace sapphire::platform {
 
         std::filesystem::path mSapphireHomePath;
         std::filesystem::path mSapphireCorePath;
+        std::filesystem::path mSapphireBinPath;
 
         HMODULE mGameModule = nullptr;
         HMODULE mSapphireModule = nullptr;

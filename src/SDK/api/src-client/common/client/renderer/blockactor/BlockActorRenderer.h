@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src/common/world/level/block/actor/BlockActor.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src-deps/MinecraftRenderer/FrameBuilder/RenderMetadata.h"

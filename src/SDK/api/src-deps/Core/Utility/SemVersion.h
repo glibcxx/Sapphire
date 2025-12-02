@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src-deps/Core/String/StaticOptimizedString.h"
 
 #if MC_VERSION <= v1_21_50

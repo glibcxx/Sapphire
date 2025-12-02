@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/src/common/util/Factory.h"
 
 class BiomeRegistry;

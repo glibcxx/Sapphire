@@ -63,7 +63,7 @@ public:
     bool                                  mUnk548;                 // off+548
     std::weak_ptr<RenderChunkCoordinator> mRenderChunkCoordinator; // off+552
 
-    SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x8B\x47\x00\x48\x8D\x54\x24\x00\x89\x03")
+    SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x8B\x47\x00\x48\x8D\x54\x24\x00\x89\x03")
     SDK_API void build(
         RenderChunkGeometry                                     &renderChunkGeometry,
         bool                                                     transparentLeaves,

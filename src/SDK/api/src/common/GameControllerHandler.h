@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
-
 enum class GameControllerButtonState : int32_t {
     Up = 0,
     Down = 1,

@@ -36,8 +36,8 @@ namespace dragon::platform {
         dragon::TextureResourceService               mTextureResourceService;               // off+1616
         dragon::AccelerationStructureResourceService mAccelerationStructureResourceService; // off+1688
 
-        SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x49\x8B\xDC\x48\x8B\x36")
-        SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xC4\x49\x8B\x3E")
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x49\x8B\xDC\x48\x8B\x36")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xC4\x49\x8B\x3E")
         ResourcesManager *ctor(
             dragon::task::GraphicsTasks                                    &graphicsTasks,
             const ResourcesManagerConfiguration                            &configuration,

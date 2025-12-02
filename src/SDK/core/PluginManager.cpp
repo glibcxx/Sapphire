@@ -14,7 +14,7 @@ namespace sapphire::core {
 
     static PluginManager *gPluginManager = nullptr;
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         PluginManager::OnMinecraftGameInitCompleteHook,
         MinecraftGame,
         HookPriority::Normal,
@@ -33,7 +33,7 @@ namespace sapphire::core {
         return res;
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         PluginManager::OnDestroyMinecraftGameHook,
         ClientInstance,
         HookPriority::Normal,

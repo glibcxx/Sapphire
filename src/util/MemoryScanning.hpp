@@ -7,7 +7,7 @@
 
 namespace memory::inline scan {
 
-    [[msvc::forceinline]] inline uintptr_t scanSignatureBruteForce(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
+    SPHR_FORCE_INLINE inline uintptr_t scanSignatureBruteForce(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
         if (!sigLength || !size) return 0;
         const char *data = reinterpret_cast<const char *>(start);
         for (uintptr_t i = 0; i <= size - sigLength; ++i) {
@@ -24,8 +24,8 @@ namespace memory::inline scan {
         return 0;
     }
 
-    [[msvc::forceinline]] inline uintptr_t scanSignatureBMH(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
-        ASSUME(sigLength < 256)
+    SPHR_FORCE_INLINE inline uintptr_t scanSignatureBMH(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
+        SPHR_ASSUME(sigLength < 256)
         if (!sigLength || !size) return 0;
         uint8_t init = sigLength;
         for (size_t i = sigLength - 1; i > 0; --i) {
@@ -58,7 +58,7 @@ namespace memory::inline scan {
         return 0;
     }
 
-    [[msvc::forceinline]] inline uintptr_t scanSignature(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
+    SPHR_FORCE_INLINE inline uintptr_t scanSignature(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
         const size_t THRESHOLD = 32;
         if (sigLength < THRESHOLD) {
             return scanSignatureBruteForce(start, size, sig, sigLength);

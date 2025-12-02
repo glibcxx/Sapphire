@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
-
 #include <variant>
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 
@@ -29,7 +27,7 @@ namespace DFC /*dragon::frameobject::components*/ {
             this->dtor();
         }
 
-        SAPPHIRE_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x48\x0F\xBE\x41\x00\x48\x8B\xD9\x48\x83\xC1\x00\x48\x83\xC0\x00\x74\x00\x48\x83\xE8\x00\x74\x00\x48\x83\xE8")
+        SPHR_DECL_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x48\x0F\xBE\x41\x00\x48\x8B\xD9\x48\x83\xC1\x00\x48\x83\xC0\x00\x74\x00\x48\x83\xE8\x00\x74\x00\x48\x83\xE8")
         SDK_API void dtor() noexcept;
     };
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include <functional>
 
 class Timer {
@@ -22,6 +21,6 @@ public:
     int                      mSteppingTick = -1;
     std::function<int64_t()> mGetTimeMSCallback;
 
-    SAPPHIRE_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x30\x48\x8B\xD9\x0F\x29\x74\x24\x20\x8B")
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x30\x48\x8B\xD9\x0F\x29\x74\x24\x20\x8B")
     SDK_API void advanceTime(float preferredFrameStep);
 };

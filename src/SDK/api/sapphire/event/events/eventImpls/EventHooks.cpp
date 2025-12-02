@@ -15,7 +15,7 @@ namespace sapphire::event {
 
     std::unique_ptr<SapphireEventAppPlatformListener> gAppPlatformListener = nullptr;
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         AppPlatformHook,
         AppPlatform,
         sapphire::hook::HookPriority::Normal,
@@ -31,7 +31,7 @@ namespace sapphire::event {
      * vvvv Frame Events vvvv
      */
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         MinecraftGameStartFrameHook,
         MinecraftGame,
         sapphire::hook::HookPriority::Normal,
@@ -42,7 +42,7 @@ namespace sapphire::event {
         this->origin();
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         MinecraftGameEndFrameHook,
         MinecraftGame,
         sapphire::hook::HookPriority::Normal,
@@ -53,7 +53,7 @@ namespace sapphire::event {
         EventBus::getInstance().dispatchEvent(MinecraftGameEndFrameEvent{*this});
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         FrameBuilderStartFrameHook,
         mce::framebuilder::BgfxFrameBuilder,
         sapphire::hook::HookPriority::Normal,
@@ -64,7 +64,7 @@ namespace sapphire::event {
         this->origin();
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         FrameBuilderEndFrameHook,
         mce::framebuilder::BgfxFrameBuilder,
         sapphire::hook::HookPriority::Normal,
@@ -80,7 +80,7 @@ namespace sapphire::event {
      * vvvv Game Update Events vvvv
      */
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         MinecraftGameUpdateHook,
         MinecraftGame,
         sapphire::hook::HookPriority::Normal,
@@ -91,7 +91,7 @@ namespace sapphire::event {
         this->origin();
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         ClientUpdateHook,
         MinecraftGame,
         sapphire::hook::HookPriority::Normal,
@@ -102,7 +102,7 @@ namespace sapphire::event {
         return this->origin();
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         GameUpdateGraphicHook,
         MinecraftGame,
         sapphire::hook::HookPriority::Normal,

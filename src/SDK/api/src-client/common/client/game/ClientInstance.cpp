@@ -2,7 +2,6 @@
 
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/core/Runtime.h"
-#include "SDK/core/SymbolResolver.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "util/ScopeGuard.hpp"
 

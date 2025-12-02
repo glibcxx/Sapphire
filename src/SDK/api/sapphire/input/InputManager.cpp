@@ -175,7 +175,7 @@ namespace sapphire::input {
 
     InputManager *instance = nullptr;
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         InputManager::MouseFeedHook,
         MouseDevice,
         sapphire::hook::HookPriority::Normal,

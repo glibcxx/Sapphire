@@ -8,7 +8,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     add_library(${SAPPHIRE_TARGET_NAME} SHARED)
     target_sources(${SAPPHIRE_TARGET_NAME} PRIVATE ${CORE_SRC} ${SDK_SRC})
 
-    target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE DLLEXPORT)
+    target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE SPHR_DLLEXPORT)
 
     target_precompile_headers(${SAPPHIRE_TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
@@ -17,6 +17,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     target_link_libraries(${SAPPHIRE_TARGET_NAME}
         PUBLIC
         SapphireCommon
+        sapphire::bedrock_api_${BUILDING_MC_VERSION}
         PRIVATE
         minhook imgui kiero d3d11
     )
@@ -30,10 +31,10 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     )
 
     install(TARGETS ${SAPPHIRE_TARGET_NAME}
-        RUNTIME DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
+        RUNTIME DESTINATION Sapphire/bin/ COMPONENT ${SAPPHIRE_TARGET_NAME}
     )
     install(FILES $<TARGET_PDB_FILE:${SAPPHIRE_TARGET_NAME}>
-        DESTINATION Sapphire/ COMPONENT ${SAPPHIRE_TARGET_NAME}
+        DESTINATION Sapphire/bin/ COMPONENT ${SAPPHIRE_TARGET_NAME}
         OPTIONAL
     )
 

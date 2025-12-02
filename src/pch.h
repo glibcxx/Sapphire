@@ -1,5 +1,7 @@
 #pragma once
 
+#include "macros/Macros.h"
+
 // C++ Standard Library
 #include <iostream>
 #include <memory>
@@ -21,6 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <bitset>
+#include <queue>
 
 #include <chrono>
 #include <thread>
@@ -33,8 +36,7 @@
 #include <minwindef.h>
 #include <winnt.h>
 #include <winrt/base.h>
-
-#include "SDK/core/SymbolResolver.h"
+#include <Psapi.h>
 
 // Third-party Libraries
 #include <glm/glm.hpp>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDK/core/SymbolResolver.h"
 #include <glm/glm.hpp>
 
 class Vec2 {

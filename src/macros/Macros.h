@@ -2,21 +2,45 @@
 
 #include "Version.h"
 
-#define EXPORT_DLL __declspec(dllexport)
-#define IMPORT_DLL __declspec(dllimport)
-
-#define SPHR_NOINLINE __declspec(noinline)
-
-#ifdef DLLEXPORT
-#    define SDK_API EXPORT_DLL
-#    define SPHR_API EXPORT_DLL
+#if defined(_MSC_VER) || defined(__MINGW32__) || defined(__CYGWIN__)
+#    define SPHR_EXPORT __declspec(dllexport)
+#    define SPHR_IMPORT __declspec(dllimport)
+#elif defined(__GNUC__) || defined(__clang__)
+#    define SPHR_EXPORT [[gnu::visibility("default")]]
+#    define SPHR_IMPORT [[gnu::visibility("default")]]
 #else
-#    define SDK_API IMPORT_DLL
-#    define SPHR_API IMPORT_DLL
+#    define SPHR_EXPORT
+#    define SPHR_IMPORT
+#endif
+
+#ifdef SPHR_DLLEXPORT
+#    define SPHR_API SPHR_EXPORT
+#else
+#    define SPHR_API SPHR_IMPORT
+#endif
+
+#define SDK_API SPHR_IMPORT
+
+#if defined(_MSC_VER)
+#    define SPHR_NOINLINE [[msvc::noinline]]
+#elif defined(__GNUC__) || defined(__clang__)
+#    define SPHR_NOINLINE [[gnu::noinline]]
+#else
+#    define SPHR_NOINLINE
+#endif
+
+#if defined(_MSC_VER)
+#    define SPHR_FORCE_INLINE [[msvc::forceinline]]
+#elif defined(__clang__)
+#    define SPHR_FORCE_INLINE [[clang::always_inline]]
+#elif defined(__GNUC__)
+#    define SPHR_FORCE_INLINE [[gnu::always_inline]]
+#else
+#    define SPHR_FORCE_INLINE
 #endif
 
 #ifndef IMGUI_API
-#    define IMGUI_API SDK_API
+#    define IMGUI_API SPHR_API
 #endif
 
 #ifndef SPHR_FUNCDNAME
@@ -33,7 +57,7 @@
         };
 #endif
 
-#ifdef DLLEXPORT
+#ifdef SPHR_DLLEXPORT
 #    define SPHR_LINKER_SYM_ALIAS(FROM_NAME, TO_NAME) \
         comment(linker, "/alternatename:" FROM_NAME "=" TO_NAME)
 #else
@@ -45,22 +69,22 @@
 #    define SPHR_DEBUG 1
 #endif
 
-#define PROJECT_NAME "Sapphire"
-#define HOME_FOLDER_NAME "sapphire"
+#define SPHR_PROJECT_NAME "Sapphire"
+#define SPHR_HOME_FOLDER_NAME "sapphire"
 
-#define VA_EXPAND(...) __VA_ARGS__
+#define SPHR_VA_EXPAND(...) __VA_ARGS__
 
-#define CONCAT_(a, b) a##b
-#define CONCAT(a, b) CONCAT_(a, b)
+#define SPHR_CONCAT_(a, b) a##b
+#define SPHR_CONCAT(a, b) SPHR_CONCAT_(a, b)
 
-#define ASSUME(...) __assume(__VA_ARGS__);
+#define SPHR_ASSUME(...) __assume(__VA_ARGS__);
 
-#ifndef ENABLE_SAFE_HOOK
-#    define ENABLE_SAFE_HOOK 1
+#ifndef SPHR_ENABLE_SAFE_HOOK
+#    define SPHR_ENABLE_SAFE_HOOK 1
 #endif
 
 #ifdef SAPPHIRE_CODEGEN_PASS
-#    define SAPPHIRE_API(...) [[clang::annotate("sapphire::bind", __VA_ARGS__)]]
+#    define SPHR_DECL_API(...) [[clang::annotate("sapphire::bind", __VA_ARGS__)]]
 #else
-#    define SAPPHIRE_API(...)
+#    define SPHR_DECL_API(...)
 #endif

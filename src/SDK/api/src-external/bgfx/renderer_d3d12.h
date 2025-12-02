@@ -162,15 +162,15 @@ namespace bgfx {
             SDK_API BufferHeapBlock();
 #pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeapBlock@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeapBlock@d3d12@bgfx@@QEAAPEAV123@XZ")
 
-            SAPPHIRE_API("1.21.50", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x33\xDB\x48\x85\xDB") // 1.21.50
+            SPHR_DECL_API("1.21.50", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x33\xDB\x48\x85\xDB") // 1.21.50
             SDK_API BufferHeapBlock *ctor();
 
             ~BufferHeapBlock() = delete;
 
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\x48\x8B\x4C\x24\x00\x48\x8B\x01") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x75\x00\x48\x8B\x4C\x24\x00\x48\x8B\x01") // 1.21.50
             SDK_API bool init(ID3D12Device *pDevice, ID3D12Heap *pHeap, size_t blockSizeInBytes, size_t alignment);
 
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x4C\x8B\xC0\x48\x8B\x5E") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x4C\x8B\xC0\x48\x8B\x5E") // 1.21.50
             SDK_API size_t popInactiveBlockIndex();
         };
 
@@ -204,7 +204,7 @@ namespace bgfx {
             SDK_API BufferHeap();
 #pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeap@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeap@d3d12@bgfx@@QEAAPEAV123@XZ")
 
-            SAPPHIRE_API("1.21.50", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x33\xFF\x0F\x57\xC0\x0F\x11\x01") // 1.21.50
+            SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x33\xFF\x0F\x57\xC0\x0F\x11\x01") // 1.21.50
             SDK_API BufferHeap *ctor();
 
             template <bool A>
@@ -220,7 +220,7 @@ namespace bgfx {
             );
 
             template <>
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\x48\xC7\x45") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\x48\xC7\x45") // 1.21.50
             SDK_API bool init<true>(
                 const wchar_t               *_name,
                 ID3D12Device                *device,
@@ -233,7 +233,7 @@ namespace bgfx {
             );
 
             template <>
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\xEB") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x89\x9F\x00\x00\x00\x00\xEB") // 1.21.50
             SDK_API bool init<false>(
                 const wchar_t               *_name,
                 ID3D12Device                *device,
@@ -249,24 +249,24 @@ namespace bgfx {
             BufferHeapBlock *allocHeapBlock(size_t blockSize) const;
 
             template <>
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xE8\x48\x85\xC0\x74\x00\x48\x8D\x5F") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xE8\x48\x85\xC0\x74\x00\x48\x8D\x5F") // 1.21.50
             SDK_API BufferHeapBlock *allocHeapBlock<true>(size_t blockSize) const;
 
             template <bool A>
             void preallocateHeaps();
 
             template <>
-            SAPPHIRE_API("1.21.50", "lea", "\x48\x8D\x0D\x00\x00\x00\x00\x48\x89\x48\x00\xEB\x00\x49\x8B\xC7\x48\x89\x44\x24") // 1.21.50
+            SPHR_DECL_API("1.21.50", "lea", "\x48\x8D\x0D\x00\x00\x00\x00\x48\x89\x48\x00\xEB\x00\x49\x8B\xC7\x48\x89\x44\x24") // 1.21.50
             SDK_API void preallocateHeaps<true>();
 
-            SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x83\xEF\x00\x75\x00\x66\x89\xBE") // 1.21.50
+            SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x83\xEF\x00\x75\x00\x66\x89\xBE") // 1.21.50
             SDK_API void addHeapBlock(BufferHeapBlock *pHeapBlock);
         };
 
-        SAPPHIRE_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x45\x33\xE4\x4C\x89\xA7") // 1.21.50
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x45\x33\xE4\x4C\x89\xA7") // 1.21.50
         SDK_API void setDebugObjectName(ID3D12Object *_object, const char *_format, ...);
 
-        SAPPHIRE_API("1.21.50", "\x81\xF9\x20\x00\x7A\x88\x7F\x00\x74\x00\x81\xF9")
+        SPHR_DECL_API("1.21.50", "\x81\xF9\x20\x00\x7A\x88\x7F\x00\x74\x00\x81\xF9")
         SDK_API const char *getLostReason(HRESULT _hr);
 
     } // namespace d3d12

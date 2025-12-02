@@ -13,8 +13,8 @@ namespace Bedrock::Threading {
     "?ctor@EnableQueueForMainThread@Threading@Bedrock@@QEAAPEAV123@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z" \
 )
 
-        SAPPHIRE_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x49\x89\x6E\x00\x49\x89\x6E\x00\x48\x8D\x05")
-        SAPPHIRE_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x4C\x89\x00\x00\x4C\x89\x00\x00\x4C\x8D")
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x49\x89\x6E\x00\x49\x89\x6E\x00\x48\x8D\x05")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x4C\x89\x00\x00\x4C\x89\x00\x00\x4C\x8D")
         SDK_API EnableQueueForMainThread *ctor(std::string name);
     };
     static_assert(sizeof(EnableQueueForMainThread) == 16);

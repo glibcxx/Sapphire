@@ -1,4 +1,5 @@
 #include "RenderMaterialGroup.h"
+#include "SDK/core/SymbolResolver.h"
 
 mce::RenderMaterialGroup *mce::RenderMaterialGroup::common = &sapphire::bind::data<
 #if MC_VERSION == v1_21_2

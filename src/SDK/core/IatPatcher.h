@@ -8,8 +8,6 @@
 
 namespace sapphire::core {
 
-    class PluginManager;
-
     class IatPatcher {
     public:
         using ApiMap = std::unordered_map<std::string_view, uintptr_t>;

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <string>
-#include <functional>
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "NetworkIdentifierWithSubId.h"
 #include "ShowStoreOfferRedirectType.h"
 #include "PacketViolationResponse.h"
+#include "util/Memory.hpp"
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
 #    include "IncomingPacketFilterResult.h"

@@ -1,6 +1,5 @@
 #include "IPCClient.h"
 #include "SDK/api/sapphire/logger/Logger.h"
-#include <memory>
 
 namespace {
 
