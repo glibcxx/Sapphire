@@ -1,12 +1,14 @@
 #include "Service.h"
 
 #include "SDK/api/sapphire/hook/Hook.h"
+#include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "SDK/api/src-client/common/client/player/LocalPlayer.h"
+#include "SDK/api/src/common/certificates/Certificate.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 #include "SDK/api/src/common/gamerefs/OwnerPtr.h"
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src/common/network/NetEventCallback.h"
-
-class ServerInstanceEventCoordinator;
+#include "SDK/api/src/common/world/events/ServerInstanceEventCoordinator.h"
 
 namespace {
 
@@ -17,151 +19,102 @@ namespace {
 
     static Bedrock::NonOwnerPointer<Minecraft> clientMinecraft;
 
-    void onClientCreatedLevel(void *This, void *level, void *localPlayer) {
-        /*
-            search "onClientCreatedLevel"
-        */
-        using Bind = sapphire::bind::Fn<
-#if MC_VERSION == v1_21_2
-            "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8\x4C\x8B\xFA\x4C\x8B\xF1\x48\x89\x95"_sig,
-#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-            "\x48\x89\x5C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8"_sig,
-#endif
-            &onClientCreatedLevel>;
-        Bind::origin(This, std::move(level), localPlayer);
-    }
-
-    INDIRECT_HOOK_STATIC(
+    HOOK_TYPE(
         GetClientLevelHook,
+        ClientInstance,
         sapphire::hook::HookPriority::Normal,
-        onClientCreatedLevel,
+        ClientInstance::onClientCreatedLevel,
         void,
-        void *This,
-        void *level,
-        void *localPlayer
+        std::pair<std::unique_ptr<Level>, OwnerPtr<EntityContext>> level,
+        OwnerPtr<EntityContext>                                    player
     ) {
-        clientLevel = *(Level **)level;
-        origin(This, std::move(level), localPlayer);
+        clientLevel = level.first.get();
+        this->origin(std::move(level), std::move(player));
     }
 
-    void ServerInstanceEventCoordinator__sendServerLevelInitialized(
-        ServerInstanceEventCoordinator *This, ServerInstance &serverInstance, Level &level
-    ) {
-        /*
-            search "sendServerLevelInitialized"
-        */
-        using Bind = sapphire::bind::Fn<
-#if MC_VERSION == v1_21_2
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x41\x80\xBC\x24"_sig,
-#elif MC_VERSION == v1_21_50
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x41\x80\xBD\x00\x00\x00\x00\x00\x0F\x84"_sig,
-#elif MC_VERSION == v1_21_60
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x00\x8B\x85\x00\x00\x00\x00\x48\x8B\x88"_sig,
-#endif
-            &ServerInstanceEventCoordinator__sendServerLevelInitialized>;
-        return Bind::origin(This, serverInstance, level);
-    }
-
-    INDIRECT_HOOK_STATIC(
+    HOOK_TYPE(
         GetServerLevelHook,
+        ServerInstanceEventCoordinator,
         sapphire::hook::HookPriority::Normal,
-        ServerInstanceEventCoordinator__sendServerLevelInitialized,
+        ServerInstanceEventCoordinator::sendServerLevelInitialized,
         void,
-        ServerInstanceEventCoordinator *This,
-        ServerInstance                 &serverInstance,
-        Level                          &level
+        ServerInstance &instance,
+        Level          &level
     ) {
-        ::serverInstance = &serverInstance;
+        serverInstance = &instance;
         serverLevel = &level;
-        origin(This, serverInstance, level);
+        this->origin(instance, level);
     }
 
-    LocalPlayer *LocalPlayer_ctor(
-        LocalPlayer *This,
-        void        *a2,
-        void        *a3,
-        void        *a4,
-        void        *a5,
-        void        *a6,
-        void        *a7,
-        void        *a8,
-        void        *a9,
-        void        *a10,
-        void        *a11,
-        void        *a12,
-        void        *a13
-    ) {
-        using Bind = sapphire::bind::Fn<
-#if MC_VERSION == v1_21_2
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xF0\x48\x89\x33\x48\x8B\xC3\x48\x81\xC4\x00\x00\x00\x00\x41\x5F\x41\x5E\x41\x5D"_sig,
-#elif MC_VERSION == v1_21_50
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xF8\x48\x89\x3B\x48\x8B\xC3\x48\x8B\x9C\x24\x00\x00\x00\x00\x48\x81\xC4\x00\x00\x00\x00\x41"_sig,
-#elif MC_VERSION == v1_21_60
-            sapphire::deRefCall | "\xE8\x00\x00\x00\x00\x48\x8B\xD8\x33\xFF\xEB\x00\x33\xFF\x8B\xDF\x48\x89\x5D"_sig,
-#endif
-            &LocalPlayer_ctor>;
-        return Bind::origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
-    }
-
-    INDIRECT_HOOK_STATIC(
+    HOOK_TYPE(
         GetLocalPlayerHook,
+        LocalPlayer,
         sapphire::hook::HookPriority::Normal,
-        LocalPlayer_ctor,
+        LocalPlayer::ctor,
         LocalPlayer *,
-        LocalPlayer *This,
-        void        *a2,
-        void        *a3,
-        void        *a4,
-        void        *a5,
-        void        *a6,
-        void        *a7,
-        void        *a8,
-        void        *a9,
-        void        *a10,
-        void        *a11,
-        void        *a12,
-        void        *a13
+        IClientInstance             &client,
+        Level                       &level,
+        const std::string           &displayName,
+        GameType                     playerGameType,
+        bool                         isHostingPlayer,
+        const NetworkIdentifier     &owner,
+        SubClientId                  subid,
+        mce::UUID                    uuid,
+        const std::string           &playFabId,
+        const std::string           &deviceId,
+        std::unique_ptr<Certificate> certificate,
+        EntityContext               &entityContext
     ) {
-        localPlayer = This;
-        return origin(This, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
+        localPlayer = this;
+        return this->origin(client, level, displayName, playerGameType, isHostingPlayer, owner, subid, uuid, playFabId, deviceId, std::move(certificate), entityContext);
     }
 
-    static void makeClientInstance(
-        ClientInstance *ret, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5, uint64_t a6, uint64_t a7, uint64_t a8, uint64_t a9, uint64_t a10
-    ) {
-        sapphire::bind::Fn<
-#if MC_VERSION == v1_21_2
-            "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x49\x8B\xF9\x49\x8B\xF0\x48\x8B\xEA"_sig,
-#elif MC_VERSION == v1_21_50
-            "\x48\x89\x5C\x24\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x4C\x8B\xDA\x48\x8B\xD9\x4C\x8B\x94\x24"_sig,
-#elif MC_VERSION == v1_21_60
-            "\x48\x8B\xC4\x48\x89\x58\x00\x48\x89\x68\x00\x48\x89\x70\x00\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xD9"_sig,
-#endif
-            &makeClientInstance>::origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-    }
-
-    INDIRECT_HOOK_STATIC(
+#if MC_VERSION < v1_21_60
+    HOOK_TYPE(
         GetClientInstance,
+        ClientInstance,
         sapphire::hook::HookPriority::Normal,
-        makeClientInstance,
-        void,
-        ClientInstance *ret,
-        uint64_t        a2,
-        uint64_t        a3,
-        uint64_t        a4,
-        uint64_t        a5,
-        uint64_t        a6,
-        uint64_t        a7,
-        uint64_t        a8,
-        uint64_t        a9,
-        uint64_t        a10
-    ) {
-        origin(ret, a2, a3, a4, a5, a6, a7, a8, a9, a10);
-        sapphire::debug("[service: primaryClientInstance found: {:#X}", (uintptr_t)ret);
-        ClientInstance::primaryClientInstance = ret;
+        ClientInstance::ctor,
+        ClientInstance *,
+        IMinecraftGame                                             &mg,
+        IMinecraftApp                                              &app,
+        LevelListener                                              &levelListener,
+        SubClientId                                                 subid,
+        Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions>       graphicsOptions,
+        Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> coordinator,
+        LatencyGraphDisplay                                        *latencyGraphDisplay,
+        Bedrock::NotNullNonOwnerPtr<NetworkSession>                 networkSession
+    )
+#elif
+    HOOK_TYPE(
+        GetClientInstance,
+        ClientInstance,
+        sapphire::hook::HookPriority::Normal,
+        ClientInstance::ctor,
+        ClientInstance *,
+        IMinecraftGame                                             &mg,
+        IMinecraftApp                                              &app,
+        LevelListener                                              &levelListener,
+        SubClientId                                                 subid,
+        Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions>       graphicsOptions,
+        Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> coordinator,
+        LatencyGraphDisplay                                        *latencyGraphDisplay,
+        Bedrock::NotNullNonOwnerPtr<NetworkSession>                 networkSession,
+        __int64                                                     a10
+    )
+#endif
+    {
+        sapphire::debug("[service: primaryClientInstance found: {:#X}", (uintptr_t)this);
+        ClientInstance::primaryClientInstance = this;
+        return this->origin(mg, app, levelListener, subid, graphicsOptions, coordinator, latencyGraphDisplay, networkSession
+#if MC_VERSION >= v1_21_60
+                            ,
+                            a10
+#endif
+        );
     }
 
-    INDIRECT_HOOK_TYPE(
+    HOOK_TYPE(
         GetClientMinecraftHook,
         Minecraft,
         sapphire::hook::HookPriority::Normal,

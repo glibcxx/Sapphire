@@ -1,13 +1,29 @@
 #include "SymbolResolver.h"
 #include <Windows.h>
+#include <cassert>
 #include <fstream>
 #include <filesystem>
 #include <Psapi.h>
 
+#include "util/DecoratedName.hpp"
 #include "util/Memory.hpp"
 #include "util/MemoryScanning.hpp"
 
 namespace sapphire::bootloader {
+
+    static SymbolResolver *srInstance = nullptr;
+
+    SymbolResolver::SymbolResolver() {
+        srInstance = this;
+    }
+    SymbolResolver::~SymbolResolver() {
+        srInstance = nullptr;
+    }
+
+    SymbolResolver &SymbolResolver::get() {
+        assert(srInstance && "SymbolResolver is not available!");
+        return *srInstance;
+    }
 
     uintptr_t SymbolResolver::applyOperations(uintptr_t address, const std::vector<codegen::SigDatabase::SigOp> &ops) {
         uintptr_t currentAddress = address;
@@ -29,7 +45,6 @@ namespace sapphire::bootloader {
                 currentAddress = memory::deRef(currentAddress, memory::AsmOperation::LEA);
                 break;
             default:
-                // Invalid or None operation, do nothing
                 break;
             }
         }
@@ -42,7 +57,6 @@ namespace sapphire::bootloader {
             return false;
         }
 
-        // The supportVersion parameter is not used for now, can be used for validation later.
         mDatabase = std::make_unique<codegen::SigDatabase>(0);
         if (!mDatabase->load(dbFile)) {
             mDatabase.reset();
@@ -69,20 +83,21 @@ namespace sapphire::bootloader {
 
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
         const size_t    moduleSize = moduleInfo.SizeOfImage;
-
+        mResolvedFunctionSymbols[util::Decorator<&SymbolResolver::get>::value.value] = (uintptr_t)&SymbolResolver::get;
         for (const auto &entry : entries) {
             // TODO: Implement multi-threaded signature scanning
             uintptr_t foundAddress = memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
 
             if (foundAddress != 0) {
                 uintptr_t finalAddress = applyOperations(foundAddress, entry.mOperations);
-                mResolvedSymbols[entry.mSymbol] = finalAddress;
+                if (entry.mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
+                    mResolvedDataSymbols[entry.mSymbol] = finalAddress;
+                else
+                    mResolvedFunctionSymbols[entry.mSymbol] = finalAddress;
+                if (entry.hasExtraSymbol())
+                    mResolvedFunctionSymbols[entry.mExtraSymbol] = finalAddress;
             }
         }
-    }
-
-    const std::unordered_map<std::string, uintptr_t> &SymbolResolver::getResolvedSymbols() const {
-        return mResolvedSymbols;
     }
 
 } // namespace sapphire::bootloader

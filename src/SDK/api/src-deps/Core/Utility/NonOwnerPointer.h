@@ -49,7 +49,7 @@ namespace Bedrock {
 
         bool operator==(const NonOwnerPointer &other) const { return access() == other.access(); }
 
-        bool operator==(nullptr_t) const { return isValid(); }
+        bool operator==(nullptr_t) const { return !isValid(); }
     };
 
     template <>
@@ -93,7 +93,7 @@ namespace Bedrock {
 
         bool operator==(const NonOwnerPointer &other) const { return access() == other.access(); }
 
-        bool operator==(nullptr_t) const { return isValid(); }
+        bool operator==(nullptr_t) const { return !isValid(); }
     };
 
     template <typename T>

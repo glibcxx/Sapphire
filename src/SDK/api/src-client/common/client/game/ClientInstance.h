@@ -71,6 +71,7 @@ class NetworkSession;
 class GameMode;
 class HitResult;
 class EducationOptions;
+class Level;
 struct RenderCameraComponent;
 // clang-format off
 namespace mce { class Texture; }
@@ -299,10 +300,50 @@ public:
     __int64 mUnk3360; // off+3360
 #endif
 
+    SDK_API ClientInstance(
+        IMinecraftGame                                             &mg,
+        IMinecraftApp                                              &app,
+        LevelListener                                              &levelListener,
+        SubClientId                                                 subid,
+        Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions>       graphicsOptions,
+        Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> coordinator,
+        LatencyGraphDisplay                                        *latencyGraphDisplay,
+        Bedrock::NotNullNonOwnerPtr<NetworkSession>                 networkSession
+#if MC_VERSION >= v1_21_60
+        ,
+        __int64 a10
+#endif
+    );
+    // TODO: SYMBOL ALIAS
+
+    SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x49\x8B\xF9\x49\x8B\xD8\x4C\x8B\xE2")
+    SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4D\x8B\xF1\x4D\x8B\xE0\x4C\x8B\xEA")
+    SPHR_DECL_API("1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x49\x8B\xF9\x49\x8B\xD8\x4C\x8B\xFA\x48\x89\x54\x24")
+    SDK_API ClientInstance *ctor(
+        IMinecraftGame                                             &mg,
+        IMinecraftApp                                              &app,
+        LevelListener                                              &levelListener,
+        SubClientId                                                 subid,
+        Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions>       graphicsOptions,
+        Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> coordinator,
+        LatencyGraphDisplay                                        *latencyGraphDisplay,
+        Bedrock::NotNullNonOwnerPtr<NetworkSession>                 networkSession
+#if MC_VERSION >= v1_21_60
+        ,
+        __int64 a10
+#endif
+    );
+
     // vtb+2
     SPHR_DECL_API("v1_21_2", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x03")
     SPHR_DECL_API("v1_21_50,v1_21_60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\xF9\xE8\x00\x00\x00\x00\x48\x8B\x07")
     SDK_API virtual void onDestroyMinecraftGame() override;
+
+    SPHR_DECL_API("v1_21_2", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8\x4C\x8B\xFA\x4C\x8B\xF1\x48\x89\x95")
+    SPHR_DECL_API("v1_21_50,v1_21_60", "\x48\x89\x5C\x24\x00\x4C\x89\x44\x24\x00\x48\x89\x54\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xF8")
+    SDK_API /*virtual*/ void onClientCreatedLevel(
+        std::pair<std::unique_ptr<Level>, OwnerPtr<EntityContext>> level, OwnerPtr<EntityContext> player
+    ) /*override*/;
 
     /*virtual*/ bool getMouseGrabbed() const /*override*/ {
         // \x40\x53\x48\x83\xEC\x00\x48\x8B\x01\x48\x8B\xD9\x48\x8B\x80\x00\x00\x00\x00\xFF\x15\x00\x00\x00\x00\x84\xC0\x74\x00\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x01\x48\x8B\x80\x00\x00\x00\x00\xFF\x15

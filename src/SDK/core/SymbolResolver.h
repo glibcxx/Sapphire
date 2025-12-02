@@ -7,7 +7,9 @@
 #include "util/ApiUniqueId.hpp"
 #include "util/TypeTraits.hpp"
 #include "MainModuleInfo.h"
-#include "Signature.h"
+#include "util/Signature.h"
+
+#include "bootloader/SymbolResolver.h"
 
 #include "SDK/api/sapphire/hook/SafeHook.h"
 
@@ -17,10 +19,9 @@ namespace sapphire {
         MainModuleInfo   mMainModuleInfo;
         util::ThreadPool mThreadPool;
 
-        using ApiMap = std::unordered_map<std::string_view, uintptr_t>;
+        using ApiMap = std::unordered_map<std::string, uintptr_t>;
 
-        ApiMap mFunctionApiMap;
-        ApiMap mDataApiMap;
+        bootloader::SymbolResolver &mBLSymbolResolver;
 
         mutable std::mutex mLock;
 
@@ -30,14 +31,16 @@ namespace sapphire {
             this->mThreadPool.enqueue(std::move(task));
         }
 
+        SymbolResolver(bootloader::SymbolResolver &blsr);
+
     public:
         SPHR_API static SymbolResolver &getInstance();
 
         const ApiMap &getFunctionApiMap() const {
-            return this->mFunctionApiMap;
+            return mBLSymbolResolver.getResolvedFunctionSymbols();
         }
         const ApiMap &getDataApiMap() const {
-            return this->mDataApiMap;
+            return mBLSymbolResolver.getResolvedDataSymbols();
         }
 
         bool addDecoratedName(std::string_view dName, uintptr_t addr, bool functionApi) {
@@ -45,9 +48,9 @@ namespace sapphire {
             {
                 std::unique_lock lock{mLock};
                 if (functionApi)
-                    success = this->mFunctionApiMap.try_emplace(dName, addr).second;
+                    success = mBLSymbolResolver.getResolvedFunctionSymbols().try_emplace(std::string{dName}, addr).second;
                 else
-                    success = this->mDataApiMap.try_emplace(dName, addr).second;
+                    success = mBLSymbolResolver.getResolvedDataSymbols().try_emplace(std::string{dName}, addr).second;
             }
 #ifdef SPHR_DEBUG
             if (!success)
@@ -58,8 +61,10 @@ namespace sapphire {
 
         uintptr_t findTarget(std::string_view dName) {
             std::unique_lock lock{mLock};
-            auto             it = this->mFunctionApiMap.find(dName);
-            if (it == this->mFunctionApiMap.end())
+
+            auto &fm = mBLSymbolResolver.getResolvedFunctionSymbols();
+            auto  it = fm.find(std::string{dName});
+            if (it == fm.end())
                 return 0;
             else
                 return it->second;

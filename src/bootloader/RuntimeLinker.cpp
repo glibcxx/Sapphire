@@ -55,11 +55,9 @@ VOID CALLBACK LdrDllNotification(
 ) {
     if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_LOADED) {
         auto runtimeLinker = static_cast<sapphire::bootloader::RuntimeLinker *>(Context);
-        if (wcsstr(NotificationData->Loaded.BaseDllName->Buffer, L"sapphire_core_for_v1_21_50.dll")) {
-            runtimeLinker->getIatPatcher().patchModule(
-                (HMODULE)NotificationData->Loaded.DllBase, runtimeLinker->getSymbolResolver().getResolvedSymbols()
-            );
-        }
+        runtimeLinker->getIatPatcher().patchModule(
+            (HMODULE)NotificationData->Loaded.DllBase, runtimeLinker->getSymbolResolver().getResolvedFunctionSymbols()
+        );
     }
 }
 
@@ -72,7 +70,6 @@ sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::S
     if (pLdrRegisterDllNotification) {
         PVOID cookie;
         auto  res = pLdrRegisterDllNotification(0, LdrDllNotification, this, &cookie);
-        InfoBox(L"bootloader, {:#x}", res);
     }
 }
 

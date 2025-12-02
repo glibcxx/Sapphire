@@ -7,8 +7,10 @@ add_library(sapphire_bootloader SHARED
 )
 
 target_link_libraries(sapphire_bootloader PRIVATE SapphireCommon minhook)
+target_compile_definitions(sapphire_bootloader PRIVATE "SRBL_DLLEXPORT")
 
 install(TARGETS sapphire_bootloader
+    EXPORT SapphireTargets
     RUNTIME DESTINATION Sapphire/bin/ COMPONENT sapphire_bootloader
 )
 install(FILES $<TARGET_PDB_FILE:sapphire_bootloader>

@@ -18,7 +18,6 @@ function(sapphire_run_codegen CURRENT_VERSION)
 
     add_custom_command(
         OUTPUT ${OUT_DEF} ${OUT_BIN}
-        USES_TERMINAL
 
         COMMAND "${SAPPHIRE_CODEGEN_EXE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/src"

@@ -19,6 +19,12 @@
 #    define SPHR_API SPHR_IMPORT
 #endif
 
+#ifdef SRBL_DLLEXPORT
+#    define SRBL_API SPHR_EXPORT
+#else
+#    define SRBL_API SPHR_IMPORT
+#endif
+
 #define SDK_API SPHR_IMPORT
 
 #if defined(_MSC_VER)

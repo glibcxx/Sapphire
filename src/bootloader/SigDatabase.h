@@ -4,6 +4,7 @@
 #include <vector>
 
 namespace sapphire::codegen {
+
     class SigDatabase {
     public:
         static constexpr uint32_t MAGIC_NUMBER = 0X3046FCDB; // crc32(".sig.db")
@@ -28,9 +29,24 @@ namespace sapphire::codegen {
         };
 
         struct SigEntry {
-            std::string        mSymbol;
-            std::string        mSig;
+            enum class Type : int8_t {
+                Function,
+                Data,
+                VirtualThunk,
+                CtorThunk,
+                DtorThunk,
+                _invalid = -1,
+            };
+            Type        mType = Type::Function;
+            std::string mSymbol;
+            std::string mExtraSymbol; // for Thunk
+            std::string mSig;
+
             std::vector<SigOp> mOperations;
+
+            constexpr bool hasExtraSymbol() const {
+                return mType == Type::VirtualThunk || mType == Type::CtorThunk || mType == Type::DtorThunk;
+            }
         };
 
         SigDatabase(uint64_t supportVersion, FormatVersion fmtVer = FormatVersion::v1_0_0) :

@@ -1,5 +1,4 @@
 #include "LogBox.h"
-#define SPHR_DLLEXPORT
 
 #include "IatPatcher.h"
 #include <delayimp.h>
@@ -56,6 +55,7 @@ namespace sapphire::bootloader {
                     std::string  f{functionName};
                     std::wstring n{f.begin(), f.end()};
                     ErrorBox(L"undefined symbol {}", n);
+                    return false;
                     // #ifdef SPHR_DEBUG
                     //                     std::string_view n{functionName};
                     //                     if (n.find("sapphire@@") == std::string_view::npos

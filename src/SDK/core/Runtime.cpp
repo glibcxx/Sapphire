@@ -6,7 +6,6 @@
 #include <thread>
 
 #include "CrashLog.h"
-#include "IatPatcher.h"
 #include "RenderBackend.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/sapphire/hook/Hook.h"

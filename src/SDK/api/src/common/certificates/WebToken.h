@@ -10,4 +10,6 @@ public:
     std::string mData;       // off+48
     Json::Value mDataInfo;   // off+80
     std::string mSignature;  // off+96
+
+    ~WebToken() = default;
 };

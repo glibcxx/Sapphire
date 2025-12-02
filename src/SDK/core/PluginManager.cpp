@@ -6,7 +6,6 @@
 #include "SDK/api/src-client/common/client/game/MinecraftGame.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "Runtime.h"
-#include "IatPatcher.h"
 
 namespace fs = std::filesystem;
 
@@ -55,9 +54,7 @@ namespace sapphire::core {
             return false;
         }
 
-        auto      &apiMap = SymbolResolver::getInstance().getFunctionApiMap();
-        IatPatcher iatPatcher{platform::Environment::getInstance().getSapphireCorePath().filename().string()};
-        size_t     loaded = mLoadedPlugins.size();
+        size_t loaded = mLoadedPlugins.size();
         for (auto &&entry : fs::directory_iterator{modsDir}) {
             auto filename = entry.path().filename().string();
             if (!entry.is_regular_file() || entry.path().extension() != ".dll")
@@ -89,7 +86,6 @@ namespace sapphire::core {
             } else {
                 mLoadedPlugins.back().handle = handle;
                 loaded++;
-                iatPatcher.patchModule(handle, apiMap);
                 sapphire::info("PluginManager: {} 注入成功！", filename);
             }
         }

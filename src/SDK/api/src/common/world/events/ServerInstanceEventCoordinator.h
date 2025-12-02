@@ -1,0 +1,15 @@
+#pragma once
+
+#include "SDK/api/src/common/world/events/EventCoordinator.h"
+
+class Level;
+class ServerInstance;
+class ServerInstanceEventListener;
+
+class ServerInstanceEventCoordinator : public EventCoordinator<ServerInstanceEventListener> {
+public:
+    SPHR_DECL_API("v1_21_2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x41\x80\xBC\x24")
+    SPHR_DECL_API("v1_21_50", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x41\x80\xBD\x00\x00\x00\x00\x00\x0F\x84")
+    SPHR_DECL_API("v1_21_60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x8D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x00\x8B\x85\x00\x00\x00\x00\x48\x8B\x88")
+    void sendServerLevelInitialized(ServerInstance &instance, Level &level);
+};

@@ -83,7 +83,14 @@ sapphire::core::CrashLogger::CrashLogger() {
     std::filesystem::path logDir = home / "crash";
     std::filesystem::create_directories(logDir);
     mLogPath = logDir / std::format(L"crash_dump_{:%Y.%m.%d-%H_%M_%S}.log", zt);
-    sUserPdbSearchPaths = std::format("{};{}", home.parent_path().string(), (home / "mods").string());
+    /*
+        /
+        /bin/
+        /sapphire/mods/
+    */
+    sUserPdbSearchPaths = std::format(
+        "{};{};{}", home.parent_path().string(), (home.parent_path() / "bin").string(), (home / "mods").string()
+    );
 
     SetUnhandledExceptionFilter(sehHandler);
     _set_purecall_handler(pureCallHandler);

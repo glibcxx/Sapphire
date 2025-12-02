@@ -19,18 +19,17 @@ namespace sapphire::codegen {
             fs.write(reinterpret_cast<char *>(&s), sizeof(T));
         }
 
-        template <typename>
-        auto read(std::ifstream &fs, size_t length);
-
-        template <>
-        auto read<std::string>(std::ifstream &fs, size_t length) {
-            std::string result;
+        template <typename T, std::enable_if_t<std::is_same_v<T, std::string>, char> = 0>
+        auto read(std::ifstream &fs) {
+            std::string    result;
+            const uint64_t length = fshelper::read<uint64_t>(fs);
             result.resize(length);
             fs.read(result.data(), length);
             return result;
         }
 
         void write(std::ofstream &fs, const std::string &s) {
+            write<uint64_t>(fs, s.size());
             fs.write(s.data(), s.size());
         }
 
@@ -72,14 +71,20 @@ namespace sapphire::codegen {
             if (magicNum != SigDatabase::MAGIC_NUMBER)
                 return false;
             mFormatVersion = fshelper::read<FormatVersion>(fs);
-            mSupportVersion = fshelper::read<uint64_t>(fs);
+            if (mSupportVersion == 0)
+                mSupportVersion = fshelper::read<uint64_t>(fs);
+            else if (mSupportVersion != fshelper::read<uint64_t>(fs))
+                return false;
             auto sigCount = fshelper::read<size_t>(fs);
             if (!sigCount) return false;
             mSigEntries.reserve(sigCount);
             for (size_t i = 0; i < sigCount; ++i) {
                 SigEntry sigEntry;
-                sigEntry.mSymbol = fshelper::read<std::string>(fs, fshelper::read<size_t>(fs));
-                sigEntry.mSig = fshelper::read<std::string>(fs, fshelper::read<size_t>(fs));
+                sigEntry.mType = fshelper::read<SigEntry::Type>(fs);
+                sigEntry.mSymbol = fshelper::read<std::string>(fs);
+                if (sigEntry.hasExtraSymbol())
+                    sigEntry.mExtraSymbol = fshelper::read<std::string>(fs);
+                sigEntry.mSig = fshelper::read<std::string>(fs);
                 size_t sigOpCount = fshelper::read<size_t>(fs);
                 if (sigOpCount) {
                     sigEntry.mOperations.reserve(sigOpCount);
@@ -105,9 +110,13 @@ namespace sapphire::codegen {
             fshelper::write(fs, mSupportVersion);
             fshelper::write(fs, mSigEntries.size());
             for (auto &&it : mSigEntries) {
-                fshelper::write(fs, it.mSymbol.size());
+                fshelper::write(fs, it.mType);
                 fshelper::write(fs, it.mSymbol);
-                fshelper::write(fs, it.mSig.size());
+                if (it.mType == SigEntry::Type::VirtualThunk
+                    || it.mType == SigEntry::Type::CtorThunk
+                    || it.mType == SigEntry::Type::DtorThunk) {
+                    fshelper::write(fs, it.mExtraSymbol);
+                }
                 fshelper::write(fs, it.mSig);
                 fshelper::write(fs, it.mOperations.size());
                 for (auto &&op : it.mOperations) {
@@ -145,7 +154,9 @@ namespace sapphire::codegen {
         std::cout << "mSupportVersion=" << mSupportVersion << '\n';
         std::cout << "SigEntryCount=" << mSigEntries.size() << '\n';
         for (auto &&it : mSigEntries) {
+            std::cout << "  mType=" << (int8_t)it.mType << '\n';
             std::cout << "  mSymbol=" << it.mSymbol << '\n';
+            std::cout << "  mExtraSymbol=" << it.mExtraSymbol << '\n';
             std::cout << "  mSig=" << formatSig(it.mSig) << '\n';
             std::cout << "  mOperations=\n";
             for (auto &&op : it.mOperations) {

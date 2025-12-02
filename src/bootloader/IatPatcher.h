@@ -13,7 +13,7 @@ namespace sapphire::bootloader {
     public:
         using ApiMap = std::unordered_map<std::string, uintptr_t>;
 
-        SPHR_API void patchModule(HMODULE hModule, const ApiMap &apiMap);
+        void patchModule(HMODULE hModule, const ApiMap &apiMap);
 
         IatPatcher(const std::string &bedrockSigSourceDllName);
         ~IatPatcher() = default;

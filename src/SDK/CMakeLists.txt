@@ -19,7 +19,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
         SapphireCommon
         sapphire::bedrock_api_${BUILDING_MC_VERSION}
         PRIVATE
-        minhook imgui kiero d3d11
+        minhook imgui kiero d3d11 sapphire_bootloader
     )
 
     target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE "MC_VERSION=${BUILDING_MC_VERSION}")

@@ -25,4 +25,7 @@ public:
     };
 
     std::optional<EntityContextOwned> mContext; // off+0
+
+    OwnerStorageEntity(const OwnerStorageEntity &) = delete;
+    OwnerStorageEntity(OwnerStorageEntity &&) = default;
 };

@@ -8,6 +8,8 @@ class UnverifiedCertificate {
 public:
     const WebToken                mRawToken;                    // off+0
     Unique<UnverifiedCertificate> mParentUnverifiedCertificate; // off+128
+
+    ~UnverifiedCertificate() = default;
 };
 
 // size: 152
@@ -17,4 +19,6 @@ public:
     Unique<Certificate>   mParentCertificate;     // off+136
     bool                  mIsValid;               // off+144
     bool                  mIsSelfSigned;          // off+145
+
+    ~Certificate() = default;
 };
