@@ -1,4 +1,5 @@
 #include "RuntimeLinker.h"
+#include "MinHook.h"
 #include <Windows.h>
 #include <winnt.h>
 #include <winternl.h>
@@ -48,6 +49,27 @@ typedef NTSTATUS(NTAPI *PLDR_REGISTER_DLL_NOTIFICATION)(
     PVOID                         *Cookie
 );
 
+BOOL WINAPI FakeDllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+    return FALSE;
+}
+
+void sapphire::bootloader::RuntimeLinker::forceDllMainToFail(RuntimeLinker *self, HMODULE hDll) {
+    PIMAGE_DOS_HEADER pDos = (PIMAGE_DOS_HEADER)hDll;
+    PIMAGE_NT_HEADERS pNt = (PIMAGE_NT_HEADERS)(hDll + pDos->e_lfanew);
+
+    if (pNt->OptionalHeader.AddressOfEntryPoint == 0) return;
+    LPVOID pEntryPoint = (LPVOID)(hDll + pNt->OptionalHeader.AddressOfEntryPoint);
+
+    if (MH_CreateHook(pEntryPoint, (LPVOID)&FakeDllMain, NULL) != MH_OK) {
+        self->mIPCClient.send(ipc::status::Error, "Failed to create EntryPoint hook.");
+        return;
+    }
+    if (MH_EnableHook(pEntryPoint) != MH_OK) {
+        self->mIPCClient.send(ipc::status::Error, "Failed to enable EntryPoint hook.");
+        return;
+    }
+}
+
 VOID CALLBACK LdrDllNotification(
     ULONG                       NotificationReason,
     PCLDR_DLL_NOTIFICATION_DATA NotificationData,
@@ -55,14 +77,21 @@ VOID CALLBACK LdrDllNotification(
 ) {
     if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_LOADED) {
         auto runtimeLinker = static_cast<sapphire::bootloader::RuntimeLinker *>(Context);
-        runtimeLinker->getIatPatcher().patchModule(
-            (HMODULE)NotificationData->Loaded.DllBase, runtimeLinker->getSymbolResolver().getResolvedFunctionSymbols()
-        );
+        if (!runtimeLinker->getIatPatcher().patchModule(
+                (HMODULE)NotificationData->Loaded.DllBase, runtimeLinker->getSymbolResolver().getResolvedFunctionSymbols()
+            )) {
+            sapphire::bootloader::RuntimeLinker::forceDllMainToFail(
+                runtimeLinker, (HMODULE)NotificationData->Loaded.DllBase
+            );
+        }
     }
 }
 
-sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::SymbolResolver &resolver) :
-    mResolver(resolver), mIatPatcher(std::make_unique<IatPatcher>("sapphire_bootloader.dll")) {
+sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::SymbolResolver &resolver, ipc::Client &IPCClient) :
+    mResolver(resolver),
+    mIPCClient(IPCClient),
+    mIatPatcher(std::make_unique<IatPatcher>("sapphire_bootloader.dll", IPCClient)) {
+    if (MH_Initialize() != MH_OK) return;
     HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
     auto    pLdrRegisterDllNotification =
         (PLDR_REGISTER_DLL_NOTIFICATION)GetProcAddress(hNtDll, "LdrRegisterDllNotification");
@@ -73,4 +102,6 @@ sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::S
     }
 }
 
-sapphire::bootloader::RuntimeLinker::~RuntimeLinker() {}
+sapphire::bootloader::RuntimeLinker::~RuntimeLinker() {
+    MH_Uninitialize();
+}

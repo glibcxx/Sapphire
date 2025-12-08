@@ -21,52 +21,20 @@ namespace {
 
 void sapphire::core::IPCClient::connect() {
     sapphire::info("IPCClient: Connecting Pipe...");
-    while (true) {
-        hPipe = CreateFile(
-            L"\\\\.\\pipe\\SapphireSignalPipe",
-            GENERIC_WRITE,
-            0,
-            nullptr,
-            OPEN_EXISTING,
-            0,
-            nullptr
-        );
-
-        if (hPipe != INVALID_HANDLE_VALUE) {
-            break;
-        }
-        auto code = GetLastError();
-        if (code != ERROR_PIPE_BUSY) {
-            CloseHandle(hPipe);
-            sapphire::error("IPCClient: 无法连接管道 (code: {:#X})", code);
-            sapphire::alert(L"IPCClient: 无法连接管道 (code: {:#X})", code);
-            throw std::runtime_error{"pipe connect error"};
-        }
-        if (!WaitNamedPipe(L"\\\\.\\pipe\\SapphireSignalPipe", 20000)) {
-            CloseHandle(hPipe);
-            sapphire::error("IPCClient: 连接管道超时");
-            sapphire::alert(L"IPCClient: 连接管道超时");
-            throw std::runtime_error{"pipe connect timeout"};
-        }
+    if (!ipc::Client::connect(L"\\\\.\\pipe\\SapphireSignalPipe")) {
+        sapphire::error("IPCClient: 无法连接管道");
+        sapphire::alert(L"IPCClient: 无法连接管道");
+        throw std::runtime_error{"[Sapphire Core] pipe connection error"};
     }
+    ipc::Client::send(ipc::status::Handshake, "Sapphire Core");
     sPipeLogSink = std::make_shared<PipeLogSink>(*this);
     sapphire::LogManager::getInstance().addSink(sPipeLogSink);
     sapphire::info("IPCClient: Connecting Pipe done.");
 }
 
 void sapphire::core::IPCClient::disconnect() {
+    ipc::Client::send(ipc::status::Handoff, "Sapphire Core");
+    ipc::Client::disconnect();
     sapphire::LogManager::getInstance().removeSink(sPipeLogSink);
     sPipeLogSink.reset();
-    CloseHandle(hPipe);
-    hPipe = INVALID_HANDLE_VALUE;
-}
-
-void sapphire::core::IPCClient::send(const std::string &msg) {
-    DWORD bytes_written = 0;
-    BOOL  bResult = WriteFile(hPipe, msg.data(), msg.length(), &bytes_written, nullptr);
-    if (!bResult) {
-        CloseHandle(hPipe);
-        sapphire::alert(L"IPCClient: 无法写入管道");
-        throw std::runtime_error{"send signal error"};
-    }
 }

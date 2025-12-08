@@ -1,16 +1,16 @@
-#include "LogBox.h"
-
 #include "IatPatcher.h"
 #include <delayimp.h>
+#include <filesystem>
+#include <format>
 
 namespace sapphire::bootloader {
 
-    IatPatcher::IatPatcher(const std::string &bedrockSigSourceDllName) :
-        mBedrockSigSourceDllName(bedrockSigSourceDllName) {
+    IatPatcher::IatPatcher(const std::string &bedrockSigSourceDllName, ipc::Client &IPCClient) :
+        mBedrockSigSourceDllName(bedrockSigSourceDllName), mIPCClient(IPCClient) {
     }
 
-    void IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap) {
-        patchModuleInternal(hModule, apiMap);
+    bool IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap) {
+        return patchModuleInternal(hModule, apiMap);
     }
 
     bool IatPatcher::patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap) {
@@ -52,16 +52,21 @@ namespace sapphire::bootloader {
                         VirtualProtect(&pIAT->u1.Function, sizeof(void *), oldProtect, &oldProtect);
                     }
                 } else {
-                    std::string  f{functionName};
-                    std::wstring n{f.begin(), f.end()};
-                    ErrorBox(L"undefined symbol {}", n);
+                    wchar_t szPath[MAX_PATH];
+                    if (GetModuleFileNameW(hModuleToPatch, szPath, MAX_PATH) != 0) {
+                        std::filesystem::path path{szPath};
+                        mIPCClient.send(
+                            ipc::status::Error,
+                            std::format("undefined symbol {}, referenced by {}", functionName, path.stem().string())
+                        );
+                    } else {
+                        mIPCClient.send(
+                            ipc::status::Error,
+                            std::format("undefined symbol {}, referenced by UNKNOWN", functionName)
+                        );
+                    }
+
                     return false;
-                    // #ifdef SPHR_DEBUG
-                    //                     std::string_view n{functionName};
-                    //                     if (n.find("sapphire@@") == std::string_view::npos
-                    //                         && n.find("ImGui@@") == std::string_view::npos)
-                    //                         sapphire::debug("IatPatcher:  -> function '{}' not found in api map", functionName);
-                    // #endif
                 }
             }
         }

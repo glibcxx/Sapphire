@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "macros/Macros.h"
+#include "util/IPC/Client.h"
 
 namespace sapphire::bootloader {
 
@@ -13,9 +13,9 @@ namespace sapphire::bootloader {
     public:
         using ApiMap = std::unordered_map<std::string, uintptr_t>;
 
-        void patchModule(HMODULE hModule, const ApiMap &apiMap);
+        bool patchModule(HMODULE hModule, const ApiMap &apiMap);
 
-        IatPatcher(const std::string &bedrockSigSourceDllName);
+        IatPatcher(const std::string &bedrockSigSourceDllName, ipc::Client &IPCClient);
         ~IatPatcher() = default;
 
         IatPatcher(const IatPatcher &) = delete;
@@ -24,7 +24,8 @@ namespace sapphire::bootloader {
     private:
         bool patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap);
 
-        std::string mBedrockSigSourceDllName;
+        std::string  mBedrockSigSourceDllName;
+        ipc::Client &mIPCClient;
     };
 
 } // namespace sapphire::bootloader

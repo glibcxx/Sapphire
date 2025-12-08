@@ -4,13 +4,12 @@
 
 #include "IatPatcher.h"
 #include "SymbolResolver.h"
-#include "LogBox.h"
 
 namespace sapphire::bootloader {
 
     class RuntimeLinker {
     public:
-        explicit RuntimeLinker(const SymbolResolver &resolver);
+        explicit RuntimeLinker(const SymbolResolver &resolver, ipc::Client &IPCClient);
         ~RuntimeLinker();
 
         RuntimeLinker(const RuntimeLinker &) = delete;
@@ -19,7 +18,10 @@ namespace sapphire::bootloader {
         const SymbolResolver &getSymbolResolver() const { return mResolver; }
         IatPatcher           &getIatPatcher() const { return *mIatPatcher; }
 
+        static void forceDllMainToFail(RuntimeLinker *self, HMODULE hDll);
+
     private:
+        ipc::Client                &mIPCClient;
         const SymbolResolver       &mResolver;
         std::unique_ptr<IatPatcher> mIatPatcher;
     };

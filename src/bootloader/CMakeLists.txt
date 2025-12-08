@@ -1,4 +1,5 @@
 add_library(sapphire_bootloader SHARED
+    Bootloader.cpp
     BootloaderMain.cpp
     RuntimeLinker.cpp
     SymbolResolver.cpp

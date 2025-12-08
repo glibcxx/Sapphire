@@ -1,10 +1,14 @@
 #include <iostream>
 #include <filesystem>
+#include <mutex>
 #include <regex>
 #include <map>
 
 #include "util/ScopeGuard.hpp"
+#include "util/IPC/Server.h"
 
+#include <thread>
+#include <tuple>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.ApplicationModel.h>
@@ -265,6 +269,9 @@ int main(int argc, char **argv) {
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"sapphire_launcher.exe");
     } else {
+        SetConsoleOutputCP(65001);
+        SetConsoleCP(65001);
+
         bool             injectionSuccessful = false;
         util::ScopeGuard autoTerminateOrResume{
             [dwProcessId, &injectionSuccessful]() {
@@ -303,65 +310,52 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        PSECURITY_DESCRIPTOR p_sd = nullptr;
-        SECURITY_ATTRIBUTES  sa = {};
-        sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-        sa.bInheritHandle = FALSE;
-        ConvertStringSecurityDescriptorToSecurityDescriptorW(
-            L"D:(A;;GA;;;WD)(A;;GA;;;AC)",
-            SDDL_REVISION_1,
-            &p_sd,
-            nullptr
-        );
-        sa.lpSecurityDescriptor = p_sd;
-        std::wstring    pipe_name = L"\\\\.\\pipe\\SapphireSignalPipe";
-        AutoCloseHandle h_pipe{CreateNamedPipe(
-            pipe_name.c_str(),
-            PIPE_ACCESS_INBOUND,
-            PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
-            1,
-            1024,
-            1024,
-            0,
-            &sa
-        )};
-
-        if (p_sd) LocalFree(p_sd);
-        if (h_pipe.get() == INVALID_HANDLE_VALUE) {
-            ErrorBox(L"[injector] 无法打开通信管道 (错误码: {})", GetLastError());
-            return 1;
-        }
+        sapphire::ipc::Server        icpSvr;
+        std::mutex                   mutex;
+        std::unique_lock<std::mutex> lock{mutex};
+        std::condition_variable      cv;
+        bool                         error = false;
+        icpSvr.onClientConnected = []() {
+            std::cout << "[injector] Pipe connected!\n";
+        };
+        icpSvr.onClientDisconnected = [&cv]() {
+            std::cout << "[injector] Pipe disconnected!\n";
+            cv.notify_all();
+        };
+        icpSvr.onMessage = [&cv, &error](const sapphire::ipc::Message &msg) {
+            auto status = msg.getStatus();
+            if (status == sapphire::ipc::status::Handshake) {
+                std::cout << "[injector] Pipe connection from: " << msg.getData() << '\n';
+            } else if (status == sapphire::ipc::status::Handoff) {
+                std::cout << "[injector] Pipe disconnecting from: " << msg.getData() << '\n';
+            } else if (status == sapphire::ipc::status::Error) {
+                error = true;
+                std::cout << "[injector] Error msg recieved: " << msg.getData() << '\n';
+            } else if (status == sapphire::ipc::status::Success) {
+                if (msg.getData().is_string())
+                    std::cout << msg.getData().get<std::string>() << '\n';
+                else
+                    std::cout << "[injector] Invalid msg type: " << msg.getData().type_name() << '\n';
+            }
+        };
+        icpSvr.start(L"\\\\.\\pipe\\SapphireSignalPipe");
 
         DWORD code = injectDll(hProcess.get(), dllPath);
         if (code == 0) {
             ErrorBox(L"[injector] sapphire_bootstrap.dll 注入失败！");
             return 1;
         }
-        BOOL b_connected = ConnectNamedPipe(h_pipe.get(), nullptr);
-        if (!b_connected) {
-            if (GetLastError() != ERROR_PIPE_CONNECTED) {
-                ErrorBox(L"[injector] 连接通信管道失败 (错误码: {})", GetLastError());
-                return 1;
-            }
-        }
 
-        SetConsoleOutputCP(65001);
-        SetConsoleCP(65001);
-
-        char  buffer[256] = {0};
-        DWORD bytes_read = 0;
-        while (true) {
-            BOOL b_result = ReadFile(h_pipe.get(), buffer, sizeof(buffer) - 1, &bytes_read, nullptr);
-            if (b_result && bytes_read > 0) {
-                injectionSuccessful = true;
-                std::cout << buffer;
-            } else if (!injectionSuccessful) {
-                ErrorBox(L"[injector] 读取通信管道失败 (错误码: {})", GetLastError());
-                return 1;
-            } else {
-                break;
-            }
+        cv.wait(lock);
+        injectionSuccessful = !error;
+        using namespace std::chrono_literals;
+        if (error) {
+            std::cout << "[injector]\n";
+            std::cin.ignore();
+        } else {
+            std::this_thread::sleep_for(3s);
         }
+        return error;
     }
     CoUninitialize();
     return S_OK;

@@ -18,6 +18,7 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/service/Service.h"
 
+#include "util/IPC/Protocal.h"
 #include "util/MemoryScanning.hpp"
 #include "util/ScopedTimer.hpp"
 
@@ -38,9 +39,8 @@ namespace sapphire::core {
 
     void Runtime::init() {
         mIPCClient.connect();
-        bool res = this->_init();
-
-        mIPCClient.send(res ? "READY" : "ERROR");
+        if (!this->_init())
+            mIPCClient.requestShutdown("Fail to init Sapphire Core");
         mIPCClient.disconnect();
     }
 
