@@ -9,6 +9,7 @@
 #include "macros/Macros.h"
 #include "util/DecoratedName.hpp"
 #include "util/Signature.h"
+#include "util/threading/ThreadPool.h"
 
 namespace sapphire::bootloader {
 
@@ -32,12 +33,14 @@ namespace sapphire::bootloader {
         SymbolMap       &getResolvedDataSymbols() { return mResolvedDataSymbols; }
 
     private:
-        uintptr_t applyOperations(uintptr_t address, const std::vector<codegen::SigDatabase::SigOp> &ops);
+        static uintptr_t applyOperations(uintptr_t address, const std::vector<codegen::SigDatabase::SigOp> &ops);
+
+        SymbolMap  mResolvedFunctionSymbols;
+        SymbolMap  mResolvedDataSymbols;
+        std::mutex mSymbolMapLock;
 
         std::unique_ptr<codegen::SigDatabase> mDatabase;
-
-        SymbolMap mResolvedFunctionSymbols;
-        SymbolMap mResolvedDataSymbols;
+        util::ThreadPool                      mThreadPool;
     };
 
 } // namespace sapphire::bootloader

@@ -84,20 +84,26 @@ namespace sapphire::bootloader {
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
         const size_t    moduleSize = moduleInfo.SizeOfImage;
         mResolvedFunctionSymbols[util::Decorator<&SymbolResolver::get>::value.value] = (uintptr_t)&SymbolResolver::get;
+        mThreadPool.start();
         for (const auto &entry : entries) {
-            // TODO: Implement multi-threaded signature scanning
-            uintptr_t foundAddress = memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
+            mThreadPool.enqueue([moduleBase, moduleSize, &entry, this]() {
+                uintptr_t foundAddress =
+                    memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
 
-            if (foundAddress != 0) {
-                uintptr_t finalAddress = applyOperations(foundAddress, entry.mOperations);
-                if (entry.mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
-                    mResolvedDataSymbols[entry.mSymbol] = finalAddress;
-                else
-                    mResolvedFunctionSymbols[entry.mSymbol] = finalAddress;
-                if (entry.hasExtraSymbol())
-                    mResolvedFunctionSymbols[entry.mExtraSymbol] = finalAddress;
-            }
+                if (foundAddress != 0) {
+                    uintptr_t        finalAddress = applyOperations(foundAddress, entry.mOperations);
+                    std::unique_lock lock{mSymbolMapLock};
+                    if (entry.mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
+                        mResolvedDataSymbols[entry.mSymbol] = finalAddress;
+                    else
+                        mResolvedFunctionSymbols[entry.mSymbol] = finalAddress;
+                    if (entry.hasExtraSymbol())
+                        mResolvedFunctionSymbols[entry.mExtraSymbol] = finalAddress;
+                }
+            });
         }
+        mThreadPool.wait_all_finished();
+        mThreadPool.stop();
     }
 
 } // namespace sapphire::bootloader
