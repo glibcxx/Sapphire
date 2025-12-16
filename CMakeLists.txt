@@ -22,6 +22,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+enable_testing()
+
 # --- 项目版本与兼容性 ---
 include(cmake/SapphireConfigMCVersion.cmake)
 
@@ -107,6 +109,8 @@ add_subdirectory(src/plugins)
 add_subdirectory(src/injector)
 add_subdirectory(src/bootloader)
 add_subdirectory(src/SDK)
+
+add_subdirectory(src/test)
 
 # --- Installation Rules ---
 install(TARGETS SapphireCommon

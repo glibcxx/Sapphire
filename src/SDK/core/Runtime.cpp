@@ -18,9 +18,9 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/service/Service.h"
 
-#include "util/IPC/Protocal.h"
-#include "util/MemoryScanning.hpp"
-#include "util/ScopedTimer.hpp"
+#include "common/IPC/Protocal.h"
+#include "common/MemoryScanning.hpp"
+#include "common/ScopedTimer.hpp"
 
 namespace sapphire::core {
 

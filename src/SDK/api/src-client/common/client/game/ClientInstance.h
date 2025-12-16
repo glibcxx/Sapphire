@@ -15,7 +15,7 @@
 #include "SDK/api/src-deps/Core/File/StorageAreaStateListener.h"
 #include "SDK/api/src-deps/Core/Utility/pubsub/Subscription.h"
 #include "SDK/api/src-deps/MinecraftRenderer/renderer/TexturePtr.h"
-#include "util/Memory.hpp"
+#include "common/Memory.hpp"
 
 class ToastManager;
 class Certificate;

@@ -8,7 +8,7 @@
 #include "SDK/api/src-external/bx/semaphore.h"
 #include "SDK/api/src-external/bx/mutex.h"
 #include "platform.h"
-#include "util/Memory.hpp"
+#include "common/Memory.hpp"
 
 #define BGFX_SUBMIT_INTERNAL_NONE UINT8_C(0x00)
 #define BGFX_SUBMIT_INTERNAL_INDEX32 UINT8_C(0x40)

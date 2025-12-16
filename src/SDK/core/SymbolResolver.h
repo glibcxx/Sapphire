@@ -2,12 +2,12 @@
 
 #include "macros/Macros.h"
 #include <source_location>
-#include "util/threading/ThreadPool.h"
-#include "util/Memory.hpp"
-#include "util/ApiUniqueId.hpp"
-#include "util/TypeTraits.hpp"
+#include "common/threading/ThreadPool.h"
+#include "common/Memory.hpp"
+#include "common/ApiUniqueId.hpp"
+#include "common/TypeTraits.hpp"
 #include "MainModuleInfo.h"
-#include "util/Signature.h"
+#include "common/Signature.h"
 
 #include "bootloader/SymbolResolver.h"
 

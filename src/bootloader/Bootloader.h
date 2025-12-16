@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/IPC/Client.h"
+#include "common/IPC/Client.h"
 
 namespace sapphire::bootloader {
 

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "util/IPC/Client.h"
+#include "common/IPC/Client.h"
 
 namespace sapphire::bootloader {
 

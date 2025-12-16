@@ -4,8 +4,8 @@
 #include <unordered_map>
 
 #include "macros/Macros.h"
-#include "util/Memory.hpp"
-#include "util/TypeTraits.hpp"
+#include "common/Memory.hpp"
+#include "common/TypeTraits.hpp"
 #include "SDK/core/SymbolResolver.h"
 
 namespace sapphire::inline hook {

@@ -5,7 +5,7 @@
 #include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
 #include "SDK/api/src-client/common/client/renderer/BaseActorRenderContext.h"
 #include "LevelRenderPreRenderUpdateParameters.h"
-#include "util/Memory.hpp"
+#include "common/Memory.hpp"
 
 struct LevelRendererCommandListInit;
 

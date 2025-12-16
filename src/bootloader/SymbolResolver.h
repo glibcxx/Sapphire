@@ -7,9 +7,10 @@
 #include <vector>
 #include "SigDatabase.h"
 #include "macros/Macros.h"
-#include "util/DecoratedName.hpp"
-#include "util/Signature.h"
-#include "util/threading/ThreadPool.h"
+#include "common/DecoratedName.hpp"
+#include "common/Signature.h"
+#include "common/threading/ThreadPool.h"
+#include "common/IPC/Client.h"
 
 namespace sapphire::bootloader {
 
@@ -24,7 +25,7 @@ namespace sapphire::bootloader {
 
         bool loadDatabase(const std::filesystem::path &dbPath);
 
-        void resolve();
+        void resolve(ipc::Client &log);
 
         const SymbolMap &getResolvedFunctionSymbols() const { return mResolvedFunctionSymbols; }
         SymbolMap       &getResolvedFunctionSymbols() { return mResolvedFunctionSymbols; }

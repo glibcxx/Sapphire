@@ -1,6 +1,7 @@
 #pragma once
 
-#include "util/StringLiteral.hpp"
+#include "StringLiteral.hpp"
+#include "macros/Macros.h"
 
 namespace sapphire::signature {
 
@@ -11,7 +12,7 @@ namespace sapphire::signature {
     struct Signature<N, nullptr_t> {
         util::StringLiteral<N> mSig;
 
-        [[msvc::forceinline]] constexpr uintptr_t operator()(uintptr_t addr) const { return addr; }
+        SPHR_FORCE_INLINE constexpr uintptr_t operator()(uintptr_t addr) const { return addr; }
     };
 
     template <std::size_t N, typename Callback>
@@ -20,7 +21,7 @@ namespace sapphire::signature {
         util::StringLiteral<N> mSig;
         Callback               mCallback;
 
-        [[msvc::forceinline]] constexpr uintptr_t operator()(uintptr_t addr) const { return mCallback(addr); }
+        SPHR_FORCE_INLINE constexpr uintptr_t operator()(uintptr_t addr) const { return mCallback(addr); }
     };
 
     template <std::size_t N, typename Callback>

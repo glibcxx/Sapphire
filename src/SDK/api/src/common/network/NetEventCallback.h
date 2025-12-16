@@ -4,7 +4,7 @@
 #include "NetworkIdentifierWithSubId.h"
 #include "ShowStoreOfferRedirectType.h"
 #include "PacketViolationResponse.h"
-#include "util/Memory.hpp"
+#include "common/Memory.hpp"
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
 #    include "IncomingPacketFilterResult.h"

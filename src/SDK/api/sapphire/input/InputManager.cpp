@@ -7,7 +7,7 @@
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
-#include "util/String.hpp"
+#include "common/String.hpp"
 
 namespace sapphire::input {
 

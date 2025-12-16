@@ -3,7 +3,7 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/core/Runtime.h"
 #include "SDK/api/sapphire/hook/Hook.h"
-#include "util/ScopeGuard.hpp"
+#include "common/ScopeGuard.hpp"
 
 #include "SDK/api/src/common/certificates/Certificate.h"
 #include "SDK/api/src-client/common/client/network/LegacyClientNetworkHandler.h"

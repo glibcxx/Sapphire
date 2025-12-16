@@ -130,9 +130,7 @@ namespace sapphire::bootloader {
             return;
         }
 
-        mIPCClient.send(ipc::status::Success, "[Bootloader] Resolving symbols, please wait...");
-        mSymbolResolver->resolve();
-        mIPCClient.send(ipc::status::Success, "[Bootloader] Resolving symbols. Done.");
+        mSymbolResolver->resolve(mIPCClient);
         mIPCClient.send(
             ipc::status::Success,
             std::format(

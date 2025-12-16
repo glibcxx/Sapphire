@@ -5,9 +5,10 @@
 #include <filesystem>
 #include <Psapi.h>
 
-#include "util/DecoratedName.hpp"
-#include "util/Memory.hpp"
-#include "util/MemoryScanning.hpp"
+#include "common/DecoratedName.hpp"
+#include "common/MemoryScanning.hpp"
+#include "common/ScopedTimer.hpp"
+#include "common/coroutine/Coroutine.hpp"
 
 namespace sapphire::bootloader {
 
@@ -66,7 +67,8 @@ namespace sapphire::bootloader {
         return true;
     }
 
-    void SymbolResolver::resolve() {
+    void SymbolResolver::resolve(ipc::Client &log) {
+        log.send(ipc::status::Success, "[Bootloader] Resolving symbols, please wait...");
         if (!mDatabase) {
             return;
         }
@@ -84,26 +86,102 @@ namespace sapphire::bootloader {
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
         const size_t    moduleSize = moduleInfo.SizeOfImage;
         mResolvedFunctionSymbols[util::Decorator<&SymbolResolver::get>::value.value] = (uintptr_t)&SymbolResolver::get;
-        mThreadPool.start();
-        for (const auto &entry : entries) {
-            mThreadPool.enqueue([moduleBase, moduleSize, &entry, this]() {
-                uintptr_t foundAddress =
-                    memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
 
-                if (foundAddress != 0) {
-                    uintptr_t        finalAddress = applyOperations(foundAddress, entry.mOperations);
-                    std::unique_lock lock{mSymbolMapLock};
-                    if (entry.mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
-                        mResolvedDataSymbols[entry.mSymbol] = finalAddress;
-                    else
-                        mResolvedFunctionSymbols[entry.mSymbol] = finalAddress;
-                    if (entry.hasExtraSymbol())
-                        mResolvedFunctionSymbols[entry.mExtraSymbol] = finalAddress;
+        struct ScanResult {
+            const codegen::SigDatabase::SigEntry *entry;
+            uintptr_t                             foundAddress;
+        };
+
+        std::atomic<size_t> completedTasks = 0;
+
+        auto progressTask = [&log, &completedTasks, totalTasks = entries.size()](
+                                coro::StaticThreadPool &pool, coro::IoContext &ioCtx
+                            ) -> coro::Task<> {
+            using namespace std::chrono_literals;
+            co_await pool.schedule();
+
+            size_t lastProgress = 0;
+            while (true) {
+                const size_t completed = completedTasks.load(std::memory_order_relaxed);
+                if (completed >= totalTasks) {
+                    log.send(ipc::status::Success, "[Bootloader] Scanning 100% complete.");
+                    break;
                 }
-            });
+
+                size_t currentProgress = (completed * 100) / totalTasks;
+                if (currentProgress > lastProgress) {
+                    lastProgress = currentProgress;
+                    log.send(
+                        ipc::status::Success,
+                        std::format("[Bootloader] Scanning... {}%", currentProgress)
+                    );
+                }
+
+                co_await ioCtx.scheduleAfter(50ms);
+                co_await pool.schedule(); // resume on thread pool
+            }
+            ioCtx.stop();
+        };
+
+        coro::StaticThreadPool pool;
+
+        auto scanTask = [&completedTasks, moduleBase, moduleSize, this](
+                            coro::StaticThreadPool               &pool,
+                            const codegen::SigDatabase::SigEntry &entry
+                        ) -> coro::Task<ScanResult> {
+            co_await pool.schedule();
+            uintptr_t foundAddress =
+                memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
+            completedTasks.fetch_add(1, std::memory_order_relaxed);
+            co_return ScanResult{&entry, foundAddress};
+        };
+
+        auto mainTask = [&](coro::StaticThreadPool &pool, coro::IoContext &ioCtx) -> coro::Task<> {
+            co_await pool.schedule();
+            std::vector<coro::Task<ScanResult>> tasks;
+            tasks.reserve(entries.size());
+            for (const auto &entry : entries) {
+                tasks.emplace_back(scanTask(pool, entry));
+            }
+            auto [results, _] = co_await whenAll(whenAll(std::move(tasks)), progressTask(pool, ioCtx));
+
+            for (auto &&res : results.result()) {
+                auto result = res.result();
+                if (result.foundAddress != 0) {
+                    uintptr_t finalAddress = applyOperations(result.foundAddress, result.entry->mOperations);
+                    if (result.entry->mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
+                        mResolvedDataSymbols[result.entry->mSymbol] = finalAddress;
+                    else
+                        mResolvedFunctionSymbols[result.entry->mSymbol] = finalAddress;
+                    if (result.entry->hasExtraSymbol())
+                        mResolvedFunctionSymbols[result.entry->mExtraSymbol] = finalAddress;
+                }
+            }
+        };
+
+        coro::IoContext ioContext;
+
+        static util::TimerToken token;
+        {
+            util::ScopedTimer timer{token};
+            syncWait(
+                whenAll(
+                    mainTask(pool, ioContext),
+                    [](coro::IoContext &ioCtx) -> coro::Task<> {
+                        ioCtx.processEvents();
+                        co_return;
+                    }(ioContext)
+                )
+            );
         }
-        mThreadPool.wait_all_finished();
-        mThreadPool.stop();
+
+        log.send(
+            ipc::status::Success,
+            std::format(
+                "[Bootloader] Resolving symbols. Done. ({})",
+                std::chrono::duration_cast<std::chrono::milliseconds>(token.getDuration())
+            )
+        );
     }
 
 } // namespace sapphire::bootloader

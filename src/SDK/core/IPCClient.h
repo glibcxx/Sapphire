@@ -1,7 +1,7 @@
 #pragma once
 
-#include "util/IPC/Client.h"
-#include "util/IPC/Protocal.h"
+#include "common/IPC/Client.h"
+#include "common/IPC/Protocal.h"
 
 namespace sapphire::core {
 

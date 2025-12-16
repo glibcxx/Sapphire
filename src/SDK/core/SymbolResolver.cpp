@@ -1,6 +1,6 @@
 #include "SymbolResolver.h"
 
-#include "util/MemoryScanning.hpp"
+#include "common/MemoryScanning.hpp"
 
 namespace sapphire {
 

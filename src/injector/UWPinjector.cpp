@@ -4,8 +4,8 @@
 #include <regex>
 #include <map>
 
-#include "util/ScopeGuard.hpp"
-#include "util/IPC/Server.h"
+#include "common/ScopeGuard.hpp"
+#include "common/IPC/Server.h"
 
 #include <thread>
 #include <tuple>
