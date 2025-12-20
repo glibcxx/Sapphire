@@ -89,7 +89,7 @@ namespace sapphire::bootloader {
 
         struct ScanResult {
             const codegen::SigDatabase::SigEntry *entry;
-            uintptr_t                             foundAddress;
+            uintptr_t                             address;
         };
 
         std::atomic<size_t> completedTasks = 0;
@@ -133,7 +133,7 @@ namespace sapphire::bootloader {
             uintptr_t foundAddress =
                 memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
             completedTasks.fetch_add(1, std::memory_order_relaxed);
-            co_return ScanResult{&entry, foundAddress};
+            co_return ScanResult{&entry, applyOperations(foundAddress, entry.mOperations)};
         };
 
         auto mainTask = [&](coro::StaticThreadPool &pool, coro::IoContext &ioCtx) -> coro::Task<> {
@@ -143,18 +143,17 @@ namespace sapphire::bootloader {
             for (const auto &entry : entries) {
                 tasks.emplace_back(scanTask(pool, entry));
             }
-            auto [results, _] = co_await whenAll(whenAll(std::move(tasks)), progressTask(pool, ioCtx));
+            auto results = co_await whenAll(std::move(tasks));
 
-            for (auto &&res : results.result()) {
+            for (auto &&res : results) {
                 auto result = res.result();
-                if (result.foundAddress != 0) {
-                    uintptr_t finalAddress = applyOperations(result.foundAddress, result.entry->mOperations);
+                if (result.address != 0) {
                     if (result.entry->mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
-                        mResolvedDataSymbols[result.entry->mSymbol] = finalAddress;
+                        mResolvedDataSymbols[result.entry->mSymbol] = result.address;
                     else
-                        mResolvedFunctionSymbols[result.entry->mSymbol] = finalAddress;
+                        mResolvedFunctionSymbols[result.entry->mSymbol] = result.address;
                     if (result.entry->hasExtraSymbol())
-                        mResolvedFunctionSymbols[result.entry->mExtraSymbol] = finalAddress;
+                        mResolvedFunctionSymbols[result.entry->mExtraSymbol] = result.address;
                 }
             }
         };
@@ -166,6 +165,7 @@ namespace sapphire::bootloader {
             util::ScopedTimer timer{token};
             syncWait(
                 whenAll(
+                    progressTask(pool, ioContext),
                     mainTask(pool, ioContext),
                     [](coro::IoContext &ioCtx) -> coro::Task<> {
                         ioCtx.processEvents();
