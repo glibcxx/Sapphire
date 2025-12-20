@@ -7,6 +7,8 @@
 #include "common/Memory.hpp"
 #include "common/TypeTraits.hpp"
 #include "SDK/core/SymbolResolver.h"
+#include "SDK/api/sapphire/hook/SafeHook.h"
+#include "SDK/api/sapphire/logger/Logger.h"
 
 namespace sapphire::inline hook {
 

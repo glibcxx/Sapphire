@@ -4,15 +4,6 @@
 
 namespace sapphire {
 
-    uintptr_t SymbolResolver::_scanApi(const char *sig, size_t sigLength) {
-        return memory::scanSignature(
-            this->mMainModuleInfo.mTextSectionStart,
-            this->mMainModuleInfo.mTextSectionSize,
-            sig,
-            sigLength
-        );
-    }
-
     SymbolResolver::SymbolResolver(sapphire::bootloader::SymbolResolver &blsr) :
         mBLSymbolResolver(blsr) {}
 

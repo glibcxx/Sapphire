@@ -18,7 +18,7 @@ public:
 
     SPHR_DECL_API("1.21.2", "mov", "\x0F\x10\x05\x00\x00\x00\x00\x0F\x28\x25")
     SPHR_DECL_API("1.21.50,1.21.60", "mov", "\x0F\x10\x1D\x00\x00\x00\x00\x0F\x29\x5D")
-    SPHR_API static const mce::Color *NAME_TAG_COLOR;
+    SDK_API static const mce::Color NAME_TAG_COLOR;
 
     // vtb+0
     virtual ~BaseActorRenderer() = default;

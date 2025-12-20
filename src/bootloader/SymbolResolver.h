@@ -36,12 +36,10 @@ namespace sapphire::bootloader {
     private:
         static uintptr_t applyOperations(uintptr_t address, const std::vector<codegen::SigDatabase::SigOp> &ops);
 
-        SymbolMap  mResolvedFunctionSymbols;
-        SymbolMap  mResolvedDataSymbols;
-        std::mutex mSymbolMapLock;
+        SymbolMap mResolvedFunctionSymbols;
+        SymbolMap mResolvedDataSymbols;
 
         std::unique_ptr<codegen::SigDatabase> mDatabase;
-        util::ThreadPool                      mThreadPool;
     };
 
 } // namespace sapphire::bootloader

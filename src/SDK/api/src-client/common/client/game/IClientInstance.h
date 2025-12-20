@@ -81,6 +81,4 @@ public:
     virtual void onDestroyMinecraftGame() = 0;
 
     // ...
-
-    SPHR_API static void *const *__vftable;
 };

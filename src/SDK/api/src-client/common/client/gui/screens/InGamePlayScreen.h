@@ -23,5 +23,6 @@ public:
     SDK_API void _pick(float a);
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "lea", "\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\xC7\x41\x00\x00\x00\x00\x00\x4C\x89")
-    SPHR_API static void *const *__vftable;
+
+    SDK_API static const uintptr_t __vftable[];
 };

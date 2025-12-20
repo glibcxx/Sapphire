@@ -22,7 +22,7 @@ namespace Bedrock {
     // size: 344 (1.21.2), 352 (1.21.50/1.21.60)
     class Platform_UWP : public CommonPlatform, public UnkBase1463646A0 {
     public:
-        static void *const *__vftable0; // ??_7Platform_UWP@Bedrock@@6BCommonPlatform@Bedrock@@@
+        static const uintptr_t __vftable0[]; // ??_7Platform_UWP@Bedrock@@6BCommonPlatform@Bedrock@@@
 
         ;                                                   // offset: (1.21.50/1.21.60), (1.21.2 = 1.21.50 - 8 bytes)
         std::unique_ptr<AppPlatform_Winrt> mAppPlatform;    // off+88

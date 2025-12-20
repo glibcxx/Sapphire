@@ -55,9 +55,6 @@ namespace sapphire::core {
             util::ScopedTimer timer{token};
             sapphire::info("Runtime: 正在初始化 Sapphire...");
             GuiOverlay::init();
-            auto &SymbolResolver = SymbolResolver::getInstance();
-            SymbolResolver.startResolvingThreads();
-            SymbolResolver.resolveAll();
 
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
             HWND mainWindow = FindWindow(0, L"Minecraft");
@@ -75,12 +72,9 @@ namespace sapphire::core {
             sapphire::info("Runtime: 加载插件...");
             if (!this->mPluginManager.loadAllPlugins())
                 return false;
-            SymbolResolver.resolveAll();
 
             this->mPluginManager.pluginsOnLoaded();
             sapphire::info("Runtime: 加载完毕...");
-
-            SymbolResolver.stopResolvingThreads();
         }
         mInitialized = true;
         sapphire::info(

@@ -78,7 +78,9 @@ VOID CALLBACK LdrDllNotification(
     if (NotificationReason == LDR_DLL_NOTIFICATION_REASON_LOADED) {
         auto runtimeLinker = static_cast<sapphire::bootloader::RuntimeLinker *>(Context);
         if (!runtimeLinker->getIatPatcher().patchModule(
-                (HMODULE)NotificationData->Loaded.DllBase, runtimeLinker->getSymbolResolver().getResolvedFunctionSymbols()
+                (HMODULE)NotificationData->Loaded.DllBase,
+                runtimeLinker->getSymbolResolver().getResolvedFunctionSymbols(),
+                runtimeLinker->getSymbolResolver().getResolvedDataSymbols()
             )) {
             sapphire::bootloader::RuntimeLinker::forceDllMainToFail(
                 runtimeLinker, (HMODULE)NotificationData->Loaded.DllBase

@@ -49,7 +49,7 @@ namespace sapphire::ipc {
             while (mIsRunning) {
                 backend::Pipe connection;
                 if (connection.create(mPipeName) && connection.listen()) {
-                    if (onClientConnected) onClientConnected();
+                    if (mIsRunning && onClientConnected) onClientConnected();
 
                     Channel channel(connection);
                     Message msg;
@@ -57,7 +57,7 @@ namespace sapphire::ipc {
                         if (onMessage) onMessage(msg);
                     }
 
-                    if (onClientDisconnected) onClientDisconnected();
+                    if (mIsRunning && onClientDisconnected) onClientDisconnected();
                 }
                 if (!mIsRunning) std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }

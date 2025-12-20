@@ -63,12 +63,16 @@
         };
 #endif
 
+#define SPHR_LINKER_SYM_ALIAS_IMPORT(FROM_NAME, TO_NAME) \
+    comment(linker, "/alternatename:__imp_" FROM_NAME "=__imp_" TO_NAME)
+
+#define SPHR_LINKER_SYM_ALIAS_EXPORT(FROM_NAME, TO_NAME) \
+    comment(linker, "/alternatename:" FROM_NAME "=" TO_NAME)
+
 #ifdef SPHR_DLLEXPORT
-#    define SPHR_LINKER_SYM_ALIAS(FROM_NAME, TO_NAME) \
-        comment(linker, "/alternatename:" FROM_NAME "=" TO_NAME)
+#    define SPHR_LINKER_SYM_ALIAS SPHR_LINKER_SYM_ALIAS_EXPORT
 #else
-#    define SPHR_LINKER_SYM_ALIAS(FROM_NAME, TO_NAME) \
-        comment(linker, "/alternatename:__imp_" FROM_NAME "=__imp_" TO_NAME)
+#    define SPHR_LINKER_SYM_ALIAS SPHR_LINKER_SYM_ALIAS_IMPORT
 #endif
 
 #if !defined(NDEBUG)

@@ -266,13 +266,19 @@ int main(int argc, char **argv) {
     }
 
     fs::path currentDir = getCurrentPath();
+
+    bool injectionSuccessful = false;
+    bool error = false;
+    bool sapphireCoreInitDone = false;
+
     if (dwProcessId == 0) {
         launchAndAttachToDebugger(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe", currentDir / L"sapphire_launcher.exe");
+        CoUninitialize();
+        return S_OK;
     } else {
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);
 
-        bool             injectionSuccessful = false;
         util::ScopeGuard autoTerminateOrResume{
             [dwProcessId, &injectionSuccessful]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
@@ -314,20 +320,23 @@ int main(int argc, char **argv) {
         std::mutex                   mutex;
         std::unique_lock<std::mutex> lock{mutex};
         std::condition_variable      cv;
-        bool                         error = false;
+
         icpSvr.onClientConnected = []() {
             std::cout << "[injector] Pipe connected!\n";
         };
-        icpSvr.onClientDisconnected = [&cv]() {
+        icpSvr.onClientDisconnected = [&cv, &sapphireCoreInitDone]() {
             std::cout << "[injector] Pipe disconnected!\n";
-            cv.notify_all();
+            if (sapphireCoreInitDone)
+                cv.notify_all();
         };
-        icpSvr.onMessage = [&cv, &error](const sapphire::ipc::Message &msg) {
+        icpSvr.onMessage = [&cv, &error, &sapphireCoreInitDone](const sapphire::ipc::Message &msg) {
             auto status = msg.getStatus();
             if (status == sapphire::ipc::status::Handshake) {
                 std::cout << "[injector] Pipe connection from: " << msg.getData() << '\n';
             } else if (status == sapphire::ipc::status::Handoff) {
                 std::cout << "[injector] Pipe disconnecting from: " << msg.getData() << '\n';
+                if (msg.getData() == "Sapphire Core")
+                    sapphireCoreInitDone = true;
             } else if (status == sapphire::ipc::status::Error) {
                 error = true;
                 std::cout << "[injector] Error msg recieved: " << msg.getData() << '\n';
@@ -347,16 +356,17 @@ int main(int argc, char **argv) {
         }
 
         cv.wait(lock);
-        injectionSuccessful = !error;
-        using namespace std::chrono_literals;
-        if (error) {
-            std::cout << "[injector]\n";
-            std::cin.ignore();
-        } else {
-            std::this_thread::sleep_for(3s);
-        }
-        return error;
+        injectionSuccessful = sapphireCoreInitDone && !error;
     }
+    if (!injectionSuccessful) {
+        std::cout << "[injector] press any key to continue...\n";
+        std::cin.ignore();
+    } else {
+        using namespace std::chrono_literals;
+        std::cout << "[injector] all task done. injector will be closed 3s later.\n";
+        std::this_thread::sleep_for(3s);
+    }
+
     CoUninitialize();
     return S_OK;
 }

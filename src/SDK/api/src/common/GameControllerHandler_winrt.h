@@ -45,7 +45,7 @@ public:
     uint64_t                                        mUnk380;                // off+480
     std::unique_ptr<TaskGroup>                      mTaskGroup;             // off+488
 
-    static void *const *__vftable0; // ??_7GameControllerHandler_winrt@@6BEnableNonOwnerReferences@Bedrock@@@
+    static const uintptr_t __vftable0[]; // ??_7GameControllerHandler_winrt@@6BEnableNonOwnerReferences@Bedrock@@@
 };
 #if MC_VERSION == v1_21_2 || MC_VERSION == v1_21_50
 static_assert(sizeof(GameControllerHandler_winrt) == 496);

@@ -9,11 +9,11 @@ namespace sapphire::bootloader {
         mBedrockSigSourceDllName(bedrockSigSourceDllName), mIPCClient(IPCClient) {
     }
 
-    bool IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap) {
-        return patchModuleInternal(hModule, apiMap);
+    bool IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap, const ApiMap &dataApiMap) {
+        return patchModuleInternal(hModule, apiMap, dataApiMap);
     }
 
-    bool IatPatcher::patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap) {
+    bool IatPatcher::patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap) {
         if (hModuleToPatch == nullptr || mBedrockSigSourceDllName.empty()) {
             return false;
         }
@@ -42,31 +42,33 @@ namespace sapphire::bootloader {
                 if (IMAGE_SNAP_BY_ORDINAL(pINT->u1.Ordinal)) continue;
                 auto pImportByName =
                     reinterpret_cast<PIMAGE_IMPORT_BY_NAME>(pImageBase + pINT->u1.AddressOfData);
-                const char *functionName = pImportByName->Name;
-                auto        it = apiMap.find(functionName);
-                if (it != apiMap.end()) {
-                    auto  realAddress = it->second;
-                    DWORD oldProtect;
-                    if (VirtualProtect(&pIAT->u1.Function, sizeof(void *), PAGE_READWRITE, &oldProtect)) {
-                        pIAT->u1.Function = static_cast<ULONGLONG>(realAddress);
-                        VirtualProtect(&pIAT->u1.Function, sizeof(void *), oldProtect, &oldProtect);
+                const char *importName = pImportByName->Name;
+                auto        it = apiMap.find(importName);
+                if (it == apiMap.end()) {
+                    it = dataApiMap.find(importName);
+                    if (it == dataApiMap.end()) {
+                        wchar_t szPath[MAX_PATH];
+                        if (GetModuleFileNameW(hModuleToPatch, szPath, MAX_PATH) != 0) {
+                            std::filesystem::path path{szPath};
+                            mIPCClient.send(
+                                ipc::status::Error,
+                                std::format("undefined symbol {}, referenced by {}", importName, path.stem().string())
+                            );
+                        } else {
+                            mIPCClient.send(
+                                ipc::status::Error,
+                                std::format("undefined symbol {}, referenced by UNKNOWN", importName)
+                            );
+                        }
+                        return false;
                     }
-                } else {
-                    wchar_t szPath[MAX_PATH];
-                    if (GetModuleFileNameW(hModuleToPatch, szPath, MAX_PATH) != 0) {
-                        std::filesystem::path path{szPath};
-                        mIPCClient.send(
-                            ipc::status::Error,
-                            std::format("undefined symbol {}, referenced by {}", functionName, path.stem().string())
-                        );
-                    } else {
-                        mIPCClient.send(
-                            ipc::status::Error,
-                            std::format("undefined symbol {}, referenced by UNKNOWN", functionName)
-                        );
-                    }
+                }
 
-                    return false;
+                auto  realAddress = it->second;
+                DWORD oldProtect;
+                if (VirtualProtect(&pIAT->u1.Function, sizeof(void *), PAGE_READWRITE, &oldProtect)) {
+                    pIAT->u1.Function = static_cast<ULONGLONG>(realAddress);
+                    VirtualProtect(&pIAT->u1.Function, sizeof(void *), oldProtect, &oldProtect);
                 }
             }
         }

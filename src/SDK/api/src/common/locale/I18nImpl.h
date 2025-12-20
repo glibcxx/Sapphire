@@ -14,7 +14,7 @@ class I18nObserver;
 // size: 448
 class I18nImpl : public I18n {
 public:
-    static void *const *__vftable; // \x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x4D
+    static const uintptr_t __vftable[]; // \x48\x8D\x05\x00\x00\x00\x00\x48\x89\x05\x00\x00\x00\x00\x48\x8D\x4D
 
     struct Unk24 {
         std::shared_mutex mMutex;   // off+0

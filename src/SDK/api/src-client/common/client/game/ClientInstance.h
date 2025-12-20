@@ -392,10 +392,5 @@ public:
     SPHR_DECL_API("v1_21_60", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x10\x33\xED")
     SDK_API std::unique_ptr<LegacyClientNetworkHandler> _createNetworkHandler(std::unique_ptr<Certificate> cert);
 
-    SPHR_API static void *const *__vftable0;
-    SPHR_API static void *const *__vftable1;
-    SPHR_API static void *const *__vftable2;
-    SPHR_API static void *const *__vftable3;
-
     SPHR_API static ClientInstance *primaryClientInstance;
 };
