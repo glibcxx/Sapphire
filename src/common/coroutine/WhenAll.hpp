@@ -45,11 +45,15 @@ namespace sapphire::coro {
         };
 
         struct WhenAllTaskPromiseBase {
-            constexpr auto initial_suspend() const noexcept { return std::suspend_always{}; }
+            struct OnFinalAwaiter : public std::suspend_always {
+                void await_suspend(auto coro) const noexcept {
+                    coro.promise().mCounter->notifyCompleted();
+                }
+            };
 
-            auto final_suspend() const noexcept {
-                mCounter->notifyCompleted();
-                return std::suspend_always{};
+            constexpr auto initial_suspend() const noexcept { return std::suspend_always{}; }
+            constexpr auto final_suspend() const noexcept {
+                return OnFinalAwaiter{};
             }
 
             WhenAllCounter *mCounter = nullptr;
@@ -163,7 +167,7 @@ namespace sapphire::coro {
 
             WhenAllAwaitable(const WhenAllAwaitable &) = delete;
             WhenAllAwaitable(WhenAllAwaitable &&other) noexcept(std::is_nothrow_move_constructible_v<TAwaitable>) :
-                mTasks(std::move(other.mTasks)), mCounter(other.mTasks.size()) {}
+                mTasks(std::move(other.mTasks)), mCounter(mTasks.size()) {}
 
             constexpr auto operator co_await() & noexcept {
                 struct WhenAllAwaiter : WhenAllAwaiterBase {
