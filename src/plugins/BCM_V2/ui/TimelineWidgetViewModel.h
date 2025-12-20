@@ -3,7 +3,7 @@
 #include "SDK/api/sapphire/ui/UIContext.h"
 #include "SDK/api//sapphire/input/InputManager.h"
 #include "SDK/api/sapphire/ui/widget/Canvas.h"
-#include "SDK/api/sapphire/coroutine/Generator.h"
+#include "common/coroutine/Generator.hpp"
 #include "../editor/Editor.h"
 
 namespace BCM_V2::ui {
