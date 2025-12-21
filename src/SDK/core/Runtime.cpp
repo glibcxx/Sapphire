@@ -42,6 +42,7 @@ namespace sapphire::core {
         if (!this->_init())
             mIPCClient.requestShutdown("Fail to init Sapphire Core");
         mIPCClient.disconnect();
+        LogManager::getInstance().flushAll();
     }
 
     bool Runtime::_init() {
