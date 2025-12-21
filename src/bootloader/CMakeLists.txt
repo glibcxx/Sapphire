@@ -7,6 +7,8 @@ add_library(sapphire_bootloader SHARED
     IatPatcher.cpp
 )
 
+sapphire_enable_release_pdb(sapphire_bootloader)
+
 target_link_libraries(sapphire_bootloader PRIVATE SapphireCommon minhook)
 target_compile_definitions(sapphire_bootloader PRIVATE "SRBL_DLLEXPORT")
 

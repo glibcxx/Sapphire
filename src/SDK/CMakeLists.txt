@@ -8,6 +8,8 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     add_library(${SAPPHIRE_TARGET_NAME} SHARED)
     target_sources(${SAPPHIRE_TARGET_NAME} PRIVATE ${CORE_SRC} ${SDK_SRC})
 
+    sapphire_enable_release_pdb(${SAPPHIRE_TARGET_NAME})
+
     target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE SPHR_DLLEXPORT)
 
     target_precompile_headers(${SAPPHIRE_TARGET_NAME} PRIVATE

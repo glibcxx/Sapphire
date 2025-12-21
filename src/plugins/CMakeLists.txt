@@ -20,6 +20,8 @@ function(sapphire_builtin_plugin_add_target BUILDING_MC_VERSION)
         ${BCMv2_src}
     )
 
+    sapphire_enable_release_pdb(${MOD_TARGET_NAME})
+
     target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core_for_${BUILDING_MC_VERSION})
 
     target_precompile_headers(${MOD_TARGET_NAME} PRIVATE
