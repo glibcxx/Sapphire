@@ -1,14 +1,16 @@
 #include "Logger.h"
+#include <chrono>
 #include <fstream>
 #include "SDK/api/sapphire/platform/Environment.h"
 
 namespace {
 
     class FileSink : public sapphire::ILogSink {
-        std::ofstream mLogFileStream;
+        std::ofstream                         mLogFileStream;
+        std::chrono::system_clock::time_point mLastLog;
 
     public:
-        FileSink() {
+        FileSink() : mLastLog(std::chrono::system_clock::now()) {
             try {
                 std::filesystem::path logDir = sapphire::platform::Environment::getInstance().getSapphireHomePath() / L"logs";
                 std::filesystem::create_directories(logDir);
@@ -18,6 +20,7 @@ namespace {
             } catch (const std::exception &) {
             }
         }
+
         ~FileSink() {
             if (mLogFileStream.is_open()) {
                 mLogFileStream.flush();
@@ -28,8 +31,10 @@ namespace {
         void emit(const sapphire::LogEvent &event) override {
             if (mLogFileStream.is_open()) {
                 mLogFileStream << event.toString();
-                if (event.level == sapphire::LogLevel::Error)
+                if (event.level == sapphire::LogLevel::Error || event.time - mLastLog > std::chrono::seconds{5}) {
+                    mLastLog = event.time;
                     mLogFileStream.flush();
+                }
             }
         }
 
