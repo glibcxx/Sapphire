@@ -54,12 +54,12 @@ function(sapphire_run_codegen CURRENT_VERSION)
         VERBATIM
     )
 
-    add_custom_target(sapphire_codegen_bedrock_api_for_${CURRENT_VERSION} ALL
+    add_custom_target(sapphire_codegen_bedrock_api.${CURRENT_VERSION} ALL
         DEPENDS ${OUT_LIB}
     )
 
-    add_library(sapphire::bedrock_api_${CURRENT_VERSION} UNKNOWN IMPORTED)
-    set_target_properties(sapphire::bedrock_api_${CURRENT_VERSION} PROPERTIES
+    add_library(sapphire::bedrock_api.${CURRENT_VERSION} UNKNOWN IMPORTED)
+    set_target_properties(sapphire::bedrock_api.${CURRENT_VERSION} PROPERTIES
         IMPORTED_LOCATION "${OUT_LIB}"
     )
 

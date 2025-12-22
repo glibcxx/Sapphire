@@ -1,5 +1,5 @@
 #include "Editor.h"
-#include "plugins/freecamera/FreeCamera.h"
+#include "../../freecamera/FreeCamera.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
 #include "SDK/api/sapphire/input/InputManager.h"
@@ -183,7 +183,7 @@ namespace BCM_V2 {
         return {};
     }
 
-    Editor::Editor(FreeCameraPlugin &freeCam) :
+    Editor::Editor(FreeCameraMod &freeCam) :
         mFreeCam(freeCam), mInputManager(InputManager::getInstance()) {
         setupHotkeys();
     }

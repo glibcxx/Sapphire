@@ -134,7 +134,7 @@ namespace {
 
 } // namespace
 
-std::vector<GuiOverlay::PluginSettings>   GuiOverlay::sPluginSettings{};
+std::vector<GuiOverlay::ModSettings>      GuiOverlay::sModSettings{};
 std::vector<GuiOverlay::Hotkey>           GuiOverlay::sRegisteredHotkeys{};
 std::vector<std::string>                  GuiOverlay::sToastMessages{};
 std::shared_ptr<sapphire::config::Config> GuiOverlay::sConfig{};
@@ -146,8 +146,8 @@ void GuiOverlay::init() {
 void GuiOverlay::uninit() {
 }
 
-void GuiOverlay::registerPluginSettings(PluginSettings &&settings) {
-    sPluginSettings.push_back(std::move(settings));
+void GuiOverlay::registerModSettings(ModSettings &&settings) {
+    sModSettings.push_back(std::move(settings));
 }
 
 void GuiOverlay::registerHotkey(Hotkey &&hotkey) {
@@ -221,7 +221,7 @@ void GuiOverlay::initImGui(
         },
     });
 
-    GuiOverlay::registerPluginSettings(
+    GuiOverlay::registerModSettings(
         {"Appearance",
          "Customize the style of the GUI.",
          []() {
@@ -400,15 +400,15 @@ void GuiOverlay::drawPanel() {
                                         | ImGuiWindowFlags_NoDocking;
 
     if (ImGui::Begin("Main Panel", &sShowPannel, window_flags)) {
-        if (ImGui::BeginTable("PluginLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
-            ImGui::TableSetupColumn("PluginList", ImGuiTableColumnFlags_WidthStretch, 0.25f);
-            ImGui::TableSetupColumn("PluginDetails", ImGuiTableColumnFlags_WidthStretch, 0.75f);
+        if (ImGui::BeginTable("ModLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
+            ImGui::TableSetupColumn("ModList", ImGuiTableColumnFlags_WidthStretch, 0.25f);
+            ImGui::TableSetupColumn("ModDetails", ImGuiTableColumnFlags_WidthStretch, 0.75f);
 
             ImGui::TableNextColumn();
-            drawPluginList();
+            drawModList();
 
             ImGui::TableNextColumn();
-            drawPluginDetails();
+            drawModDetails();
 
             ImGui::EndTable();
         }
@@ -419,17 +419,17 @@ void GuiOverlay::drawPanel() {
     ImGui::PopStyleVar(2);
 }
 
-void GuiOverlay::drawPluginList() {
-    ImGui::BeginChild("Plugin List", ImVec2(0, 0), true);
+void GuiOverlay::drawModList() {
+    ImGui::BeginChild("Mod List", ImVec2(0, 0), true);
 
-    if (sPluginSettings.empty()) {
-        ImGui::Text("No plugins registered.");
+    if (sModSettings.empty()) {
+        ImGui::Text("No mod registered.");
     } else {
-        for (size_t i = 0; i < sPluginSettings.size(); ++i) {
-            const auto &plugin = sPluginSettings[i];
-            bool        isSelected = (sSelectedPluginIndex == i);
-            if (ImGui::Selectable(plugin.name.c_str(), isSelected)) {
-                sSelectedPluginIndex = (int)i;
+        for (size_t i = 0; i < sModSettings.size(); ++i) {
+            const auto &mod = sModSettings[i];
+            bool        isSelected = (sSelectedModIndex == i);
+            if (ImGui::Selectable(mod.name.c_str(), isSelected)) {
+                sSelectedModIndex = (int)i;
             }
         }
     }
@@ -437,23 +437,23 @@ void GuiOverlay::drawPluginList() {
     ImGui::EndChild();
 }
 
-void GuiOverlay::drawPluginDetails() {
-    ImGui::BeginChild("Plugin Details", ImVec2(0, 0), true);
+void GuiOverlay::drawModDetails() {
+    ImGui::BeginChild("Mod Details", ImVec2(0, 0), true);
 
-    if (sSelectedPluginIndex >= 0 && sSelectedPluginIndex < sPluginSettings.size()) {
-        const auto &plugin = sPluginSettings[sSelectedPluginIndex];
+    if (sSelectedModIndex >= 0 && sSelectedModIndex < sModSettings.size()) {
+        const auto &mod = sModSettings[sSelectedModIndex];
 
-        ImGui::Text("Name: %s", plugin.name.c_str());
-        ImGui::TextWrapped("Description: %s", plugin.description.c_str());
+        ImGui::Text("Name: %s", mod.name.c_str());
+        ImGui::TextWrapped("Description: %s", mod.description.c_str());
         ImGui::Separator();
 
-        if (plugin.drawSettings) {
-            plugin.drawSettings();
+        if (mod.drawSettings) {
+            mod.drawSettings();
         } else {
-            ImGui::Text("No settings available for this plugin.");
+            ImGui::Text("No settings available for this mod.");
         }
     } else {
-        ImGui::Text("Select a plugin from the list.");
+        ImGui::Text("Select a mod from the list.");
     }
 
     ImGui::EndChild();

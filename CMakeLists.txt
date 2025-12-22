@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-set(SAPPHIRE_VERSION "0.1.1")
+include(cmake/SapphireVersion.cmake)
+
+set(SAPPHIRE_VERSION ${SAPPHIRE_VERSION_MAJOR}.${SAPPHIRE_VERSION_MINOR}.${SAPPHIRE_VERSION_PATCH})
 project(Sapphire VERSION ${SAPPHIRE_VERSION})
 
 if(NOT MSVC)
@@ -21,8 +23,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-enable_testing()
 
 # --- 项目版本与兼容性 ---
 include(cmake/SapphireConfigMCVersion.cmake)
@@ -103,9 +103,15 @@ target_compile_definitions(SapphireCommon INTERFACE
     ENTT_SPARSE_PAGE=2048
     ENTT_PACKED_PAGE=128
     $<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>
+
+    "SAPPHIRE_VERSION_MAJOR=${SAPPHIRE_VERSION_MAJOR}"
+    "SAPPHIRE_VERSION_MINOR=${SAPPHIRE_VERSION_MINOR}"
+    "SAPPHIRE_VERSION_PATCH=${SAPPHIRE_VERSION_PATCH}"
+    "SAPPHIRE_VERSION=${SAPPHIRE_VERSION}"
+    "SAPPHIRE_VERSION_STRING=\"${SAPPHIRE_VERSION}\""
 )
 
-add_subdirectory(src/plugins)
+add_subdirectory(src/builtinmod)
 add_subdirectory(src/injector)
 add_subdirectory(src/bootloader)
 add_subdirectory(src/SDK)

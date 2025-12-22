@@ -10,13 +10,13 @@
 class NetEventCallback;
 class Minecraft;
 
-class FreeCameraPlugin {
+class FreeCameraMod {
     sapphire::Logger mLogger{"FreeCamera"};
 
 public:
     friend class CaptureClientMinecraftHook;
 
-    static FreeCameraPlugin &getInstance();
+    static FreeCameraMod &getInstance();
 
     void enableFreeCamera(bool enable, bool showPlayerModel = true);
 
@@ -58,8 +58,8 @@ private:
 
     Minecraft *mClientMinecraft = nullptr;
 
-    FreeCameraPlugin();
-    ~FreeCameraPlugin();
+    FreeCameraMod();
+    ~FreeCameraMod();
 
     void _setupSettingGui();
 

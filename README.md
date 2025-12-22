@@ -11,9 +11,9 @@
 -   只支持 64 位 UWP 版本，且游戏必须以 DX12 模式运行，不支持以 DX11 模式运行的游戏。
 -   只兼容 1.21.2、1.21.50、1.21.60 这 3 个版本，其它版本兼容性靠运气。
 
-## plugin
+## mod
 
-Sapphire 包含一个用作示例的内建插件，位于 [plugins 文件夹](src/plugins)， 提供以下几个功能：
+Sapphire 包含一个用作示例的内建插件，位于 [builtinmod 文件夹](src/builtinmod)， 提供以下几个功能：
 
 -   变速功能，支持音频变速：
     alt+keypad_add 加速，alt+keypad_sub 减速，alt+keypad_delete 恢复原速

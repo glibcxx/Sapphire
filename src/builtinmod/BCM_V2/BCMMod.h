@@ -3,7 +3,7 @@
 #include <memory>
 #include "SDK/api/sapphire/event/Event.h"
 
-class FreeCameraPlugin;
+class FreeCameraMod;
 class Minecraft;
 
 namespace BCM_V2 {
@@ -14,13 +14,13 @@ namespace BCM_V2 {
         class MainUIWindowViewModel;
     }
 
-    class BCMPlugin {
+    class BCMMod {
     public:
-        static BCMPlugin &getInstance();
+        static BCMMod &getInstance();
 
     private:
-        BCMPlugin();
-        ~BCMPlugin();
+        BCMMod();
+        ~BCMMod();
 
         void setupEventListeners();
         void setupHotkeys();
@@ -30,7 +30,7 @@ namespace BCM_V2 {
 
         std::unique_ptr<Editor>                    mEditor;
         std::unique_ptr<ui::MainUIWindowViewModel> mViewModel;
-        FreeCameraPlugin                          &mFreeCamPlugin;
+        FreeCameraMod                          &mFreeCamMod;
         Minecraft                                 *mClientMinecraft = nullptr;
     };
 } // namespace BCM_V2

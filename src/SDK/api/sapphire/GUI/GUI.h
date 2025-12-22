@@ -18,7 +18,7 @@ namespace sapphire::core {
 
 class GuiOverlay {
 public:
-    struct PluginSettings {
+    struct ModSettings {
         std::string           name;
         std::string           description;
         std::function<void()> drawSettings;
@@ -34,10 +34,10 @@ public:
     static void init();
     static void uninit();
 
-    SPHR_API static void registerPluginSettings(PluginSettings &&settings);
+    SPHR_API static void registerModSettings(ModSettings &&settings);
 
-    static void registerPluginSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
-        return registerPluginSettings({name, description, drawSettings});
+    static void registerModSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
+        return registerModSettings({name, description, drawSettings});
     }
 
     SPHR_API static void registerHotkey(Hotkey &&hotkey);
@@ -53,13 +53,13 @@ private:
     inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
     inline static std::chrono::steady_clock::duration   sToastShowingDuration{};
 
-    static std::vector<PluginSettings> sPluginSettings;
+    static std::vector<ModSettings> sModSettings;
     static std::vector<Hotkey>         sRegisteredHotkeys;
     static std::vector<std::string>    sToastMessages;
 
     static std::shared_ptr<sapphire::config::Config> sConfig;
 
-    inline static int sSelectedPluginIndex = -1;
+    inline static int sSelectedModIndex = -1;
 
     inline static int64_t sTime = 0;
     inline static int64_t sTicksPerSecond = 0;
@@ -97,6 +97,6 @@ private:
 
     static void drawToast();
     static void drawPanel();
-    static void drawPluginList();
-    static void drawPluginDetails();
+    static void drawModList();
+    static void drawModDetails();
 };

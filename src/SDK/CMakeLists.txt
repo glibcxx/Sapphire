@@ -2,8 +2,8 @@ file(GLOB_RECURSE SDK_SRC api/*.cpp)
 file(GLOB_RECURSE CORE_SRC core/*.cpp)
 
 macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGETS)
-    set(SAPPHIRE_TARGET_NAME sapphire_core_for_${BUILDING_MC_VERSION})
-    set(SAPPHIRE_lib_NAME sapphire_core_lib_for_${BUILDING_MC_VERSION})
+    set(SAPPHIRE_TARGET_NAME sapphire_core.${BUILDING_MC_VERSION})
+    set(SAPPHIRE_lib_NAME sapphire_core_lib.${BUILDING_MC_VERSION})
 
     add_library(${SAPPHIRE_TARGET_NAME} SHARED)
     target_sources(${SAPPHIRE_TARGET_NAME} PRIVATE ${CORE_SRC} ${SDK_SRC})
@@ -19,7 +19,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
     target_link_libraries(${SAPPHIRE_TARGET_NAME}
         PUBLIC
         SapphireCommon
-        sapphire::bedrock_api_${BUILDING_MC_VERSION}
+        sapphire::bedrock_api.${BUILDING_MC_VERSION}
         PRIVATE
         minhook imgui kiero d3d11 sapphire_bootloader
     )

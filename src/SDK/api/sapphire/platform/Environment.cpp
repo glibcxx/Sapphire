@@ -1,11 +1,15 @@
 #include "Environment.h"
 
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.ApplicationModel.h>
+
 sapphire::platform::Environment &sapphire::platform::Environment::getInstance() {
     static sapphire::platform::Environment env;
     return env;
 }
 
-sapphire::platform::Environment::Environment() {
+sapphire::platform::Environment::Environment() :
+    mSapphireVersion(SAPPHIRE_VERSION_MAJOR, SAPPHIRE_VERSION_MINOR, SAPPHIRE_VERSION_PATCH) {
     mGameModule = GetModuleHandle(nullptr);
     mMainWindow = FindWindow(0, L"Minecraft");
     GetModuleHandleEx(
@@ -20,4 +24,15 @@ sapphire::platform::Environment::Environment() {
         mSapphireBinPath = mSapphireCorePath.parent_path();
         mSapphireHomePath = mSapphireBinPath.parent_path() / SPHR_HOME_FOLDER_NAME;
     }
+    auto v = winrt::Windows::ApplicationModel::Package::Current().Id().Version();
+    mGameVersion = {v.Major, v.Minor, v.Build / 100};
+    mGameVersionStr = mGameVersion.toString();
+}
+
+std::string_view sapphire::platform::Environment::getSapphireVersionStr() const noexcept {
+    return SAPPHIRE_VERSION_STRING;
+}
+
+void sapphire::platform::Environment::setMainWindow(HWND hwnd) {
+    mMainWindow = hwnd;
 }

@@ -355,16 +355,16 @@ int main(int argc, char **argv) {
             return 1;
         }
 
-        cv.wait(lock);
+        cv.wait(lock, [&]() { return sapphireCoreInitDone || error; });
         injectionSuccessful = sapphireCoreInitDone && !error;
     }
     if (!injectionSuccessful) {
-        std::cout << "[injector] press any key to continue...\n";
+        std::cout << "[injector] Press any key to continue...\n";
         std::cin.ignore();
     } else {
         using namespace std::chrono_literals;
-        std::cout << "[injector] all task done. injector will be closed 3s later.\n";
-        std::this_thread::sleep_for(3s);
+        std::cout << "[injector] All task done. injector will be closed 1s later.\n";
+        std::this_thread::sleep_for(1s);
     }
 
     CoUninitialize();

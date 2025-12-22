@@ -4,12 +4,12 @@
 #include "../editor/CamTimeline.h"
 #include "TimelineWidgetViewModel.h"
 
-class FreeCameraPlugin;
+class FreeCameraMod;
 
 namespace BCM_V2::ui {
 
     struct MainUIWindowViewModel : public sapphire::ui::WindowViewModel {
-        MainUIWindowViewModel(FreeCameraPlugin &freeCam, Editor &editor) :
+        MainUIWindowViewModel(FreeCameraMod &freeCam, Editor &editor) :
             mFreeCam(freeCam),
             mTimelineWidget(editor),
             mEditor(editor),
@@ -50,7 +50,7 @@ namespace BCM_V2::ui {
 
     private:
         TimelineWidgetViewModel mTimelineWidget;
-        FreeCameraPlugin       &mFreeCam;
+        FreeCameraMod       &mFreeCam;
         Editor                 &mEditor;
 
     public:

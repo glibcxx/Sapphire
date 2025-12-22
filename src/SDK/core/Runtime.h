@@ -5,8 +5,8 @@
 
 #include <string>
 #include "SymbolResolver.h"
-#include "PluginManager.h"
 #include "IPCClient.h"
+#include "mod/ModRepository.h"
 
 namespace sapphire::core {
 
@@ -14,7 +14,7 @@ namespace sapphire::core {
     class CrashLogger;
 
     class Runtime {
-        PluginManager mPluginManager;
+        ModRepository mModRepo;
         IPCClient     mIPCClient;
 
         std::unique_ptr<RenderBackend> mRenderBackend;
@@ -34,8 +34,8 @@ namespace sapphire::core {
 
         SPHR_API static Runtime &getInstance();
 
-        const PluginManager &getPluginManager() const { return this->mPluginManager; }
-        PluginManager       &getPluginManager() { return this->mPluginManager; }
+        const ModRepository &getModRepository() const { return this->mModRepo; }
+        ModRepository       &getModRepository() { return this->mModRepo; }
 
         CrashLogger &getCrashLogger() const { return *mCrashLogger; }
 

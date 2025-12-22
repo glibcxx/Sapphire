@@ -4,22 +4,22 @@
 
 class Level;
 
-class SmoothPistonPlugin {
+class SmoothPistonMod {
 public:
     class PistonActorUpdatePacketHook;
     class PistonActorTickHook;
     class SmoothMovingBlockHook;
     class SmoothPistonArmHook;
 
-    static SmoothPistonPlugin &getInstance();
+    static SmoothPistonMod &getInstance();
 
     std::thread::id mClientMainThread{};
     float           mTimeScale = 1.0f;
 
 private:
-    SmoothPistonPlugin();
+    SmoothPistonMod();
 
-    ~SmoothPistonPlugin();
+    ~SmoothPistonMod();
 
     bool mEnableSmoothPiston = true;
     bool mEnablePistonTickOrderSeparator = false;

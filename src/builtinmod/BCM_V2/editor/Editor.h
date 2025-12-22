@@ -3,7 +3,7 @@
 #include "CameraPath.h"
 #include "CamTimeline.h"
 
-class FreeCameraPlugin;
+class FreeCameraMod;
 class ScreenContext;
 class Vec2;
 namespace sapphire::input {
@@ -48,7 +48,7 @@ namespace BCM_V2 {
 
         glm::vec3 getScreenPixelDirection(const Vec2 &screenSize, const Vec2 &pos);
 
-        Editor(FreeCameraPlugin &freeCam);
+        Editor(FreeCameraMod &freeCam);
 
     private:
         void setupHotkeys();
@@ -56,7 +56,7 @@ namespace BCM_V2 {
         CameraPath  mPath;
         CamTimeline mTimeline;
 
-        FreeCameraPlugin              &mFreeCam;
+        FreeCameraMod              &mFreeCam;
         sapphire::input::InputManager &mInputManager;
 
         bool mIsPlaying = false;

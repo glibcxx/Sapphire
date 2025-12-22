@@ -1,4 +1,4 @@
-#include "TickRateTest.h"
+#include "TickRate.h"
 
 #include "SDK/api/sapphire/hook/Hook.h"
 
@@ -8,7 +8,7 @@
 
 #include "../smoothpiston/SmoothPiston.h"
 
-static TickRatePlugin  *plugin = nullptr;
+static TickRateMod     *mod = nullptr;
 static sapphire::Logger sLogger{"TickRate"};
 
 static void convertListToString(const std::vector<float> &list, char *out_buf, size_t buf_size) {
@@ -73,7 +73,7 @@ static bool parseTimeScaleString(const char *input, std::vector<float> &out_list
     return true;
 }
 
-void TickRatePlugin::clampSelectedIndex() {
+void TickRateMod::clampSelectedIndex() {
     if (mTimeScaleList.empty()) {
         mSelectedTps = 0;
     } else {
@@ -86,16 +86,16 @@ void TickRatePlugin::clampSelectedIndex() {
     }
 }
 
-void TickRatePlugin::setTimeScale(float scale, bool showToast) {
+void TickRateMod::setTimeScale(float scale, bool showToast) {
     mTimeScaleBuffer = mTimeScale = scale;
     if (mChangeAudioSpeed)
         UpdateAudioSpeed(mTimeScale);
-    SmoothPistonPlugin::getInstance().mTimeScale = mTimeScale;
+    SmoothPistonMod::getInstance().mTimeScale = mTimeScale;
     if (showToast)
         GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", mTimeScale * 20, mTimeScale));
 }
 
-void TickRatePlugin::resetTimeScale() {
+void TickRateMod::resetTimeScale() {
     auto it = std::find(mTimeScaleList.begin(), mTimeScaleList.end(), 1.0f);
     if (it != mTimeScaleList.end()) {
         mSelectedTps = static_cast<uint8_t>(std::distance(mTimeScaleList.begin(), it));
@@ -108,7 +108,7 @@ void TickRatePlugin::resetTimeScale() {
     this->setTimeScale(mTimeScaleList.empty() ? 1.0f : mTimeScaleList[mSelectedTps]);
 }
 
-void TickRatePlugin::_renderSettingGUI() {
+void TickRateMod::_renderSettingGUI() {
     bool changed = false;
     if (mTimeScaleList.empty()) {
         ImGui::BeginDisabled(true);
@@ -190,18 +190,18 @@ void TickRatePlugin::_renderSettingGUI() {
     }
 }
 
-void TickRatePlugin::_setupSettingGUI() {
-    GuiOverlay::PluginSettings tickrateSettings{
+void TickRateMod::_setupSettingGUI() {
+    GuiOverlay::ModSettings tickrateSettings{
         "Tick Rate",
         "Change game Speed!",
         [this]() {
             _renderSettingGUI();
         }
     };
-    GuiOverlay::registerPluginSettings(std::move(tickrateSettings));
+    GuiOverlay::registerModSettings(std::move(tickrateSettings));
 }
 
-void TickRatePlugin::_setupHotkeys() {
+void TickRateMod::_setupHotkeys() {
     GuiOverlay::registerHotkey(
         {.keysDown = {ImGuiMod_Alt},
          .triggerKey = ImGuiKey_KeypadAdd,
@@ -229,13 +229,13 @@ void TickRatePlugin::_setupHotkeys() {
     );
 }
 
-HOOK_TYPE(TickRatePlugin::NormalTickRateHook, Timer, sapphire::hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
+HOOK_TYPE(TickRateMod::NormalTickRateHook, Timer, sapphire::hook::HookPriority::Normal, Timer::advanceTime, void, float preferredFrameStep) {
     origin(preferredFrameStep);
-    mTimeScale = plugin->mTimeScale;
+    mTimeScale = mod->mTimeScale;
 }
 
 HOOK_TYPE(
-    TickRatePlugin::ParticleTickRateHook2,
+    TickRateMod::ParticleTickRateHook2,
     ParticleSystem::ParticleEmitterActual,
     sapphire::hook::HookPriority::Normal,
     ParticleSystem::ParticleEmitterActual::tick,
@@ -244,11 +244,11 @@ HOOK_TYPE(
     float                           a
 ) {
     // sLogger.debug("[{}] dtIn: {}, alpha: {:.6f}", std::chrono::steady_clock::now().time_since_epoch().count(), dtIn.count(), a);
-    origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * plugin->mTimeScale), a);
+    origin(std::chrono::duration_cast<std::chrono::nanoseconds>(dtIn * mod->mTimeScale), a);
 }
 
-TickRatePlugin::TickRatePlugin() {
-    plugin = this;
+TickRateMod::TickRateMod() {
+    mod = this;
     if (NormalTickRateHook::hook() && ParticleTickRateHook2::hook()) {
         installFMODHooks();
         this->_setupSettingGUI();
@@ -269,13 +269,13 @@ TickRatePlugin::TickRatePlugin() {
     }
 }
 
-TickRatePlugin::~TickRatePlugin() {
+TickRateMod::~TickRateMod() {
     uninstallFMODHooks();
     ParticleTickRateHook2::unhook();
     NormalTickRateHook::unhook();
 }
 
-TickRatePlugin &TickRatePlugin::getInstance() {
-    static TickRatePlugin t{};
+TickRateMod &TickRateMod::getInstance() {
+    static TickRateMod t{};
     return t;
 }

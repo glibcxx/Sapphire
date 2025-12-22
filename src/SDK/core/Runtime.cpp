@@ -71,10 +71,9 @@ namespace sapphire::core {
             sapphire::service::init();
 
             sapphire::info("Runtime: 加载插件...");
-            if (!this->mPluginManager.loadAllPlugins())
+            if (!this->mModRepo.loadMods())
                 return false;
 
-            this->mPluginManager.pluginsOnLoaded();
             sapphire::info("Runtime: 加载完毕...");
         }
         mInitialized = true;
@@ -94,7 +93,7 @@ namespace sapphire::core {
 
     void Runtime::_shutdown() noexcept {
         sapphire::info("Runtime: 卸载插件...");
-        this->mPluginManager.unloadAllPlugins();
+        this->mModRepo.unloadMods();
         sapphire::info("Runtime: 卸载完成...");
         sapphire::service::uninit();
         event::EventHooks::uninit();

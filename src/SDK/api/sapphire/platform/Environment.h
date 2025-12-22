@@ -1,14 +1,18 @@
 #pragma once
 
-namespace A {
-    class B;
-}
+#include "common/SemanticVersion.hpp"
 
 namespace sapphire::platform {
 
     class Environment {
     public:
-        static Environment &getInstance();
+        SPHR_API static Environment &getInstance();
+
+        const SemanticVersion &getSapphireVersion() const { return mSapphireVersion; }
+        SPHR_API std::string_view getSapphireVersionStr() const noexcept;
+
+        const SemanticVersion &getGameVersion() const { return mGameVersion; }
+        std::string_view       getGameVersionStr() const { return mGameVersionStr; }
 
         const std::filesystem::path &getSapphireHomePath() const { return mSapphireHomePath; }
         const std::filesystem::path &getSapphireCorePath() const { return mSapphireCorePath; }
@@ -19,9 +23,9 @@ namespace sapphire::platform {
 
         HWND getMainWindow() const { return mMainWindow; }
 
-        void setMainWindow(HWND hwnd) { mMainWindow = hwnd; }
-
         uintptr_t getImagebase() const { return (uintptr_t)mGameModule; }
+
+        void setMainWindow(HWND hwnd);
 
     private:
         Environment();
@@ -31,6 +35,10 @@ namespace sapphire::platform {
         Environment &operator=(const Environment &) = delete;
 
         HWND mMainWindow = nullptr;
+
+        SemanticVersion mSapphireVersion;
+        SemanticVersion mGameVersion;
+        std::string     mGameVersionStr;
 
         std::filesystem::path mSapphireHomePath;
         std::filesystem::path mSapphireCorePath;

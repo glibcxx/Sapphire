@@ -43,7 +43,7 @@ namespace {
     ) {
         std::map<VersionInfo, std::filesystem::path, std::greater<VersionInfo>> versions;
 
-        std::regex reg{"sapphire_core_for_v(\\d+)_(\\d+)_(\\d+)\\.dll"};
+        std::regex reg{"sapphire_core.v(\\d+)_(\\d+)_(\\d+)\\.dll"};
         for (auto &&entry : fs::directory_iterator{path}) {
             if (!entry.is_regular_file())
                 continue;

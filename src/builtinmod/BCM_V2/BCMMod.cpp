@@ -1,4 +1,4 @@
-#include "BCMPlugin.h"
+#include "BCMMod.h"
 
 #include "SDK/api/sapphire/ui/UIManager.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
@@ -8,7 +8,7 @@
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"
 #include "SDK/api/sapphire/input/InputManager.h"
 #include "SDK/api/sapphire/service/Service.h"
-#include "plugins/FreeCamera/FreeCamera.h"
+#include "../freeCamera/FreeCamera.h"
 
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src/common/world/GameSession.h"
@@ -25,15 +25,15 @@ namespace BCM_V2 {
     static AutoListener<RenderLevelEvent>       renderEvent;
     static AutoListener<GameUpdateGraphicEvent> updateGraphicListener;
 
-    BCMPlugin &BCMPlugin::getInstance() {
-        static BCMPlugin inst{};
+    BCMMod &BCMMod::getInstance() {
+        static BCMMod inst{};
         return inst;
     }
 
-    BCMPlugin::BCMPlugin() :
-        mFreeCamPlugin(FreeCameraPlugin::getInstance()) {
-        mEditor = std::make_unique<Editor>(mFreeCamPlugin);
-        mViewModel = std::make_unique<ui::MainUIWindowViewModel>(mFreeCamPlugin, *mEditor);
+    BCMMod::BCMMod() :
+        mFreeCamMod(FreeCameraMod::getInstance()) {
+        mEditor = std::make_unique<Editor>(mFreeCamMod);
+        mViewModel = std::make_unique<ui::MainUIWindowViewModel>(mFreeCamMod, *mEditor);
 
         UIManager::getInstance().registerView("BCM Editor", &ui::mainWindowView, *mViewModel);
 
@@ -42,9 +42,9 @@ namespace BCM_V2 {
         setupSettingsMenu();
     }
 
-    BCMPlugin::~BCMPlugin() = default;
+    BCMMod::~BCMMod() = default;
 
-    void BCMPlugin::setupEventListeners() {
+    void BCMMod::setupEventListeners() {
         auto &eventMgr = EventBus::getInstance();
         updateGraphicListener = eventMgr.registerAutoListener<GameUpdateGraphicEvent>(
             [this](GameUpdateGraphicEvent &e) {
@@ -63,7 +63,7 @@ namespace BCM_V2 {
         });
     }
 
-    void BCMPlugin::setupHotkeys() {
+    void BCMMod::setupHotkeys() {
         GuiOverlay::registerHotkey(
             {.triggerKey = ImGuiKey_F7,
              .description = "Toggle BCM Edit Mode",
@@ -71,7 +71,7 @@ namespace BCM_V2 {
                  if (auto mc = getMinecraft(); mc && mc->mGameSession) {
                      this->mEditor->toggleEditorMode();
                      this->mViewModel->mIsOpen = this->mEditor->isEnabled();
-                     this->mFreeCamPlugin.enableFreeCamera(this->mEditor->isEnabled(), false);
+                     this->mFreeCamMod.enableFreeCamera(this->mEditor->isEnabled(), false);
                      TextPacket packet = TextPacket::createRaw(std::format("BCM: {}", this->mEditor->isEnabled() ? "ON" : "OFF"));
                      packet.mType = TextPacketType::Tip;
                      mc->mGameSession->mLegacyClientNetworkHandler->handle({}, packet);
@@ -93,8 +93,8 @@ namespace BCM_V2 {
         );
     }
 
-    void BCMPlugin::setupSettingsMenu() {
-        GuiOverlay::registerPluginSettings(
+    void BCMMod::setupSettingsMenu() {
+        GuiOverlay::registerModSettings(
             {.name = "BCM",
              .description = "BCM",
              .drawSettings = [this]() {
@@ -102,7 +102,7 @@ namespace BCM_V2 {
         );
     }
 
-    Minecraft *BCMPlugin::getMinecraft() {
+    Minecraft *BCMMod::getMinecraft() {
         if (!mClientMinecraft) {
             mClientMinecraft = sapphire::getClientMinecraft().access();
         }

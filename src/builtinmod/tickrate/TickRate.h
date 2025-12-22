@@ -6,7 +6,7 @@
 
 #include "AudioSpeed.h"
 
-class TickRatePlugin {
+class TickRateMod {
 public:
     class NormalTickRateHook;
     class ParticleTickRateHook2;
@@ -22,13 +22,13 @@ public:
         FMOD_DSP_RESAMPLER_SPLINE
     };
 
-    static TickRatePlugin &getInstance();
+    static TickRateMod &getInstance();
 
     void setTimeScale(float scale, bool showToast = true);
 
 private:
-    TickRatePlugin();
-    ~TickRatePlugin();
+    TickRateMod();
+    ~TickRateMod();
 
     void clampSelectedIndex();
 

@@ -14,7 +14,7 @@
 #include "SDK/api/src/common/world/GameSession.h"
 #include "SDK/api/sapphire/input/InputManager.h"
 
-FreeCameraPlugin *freeCam = nullptr;
+FreeCameraMod *freeCam = nullptr;
 
 HOOK_TYPE_CONST(
     ForceDrawPlayerHook,
@@ -104,40 +104,40 @@ HOOK_TYPE(
     this->origin(camera, a);
 }
 
-FreeCameraPlugin &FreeCameraPlugin::getInstance() {
-    static FreeCameraPlugin instace{};
+FreeCameraMod &FreeCameraMod::getInstance() {
+    static FreeCameraMod instace{};
     return instace;
 }
 
-FreeCameraPlugin::FreeCameraPlugin() {
+FreeCameraMod::FreeCameraMod() {
     _setupSettingGui();
     freeCam = this;
     if (ForceDrawPlayerHook::hook())
-        mLogger.debug("[FreeCameraPlugin] ForceDrawPlayerHook initialized!");
+        mLogger.debug("[FreeCameraMod] ForceDrawPlayerHook initialized!");
     else
-        mLogger.error("[FreeCameraPlugin] ForceDrawPlayerHook::hook failed!");
+        mLogger.error("[FreeCameraMod] ForceDrawPlayerHook::hook failed!");
     if (SetCameraPosHook::hook())
-        mLogger.debug("[FreeCameraPlugin] SetCameraPosHook initialized!");
+        mLogger.debug("[FreeCameraMod] SetCameraPosHook initialized!");
     else
-        mLogger.error("[FreeCameraPlugin] SetCameraPosHook::hook failed!");
+        mLogger.error("[FreeCameraMod] SetCameraPosHook::hook failed!");
     if (OnPlayerTurnHook::hook())
-        mLogger.debug("[FreeCameraPlugin] OnPlayerTurnHook initialized!");
+        mLogger.debug("[FreeCameraMod] OnPlayerTurnHook initialized!");
     else
-        mLogger.error("[FreeCameraPlugin] OnPlayerTurnHook::hook failed!");
+        mLogger.error("[FreeCameraMod] OnPlayerTurnHook::hook failed!");
     if (!ClientInputUpdateSystemTickHook::hook())
-        mLogger.error("[FreeCameraPlugin] ClientInputUpdateSystemTickHook::hook failed!");
+        mLogger.error("[FreeCameraMod] ClientInputUpdateSystemTickHook::hook failed!");
     else
-        mLogger.debug("[FreeCameraPlugin] ClientInputUpdateSystemTickHook initialized!");
+        mLogger.debug("[FreeCameraMod] ClientInputUpdateSystemTickHook initialized!");
 }
 
-FreeCameraPlugin::~FreeCameraPlugin() {
+FreeCameraMod::~FreeCameraMod() {
     ClientInputUpdateSystemTickHook::unhook();
     OnPlayerTurnHook::unhook();
     SetCameraPosHook::unhook();
     ForceDrawPlayerHook::unhook();
 }
 
-void FreeCameraPlugin::setFreeCamOrientation(const glm::quat &orientation) {
+void FreeCameraMod::setFreeCamOrientation(const glm::quat &orientation) {
     this->mFreeCamOrientation = orientation;
     glm::vec3 forward = freeCam->mFreeCamOrientation * glm::vec3(0.0f, 0.0f, -1.0f);
     mPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
@@ -148,7 +148,7 @@ void FreeCameraPlugin::setFreeCamOrientation(const glm::quat &orientation) {
     mYaw = (axis.y >= 0.0f ? 1.0f : -1.0f) * angleDeg;
 }
 
-void FreeCameraPlugin::rotateFreeCamDelta(const Vec2 &deltaRot) {
+void FreeCameraMod::rotateFreeCamDelta(const Vec2 &deltaRot) {
     this->mYaw -= deltaRot.y;
     this->mPitch += deltaRot.x;
     this->mPitch = std::clamp(this->mPitch, -90.0f, 90.0f);
@@ -157,7 +157,7 @@ void FreeCameraPlugin::rotateFreeCamDelta(const Vec2 &deltaRot) {
     this->mFreeCamOrientation = yawQuat * pitchQuat;
 }
 
-void FreeCameraPlugin::enableFreeCamera(bool enable, bool showPlayerModel) {
+void FreeCameraMod::enableFreeCamera(bool enable, bool showPlayerModel) {
     if (this->mEnabled == enable) return;
     this->mEnabled = enable;
     this->mShowPlayerModel = showPlayerModel;
@@ -170,8 +170,8 @@ void FreeCameraPlugin::enableFreeCamera(bool enable, bool showPlayerModel) {
     }
 }
 
-void FreeCameraPlugin::_setupSettingGui() {
-    GuiOverlay::registerPluginSettings(
+void FreeCameraMod::_setupSettingGui() {
+    GuiOverlay::registerModSettings(
         {.name = "Free Camera",
          .description = "Free Camera",
          .drawSettings = [this]() { this->onDrawSetting(); }}
@@ -194,13 +194,13 @@ void FreeCameraPlugin::_setupSettingGui() {
     );
 }
 
-void FreeCameraPlugin::onDrawSetting() {
+void FreeCameraMod::onDrawSetting() {
     if (ImGui::Checkbox("Toggle Free Camera", &mEnabled) && this->mEnabled) {
         this->enableFreeCamera(true);
     }
 }
 
-Minecraft *FreeCameraPlugin::getMinecraft() {
+Minecraft *FreeCameraMod::getMinecraft() {
     if (!mClientMinecraft) {
         mClientMinecraft = sapphire::getClientMinecraft().access();
     }

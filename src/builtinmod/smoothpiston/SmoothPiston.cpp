@@ -16,8 +16,8 @@
 #include "SDK/api/src-deps/MinecraftRenderer/framebuilder/bgfxbridge/RayTraceableMesh.h"
 #include "PistonLerpTools.h"
 
-static SmoothPistonPlugin *plugin = nullptr;
-static sapphire::Logger    sLogger{"SmoothPiston"};
+static SmoothPistonMod *mod = nullptr;
+static sapphire::Logger sLogger{"SmoothPiston"};
 
 class ClientPistonBlockActor : public PistonBlockActor {
 public:
@@ -125,7 +125,7 @@ HOOK_TYPE(
 }
 
 HOOK_TYPE(
-    SmoothPistonPlugin::PistonActorUpdatePacketHook,
+    SmoothPistonMod::PistonActorUpdatePacketHook,
     ClientPistonBlockActor,
     sapphire::hook::HookPriority::Normal,
     PistonBlockActor::_onUpdatePacket,
@@ -133,7 +133,7 @@ HOOK_TYPE(
     const CompoundTag &data,
     BlockSource       &region
 ) {
-    if (!plugin->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
+    if (!mod->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
         return this->origin(data, region);
     PistonState           oldState = this->mState;
     DefaultDataLoadHelper helper{};
@@ -152,14 +152,14 @@ HOOK_TYPE(
 }
 
 HOOK_TYPE(
-    SmoothPistonPlugin::PistonActorTickHook,
+    SmoothPistonMod::PistonActorTickHook,
     ClientPistonBlockActor,
     sapphire::hook::HookPriority::Normal,
     PistonBlockActor::tick,
     void,
     BlockSource &region
 ) {
-    if (!plugin->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
+    if (!mod->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
         return this->origin(region);
     ++this->mTickCount; // BlockActor::tick
 
@@ -190,7 +190,7 @@ HOOK_TYPE(
         this->_spawnBlocks(region);
         break;
     case ClientPistonState::ExpandingNeeded:
-        tickOrder = plugin->mTotalTicked = plugin->mCurrentOrder++;
+        tickOrder = mod->mTotalTicked = mod->mCurrentOrder++;
         nextClientPistonState = ClientPistonState::Expanding;
         this->mProgress = 0.5f;
         this->mLastProgress = 0.0f;
@@ -198,7 +198,7 @@ HOOK_TYPE(
         this->spawnMovingBlocks(region);
         break;
     case ClientPistonState::Expanding:
-        plugin->mCurrentOrder = 0;
+        mod->mCurrentOrder = 0;
         nextClientPistonState = ClientPistonState::Expanded;
         this->mProgress = 1.0f;
         this->mLastProgress = 0.5f;
@@ -212,7 +212,7 @@ HOOK_TYPE(
         this->_spawnBlocks(region);
         break;
     case ClientPistonState::RetractingNeeded:
-        tickOrder = plugin->mTotalTicked = plugin->mCurrentOrder++;
+        tickOrder = mod->mTotalTicked = mod->mCurrentOrder++;
         nextClientPistonState = ClientPistonState::Retracting;
         this->mProgress = 0.5f;
         this->mLastProgress = 1.0f;
@@ -220,7 +220,7 @@ HOOK_TYPE(
         this->spawnMovingBlocks(region);
         break;
     case ClientPistonState::Retracting:
-        plugin->mCurrentOrder = 0;
+        mod->mCurrentOrder = 0;
         nextClientPistonState = ClientPistonState::Retracted;
         this->mProgress = 0.0f;
         this->mLastProgress = 0.5f;
@@ -293,7 +293,7 @@ HOOK_TYPE(
 }
 
 HOOK_TYPE(
-    SmoothPistonPlugin::SmoothMovingBlockHook,
+    SmoothPistonMod::SmoothMovingBlockHook,
     MovingBlockActorRenderer,
     sapphire::hook::HookPriority::Normal,
     MovingBlockActorRenderer::render,
@@ -305,7 +305,7 @@ HOOK_TYPE(
     auto  &movingBlock = static_cast<MovingBlockActor &>(renderData.entity);
     auto  &region = renderData.renderSource;
     float &alpha = context.mFrameAlpha;
-    if (plugin->mEnableSmoothPiston) {
+    if (mod->mEnableSmoothPiston) {
         auto  maybeMB = renderData.renderSource.getBlockEntity(movingBlock.mPosition);
         auto &interlock = movingBlock.mTerrainInterlockData;
         if (interlock.mHasBeenDelayedDeleted) {
@@ -318,7 +318,7 @@ HOOK_TYPE(
         }
     }
 
-    if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
+    if (mod->mEnablePistonTickOrderSeparator && mod->mTotalTicked) {
         auto ownerPistonBlockActor = (PistonBlockActor *)region.getBlockEntity(movingBlock.mPistonPos);
         if (!ownerPistonBlockActor)
             return this->origin(context, renderData);
@@ -326,7 +326,7 @@ HOOK_TYPE(
         float oldLastProgress = ownerPistonBlockActor->mLastProgress;
         float oldProgress = ownerPistonBlockActor->mProgress;
         auto &tickOrder = memory::getField<uint32_t>(&ownerPistonBlockActor->mTickCount, 4);
-        float newX = (float)tickOrder / plugin->mTotalTicked * (plugin->mTotalTicked < 4 ? 0.45f : 0.65f); // 表示两个活塞最多不会相差0.45格或0.65格
+        float newX = (float)tickOrder / mod->mTotalTicked * (mod->mTotalTicked < 4 ? 0.45f : 0.65f); // 表示两个活塞最多不会相差0.45格或0.65格
         twoStageLerp(alpha, *ownerPistonBlockActor, newStartX, newX);
 
         // 如果同时想要缓入缓出，可以这么写：
@@ -343,7 +343,7 @@ HOOK_TYPE(
 }
 
 HOOK_TYPE(
-    SmoothPistonPlugin::SmoothPistonArmHook,
+    SmoothPistonMod::SmoothPistonArmHook,
     PistonBlockActorRenderer,
     sapphire::hook::HookPriority::Normal,
     PistonBlockActorRenderer::render,
@@ -355,12 +355,12 @@ HOOK_TYPE(
     auto  &pistonActor = static_cast<PistonBlockActor &>(renderData.entity);
     float &alpha = context.mFrameAlpha;
 
-    if (plugin->mEnablePistonTickOrderSeparator && plugin->mTotalTicked) {
+    if (mod->mEnablePistonTickOrderSeparator && mod->mTotalTicked) {
         float oldAlpha = alpha;
         float oldLastProgress = pistonActor.mLastProgress;
         float oldProgress = pistonActor.mProgress;
         auto &tickOrder = memory::getField<uint32_t>(&pistonActor.mTickCount, 4);
-        float newX = (float)tickOrder / plugin->mTotalTicked * (plugin->mTotalTicked < 4 ? 0.45f : 0.65f);
+        float newX = (float)tickOrder / mod->mTotalTicked * (mod->mTotalTicked < 4 ? 0.45f : 0.65f);
         twoStageLerp(alpha, pistonActor, newStartX, newX);
 
         this->origin(context, renderData);
@@ -372,8 +372,8 @@ HOOK_TYPE(
     }
 }
 
-SmoothPistonPlugin::SmoothPistonPlugin() {
-    plugin = this;
+SmoothPistonMod::SmoothPistonMod() {
+    mod = this;
     if (!SmoothMovingBlockHook::hook())
         sLogger.error("SmoothMovingBlockHook 安装失败!");
     if (!SmoothPistonArmHook::hook())
@@ -389,7 +389,7 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
     if (!RedirectMovingBlockMeshCacheHook::hook())
         sLogger.error("RedirectMovingBlockMeshCacheHook 安装失败!");
 
-    GuiOverlay::registerPluginSettings(
+    GuiOverlay::registerModSettings(
         {
             .name = "Better Piston",
             .description = "Better Piston, Visualize Tick Order",
@@ -401,7 +401,7 @@ SmoothPistonPlugin::SmoothPistonPlugin() {
     );
 }
 
-SmoothPistonPlugin::~SmoothPistonPlugin() {
+SmoothPistonMod::~SmoothPistonMod() {
     SmoothMovingBlockHook::unhook();
     SmoothPistonArmHook::unhook();
     PistonActorTickHook::unhook();
@@ -409,10 +409,10 @@ SmoothPistonPlugin::~SmoothPistonPlugin() {
     PistonCtorHook::unhook();
     ForceMovingBlockRenderAsEntityAlphatestHook::unhook();
     RedirectMovingBlockMeshCacheHook::unhook();
-    plugin = nullptr;
+    mod = nullptr;
 }
 
-SmoothPistonPlugin &SmoothPistonPlugin::getInstance() {
-    static SmoothPistonPlugin s{};
+SmoothPistonMod &SmoothPistonMod::getInstance() {
+    static SmoothPistonMod s{};
     return s;
 }

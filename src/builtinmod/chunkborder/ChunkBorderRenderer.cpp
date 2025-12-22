@@ -95,7 +95,7 @@ void setupSettings() {
              GuiOverlay::addToast(std::format("ChunkBorder: {}", drawBorder ? "Enabled" : "Disabled"));
          }}
     );
-    GuiOverlay::registerPluginSettings(
+    GuiOverlay::registerModSettings(
         {
             .name = "Chunk Border",
             .description = "Display Chunk Border",
