@@ -85,4 +85,4 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{github.workspace}}/artifacts/*.zip
+          files: artifacts/*.zip
