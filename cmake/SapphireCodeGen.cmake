@@ -27,24 +27,42 @@ function(sapphire_run_codegen SAPPHIRE_CODEGEN_EXE CURRENT_VERSION)
         VERBATIM
     )
 
-    find_program(DLLTOOL_PATH NAMES "llvm-dlltool" "llvm-dlltool.exe" HINTS "${LLVM_TOOLS_BINARY_DIR}")
-    if(NOT DLLTOOL_PATH)
-        message(FATAL_ERROR "llvm-dlltool not found! Cannot generate import library.")
-    endif()
-
     set(OUT_LIB "${GEN_DIR}/bedrock_sdk+mc${CURRENT_VERSION}.lib")
 
-    add_custom_command(
-        OUTPUT ${OUT_LIB}
-        COMMAND "${DLLTOOL_PATH}"
-        -m i386:x86-64
-        -d "${OUT_DEF}"
-        -l "${OUT_LIB}"
+    if(MSVC)
+        find_program(LIB_EXE NAMES "lib.exe" HINTS ENV "PATH")
+    endif()
 
-        COMMENT "[Linker] Generating import library ${OUT_LIB}..."
-        DEPENDS ${OUT_DEF}
-        VERBATIM
-    )
+    if(LIB_EXE)
+        # Use MSVC's lib.exe to create the import library
+        add_custom_command(
+            OUTPUT ${OUT_LIB}
+            COMMAND "${LIB_EXE}"
+            /def:${OUT_DEF}
+            /out:${OUT_LIB}
+            /machine:x64
+            COMMENT "[Linker] Generating import library ${OUT_LIB} with MSVC lib.exe..."
+            DEPENDS ${OUT_DEF}
+            VERBATIM
+        )
+    else()
+        # Fallback to llvm-dlltool if lib.exe is not found
+        find_program(DLLTOOL_PATH NAMES "llvm-dlltool" "llvm-dlltool.exe" HINTS "${LLVM_TOOLS_BINARY_DIR}")
+        if(NOT DLLTOOL_PATH)
+            message(FATAL_ERROR "Neither MSVC lib.exe nor llvm-dlltool found! Cannot generate import library.")
+        endif()
+
+        add_custom_command(
+            OUTPUT ${OUT_LIB}
+            COMMAND "${DLLTOOL_PATH}"
+            -m i386:x86-64
+            -d "${OUT_DEF}"
+            -l "${OUT_LIB}"
+            COMMENT "[Linker] Generating import library ${OUT_LIB} with llvm-dlltool..."
+            DEPENDS ${OUT_DEF}
+            VERBATIM
+        )
+    endif()
 
     add_custom_target(sapphire_codegen_bedrock_api+mc${CURRENT_VERSION} ALL
         DEPENDS ${OUT_LIB}
