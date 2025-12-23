@@ -11,6 +11,8 @@ env:
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -83,4 +85,4 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{github.workspace}}/artifacts
+          files: ${{github.workspace}}/artifacts/*.zip
