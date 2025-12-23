@@ -18,6 +18,10 @@ jobs:
           submodules: "recursive"
           fetch-depth: 0
 
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Configure CMake
         run: |
           New-Item -Path "build/.cmake/api/v1/query/codemodel-v2" -ItemType File -Force | Out-Null
