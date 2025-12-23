@@ -26,7 +26,7 @@ namespace {
         constexpr std::strong_ordering operator<=>(const VersionInfo &rhs) const = default;
 
         std::string asString() const {
-            return std::format("v{}_{}_{}", Major, Minor, Build);
+            return std::format("{}.{}.{}", Major, Minor, Build);
         }
     };
 
@@ -43,7 +43,7 @@ namespace {
     ) {
         std::map<VersionInfo, std::filesystem::path, std::greater<VersionInfo>> versions;
 
-        std::regex reg{"sapphire_core.v(\\d+)_(\\d+)_(\\d+)\\.dll"};
+        std::regex reg{"sapphire_core\\+mc(\\d+).(\\d+).(\\d+)\\.dll"};
         for (auto &&entry : fs::directory_iterator{path}) {
             if (!entry.is_regular_file())
                 continue;
@@ -121,7 +121,7 @@ namespace sapphire::bootloader {
 
         mSymbolResolver = std::make_unique<SymbolResolver>();
 
-        auto sigDbPath = thisModulePath.parent_path() / std::format("bedrock_sigs.{}.sig.db", verStr);
+        auto sigDbPath = thisModulePath.parent_path() / std::format("bedrock_sigs+mc{}.sig.db", verStr);
         mIPCClient.send(
             ipc::status::Success, std::format("[Bootloader] Loading sig database at {}!", sigDbPath.string())
         );

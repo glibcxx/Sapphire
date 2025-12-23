@@ -5,6 +5,7 @@
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "SDK/api/src-client/common/client/game/MinecraftGame.h"
 #include "common/SemanticVersion.hpp"
+#include <ranges>
 
 namespace fs = std::filesystem;
 
@@ -220,6 +221,7 @@ bool sapphire::core::ModRepository::loadMods() {
     _resolveModDependencies(env.getGameVersion(), env.getSapphireVersion());
 
     for (auto *modInst : mLoadingOrder) {
+        sapphire::debug("Loading mod {} at {}", modInst->getManifest().mId, modInst->getManifest().mMainDllPath.string());
         if (modInst->load()) {
             mLoadedMods.emplace_back(modInst);
         }
@@ -251,11 +253,15 @@ bool sapphire::core::ModRepository::loadMods() {
 }
 
 void sapphire::core::ModRepository::unloadMods() {
-    for (auto *mod : mLoadedMods) {
+    auto &&loadedMods = std::move(mLoadedMods);
+    for (auto *mod : loadedMods | std::views::reverse) {
         mod->getIMod().onUnload();
     }
     mLoadedMods.clear();
     mLoadingOrder.clear();
+    for (auto *mod : loadedMods | std::views::reverse) {
+        mMods.erase(mod->getManifest().mId);
+    }
     mMods.clear();
 
     OnDestroyMinecraftGameHook::unhook();
@@ -270,7 +276,7 @@ void sapphire::core::ModRepository::publishOnInitEvent(const sapphire::ModInitCo
 }
 
 void sapphire::core::ModRepository::publishOnUnInitEvent() {
-    for (auto *mod : mLoadedMods) {
+    for (auto *mod : mLoadedMods | std::views::reverse) {
         mod->getIMod().onUnInit();
     }
 }
@@ -340,6 +346,7 @@ void sapphire::core::ModRepository::_resolveModDependencies(
 ) {
     std::unordered_map<std::string, std::vector<ModInstance *>> compatibleMods;
     for (auto &[modId, mods] : mMods) {
+        bool anyVersionCompatible = false;
         for (auto &mod : mods) {
             bool compatible = false;
             for (const auto &dep : mod.getManifest().mDeps) {
@@ -357,8 +364,15 @@ void sapphire::core::ModRepository::_resolveModDependencies(
                 }
             }
             if (compatible) {
+                anyVersionCompatible = true;
                 compatibleMods[modId].push_back(&mod);
             }
+        }
+        if (!anyVersionCompatible) {
+            sapphire::error(
+                "dependency 'minecraft' or 'Sapphire:core' of any version of Mod '{}' is not satisfied.",
+                modId
+            );
         }
     }
 

@@ -13,6 +13,7 @@ CMakeUserPresets.json
 
 /build/
 /out/
+/bin/
 
 .roomodes
 .clangd

@@ -1,0 +1,13 @@
+{
+    "format_version": 1,
+    "id": "Sapphire:builtin_mod",
+    "name": "Builtin Mod",
+    "version": "0.1.1",
+    "author": "Sapphire Project",
+    "description": "The Builtin Mod in Sapphire Project.",
+    "dependencies": {
+        "Sapphire:core": ">=0.2.0",
+        "minecraft": "@MANIFEST_MC_VERSION_DEP@"
+    },
+    "main_dll": "@MANIFEST_MAIN_DLL@"
+}

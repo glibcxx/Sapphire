@@ -85,7 +85,7 @@ namespace {
         LatencyGraphDisplay                                        *latencyGraphDisplay,
         Bedrock::NotNullNonOwnerPtr<NetworkSession>                 networkSession
     )
-#elif
+#else
     HOOK_TYPE(
         GetClientInstance,
         ClientInstance,

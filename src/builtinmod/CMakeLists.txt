@@ -8,7 +8,7 @@ file(GLOB_RECURSE
 )
 
 function(sapphire_builtin_mod_add_target BUILDING_MC_VERSION)
-    set(MOD_TARGET_NAME "builtin_mod.${BUILDING_MC_VERSION}")
+    set(MOD_TARGET_NAME "builtin_mod+mc${BUILDING_MC_VERSION}")
 
     add_library(${MOD_TARGET_NAME} SHARED
         ./BuiltinMod.cpp
@@ -22,26 +22,21 @@ function(sapphire_builtin_mod_add_target BUILDING_MC_VERSION)
 
     sapphire_enable_release_pdb(${MOD_TARGET_NAME})
 
-    target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core.${BUILDING_MC_VERSION})
+    target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core+mc${BUILDING_MC_VERSION})
 
     target_precompile_headers(${MOD_TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
     )
 
-    target_compile_definitions(${MOD_TARGET_NAME} PRIVATE "MC_VERSION=${BUILDING_MC_VERSION}")
+    string(REPLACE "." "_" MC_VERSION_MACRO_FORMAT ${BUILDING_MC_VERSION})
+    target_compile_definitions(${MOD_TARGET_NAME} PRIVATE "MC_VERSION=v${MC_VERSION_MACRO_FORMAT}")
 
-    install(TARGETS ${MOD_TARGET_NAME}
-        EXPORT SapphireBuiltinModTargets
-        DESTINATION Sapphire/sapphire/mods
-        COMPONENT ${MOD_TARGET_NAME}
+    sapphire_package_mod(${MOD_TARGET_NAME}
+        MANIFEST_TEMPLATE "${CMAKE_CURRENT_SOURCE_DIR}/manifest.json.in"
+        INSTALL_PATH "Sapphire/sapphire/mods/builtin_mod-${SAPPHIRE_VERSION}+mc${BUILDING_MC_VERSION}"
+        MAIN_DLL "${MOD_TARGET_NAME}.dll"
+        MC_VERSION_DEP ${BUILDING_MC_VERSION}
     )
-    install(FILES $<TARGET_PDB_FILE:${MOD_TARGET_NAME}>
-        DESTINATION Sapphire/sapphire/mods COMPONENT ${MOD_TARGET_NAME}
-        OPTIONAL
-    )
-
-    sapphire_add_install_target(install-${MOD_TARGET_NAME} COMPONENT ${MOD_TARGET_NAME})
-
 endfunction()
 
 if(BUILD_FOR_ALL_MC_VERSIONS)

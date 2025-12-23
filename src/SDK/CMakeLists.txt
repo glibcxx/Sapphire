@@ -2,8 +2,8 @@ file(GLOB_RECURSE SDK_SRC api/*.cpp)
 file(GLOB_RECURSE CORE_SRC core/*.cpp)
 
 macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGETS)
-    set(SAPPHIRE_TARGET_NAME sapphire_core.${BUILDING_MC_VERSION})
-    set(SAPPHIRE_lib_NAME sapphire_core_lib.${BUILDING_MC_VERSION})
+    set(SAPPHIRE_TARGET_NAME sapphire_core+mc${BUILDING_MC_VERSION})
+    set(SAPPHIRE_LIB_NAME sapphire_core_lib+mc${BUILDING_MC_VERSION})
 
     add_library(${SAPPHIRE_TARGET_NAME} SHARED)
     target_sources(${SAPPHIRE_TARGET_NAME} PRIVATE ${CORE_SRC} ${SDK_SRC})
@@ -12,19 +12,21 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
 
     target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE SPHR_DLLEXPORT)
 
-    target_precompile_headers(${SAPPHIRE_TARGET_NAME} PRIVATE
+    target_precompile_headers(${SAPPHIRE_TARGET_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
     )
 
     target_link_libraries(${SAPPHIRE_TARGET_NAME}
         PUBLIC
         SapphireCommon
-        sapphire::bedrock_api.${BUILDING_MC_VERSION}
+        bedrock_sdk+mc${BUILDING_MC_VERSION}
         PRIVATE
         minhook imgui kiero d3d11 sapphire_bootloader
     )
 
-    target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE "MC_VERSION=${BUILDING_MC_VERSION}")
+    string(REPLACE "." "_" MC_VERSION_MACRO_FORMAT ${BUILDING_MC_VERSION})
+
+    target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE "MC_VERSION=v${MC_VERSION_MACRO_FORMAT}")
 
     install(TARGETS ${SAPPHIRE_TARGET_NAME}
         EXPORT SapphireTargets
@@ -69,8 +71,8 @@ sapphire_add_install_target(
 
 # --- Install Headers ---
 
-install(DIRECTORY api/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDK/api COMPONENT sapphire_SDK_headers
+install(DIRECTORY api/sapphire/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDK/api/sapphire COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 install(DIRECTORY core/

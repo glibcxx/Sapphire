@@ -24,6 +24,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(sapphire_SDK_headers_depends "")
+
 # --- 项目版本与兼容性 ---
 include(cmake/SapphireConfigMCVersion.cmake)
 
@@ -125,7 +127,7 @@ install(TARGETS SapphireCommon
 )
 
 install(DIRECTORY external/imgui/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/imgui COMPONENT sapphire_SDK_headers
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h"
 )
 install(DIRECTORY external/fmod/
@@ -143,8 +145,15 @@ install(DIRECTORY src/util/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/util COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
+install(FILES src/pch.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT sapphire_SDK_headers
+)
 
 install(FILES cmake/SapphireDependencies.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT sapphire_SDK_resource
+)
+
+install(FILES cmake/SapphireUtils.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Sapphire COMPONENT sapphire_SDK_resource
 )
 
@@ -186,14 +195,10 @@ sapphire_add_install_target(
 sapphire_add_install_target(
     install-sapphire_SDK_headers
     COMPONENT sapphire_SDK_headers
+    DEPENDS ${sapphire_SDK_headers_depends}
 )
 
 sapphire_add_install_target(
     install-sapphire_SDK
     DEPENDS install-sapphire_SDK_headers install-sapphire_SDK_resource install-sapphire_SDK_lib
-)
-
-sapphire_add_install_target(
-    install-sapphire_sig_database
-    COMPONENT sapphire_sig_database
 )

@@ -41,3 +41,57 @@ function(sapphire_enable_release_pdb)
         endif()
     endforeach()
 endfunction()
+
+
+function(sapphire_package_mod target_name)
+    cmake_parse_arguments(
+        ARG
+        ""
+        "MANIFEST_TEMPLATE;INSTALL_PATH;MAIN_DLL;MC_VERSION_DEP"
+        ""
+        ${ARGN}
+    )
+
+    if(NOT ARG_MANIFEST_TEMPLATE)
+        message(FATAL_ERROR "sapphire_package_mod: MANIFEST_TEMPLATE not specified for target ${target_name}")
+    endif()
+    if(NOT ARG_INSTALL_PATH)
+        message(FATAL_ERROR "sapphire_package_mod: INSTALL_PATH not specified for target ${target_name}")
+    endif()
+    if(NOT ARG_MAIN_DLL)
+        message(FATAL_ERROR "sapphire_package_mod: MAIN_DLL not specified for target ${target_name}")
+    endif()
+    if(NOT ARG_MC_VERSION_DEP)
+        message(FATAL_ERROR "sapphire_package_mod: MC_VERSION_DEP not specified for target ${target_name}")
+    endif()
+
+    set(MOD_MANIFEST_OUT "${CMAKE_CURRENT_BINARY_DIR}/manifest.${target_name}.json")
+
+    set(MANIFEST_MAIN_DLL ${ARG_MAIN_DLL})
+    set(MANIFEST_MC_VERSION_DEP ${ARG_MC_VERSION_DEP})
+
+    configure_file(
+        "${ARG_MANIFEST_TEMPLATE}"
+        "${MOD_MANIFEST_OUT}"
+        @ONLY
+    )
+
+    set(INSTALL_DEST "${ARG_INSTALL_PATH}")
+
+    install(TARGETS ${target_name}
+        RUNTIME DESTINATION ${INSTALL_DEST} COMPONENT ${target_name}
+    )
+    install(FILES $<TARGET_PDB_FILE:${target_name}>
+        DESTINATION ${INSTALL_DEST} COMPONENT ${target_name} OPTIONAL
+    )
+
+    install(FILES "${MOD_MANIFEST_OUT}"
+        DESTINATION ${INSTALL_DEST}
+        RENAME "manifest.json"
+        COMPONENT ${target_name}
+    )
+
+    sapphire_add_install_target(install-${target_name} COMPONENT ${target_name})
+
+endfunction()
+
