@@ -1,18 +1,9 @@
-function(sapphire_run_codegen CURRENT_VERSION)
+function(sapphire_run_codegen SAPPHIRE_CODEGEN_EXE CURRENT_VERSION)
 
     set(GEN_DIR "${CMAKE_BINARY_DIR}/generated")
 
     set(OUT_DEF "${GEN_DIR}/bedrock_def+mc${CURRENT_VERSION}.def")
     set(OUT_BIN "${GEN_DIR}/bedrock_sigs+mc${CURRENT_VERSION}.sig.db")
-
-    find_program(SAPPHIRE_CODEGEN_EXE NAMES "SapphireCodeGen" "SapphireCodeGen.exe"
-        HINTS "${CMAKE_SOURCE_DIR}/tools/bin" "${CMAKE_BINARY_DIR}/tools/bin"
-        DOC "Path to the SapphireCodeGen executable"
-    )
-
-    if(NOT SAPPHIRE_CODEGEN_EXE)
-        message(FATAL_ERROR "SapphireCodeGen tool not found! Please check PATH or set SAPPHIRE_CODEGEN_EXE.")
-    endif()
 
     file(GLOB_RECURSE SDK_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.hpp")
 
@@ -84,18 +75,10 @@ function(sapphire_run_codegen CURRENT_VERSION)
 
 endfunction()
 
-function(sapphire_run_codegen_gen_headers)
+function(sapphire_run_codegen_gen_headers SAPPHIRE_CODEGEN_EXE)
     set(GEN_DIR "${CMAKE_BINARY_DIR}/generated")
     set(OUT_HEADERS "${GEN_DIR}/SDK")
 
-    find_program(SAPPHIRE_CODEGEN_EXE NAMES "SapphireCodeGen" "SapphireCodeGen.exe"
-        HINTS "${CMAKE_SOURCE_DIR}/tools" "${CMAKE_BINARY_DIR}/tools"
-        DOC "Path to the SapphireCodeGen executable"
-    )
-
-    if(NOT SAPPHIRE_CODEGEN_EXE)
-        message(FATAL_ERROR "SapphireCodeGen tool not found! Please check PATH or set SAPPHIRE_CODEGEN_EXE.")
-    endif()
 
     file(GLOB_RECURSE SDK_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.hpp")
 
@@ -131,13 +114,43 @@ function(sapphire_run_codegen_gen_headers)
 
 endfunction()
 
-if(BUILD_FOR_ALL_MC_VERSIONS)
-    foreach(PROCESSING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})
-        sapphire_run_codegen(${PROCESSING_MC_VERSION})
-    endforeach()
-else()
-    sapphire_run_codegen(${MC_VERSION})
+if(POLICY CMP0169)
+    cmake_policy(SET CMP0169 OLD)
 endif()
 
-sapphire_run_codegen_gen_headers()
+find_program(SAPPHIRE_CODEGEN_EXE NAMES "SapphireCodeGen" "SapphireCodeGen.exe"
+    HINTS "${CMAKE_SOURCE_DIR}/tools/bin" "${CMAKE_BINARY_DIR}/tools/bin"
+    DOC "Path to the SapphireCodeGen executable"
+)
+
+if(NOT SAPPHIRE_CODEGEN_EXE)
+
+    FetchContent_Declare(
+        sapphire_codegen
+        URL https://github.com/glibcxx/SapphireCodeGen/releases/download/v1.0.0/SapphireCodeGen-1.0.0.zip
+        URL_HASH SHA256=3e5789ae05692db7a4ab874034d1b31f4b1377cb7aa9ee96b57c7f8be45babc7
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+        TLS_VERIFY OFF # it's safe for hash verification is enabled
+    )
+
+    FetchContent_GetProperties(sapphire_codegen)
+    if(NOT sapphire_codegen_POPULATED)
+        message(STATUS "Downloading SapphireCodeGen...")
+        FetchContent_Populate(sapphire_codegen)
+    endif()
+    find_program(SAPPHIRE_CODEGEN_EXE NAMES "SapphireCodeGen" "SapphireCodeGen.exe"
+        HINTS "${sapphire_codegen_SOURCE_DIR}/bin"
+        DOC "Path to the SapphireCodeGen executable"
+    )
+endif()
+
+if(BUILD_FOR_ALL_MC_VERSIONS)
+    foreach(PROCESSING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})
+        sapphire_run_codegen(${SAPPHIRE_CODEGEN_EXE} ${PROCESSING_MC_VERSION})
+    endforeach()
+else()
+    sapphire_run_codegen(${SAPPHIRE_CODEGEN_EXE} ${MC_VERSION})
+endif()
+
+sapphire_run_codegen_gen_headers(${SAPPHIRE_CODEGEN_EXE})
 
