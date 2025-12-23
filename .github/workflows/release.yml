@@ -21,7 +21,7 @@ jobs:
       - name: Configure CMake
         run: |
           New-Item -Path "build/.cmake/api/v1/query/codemodel-v2" -ItemType File -Force | Out-Null
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install"
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/install" -G "Ninja"
 
       - name: Build and Package
         run: |
