@@ -145,8 +145,8 @@ if(NOT SAPPHIRE_CODEGEN_EXE)
 
     FetchContent_Declare(
         sapphire_codegen
-        URL https://github.com/glibcxx/SapphireCodeGen/releases/download/v1.0.0/SapphireCodeGen-1.0.0.zip
-        URL_HASH SHA256=3e5789ae05692db7a4ab874034d1b31f4b1377cb7aa9ee96b57c7f8be45babc7
+        URL https://github.com/glibcxx/SapphireCodeGen/releases/download/v1.0.1/SapphireCodeGen-1.0.1.zip
+        URL_HASH SHA256=be84d54dcecd1c67d5565c4c2aa0bed4548d820ab1033ba381cb41dfdbce74c7
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
         TLS_VERIFY OFF # it's safe for hash verification is enabled
     )
