@@ -1,6 +1,10 @@
 #pragma once
 
-enum class BlockRenderLayer : uint32_t {
+#if MC_VERSION == v1_21_2
+enum class BlockRenderLayer : uint64_t {
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+enum class BlockRenderLayer : uint8_t {
+#endif
     RENDERLAYER_DOUBLE_SIDED = 0,
     RENDERLAYER_RAYTRACED_WATER = 1,
     RENDERLAYER_DEFERRED_WATER = 2,

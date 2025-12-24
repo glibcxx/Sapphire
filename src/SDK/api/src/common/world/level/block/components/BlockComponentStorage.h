@@ -6,9 +6,10 @@
 
 // https://github.com/LiteLDev/LeviLamina/blob/c012794923f9bc3d388dd0cf7e133c7b1d280d3c/src-server/mc/world/level/block/components/BlockComponentStorage.h#L53
 
-// size: 40 (1.21.2), 104 (1.21.50/1.21.60)
+// size: 32 (1.21.2), 104 (1.21.50/1.21.60)
 class BlockComponentStorage {
 public:
+    // size: 8
     struct ComponentBase {
         // vtb+0
         virtual ~ComponentBase() = default;
