@@ -326,8 +326,11 @@ int main(int argc, char **argv) {
         };
         icpSvr.onClientDisconnected = [&cv, &sapphireCoreInitDone]() {
             std::cout << "[injector] Pipe disconnected!\n";
-            if (sapphireCoreInitDone)
+            if (sapphireCoreInitDone) {
                 cv.notify_all();
+                return sapphire::ipc::Server::DisconnectResult::Done;
+            }
+            return sapphire::ipc::Server::DisconnectResult::ConnectAgain;
         };
         icpSvr.onMessage = [&cv, &error, &sapphireCoreInitDone](const sapphire::ipc::Message &msg) {
             auto status = msg.getStatus();

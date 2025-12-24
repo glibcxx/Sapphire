@@ -27,29 +27,29 @@ namespace sapphire::ipc {
         }
 
         void stop() {
-            if (!mIsRunning) return;
-
-            mIsRunning = false;
-
-            backend::Pipe dummyClient;
-            dummyClient.connect(mPipeName, 10);
-            dummyClient.disconnect();
-
-            if (mThread.joinable()) {
+            if (!mIsRunning.exchange(false)) return;
+            if (mThread.joinable())
                 mThread.join();
-            }
         }
+
+        enum class DisconnectResult {
+            Done,
+            ConnectAgain
+        };
 
         std::function<void()>                onClientConnected;
         std::function<void(const Message &)> onMessage;
-        std::function<void()>                onClientDisconnected;
+        std::function<DisconnectResult()>    onClientDisconnected;
 
     private:
         void serverLoop() {
             while (mIsRunning) {
                 backend::Pipe connection;
+
                 if (connection.create(mPipeName) && connection.listen()) {
-                    if (mIsRunning && onClientConnected) onClientConnected();
+                    if (!mIsRunning) break;
+                    if (onClientConnected)
+                        onClientConnected();
 
                     Channel channel(connection);
                     Message msg;
@@ -57,9 +57,13 @@ namespace sapphire::ipc {
                         if (onMessage) onMessage(msg);
                     }
 
-                    if (mIsRunning && onClientDisconnected) onClientDisconnected();
+                    if (mIsRunning && onClientDisconnected) {
+                        if (onClientDisconnected() == DisconnectResult::Done) break;
+                    }
+                } else {
+                    if (!mIsRunning) break;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
-                if (!mIsRunning) std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         }
 
