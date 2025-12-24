@@ -95,8 +95,7 @@ namespace sapphire::event {
         [[nodiscard("Listener will be removed in dtor!")]]
         AutoListener<EventType> registerAutoListener(Func &&fn) {
             std::type_index eventTypeId(typeid(EventType));
-
-            std::lock_guard<std::mutex> lock(this->mMutex);
+            std::lock_guard lock(this->mMutex);
 
             auto found = this->mListeners.find(eventTypeId);
             if (found == this->mListeners.end()) {
@@ -111,8 +110,7 @@ namespace sapphire::event {
             requires std::is_base_of_v<Event, EventType> && std::is_invocable_v<Func, EventType &>
         ListenerId registerListener(Func &&fn) {
             std::type_index eventTypeId(typeid(EventType));
-
-            std::lock_guard<std::mutex> lock(this->mMutex);
+            std::lock_guard lock(this->mMutex);
 
             auto found = this->mListeners.find(eventTypeId);
             if (found == this->mListeners.end()) {
@@ -135,9 +133,9 @@ namespace sapphire::event {
         template <typename EventType>
             requires std::is_base_of_v<Event, std::remove_cvref_t<EventType>>
         void dispatchEvent(EventType &&event) {
-            std::type_index             eventTypeId(typeid(EventType));
-            std::lock_guard<std::mutex> lock(this->mMutex);
-            auto                        found = this->mListeners.find(eventTypeId);
+            std::type_index eventTypeId(typeid(EventType));
+            std::lock_guard lock(this->mMutex);
+            auto            found = this->mListeners.find(eventTypeId);
             if (found == this->mListeners.end()) return;
             EventListenerList<EventType> &ls = static_cast<EventListenerList<EventType> &>(*found->second);
             for (auto &&l : ls) {
@@ -151,7 +149,7 @@ namespace sapphire::event {
 
         std::unordered_map<std::type_index, std::shared_ptr<ListenerList>> mListeners;
 
-        std::mutex mMutex;
+        std::recursive_mutex mMutex;
 
         SPHR_API static ListenerId sNextListenerId;
     };

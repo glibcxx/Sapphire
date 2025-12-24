@@ -2,7 +2,7 @@
 
 #include "SDK/api/src-deps/Application/AppPlatform.h"
 
-namespace sapphire::event {
+namespace sapphire::event::impl {
 
     class SapphireEventAppPlatformListener : public AppPlatformListener {
         Bedrock::NonOwnerPointer<AppPlatform> mPlatform;
@@ -15,4 +15,4 @@ namespace sapphire::event {
         virtual void onAppTerminated();
     };
 
-} // namespace sapphire::event
+} // namespace sapphire::event::impl

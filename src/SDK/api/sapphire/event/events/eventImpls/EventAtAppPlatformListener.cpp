@@ -2,7 +2,7 @@
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/AppTerminateEvent.h"
 
-namespace sapphire::event {
+namespace sapphire::event::impl {
 
     SapphireEventAppPlatformListener::SapphireEventAppPlatformListener() :
         mPlatform(ServiceLocator<AppPlatform>::get().mService) {
@@ -16,4 +16,4 @@ namespace sapphire::event {
         EventBus::getInstance().dispatchEvent(AppTerminateEvent{*mPlatform});
     }
 
-} // namespace sapphire::event
+} // namespace sapphire::event::impl

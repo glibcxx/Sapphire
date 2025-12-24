@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sapphire::event {
+namespace sapphire::event::impl {
 
     class EventHooks {
     public:
@@ -8,4 +8,4 @@ namespace sapphire::event {
         static void uninit();
     };
 
-} // namespace sapphire::event
+} // namespace sapphire::event::impl

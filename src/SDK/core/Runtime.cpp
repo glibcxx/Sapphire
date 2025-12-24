@@ -67,7 +67,7 @@ namespace sapphire::core {
             }
             platform::Environment::getInstance().setMainWindow(mainWindow);
             mRenderBackend = std::make_unique<RenderBackend>();
-            event::EventHooks::init();
+            event::impl::EventHooks::init();
             sapphire::service::init();
 
             sapphire::info("Runtime: 加载插件...");
@@ -96,7 +96,7 @@ namespace sapphire::core {
         this->mModRepo.unloadMods();
         sapphire::info("Runtime: 卸载完成...");
         sapphire::service::uninit();
-        event::EventHooks::uninit();
+        event::impl::EventHooks::uninit();
         mRenderBackend.reset();
         HookManager::getInstance().teardown();
         GuiOverlay::uninit();

@@ -1,6 +1,8 @@
 #include "EventHooks.h"
 
+#include "EventAtClientInstanceEventListener.h"
 #include "SDK/api/sapphire/hook/Hook.h"
+#include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "SDK/api/src-deps/Application/AppPlatform.h"
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "../AppInitializedEvent.h"
@@ -8,12 +10,14 @@
 #include "../ClientUpdateEvent.h"
 #include "../MinecraftGameUpdateEvent.h"
 #include "../GameUpdateGraphicEvent.h"
+#include "../MinecraftGameInitFinishedEvent.h"
 
 #include "EventAtAppPlatformListener.h"
 
-namespace sapphire::event {
+namespace sapphire::event::impl {
 
-    std::unique_ptr<SapphireEventAppPlatformListener> gAppPlatformListener = nullptr;
+    std::unique_ptr<SapphireEventAppPlatformListener>    gAppPlatformListener = nullptr;
+    std::unique_ptr<SapphireClientInstanceEventListener> gClientInstanceEventListener = nullptr;
 
     HOOK_TYPE(
         AppPlatformHook,
@@ -25,6 +29,26 @@ namespace sapphire::event {
         this->origin();
         EventBus::getInstance().dispatchEvent(AppInitializedEvent{*this});
         gAppPlatformListener = std::make_unique<SapphireEventAppPlatformListener>();
+    }
+
+    HOOK_TYPE(
+        MinecraftGameInitCompleteHook,
+        MinecraftGame,
+        sapphire::HookPriority::Normal,
+        MinecraftGame::_initFinish,
+        SerialWorkList::WorkResult,
+        std::shared_ptr<MinecraftGame::InitContext> &initContext
+    ) {
+        auto res = this->origin(initContext);
+        if (res == SerialWorkList::WorkResult::Complete) {
+            assert(ClientInstance::primaryClientInstance && "primaryClientInstance is not ready.");
+            EventBus::getInstance().dispatchEvent(
+                MinecraftGameInitFinishedEvent{*this, *ClientInstance::primaryClientInstance}
+            );
+            gClientInstanceEventListener =
+                std::make_unique<SapphireClientInstanceEventListener>(*ClientInstance::primaryClientInstance);
+        }
+        return res;
     }
 
     /**
@@ -118,6 +142,8 @@ namespace sapphire::event {
     void EventHooks::init() {
         if (!AppPlatformHook::hook())
             sapphire::error("EventHooks: AppPlatformHook::hook failed!");
+        if (!MinecraftGameInitCompleteHook::hook())
+            sapphire::error("EventHooks: MinecraftGameInitCompleteHook::hook failed!");
         if (!MinecraftGameStartFrameHook::hook())
             sapphire::error("EventHooks: MinecraftGameStartFrameHook::hook failed!");
         if (!MinecraftGameEndFrameHook::hook())
@@ -142,7 +168,8 @@ namespace sapphire::event {
         FrameBuilderStartFrameHook::unhook();
         MinecraftGameEndFrameHook::unhook();
         MinecraftGameStartFrameHook::unhook();
+        MinecraftGameInitCompleteHook::unhook();
         AppPlatformHook::unhook();
     }
 
-} // namespace sapphire::event
+} // namespace sapphire::event::impl

@@ -6,11 +6,11 @@
 namespace sapphire::event {
 
     class ClientUpdateEvent : public Event {
+    public:
         MinecraftGame &mMinecraftGame;
 
-    public:
         ClientUpdateEvent(MinecraftGame &minecraftGame) :
             mMinecraftGame(minecraftGame) {}
     };
 
-}
+} // namespace sapphire::event

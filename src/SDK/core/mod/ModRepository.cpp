@@ -1,4 +1,6 @@
 #include "ModRepository.h"
+#include "SDK/api/sapphire/event/EventBus.h"
+#include "SDK/api/sapphire/event/events/MinecraftGameInitFinishedEvent.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "SDK/api/sapphire/platform/Environment.h"
@@ -174,26 +176,6 @@ namespace {
     sapphire::core::ModRepository *gModRepo = nullptr;
 
     HOOK_TYPE(
-        OnMinecraftGameInitCompleteHook,
-        MinecraftGame,
-        sapphire::HookPriority::Normal,
-        MinecraftGame::_initFinish,
-        SerialWorkList::WorkResult,
-        std::shared_ptr<MinecraftGame::InitContext> &initContext
-    ) {
-        auto res = this->origin(initContext);
-        if (res == SerialWorkList::WorkResult::Complete) {
-            assert(ClientInstance::primaryClientInstance && "primaryClientInstance is not ready.");
-            sapphire::ModInitContext ctx{
-                *this,
-                *ClientInstance::primaryClientInstance // initContext->mIncompletePrimaryClient was moved out.
-            };
-            gModRepo->publishOnInitEvent(ctx);
-        }
-        return res;
-    }
-
-    HOOK_TYPE(
         OnDestroyMinecraftGameHook,
         ClientInstance,
         sapphire::HookPriority::Normal,
@@ -229,10 +211,16 @@ bool sapphire::core::ModRepository::loadMods() {
     }
 
     gModRepo = this;
-    if (!OnMinecraftGameInitCompleteHook::hook()) {
-        sapphire::error("OnMinecraftGameInitCompleteHook hook failed!");
-        return false;
-    }
+
+    event::EventBus::getInstance().registerListener<event::MinecraftGameInitFinishedEvent>(
+        [this](event::MinecraftGameInitFinishedEvent &e) {
+            sapphire::ModInitContext ctx{
+                e.mMinecraftGame,
+                e.mClientInstance
+            };
+            this->publishOnInitEvent(ctx);
+        }
+    );
 
     if (!OnDestroyMinecraftGameHook::hook()) {
         sapphire::error("OnDestroyMinecraftGameHook hook failed!");
@@ -266,7 +254,6 @@ void sapphire::core::ModRepository::unloadMods() {
     mMods.clear();
 
     OnDestroyMinecraftGameHook::unhook();
-    OnMinecraftGameInitCompleteHook::unhook();
     gModRepo = this;
 }
 
