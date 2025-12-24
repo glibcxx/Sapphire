@@ -141,9 +141,12 @@ install(DIRECTORY src/macros/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/macros COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
-install(DIRECTORY src/util/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/util COMPONENT sapphire_SDK_headers
+install(DIRECTORY src/common/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/common COMPONENT sapphire_SDK_headers
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
+)
+install(FILES src/bootloader/SymbolResolver.h src/bootloader/SigDatabase.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/bootloader COMPONENT sapphire_SDK_headers
 )
 install(FILES src/pch.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT sapphire_SDK_headers
