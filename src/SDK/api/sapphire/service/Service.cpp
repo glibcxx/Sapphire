@@ -17,7 +17,8 @@ namespace {
     static ServerInstance *serverInstance = nullptr;
     static LocalPlayer    *localPlayer = nullptr;
 
-    static Bedrock::NonOwnerPointer<Minecraft> clientMinecraft;
+    static Bedrock::NonOwnerPointer<Minecraft>        clientMinecraft;
+    static Bedrock::NonOwnerPointer<NetEventCallback> legacyClientNetworkHandler;
 
     HOOK_TYPE(
         GetClientLevelHook,
@@ -123,6 +124,7 @@ namespace {
         std::unique_ptr<NetEventCallback> legacyClientNetworkHandler
     ) {
         clientMinecraft = {this->mControlBlock, this};
+        ::legacyClientNetworkHandler = {legacyClientNetworkHandler->mControlBlock, legacyClientNetworkHandler.get()};
         this->origin(std::move(legacyClientNetworkHandler));
     }
 
@@ -146,6 +148,10 @@ LocalPlayer *sapphire::service::getLocalPlayer() {
 
 Bedrock::NonOwnerPointer<Minecraft> sapphire::service::getClientMinecraft() {
     return clientMinecraft;
+}
+
+Bedrock::NonOwnerPointer<NetEventCallback> sapphire::service::getLegacyClientNetworkHandler() {
+    return legacyClientNetworkHandler;
 }
 
 void sapphire::service::init() {

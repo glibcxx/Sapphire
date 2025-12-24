@@ -22,6 +22,8 @@ namespace sapphire::inline service {
 
     SPHR_API Bedrock::NonOwnerPointer<Minecraft> getClientMinecraft();
 
+    SPHR_API Bedrock::NonOwnerPointer<NetEventCallback> getLegacyClientNetworkHandler();
+
     void init();
     void uninit();
 
