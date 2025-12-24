@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ILevel.h"
+#include "common/Memory.hpp"
 #include "SDK/api/src/common/world/level/BlockSourceListener.h"
 #include "SDK/api/src/common/world/level/IWorldRegistriesProvider.h"
 #include "SDK/api/src/common/world/events/ServerPlayerEventCoordinator.h"

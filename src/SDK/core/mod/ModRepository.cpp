@@ -183,9 +183,10 @@ namespace {
     ) {
         auto res = this->origin(initContext);
         if (res == SerialWorkList::WorkResult::Complete) {
+            assert(ClientInstance::primaryClientInstance && "primaryClientInstance is not ready.");
             sapphire::ModInitContext ctx{
                 *this,
-                *initContext->mIncompletePrimaryClient
+                *ClientInstance::primaryClientInstance // initContext->mIncompletePrimaryClient was moved out.
             };
             gModRepo->publishOnInitEvent(ctx);
         }
