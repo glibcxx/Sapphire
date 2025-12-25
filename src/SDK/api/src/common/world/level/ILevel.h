@@ -13,7 +13,7 @@ class Experiments;
 class ILevel : public Bedrock::EnableNonOwnerReferences {
 public:
     // vtb+0
-    virtual ~ILevel() = 0;
+    virtual ~ILevel();
 
     // vtb+1
     virtual bool initialize(

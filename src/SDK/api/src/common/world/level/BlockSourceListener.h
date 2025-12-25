@@ -3,10 +3,10 @@
 #include "SDK/api/src/common/world/level/BlockPos.h"
 
 class Actor;
-class ActorBlockSyncMessage;
 class Block;
 class BlockActor;
 class BlockSource;
+struct ActorBlockSyncMessage;
 
 enum class BlockChangedEventTarget : uint8_t {
     SelfBlock = 0,

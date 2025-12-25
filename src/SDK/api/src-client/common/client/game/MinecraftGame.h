@@ -189,6 +189,7 @@ class Unk4CB6580 : public Core::Observer<Unk4CB6580, Core::SingleThreadedLock> {
 };
 #endif
 
+// size: 40
 class AppSystemRegistry {
 public:
     std::shared_ptr<void>              mUnk0;
