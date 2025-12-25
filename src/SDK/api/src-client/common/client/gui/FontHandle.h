@@ -1,13 +1,21 @@
 #pragma once
 
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
+#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
+#include "macros/Macros.h"
 
 class FontRepository;
 class Font;
 
-// size: 80 (1.21.50)
+// size: 80
 class FontHandle : public Bedrock::EnableNonOwnerReferences {
-    uint8_t _fill24[80 - 24];
+    Bedrock::NonOwnerPointer<FontRepository> mUnk24;
+    std::shared_ptr<Font>                    mUnk48;
+    uint64_t                                 mFontId;        // off+64
+    bool                                     mIsDummyHandle; // off+72
 
-    FontHandle(const FontHandle &other); // \xE8\x00\x00\x00\x00\x48\x8B\xF8\x48\x8B\xD0\x48\x8D\x4E (1.21.50)
+    // vtb+0
+    SPHR_DECL_API("1.21.2", "\x40\x53\x48\x83\xEC\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x15")
+    SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x15")
+    virtual ~FontHandle();
 };

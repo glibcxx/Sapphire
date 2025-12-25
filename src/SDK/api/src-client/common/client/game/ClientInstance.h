@@ -262,7 +262,7 @@ public:
     std::unique_ptr<GameModuleClient>                           mGameModule;                    // off+2920
     Bedrock::NotNullNonOwnerPtr<ClientInstanceEventCoordinator> mEventCoordinator;              // off+2928
     std::unique_ptr<ClientScriptManager>                        mClientScriptManager;           // off+2952
-    Bedrock::PubSub::Subscription                               mUnk2960;                       // off+2960
+    Bedrock::PubSub::ScopedSubscription                         mUnk2960;                       // off+2960
     std::unique_ptr<PlayerCapabilities::IClientController>      mClientCapabilities;            // off+2976
     std::unique_ptr<OreUI::SceneProvider>                       mSceneProvider;                 // off+2984
     std::unique_ptr<ui::ScreenTechStackSelector>                mScreenTechStackSelector;       // off+2992
@@ -284,12 +284,12 @@ public:
 #if MC_VERSION == v1_21_60
     Bedrock::NotNullNonOwnerPtr<void> mUnk3176; // off+3176
 #endif
-    bool                          mClientUpdateAndRenderThrottlingEnabled;   // off+3176
-    int                           mClientUpdateAndRenderThrottlingThreshold; // off+3180
-    float                         mClientUpdateAndRenderThrottlingScalar;    // off+3184
-    Bedrock::PubSub::Subscription mUnk3192;                                  // off+3192
-    std::mutex                    mUserLock;                                 // off+3208
-    std::shared_ptr<Social::User> mUser;                                     // off+3288
+    bool                                mClientUpdateAndRenderThrottlingEnabled;   // off+3176
+    int                                 mClientUpdateAndRenderThrottlingThreshold; // off+3180
+    float                               mClientUpdateAndRenderThrottlingScalar;    // off+3184
+    Bedrock::PubSub::ScopedSubscription mUnk3192;                                  // off+3192
+    std::mutex                          mUserLock;                                 // off+3208
+    std::shared_ptr<Social::User>       mUser;                                     // off+3288
 #if MC_VERSION == v1_21_60
     std::unique_ptr<std::aligned_storage_t<72, 8>> mUnk3328; // off+3328
 #endif

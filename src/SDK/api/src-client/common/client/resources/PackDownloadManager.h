@@ -1,8 +1,11 @@
 #pragma once
 
-// size: 432 (1.21.50)
+// size: 296 (1.21.2), 456 (1.21.50), 280 (1.21.60)
 class PackDownloadManager {
 public:
+#if MC_VERSION == v1_21_2
+    __int64 mUnk0[13][2];
+#elif MC_VERSION == v1_21_50
     // size: 168 (1.21.50)
     class Unk0 {
     public:
@@ -23,8 +26,13 @@ public:
         std::vector<__int64> mUnk144; // off+144
     };
 
-    Unk0                                     mUnk0[2];   // off+0
-    std::vector<__int64>                     mUnk336;    // off+36
-    __int64                                  mUnk360[4]; // off+360
-    std::unordered_map<std::string, __int64> mUnk392;    // off+392
+    Unk0 mUnk0[2]; // off+0
+#elif MC_VERSION == v1_21_60
+    __int64 mUnk0[10][2];
+#endif
+    std::vector<__int64> mUnk336; // off+336
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    __int64 mUnk360[4]; // off+360
+#endif
+    std::unordered_map<std::string, __int64> mUnk392; // off+392
 };

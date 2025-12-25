@@ -32,7 +32,7 @@ public:
     CrashDumpLogStringID                mCDStringID;             // off+32
     std::deque<WorkItem>                mModalWorkList;          // off+40
     std::vector<WorkItem>               mModalWorkLog;           // off+80
-    std::vector<SerialWorkListLogEntry> mLogEntries;              // off+104
+    std::vector<SerialWorkListLogEntry> mLogEntries;             // off+104
     double                              mModalWorkItemStartTime; // off+128
     double                              mSeriesStartTime;        // off+136
     bool                                mStepWatchdogEnabled;    // off+144

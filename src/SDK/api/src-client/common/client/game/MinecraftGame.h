@@ -240,7 +240,7 @@ public:
     std::function<void()>                         mUnk232;                             // off+232
     std::unique_ptr<ContentLog>                   mContentLog;                         // off+296
     ServiceRegistrationToken<ContentLog>          mContentLogServiceRegistrationToken; // off+304
-    std::unique_ptr<GuiContentLogEndPoint>        mGuiContentLogEndPoint;              // off+312
+    std::unique_ptr<GuiContentLogEndPoint>        mContentLogGuiEndPoint;              // off+312
     std::unique_ptr<__int64>                      mUnk320;                             // off+320
     __int64                                       mUnk328;                             // off+328
     std::unique_ptr<__int64>                      mUnk336;                             // off+336
@@ -279,114 +279,158 @@ public:
     bool                                                       mHasUnhandledEntitlementsChangeEvent;    // off+864
     std::unique_ptr<WebSocketCommManager>                      mWebSocketCommunicatorManager;           // off+872
     std::set<SubClientId>                                      mSubclientRemovalSet;                    // off+880
-    std::atomic<SuspendState>                                  mSuspended;                              // off+900
-    bool                                                       mUnk904;                                 // off+904
-    int                                                        mUnk908;                                 // off+908
-    ResetCallbackObject                                       *mResetCallbackObj;                       // off+912
-    std::unique_ptr<PixelCalc>                                 mPixelCalc;                              // off+920
-    mce::UUID                                                  mUUID;                                   // off+928
-    std::string                                                mProcessRegistrationKey;                 // off+944
-    Bedrock::Threading::IAsyncResult<void>::Handle             mCheckLoadRendererAssetsCompleteHandle;  // off+976
-    std::atomic<bool>                                          mIsFileSystemSpaceTrackingComplete;      // off+992
-    std::atomic<bool>                                          mIsLevelInfoRepopulationComplete;        // off+993
-    __int64                                                    mUnk1000[4];                             // off+1000
-    __int8                                                     mUnk1032;                                // off+1032
-    uint32_t                                                   mUIRenderClientMask;                     // off+1036
-    uint32_t                                                   mUIRenderIssuedMask;                     // off+1040
-    bool                                                       mTickedLastFrame;                        // off+1044
-    bool                                                       mInitialResourcesLoaded;                 // off+1045
-    bool                                                       mReadyToRender;                          // off+1046
-    bool                                                       mGenerateDocs;                           // off+1047
-    bool                                                       mLaunchedFromLegacyVersion;              // off+1048
-    bool                                                       mUnk1049;                                // off+1049
-    uint32_t                                                   mLeaveGameProgress;                      // off+1052
-    PackDownloadManager                                        mPackDownloadManager;                    // off+1056
-    std::atomic<bool>                                          mIsInGame;                               // off+1512
-    std::atomic<LocalServerStartupState>                       mLocalServerStartupState;                // off+1516
-    std::shared_ptr<bool>                                      mDeferHandleInvite;                      // off+1520
-    bool                                                       mInitFinished;                           // off+1536
-    bool                                                       mHasDestroyedGame;                       // off+1537
-    bool                                                       mAppWillTerminate;                       // off+1538
-    bool                                                       mFiredInitialEvents;                     // off+1539
-    bool                                                       mForceReloadResources;                   // off+1540
-    bool                                                       mRunningInTestCloud;                     // off+1541
-    bool                                                       mProfilerIsOn;                           // off+1542
-    int                                                        mScreenShotCount;                        // off+1544
+#if MC_VERSION == v1_21_2
+    __int64 mUnk904a[3]; // off+904
+    __int32 mUnk928;     // off+928
+#endif
+    std::atomic<SuspendState>                      mSuspended;                             // off+900
+    bool                                           mUnk904;                                // off+904
+    int                                            mUnk908;                                // off+908
+    ResetCallbackObject                           *mResetCallbackObj;                      // off+912
+    std::unique_ptr<PixelCalc>                     mPixelCalc;                             // off+920
+    mce::UUID                                      mUUID;                                  // off+928
+    std::string                                    mProcessRegistrationKey;                // off+944
+    Bedrock::Threading::IAsyncResult<void>::Handle mCheckLoadRendererAssetsCompleteHandle; // off+976
+    std::atomic<bool>                              mIsFileSystemSpaceTrackingComplete;     // off+992
+    std::atomic<bool>                              mIsLevelInfoRepopulationComplete;       // off+993
+#if MC_VERSION == v1_21_2
+    __int64 mUnk1000[3]; // off+1000
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    __int64 mUnk1000[4]; // off+1000
+#endif
+    __int8                               mUnk1032;                   // off+1032
+    uint32_t                             mUIRenderClientMask;        // off+1036
+    uint32_t                             mUIRenderIssuedMask;        // off+1040
+    bool                                 mTickedLastFrame;           // off+1044
+    bool                                 mInitialResourcesLoaded;    // off+1045
+    bool                                 mReadyToRender;             // off+1046
+    bool                                 mGenerateDocs;              // off+1047
+    bool                                 mLaunchedFromLegacyVersion; // off+1048
+    bool                                 mUnk1049;                   // off+1049
+    uint32_t                             mLeaveGameProgress;         // off+1052
+    PackDownloadManager                  mPackDownloadManager;       // off+1056
+    std::atomic<bool>                    mIsInGame;                  // off+1512
+    std::atomic<LocalServerStartupState> mLocalServerStartupState;   // off+1516
+    std::shared_ptr<bool>                mDeferHandleInvite;         // off+1520
+    bool                                 mInitFinished;              // off+1536
+    bool                                 mHasDestroyedGame;          // off+1537
+    bool                                 mAppWillTerminate;          // off+1538
+    bool                                 mFiredInitialEvents;        // off+1539
+    bool                                 mForceReloadResources;      // off+1540
+    bool                                 mRunningInTestCloud;        // off+1541
+    bool                                 mProfilerIsOn;              // off+1542
+    int                                  mScreenShotCount;           // off+1544
 
     char _fill1548[1616 - 1548]; // off+1548
 
-    ScreenshotRecorder                                     mScreenshotRecorder;                            // off+1616
-    std::unique_ptr<__int64>                               mUnk1696;                                       // off+1696
-    std::weak_ptr<ClientBlobCache::Cache>                  mClientBlobCache;                               // off+1704
-    bool                                                   mUnk1720;                                       // off+1720
-    bool                                                   mUnk1721;                                       // off+1721
-    bool                                                   minitHoloPosComplete;                           // off+1722
-    bool                                                   mInitPrimaryUserComplete;                       // off+1723
-    __int16                                                mUnk1724;                                       // off+1724
-    std::shared_ptr<void>                                  mUnk1728;                                       // off+1728
-    AppSystemRegistry                                      mAppSystemRegistry;                             // off+1744
-    std::optional<EntityContext>                           mEntityContext;                                 // off+1784
-    bool                                                   mUnk1816;                                       // off+1816
-    bool                                                   mNewLevel;                                      // off+1817
-    std::shared_ptr<void>                                  mUnk1824;                                       // off+1824
-    std::unique_ptr<DateManager>                           mDateManager;                                   // off+1840
-    ServiceRegistrationToken<DateManager>                  mDateManagerServiceRegistrationToken;           // off+1848
-    std::unique_ptr<ResourceLoadManager>                   mResourceLoadManager;                           // off+1856
-    ServiceRegistrationToken<ResourceLoadManager>          mResourceLoadManagerServiceRegistrationToken;   // off+1864
-    std::unique_ptr<ClientInstanceEventCoordinator>        mClientInstanceEventCoordinator;                // off+1872
-    std::unique_ptr<Social::UserManager>                   mUserManager;                                   // off+1880
-    std::shared_ptr<mce::TextureGroup>                     mTextures;                                      // off+1888
-    std::shared_ptr<Bedrock::Http::DispatchQueue>          mHttpDispatchQueue;                             // off+1904
-    ServiceRegistrationToken<Bedrock::Http::DispatchQueue> mHttpDispatchQueueServiceRegistrationToken;     // off+1920
-    std::unique_ptr<IMinecraftEventing>                    mEventing;                                      // off+1928
-    std::unique_ptr<ServiceEntitlementManager>             mEntitlementManager;                            // off+1936
-    std::unique_ptr<Core::FilePathManager>                 mFilePathManager;                               // off+1944
-    std::unique_ptr<IContentAccessibilityProvider>         mContentKeyProvider;                            // off+1952
-    std::unique_ptr<PackManifestFactory>                   mManifestFactory;                               // off+1960
-    std::unique_ptr<WorldTemplateManager>                  mWorldTemplateManager;                          // off+1968
-    std::unique_ptr<ActorResourceDefinitionGroup>          mActorResourceDefinitionGroup;                  // off+1976
-    std::unique_ptr<DevConsoleLogger>                      mDevConsoleLogger;                              // off+1984
-    std::unique_ptr<IGameModuleApp>                        mGameModule;                                    // off+1992
-    std::shared_ptr<SkinRepository>                        mSkinRepository;                                // off+2000
-    std::unique_ptr<ContentCatalogService>                 mContentCatalogService;                         // off+2016
-    ServiceRegistrationToken<ContentCatalogService>        mContentCatalogServiceServiceRegistrationToken; // off+2024
-    std::unique_ptr<StoreCatalogRepository>                mStoreCatalogRepository;                        // off+2032
-    std::unique_ptr<PersonaRepository>                     mPersonaRepository;                             // off+2040
-    std::unique_ptr<PersonaService>                        mPersonaService;                                // off+2048
-    std::unique_ptr<PackSourceFactory>                     mPackSourceFactory;                             // off+2056
-    std::unique_ptr<ResourcePackRepository>                mResourcePackRepository;                        // off+2064
-    std::function<void()>                                  mUnk2072;                                       // off+2072
-    std::unique_ptr<SoundEngine>                           mSoundEngine;                                   // off+2136
-    std::unique_ptr<ContentAcquisition>                    mContentAcquisition;                            // off+2144
-    std::unique_ptr<UIDefRepository>                       mUIDefRepo;                                     // off+2152
-    std::unique_ptr<NetworkSession>                        mNetworkSession;                                // off+2160
-    std::unique_ptr<ClientNetworkSystem>                   mClientNetworkSystem;                           // off+2168
-    std::unique_ptr<LevelDbEnv>                            mLevelDbEnv;                                    // off+2176
-    std::shared_ptr<ActorAnimationGroup>                   mActorAnimationGroup;                           // off+2184
-    std::shared_ptr<ActorAnimationControllerGroup>         mActorAnimationControllerGroup;                 // off+2200
-    std::shared_ptr<RenderControllerGroup>                 mRenderControllerGroup;                         // off+2216
-    ServiceRegistrationToken<ServiceEntitlementManager>    mEntitlementManagerServiceRegistrationToken;    // off+2232
-    std::unique_ptr<mce::FileWatcherNull>                  mFileWatcher;                                   // off+2240
-    ServiceRegistrationToken<mce::FileWatcherNull>         mFileWatcherServiceRegistrationToken;           // off+2248
-    std::unique_ptr<AppConfigs>                            mAppConfig;                                     // off+2256
-    ServiceRegistrationToken<AppConfigs>                   mAppConfigServiceRegistrationToken;             // off+2264
-    std::unique_ptr<__int64 /* 168 */>                     mUnk2272;                                       // off+2272
-    ServiceRegistrationToken<void>                         mUnk2280;                                       // off+2280
-    std::unique_ptr<mce::framebuilder::FrameBuilder>       mFrameBuilder;                                  // off+2288
+    ScreenshotRecorder                    mScreenshotRecorder; // off+1616
+    std::unique_ptr<__int64>              mUnk1696;            // off+1696
+    std::weak_ptr<ClientBlobCache::Cache> mClientBlobCache;    // off+1704
+    bool                                  mUnk1720;            // off+1720
+
+#if MC_VERSION == v1_21_2
+    class Unk1592 {
+        struct {
+            __int64     mUnk0[3]; // off+0
+            std::string mUnk24;   // off+24
+            std::string mUnk56;   // off+56
+            std::string mUnk88;   // off+88
+            __int64     mUnk120;  // off+120
+            std::string mUnk128;  // off+128
+            std::string mUnk160;  // off+160
+            std::string mUnk192;  // off+192
+            __int64     mUnk224;  // off+224
+            std::string mUnk232;  // off+232
+        };
+        std::function<void()> mUnk264; // off+264
+    };
+
+    std::optional<Unk1592> mUnk1592; // off+1592
+#endif
+
+    bool    mUnk1721;                 // off+1721
+    bool    minitHoloPosComplete;     // off+1722
+    bool    mInitPrimaryUserComplete; // off+1723
+    bool    mUnk1724;                 // off+1724
+    bool    mUnk1725;                 // off+1725
+    __int64 mUnk1728;                 // off+1728
+
+#if MC_VERSION >= v1_21_50
+    std::unique_ptr<void> mUnk1736; // off+1728
+#endif
+
+    AppSystemRegistry                                      mAppSystemRegistry;                           // off+1744
+    std::optional<EntityContext>                           mEntityContext;                               // off+1784
+    bool                                                   mUnk1816;                                     // off+1816
+    bool                                                   mNewLevel;                                    // off+1817
+    std::shared_ptr<void>                                  mUnk1824;                                     // off+1824
+    std::unique_ptr<DateManager>                           mDateManager;                                 // off+1840
+    ServiceRegistrationToken<DateManager>                  mDateManagerServiceRegistrationToken;         // off+1848
+    std::unique_ptr<ResourceLoadManager>                   mResourceLoadManager;                         // off+1856
+    ServiceRegistrationToken<ResourceLoadManager>          mResourceLoadManagerServiceRegistrationToken; // off+1864
+    std::unique_ptr<ClientInstanceEventCoordinator>        mClientInstanceEventCoordinator;              // off+1872
+    std::unique_ptr<Social::UserManager>                   mUserManager;                                 // off+1880
+    std::shared_ptr<mce::TextureGroup>                     mTextures;                                    // off+1888
+    std::shared_ptr<Bedrock::Http::DispatchQueue>          mHttpDispatchQueue;                           // off+1904
+    ServiceRegistrationToken<Bedrock::Http::DispatchQueue> mHttpDispatchQueueServiceRegistrationToken;   // off+1920
+
+    std::unique_ptr<IMinecraftEventing>            mEventing;                     // off+1928
+    std::unique_ptr<ServiceEntitlementManager>     mEntitlementManager;           // off+1936
+    std::unique_ptr<Core::FilePathManager>         mFilePathManager;              // off+1944
+    std::unique_ptr<IContentAccessibilityProvider> mContentKeyProvider;           // off+1952
+    std::unique_ptr<PackManifestFactory>           mManifestFactory;              // off+1960
+    std::unique_ptr<WorldTemplateManager>          mWorldTemplateManager;         // off+1968
+    std::unique_ptr<ActorResourceDefinitionGroup>  mActorResourceDefinitionGroup; // off+1976
+    std::unique_ptr<DevConsoleLogger>              mDevConsoleLogger;             // off+1984
+    std::unique_ptr<IGameModuleApp>                mGameModule;                   // off+1992
+
+#if MC_VERSION == v1_21_2
+    std::unique_ptr<__int64> mUnk2224; // off+2224, TODO: check position
+#endif
+
+    std::shared_ptr<SkinRepository>                     mSkinRepository;                                // off+2000
+    std::unique_ptr<ContentCatalogService>              mContentCatalogService;                         // off+2016
+    ServiceRegistrationToken<ContentCatalogService>     mContentCatalogServiceServiceRegistrationToken; // off+2024
+    std::unique_ptr<StoreCatalogRepository>             mStoreCatalogRepository;                        // off+2032
+    std::unique_ptr<PersonaRepository>                  mPersonaRepository;                             // off+2040
+    std::unique_ptr<PersonaService>                     mPersonaService;                                // off+2048
+    std::unique_ptr<PackSourceFactory>                  mPackSourceFactory;                             // off+2056
+    std::unique_ptr<ResourcePackRepository>             mResourcePackRepository;                        // off+2064
+    std::function<void()>                               mUnk2072;                                       // off+2072
+    std::unique_ptr<SoundEngine>                        mSoundEngine;                                   // off+2136
+    std::unique_ptr<ContentAcquisition>                 mContentAcquisition;                            // off+2144
+    std::unique_ptr<UIDefRepository>                    mUIDefRepo;                                     // off+2152
+    std::unique_ptr<NetworkSession>                     mNetworkSession;                                // off+2160
+    std::unique_ptr<ClientNetworkSystem>                mClientNetworkSystem;                           // off+2168
+    std::unique_ptr<LevelDbEnv>                         mLevelDbEnv;                                    // off+2176
+    std::shared_ptr<ActorAnimationGroup>                mActorAnimationGroup;                           // off+2184
+    std::shared_ptr<ActorAnimationControllerGroup>      mActorAnimationControllerGroup;                 // off+2200
+    std::shared_ptr<RenderControllerGroup>              mRenderControllerGroup;                         // off+2216
+    ServiceRegistrationToken<ServiceEntitlementManager> mEntitlementManagerServiceRegistrationToken;    // off+2232
+    std::unique_ptr<mce::FileWatcherNull>               mFileWatcher;                                   // off+2240
+    ServiceRegistrationToken<mce::FileWatcherNull>      mFileWatcherServiceRegistrationToken;           // off+2248
+    std::unique_ptr<AppConfigs>                         mAppConfig;                                     // off+2256
+    ServiceRegistrationToken<AppConfigs>                mAppConfigServiceRegistrationToken;             // off+2264
+    std::unique_ptr<__int64 /* 168 */>                  mUnk2272;                                       // off+2272
+    ServiceRegistrationToken<void>                      mUnk2280;                                       // off+2280
+    std::unique_ptr<mce::framebuilder::FrameBuilder>    mFrameBuilder;                                  // off+2288
     ServiceRegistrationToken<mce::framebuilder::FrameBuilder>
         mFrameBuilderServiceRegistrationToken; // off+2296
 
-    std::unique_ptr<__int64 /* 416 */>                      mUnk2304;                // off+2304
-    ServiceRegistrationToken<void>                          mUnk2312;                // off+2312
-    std::unique_ptr<__int64 /* 2320 */>                     mUnk2320;                // off+2320
-    ServiceRegistrationToken<void>                          mUnk2328;                // off+2328
-    std::shared_ptr<FlightingService>                       mFlightingService;       // off+2336
-    std::unique_ptr<OreUI::System>                          mOreUISystem;            // off+2352
+    std::unique_ptr<__int64 /* 416 */>  mUnk2304;          // off+2304
+    ServiceRegistrationToken<void>      mUnk2312;          // off+2312
+    std::unique_ptr<__int64 /* 2320 */> mUnk2320;          // off+2320
+    ServiceRegistrationToken<void>      mUnk2328;          // off+2328
+    std::shared_ptr<FlightingService>   mFlightingService; // off+2336
+    std::unique_ptr<OreUI::System>      mOreUISystem;      // off+2352
+#if MC_VERSION == v1_21_60
+    std::unique_ptr<__int64> mUnk2192; // off+2192
+#endif
     std::map<SubClientId, std::shared_ptr<IClientInstance>> mClientInstances;        // off+2360
     std::unique_ptr<__int64>                                mUnk2376;                // off+2376
     std::unique_ptr<__int64>                                mUnk2384;                // off+2384
-    Bedrock::PubSub::Subscription                           mUnk2392;                // off+2392
-    Bedrock::PubSub::Subscription                           mUnk2408;                // off+2408
+    Bedrock::PubSub::ScopedSubscription                     mUnk2392;                // off+2392
+    Bedrock::PubSub::ScopedSubscription                     mUnk2408;                // off+2408
     std::unique_ptr<OfferRepository>                        mOfferRepository;        // off+2424
     std::shared_ptr<BrazeSDKManager>                        mBrazeSDKManager;        // off+2432
     std::unique_ptr<IntegrityService>                       mIntegrityService;       // off+2448
@@ -394,7 +438,7 @@ public:
     std::unique_ptr<LevelLoader>                            mLevelLoader;            // off+2464
     std::unique_ptr<HolosceneRenderer>                      mHolosceneRenderer;      // off+2472
     std::function<void()>                                   mUnk2480;                // off+2480
-    std::unique_ptr<__int64>                                mUnk2544;                // off+2544
+    std::unique_ptr<__int64 /*32*/>                         mUnk2544;                // off+2544
     std::unique_ptr<SaveTransactionManager>                 mSaveTransactionManager; // off+2552
     std::unique_ptr<HolographicPlatform>                    mPrimaryClientHoloInput; // off+2560
     std::unique_ptr<IDlcValidation>                         mDlcValidation;          // off+2568
@@ -409,76 +453,89 @@ public:
     std::unique_ptr<__int64>                                            mUnk2696;                        // off+2696
     std::unordered_map<DimensionType, std::unique_ptr<MainChunkSource>> mClientGenChunkSource;           // off+2704
 
-    std::unique_ptr<Timer>                             mSimTimer;                                 // off+2768
-    std::unique_ptr<Timer>                             mRealTimer;                                // off+2776
-    std::function<void()>                              mUnk2784;                                  // off+2784
-    std::function<void()>                              mUnk2848;                                  // off+2848
-    std::unique_ptr<TextureHotReloader>                mTextureHotReloader;                       // off+2912
-    std::unique_ptr<CubemapBackgroundResources>        mCubemapBackgroundResources;               // off+2920
-    std::unique_ptr<__int64>                           mUnk2928;                                  // off+2928
-    std::unique_ptr<OculusPlatformMessagePump>         mOculusPlatformMessagePump;                // off+2936
-    std::function<void()>                              mUnk2944;                                  // off+2944
-    std::function<void()>                              mUnk3008;                                  // off+3008
-    std::unique_ptr<ProfilingManager>                  mProfilingManager;                         // off+3072
-    ServiceRegistrationToken<ProfilingManager>         mProfilingManagerServiceRegistrationToken; // off+3080
-    std::unique_ptr<ServiceDrivenImageRepository>      mServiceDrivenImageRepository;             // off+3088
-    std::function<void()>                              mUnk3096;                                  // off+3096
-    std::unique_ptr<CloudFileUploadManager>            mCloudFileUploadManager;                   // off+3160
-    std::unique_ptr<ContentLogFileEndPoint>            mContentLogFileEndPoint;                   // off+3168
-    std::shared_ptr<RealmsAPI>                         mRealms;                                   // off+3176
-    std::unique_ptr<ActiveDirectoryIdentity>           mActiveDirectoryIdentity;                  // off+3192
-    std::unique_ptr<MinecraftInputHandler>             mInput;                                    // off+3200
-    std::function<void()>                              mUnk3208;                                  // off+3208
-    std::unique_ptr<CommandListQueue>                  mCommandListQueue;                         // off+3272
-    std::unique_ptr<SeasonsRenderer>                   mSeasonsRenderer;                          // off+3280
-    std::unique_ptr<TextureAtlas>                      mTextureAtlas;                             // off+3288
-    std::unique_ptr<GameRenderer>                      mGameRenderer;                             // off+3312
-    std::unique_ptr<UIRepository>                      mUIRepository;                             // off+3304
-    std::unique_ptr<__int64>                           mUnk3412;                                  // off+3412
-    std::function<void()>                              mUnk3320;                                  // off+3320
-    std::unique_ptr<ThirdPartyServerRepository>        mThirdPartyServerRepository;               // off+3384
-    std::unique_ptr<PlayerMessagingService>            mPlayerMessagingService;                   // off+3392
-    std::unique_ptr<CDNService>                        mCDNService;                               // off+3400
-    std::unique_ptr<__int64>                           mUnk3408;                                  // off+3408
-    std::shared_ptr<ServicesManager>                   mServicesManager;                          // off+3416
-    ServiceRegistrationToken<ServicesManager>          mServicesManagerServiceRegistrationToken;  // off+3432
-    std::shared_ptr<MarketplaceServicesManager>        mMarketplaceServicesManager;               // off+3440
-    std::unique_ptr<TrialManager>                      mTrialManager;                             // off+3456
-    std::unique_ptr<Social::PresenceManager>           mPresenceManager;                          // off+3464
-    std::unique_ptr<TreatmentPackDownloadMonitor>      mTreatmentPackMonitor;                     // off+3472
-    std::shared_ptr<mce::TextureGroup>                 mStoreCacheTextures;                       // off+3480
-    std::unique_ptr<TextToSpeechSystem>                mTTSSystem;                                // off+3496
-    std::unique_ptr<MusicManager>                      mMusicManager;                             // off+3504
-    std::unique_ptr<ExternalContentManager>            mContentManager;                           // off+3512
-    std::unique_ptr<__int64>                           mUnk3520;                                  // off+3520
-    std::unique_ptr<LibraryRepository>                 mLibraryRepository;                        // off+3528
-    std::unique_ptr<LevelStorageSource>                mLevelStorageSource;                       // off+3536
-    std::unique_ptr<LevelListCache>                    mLevelListCache;                           // off+3544
-    std::unique_ptr<NewPlayerSystem>                   mNewPlayerSystem;                          // off+3552
-    std::shared_ptr<ContentManager>                    mResourceContentManager;                   // off+3560
-    std::unique_ptr<World::System>                     mWorldSystem;                              // off+3576
-    std::unique_ptr<Social::System>                    mSocialSystem;                             // off+3584
-    std::function<void()>                              mUnk3592;                                  // off+3592
-    std::function<void()>                              mUnk3656;                                  // off+3656
-    FontHandle                                         mFontHandle;                               // off+3720
-    FontHandle                                         mRuneFontHandle;                           // off+3800
-    FontHandle                                         mUnicodeFontHandle;                        // off+3880
-    FontHandle                                         mSmoothFontLatinHandle;                    // off+3960
-    FontHandle                                         mUIFontHandle;                             // off+4040
-    std::unique_ptr<__int64>                           mUnk4120;                                  // off+4120
-    ServiceRegistrationToken<void>                     mUnk4128;                                  // off+4128
-    std::unique_ptr<Social::MultiplayerServiceManager> mMultiplayerServiceManager;                // off+4136
+    std::unique_ptr<Timer>                        mSimTimer;                                 // off+2768
+    std::unique_ptr<Timer>                        mRealTimer;                                // off+2776
+    std::function<void()>                         mUnk2784;                                  // off+2784
+    std::function<void()>                         mUnk2848;                                  // off+2848
+    std::unique_ptr<TextureHotReloader>           mTextureHotReloader;                       // off+2912
+    std::unique_ptr<CubemapBackgroundResources>   mCubemapBackgroundResources;               // off+2920
+    std::unique_ptr<__int64>                      mUnk2928;                                  // off+2928
+    std::unique_ptr<OculusPlatformMessagePump>    mOculusPlatformMessagePump;                // off+2936
+    std::function<void()>                         mUnk2944;                                  // off+2944
+    std::function<void()>                         mUnk3008;                                  // off+3008
+    std::unique_ptr<ProfilingManager>             mProfilingManager;                         // off+3072
+    ServiceRegistrationToken<ProfilingManager>    mProfilingManagerServiceRegistrationToken; // off+3080
+    std::unique_ptr<ServiceDrivenImageRepository> mServiceDrivenImageRepository;             // off+3088
+    std::function<void()>                         mUnk3096;                                  // off+3096
+    std::unique_ptr<CloudFileUploadManager>       mCloudFileUploadManager;                   // off+3160
+    std::unique_ptr<ContentLogFileEndPoint>       mContentLogFileEndPoint;                   // off+3168
+    std::shared_ptr<RealmsAPI>                    mRealms;                                   // off+3176
+    std::unique_ptr<ActiveDirectoryIdentity>      mActiveDirectoryIdentity;                  // off+3192
+    std::unique_ptr<MinecraftInputHandler>        mInput;                                    // off+3200
+    std::function<void()>                         mUnk3208;                                  // off+3208
+    std::unique_ptr<CommandListQueue>             mCommandListQueue;                         // off+3272
+    std::unique_ptr<SeasonsRenderer>              mSeasonsRenderer;                          // off+3280
+    std::unique_ptr<TextureAtlas>                 mTextureAtlas;                             // off+3288
+    std::unique_ptr<GameRenderer>                 mGameRenderer;                             // off+3312
+    std::unique_ptr<UIRepository>                 mUIRepository;                             // off+3304
+    std::unique_ptr<__int64>                      mUnk3412;                                  // off+3412
+    std::function<void()>                         mUnk3320;                                  // off+3320
+    std::unique_ptr<ThirdPartyServerRepository>   mThirdPartyServerRepository;               // off+3384
+    std::unique_ptr<PlayerMessagingService>       mPlayerMessagingService;                   // off+3392
+    std::unique_ptr<CDNService>                   mCDNService;                               // off+3400
+    std::unique_ptr<__int64>                      mUnk3408;                                  // off+3408
+    std::shared_ptr<ServicesManager>              mServicesManager;                          // off+3416
+    ServiceRegistrationToken<ServicesManager>     mServicesManagerServiceRegistrationToken;  // off+3432
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    std::shared_ptr<MarketplaceServicesManager> mMarketplaceServicesManager; // off+3440
+#endif
+    std::unique_ptr<TrialManager>                 mTrialManager;         // off+3456
+    std::unique_ptr<Social::PresenceManager>      mPresenceManager;      // off+3464
+    std::unique_ptr<TreatmentPackDownloadMonitor> mTreatmentPackMonitor; // off+3472
+    std::shared_ptr<mce::TextureGroup>            mStoreCacheTextures;   // off+3480
+    std::unique_ptr<TextToSpeechSystem>           mTTSSystem;            // off+3496
+    std::unique_ptr<MusicManager>                 mMusicManager;         // off+3504
+    std::unique_ptr<ExternalContentManager>       mContentManager;       // off+3512
+#if MC_VERSION <= v1_21_50
+    std::unique_ptr<__int64> mUnk3520; // off+3520
+#endif
+    std::unique_ptr<LibraryRepository>  mLibraryRepository;      // off+3528
+    std::unique_ptr<LevelStorageSource> mLevelStorageSource;     // off+3536
+    std::unique_ptr<LevelListCache>     mLevelListCache;         // off+3544
+    std::unique_ptr<NewPlayerSystem>    mNewPlayerSystem;        // off+3552
+    std::shared_ptr<ContentManager>     mResourceContentManager; // off+3560
+    std::unique_ptr<World::System>      mWorldSystem;            // off+3576
+    std::unique_ptr<Social::System>     mSocialSystem;           // off+3584
+    std::function<void()>               mUnk3592;                // off+3592
+    std::function<void()>               mUnk3656;                // off+3656
+    FontHandle                          mFontHandle;             // off+3720
+    FontHandle                          mRuneFontHandle;         // off+3800
+    FontHandle                          mUnicodeFontHandle;      // off+3880
+    FontHandle                          mSmoothFontLatinHandle;  // off+3960
+    FontHandle                          mUIFontHandle;           // off+4040
+    std::unique_ptr<__int64>            mUnk4120;                // off+4120
+    ServiceRegistrationToken<void>      mUnk4128;                // off+4128
+
+#if MC_VERSION == v1_21_60
+    std::unique_ptr<__int64> mUnk3968; // off+3968
+#endif
+
+    std::unique_ptr<Social::MultiplayerServiceManager> mMultiplayerServiceManager; // off+4136
     ServiceRegistrationToken<Social::MultiplayerServiceManager>
         mMultiplayerServiceManagerServiceRegistrationToken; // off+4144
 
-    std::unique_ptr<EDUSystems>                                 mEDUSystems;               // off+4152
-    std::unique_ptr<ServerInstance>                             mServerInstance;           // off+4160
-    std::array<SerialWorkList, 3>                               mSerialWorkList;           // off+4168
-    std::unique_ptr<TaskGroup>                                  mStorageAreaTaskGroup;     // off+4624
-    std::unique_ptr<TaskGroup>                                  mInitializationTaskGroup;  // off+4632
-    std::unique_ptr<TaskGroup>                                  mServerInitTaskGroup;      // off+4640
-    std::unique_ptr<TaskGroup>                                  mJoinMultiplayerTaskGroup; // off+4648
-    std::shared_ptr<DeferredTasksManager<DeferredTaskCategory>> mDeferredTasks;            // off+4656
+    std::unique_ptr<EDUSystems>     mEDUSystems;     // off+4152
+    std::unique_ptr<ServerInstance> mServerInstance; // off+4160
+    std::array<SerialWorkList, 3>   mSerialWorkList; // off+4168
+
+    std::unique_ptr<TaskGroup> mStorageAreaTaskGroup;    // off+4624
+    std::unique_ptr<TaskGroup> mInitializationTaskGroup; // off+4632
+    std::unique_ptr<TaskGroup> mServerInitTaskGroup;     // off+4640
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    std::unique_ptr<TaskGroup> mJoinMultiplayerTaskGroup; // off+4648
+#endif
+
+    std::shared_ptr<DeferredTasksManager<DeferredTaskCategory>> mDeferredTasks; // off+4656
 
     std::unique_ptr<Bedrock::Threading::PendingConditionals> mPendingConditionals; // off+4672
     ServiceRegistrationToken<Bedrock::Threading::PendingConditionals>
@@ -520,41 +577,60 @@ public:
         int     mUnk44;    // off+44
     };
 
-    Unk4920                                            mUnk4920;                                // off+4920
-    ServiceRegistrationToken<Unk4920>                  mUnk4968;                                // off+4968
-    std::map<__int64, Bedrock::PubSub::Subscription>   mUnk4976;                                // off+4976
-    std::map<__int64, Bedrock::PubSub::Subscription>   mUnk4992;                                // off+4992
-    std::vector<Bedrock::PubSub::Subscription>         mPrimaryUserOptionLockSubscriptions;     // off+5008
-    std::vector<Bedrock::PubSub::Subscription>         mPrimaryUserOptionObserverSubscriptions; // off+5032
-    Bedrock::PubSub::Subscription                      mUnk5056;                                // off+5056
-    std::vector<Bedrock::PubSub::Subscription>         mUnk5072;                                // off+5072
-    std::vector<Bedrock::PubSub::Subscription>         mUnk5096;                                // off+5096
-    Bedrock::PubSub::Subscription                      mUnk5120;                                // off+5120
-    std::unique_ptr<__int64>                           mUnk5136;                                // off+5136
-    std::unique_ptr<GatheringManager>                  mGatheringManager;                       // off+5144
-    std::unique_ptr<__int64>                           mUnk5152;                                // off+5152
-    std::unique_ptr<__int64>                           mUnk5160;                                // off+5160
-    std::unique_ptr<std::string>                       mExternalFilePath;                       // off+5168
-    std::unique_ptr<__int64 /*232*/>                   mUnk5176;                                // off+5176, 14180EAB0
-    ServiceRegistrationToken<void>                     mUnk5184;                                // off+5184
-    std::unique_ptr<__int64>                           mUnk5192;                                // off+5192
-    ServiceRegistrationToken<void>                     mUnk5200;                                // off+5200
-    Bedrock::Threading::IAsyncResult<void>::Handle     mLoadEntitlementCacheHandle;             // off+5208
-    std::unique_ptr<WatchdogTimer>                     mWatchdogTimer;                          // off+5224
-    std::unique_ptr<__int64 /* 56 */>                  mUnk5232;                                // off+5232
-    std::unique_ptr<SceneStack>                        mSceneStack;                             // off+5240
-    ServiceRegistrationToken<SceneStack>               mSceneStackServiceRegistrationToken;     // off+5248
-    std::unique_ptr<__int64>                           mUnk5256;                                // off+5256
-    std::unique_ptr<OreUI::Router>                     mUIRouter;                               // off+5264
-    std::unique_ptr<OreUI::DataProviderManager>        mDataProviderManager;                    // off+5272
-    std::unique_ptr<Realms::RealmsServices>            mRealmsServices;                         // off+5280
-    std::unique_ptr<Realms::RealmsSystem>              mRealmsSystem;                           // off+5288
-    std::unique_ptr<CachedScenes>                      mCachedScenes;                           // off+5296
-    std::function<void()>                              mRouteConfigurationChangeCallback;       // off+5304
-    Bedrock::PubSub::Subscription                      mUnk5368;                                // off+5368
-    Bedrock::NotNullNonOwnerPtr<cereal::ReflectionCtx> mReflectionCtx;                          // off+5384
-    bool                                               mUnk5408;                                // off+5408
-    double                                             mGameUpdateDurationInSeconds;            // off+5416
+    Unk4920                                                mUnk4920;                                // off+4920
+    ServiceRegistrationToken<Unk4920>                      mUnk4968;                                // off+4968
+    std::map<__int64, Bedrock::PubSub::ScopedSubscription> mUnk4976;                                // off+4976
+    std::map<__int64, Bedrock::PubSub::ScopedSubscription> mUnk4992;                                // off+4992
+    std::vector<Bedrock::PubSub::ScopedSubscription>       mPrimaryUserOptionLockSubscriptions;     // off+5008
+    std::vector<Bedrock::PubSub::ScopedSubscription>       mPrimaryUserOptionObserverSubscriptions; // off+5032
+    Bedrock::PubSub::ScopedSubscription                    mUnk5056;                                // off+5056
+
+#if MC_VERSION == v1_21_2
+    Bedrock::PubSub::ScopedSubscription mUnk5216;  // off+5216
+    Bedrock::PubSub::ScopedSubscription mUnk5232a; // off+5232
+    std::unique_ptr<__int64>            mUnk5248;  // off+5248
+#elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    std::vector<Bedrock::PubSub::ScopedSubscription> mUnk5072; // off+5072
+    std::vector<Bedrock::PubSub::ScopedSubscription> mUnk5096; // off+5096
+#endif
+#if MC_VERSION == v1_21_50
+    Bedrock::PubSub::ScopedSubscription mUnk5120; // off+5120
+#endif
+
+    std::unique_ptr<__int8>           mUnk5136;          // off+5136
+    std::unique_ptr<GatheringManager> mGatheringManager; // off+5144
+    std::unique_ptr<__int64>          mUnk5152;          // off+5152
+    std::unique_ptr<__int64>          mUnk5160;          // off+5160
+    std::unique_ptr<std::string>      mExternalFilePath; // off+5168
+    std::unique_ptr<__int64 /*232*/>  mUnk5176;          // off+5176, 14180EAB0
+    ServiceRegistrationToken<void>    mUnk5184;          // off+5184
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    std::unique_ptr<__int64>       mUnk5192; // off+5192
+    ServiceRegistrationToken<void> mUnk5200; // off+5200
+#endif
+    Bedrock::Threading::IAsyncResult<void>::Handle mLoadEntitlementCacheHandle; // off+5208
+#if MC_VERSION == v1_21_2
+    std::unique_ptr<__int64>       mUnk5328; // off+5328
+    ServiceRegistrationToken<void> mUnk5336; // off+5336
+    std::shared_ptr<void>          mUnk5344; // off+5344
+#endif
+    std::unique_ptr<WatchdogTimer>              mWatchdogTimer;                      // off+5224
+    std::unique_ptr<__int64 /* 56 */>           mUnk5232;                            // off+5232
+    std::unique_ptr<SceneStack>                 mSceneStack;                         // off+5240
+    ServiceRegistrationToken<SceneStack>        mSceneStackServiceRegistrationToken; // off+5248
+    std::unique_ptr<__int64>                    mUnk5256;                            // off+5256
+    std::unique_ptr<OreUI::Router>              mUIRouter;                           // off+5264
+    std::unique_ptr<OreUI::DataProviderManager> mDataProviderManager;                // off+5272
+    std::unique_ptr<Realms::RealmsServices>     mRealmsServices;                     // off+5280
+    std::unique_ptr<Realms::RealmsSystem>       mRealmsSystem;                       // off+5288
+    std::unique_ptr<CachedScenes>               mCachedScenes;                       // off+5296
+    std::function<void()>                       mRouteConfigurationChangeCallback;   // off+5304
+#if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+    Bedrock::PubSub::ScopedSubscription                mUnk5368;       // off+5368
+    Bedrock::NotNullNonOwnerPtr<cereal::ReflectionCtx> mReflectionCtx; // off+5384
+    bool                                               mUnk5408;       // off+5408
+#endif
+    double mGameUpdateDurationInSeconds; // off+5416
 
     SDK_API MinecraftGame();
 #pragma SPHR_LINKER_SYM_ALIAS("??0MinecraftGame@@QEAA@XZ", "?ctor@MinecraftGame@@QEAAPEAV1@XZ")
