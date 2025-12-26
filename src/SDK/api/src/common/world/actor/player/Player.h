@@ -88,8 +88,9 @@ public:
 
     virtual void displayChatMessage(
         const std::string &author,
-        const std::string &message,
+        const std::string &message
 #if MC_VERSION >= v1_21_50
+        ,
         const std::optional<std::string> filteredMessage
 #endif
     );

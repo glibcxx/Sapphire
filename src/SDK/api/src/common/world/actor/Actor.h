@@ -29,6 +29,7 @@ class AnimationComponent;
 class ItemStackBase;
 class ActorInteraction;
 class Options;
+class RenderParams;
 struct VariantParameterList;
 struct PlayerMovementSettings;
 namespace SharedTypes::Legacy {
@@ -669,6 +670,11 @@ public:
 
     // vtb+137
     virtual bool _shouldProvideFeedbackOnArmorSet(ArmorSlot slot, const ItemStack &item) const;
+
+#if MC_VERSION == v1_21_2
+    // vtb+144
+    virtual void updateEntitySpecificMolangVariables(RenderParams &renderParams);
+#endif
 
 #if MC_VERSION <= v1_21_50
     // vtb+138
