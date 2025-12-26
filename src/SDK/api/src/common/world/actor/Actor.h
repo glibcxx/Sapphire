@@ -612,7 +612,7 @@ public:
     // vtb+122
     virtual void setAuxValue(int val);
 
-#if MC_VERSION <= v1_21_50
+#if MC_VERSION == v1_21_2
     // vtb+127
     virtual void startSpinAttack();
 
