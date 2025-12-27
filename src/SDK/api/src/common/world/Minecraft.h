@@ -22,6 +22,7 @@ class Timer;
 class PacketSender;
 class IMinecraftApp;
 class NetEventCallback;
+class IContentTierManager;
 namespace Core {
     class FilePathManager;
 }
@@ -63,9 +64,10 @@ public:
     virtual void updateScreens() = 0;
 };
 
-// size: 304 (1.21.50)
+// size: 296 (1.21.2), 304 (1.21.50/1.21.60)
 class Minecraft : public IEntityRegistryOwner {
 public:
+    ;                                                                          // off+(1.21.50/1.21.60)
     GameCallbacks                                     &mGameCallbacks;         // off+24
     IMinecraftEventing                                &mEventing;              // off+32
     std::unique_ptr<ResourcePackManager>               mResourceLoader;        // off+40
@@ -95,8 +97,60 @@ public:
     OwnerPtr<EntityRegistry>                           mEntityRegistry;        // off+280
     std::unique_ptr<void>                              mLevelSubscribers;      // off+296
 
+    SDK_API Minecraft(
+        IMinecraftApp                                                &app,
+        GameCallbacks                                                &gameCallbacks,
+        AllowList                                                    &allowList,
+        PermissionsFile                                              *permissionsFile,
+        const Bedrock::NotNullNonOwnerPtr<Core::FilePathManager>     &filePathManager,
+        std::chrono::seconds                                          maxPlayerIdleTime,
+        IMinecraftEventing                                           &eventing,
+        ClientOrServerNetworkSystemRef                                network,
+        PacketSender                                                 &packetSender,
+        SubClientId                                                   clientSubId,
+        Timer                                                        &simTimer,
+        Timer                                                        &realTimer,
+        const Bedrock::NotNullNonOwnerPtr<const IContentTierManager> &contentTierManager,
+        ServerMetrics                                                *serverMetrics
+    );
+#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                                                                                                                                                             \
+    "??0Minecraft@@QEAA@AEAVIMinecraftApp@@AEAVGameCallbacks@@AEAVAllowList@@PEAVPermissionsFile@@AEBV?$not_null@V?$NonOwnerPointer@VFilePathManager@Core@@@Bedrock@@@gsl@@V?$duration@_JU?$ratio@$00$00@std@@@chrono@std@@AEAVIMinecraftEventing@@VClientOrServerNetworkSystemRef@@AEAVPacketSender@@EAEAVTimer@@9AEBV?$not_null@V?$NonOwnerPointer@$$CBVIContentTierManager@@@Bedrock@@@6@PEAVServerMetrics@@@Z",        \
+    "?ctor@Minecraft@@QEAAPEAV1@AEAVIMinecraftApp@@AEAVGameCallbacks@@AEAVAllowList@@PEAVPermissionsFile@@AEBV?$not_null@V?$NonOwnerPointer@VFilePathManager@Core@@@Bedrock@@@gsl@@V?$duration@_JU?$ratio@$00$00@std@@@chrono@std@@AEAVIMinecraftEventing@@VClientOrServerNetworkSystemRef@@AEAVPacketSender@@EAEAVTimer@@9AEBV?$not_null@V?$NonOwnerPointer@$$CBVIContentTierManager@@@Bedrock@@@7@PEAVServerMetrics@@@Z" \
+)
+
+    SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xE1\x49\x8B\xD8\x4C\x8B\xEA")
+    SPHR_DECL_API("1.21.50,1.21.60", "disp:7,call", "\x48\x8B\x55\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xC3")
+    SDK_API Minecraft *ctor(
+        IMinecraftApp                                                &app,
+        GameCallbacks                                                &gameCallbacks,
+        AllowList                                                    &allowList,
+        PermissionsFile                                              *permissionsFile,
+        const Bedrock::NotNullNonOwnerPtr<Core::FilePathManager>     &filePathManager,
+        std::chrono::seconds                                          maxPlayerIdleTime,
+        IMinecraftEventing                                           &eventing,
+        ClientOrServerNetworkSystemRef                                network,
+        PacketSender                                                 &packetSender,
+        SubClientId                                                   clientSubId,
+        Timer                                                        &simTimer,
+        Timer                                                        &realTimer,
+        const Bedrock::NotNullNonOwnerPtr<const IContentTierManager> &contentTierManager,
+        ServerMetrics                                                *serverMetrics
+    );
+
     // vtb+0
     virtual ~Minecraft() override;
+
+    // vtb+3
+    virtual void setSimTimePause(bool pause);
+
+    // vtb+4
+    virtual void setSimTimeScale(float scale);
+
+    // vtb+5
+    virtual bool getSimPaused() const;
+
+    // vtb+6
+    virtual bool isOnlineClient() const;
 
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x4C\x24\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\xBA\x00\x00\x00\x00\x48\x8B\x00\xFF\x15\x00\x00\x00\x00\x90\x48\x8B\x1F")
     SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x8B\x00\x00\x00\x00\x48\x8B\x49\x00\xE8")

@@ -65,8 +65,8 @@ public:
                     const BlockPos &,
                     ActorUniqueID
                 )>>>
-                                  mRegisteredInGameScreens; // off+152
-    Bedrock::PubSub::Subscription mUnk216;                  // off+216
+                                        mRegisteredInGameScreens; // off+152
+    Bedrock::PubSub::ScopedSubscription mUnk216;                  // off+216
 
     SDK_API SceneFactory(
         IMinecraftGame                                              &minecraft,

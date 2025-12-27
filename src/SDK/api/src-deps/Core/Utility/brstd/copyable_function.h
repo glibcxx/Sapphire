@@ -7,13 +7,13 @@ namespace brstd {
     // TODO: implement this shit
 
     template <typename T>
-    class move_only_function {
+    class copyable_function {
         static_assert(false, "Template Argument must be a function type");
     };
 
     // size: 64
     template <typename Ret, typename... Args>
-    class move_only_function<Ret(Args...)> {
+    class copyable_function<Ret(Args...)> {
     public:
         void *functor;
         union alignas(max_align_t) {
@@ -21,7 +21,7 @@ namespace brstd {
             void     *heap;
         };
 
-        move_only_function() = delete;
+        copyable_function() = delete;
     };
 
 } // namespace brstd

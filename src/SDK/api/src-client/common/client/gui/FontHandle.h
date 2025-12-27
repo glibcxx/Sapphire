@@ -10,8 +10,8 @@ class Font;
 // size: 80
 class FontHandle : public Bedrock::EnableNonOwnerReferences {
 public:
-    Bedrock::NonOwnerPointer<FontRepository> mUnk24;
-    std::shared_ptr<Font>                    mUnk48;
+    Bedrock::NonOwnerPointer<FontRepository> mUnk24;         // off+24
+    std::shared_ptr<Font>                    mUnk48;         // off+48
     uint64_t                                 mFontId;        // off+64
     bool                                     mIsDummyHandle; // off+72
 
