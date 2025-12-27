@@ -5,6 +5,8 @@
 class Minecraft;
 class IGameModuleShared;
 class FileArchiver;
+class EDUSystems;
+class IClientInstance;
 namespace Automation {
     class AutomationClient;
 }
@@ -16,26 +18,32 @@ public:
     virtual ~IMinecraftApp();
 
     // vtb+1
-    virtual Bedrock::NotNullNonOwnerPtr<Minecraft> getPrimaryMinecraft() = 0;
+    virtual Bedrock::NonOwnerPointer<EDUSystems> getEDUSystems() = 0;
 
     // vtb+2
-    virtual Bedrock::NotNullNonOwnerPtr<Automation::AutomationClient> getAutomationClient() const = 0;
+    virtual const Bedrock::NonOwnerPointer<EDUSystems> getEDUSystems() const = 0;
 
     // vtb+3
-    virtual bool isEduMode() const = 0;
+    virtual Bedrock::NotNullNonOwnerPtr<IClientInstance> getPrimaryClientInstance() = 0;
 
     // vtb+4
-    virtual bool isDedicatedServer() const = 0;
+    virtual Bedrock::NotNullNonOwnerPtr<void> unk_virtual_4();
 
     // vtb+5
-    virtual void onNetworkMaxPlayersChanged(uint32_t newMaxPlayerCount) = 0;
+    virtual bool isEduMode() const = 0;
 
     // vtb+6
-    virtual IGameModuleShared &getGameModule() = 0;
+    virtual bool isDedicatedServer() const = 0;
 
     // vtb+7
-    virtual void requestServerShutdown(const std::string &) = 0;
+    virtual void onNetworkMaxPlayersChanged(uint32_t newMaxPlayerCount) = 0;
 
     // vtb+8
+    virtual IGameModuleShared &getGameModule() = 0;
+
+    // vtb+9
+    virtual void requestServerShutdown(const std::string &message) = 0;
+
+    // vtb+10
     virtual Bedrock::NotNullNonOwnerPtr<FileArchiver> getFileArchiver() const = 0;
 };

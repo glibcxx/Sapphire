@@ -443,7 +443,7 @@ public:
     std::unique_ptr<SaveTransactionManager>                 mSaveTransactionManager; // off+2552
     std::unique_ptr<HolographicPlatform>                    mPrimaryClientHoloInput; // off+2560
     std::unique_ptr<IDlcValidation>                         mDlcValidation;          // off+2568
-    std::unique_ptr<__int64>                                mUnk2576;                // off+2576
+    std::unique_ptr<FileArchiver>                           mFileArchiver;           // off+2576
     std::function<void()>                                   mUnk2584;                // off+2584
     char                                                    mUnk2648;                // off+2648
 
