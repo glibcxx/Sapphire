@@ -41,7 +41,7 @@ public:
     std::shared_ptr<void>                        mUnk336; // off+336
 
     SDK_API RenderChunkCoordinator(Level &level, LevelRenderer &levelRenderer, AutomaticID<Dimension, int> dimensionID);
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                               \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                               \
     "??0RenderChunkCoordinator@@QEAA@AEAVLevel@@AEAVLevelRenderer@@V?$AutomaticID@VDimension@@H@@@Z",        \
     "?ctor@RenderChunkCoordinator@@QEAAPEAV1@AEAVLevel@@AEAVLevelRenderer@@V?$AutomaticID@VDimension@@H@@@Z" \
 )

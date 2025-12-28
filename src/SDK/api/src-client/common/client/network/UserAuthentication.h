@@ -26,7 +26,7 @@ public:
     TaskGroup                                             mTaskGroup;                  // off+200
 
     SDK_API UserAuthentication(std::weak_ptr<IClientInstance> client, uint64_t clientRandomId, const std::string &a3);
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                   \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                   \
     "??0UserAuthentication@@QEAA@V?$weak_ptr@VIClientInstance@@@std@@_KAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@2@@Z",        \
     "?ctor@UserAuthentication@@QEAAPEAV1@V?$weak_ptr@VIClientInstance@@@std@@_KAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@@Z" \
 )

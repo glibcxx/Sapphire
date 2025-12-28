@@ -21,7 +21,7 @@ public:
         bool                              renderingGUI,
         const AirAndSimpleBlockBits      *airAndSimpleBlocks
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                                             \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                             \
     "??0BlockOccluder@@QEAA@AEAVBlockTessellatorCache@@AEBVBlock@@AEBVBlockPos@@AEBVAABB@@AEBV?$vector@EV?$allocator@E@std@@@std@@_NPEBUAirAndSimpleBlockBits@@@Z",        \
     "?ctor@BlockOccluder@@QEAAPEAV1@AEAVBlockTessellatorCache@@AEBVBlock@@AEBVBlockPos@@AEBVAABB@@AEBV?$vector@EV?$allocator@E@std@@@std@@_NPEBUAirAndSimpleBlockBits@@@Z" \
 )

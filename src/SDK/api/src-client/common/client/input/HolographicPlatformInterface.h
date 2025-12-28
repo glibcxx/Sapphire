@@ -122,7 +122,7 @@ public:
         Matrix             mVRTransitionMatrixPatch;                            // off+440
 
         SDK_API HoloFrameOfReferenceSetupData();
-#pragma SPHR_LINKER_SYM_ALIAS("??0HoloFrameOfReferenceSetupData@HolographicPlatform@@QEAA@XZ", "?ctor@HoloFrameOfReferenceSetupData@HolographicPlatform@@QEAAPEAU12@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0HoloFrameOfReferenceSetupData@HolographicPlatform@@QEAA@XZ", "?ctor@HoloFrameOfReferenceSetupData@HolographicPlatform@@QEAAPEAU12@XZ")
 
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x33\xC0\x48\xC7\x41\x00\x00\x00\x00\x00\x48\x89\x01\x48\x89\x41\x00\x89\x41")
         SDK_API HoloFrameOfReferenceSetupData *ctor();
@@ -184,7 +184,7 @@ public:
     bool                                 mRecenterGazeActivationOriginPoint;       // off+894
 
     SDK_API HolographicPlatform();
-#pragma SPHR_LINKER_SYM_ALIAS("??0HolographicPlatform@@QEAA@XZ", "?ctor@HolographicPlatform@@QEAAPEAV1@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0HolographicPlatform@@QEAA@XZ", "?ctor@HolographicPlatform@@QEAAPEAV1@XZ")
 
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x83\xC1\x00\xE8")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x83\xC1\x00\xE8")

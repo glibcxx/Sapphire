@@ -67,7 +67,7 @@ namespace mce::framebuilder {
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &scheduler
         );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                         \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                         \
     "??0BgfxFrameBuilder@framebuilder@mce@@QEAA@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z",          \
     "?ctor@BgfxFrameBuilder@framebuilder@mce@@QEAAPEAV123@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z" \
 )

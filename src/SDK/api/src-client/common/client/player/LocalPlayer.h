@@ -27,7 +27,7 @@ public:
         std::unique_ptr<Certificate> certificate,
         EntityContext               &entityContext
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                    \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                    \
     "??0LocalPlayer@@QEAA@AEAVIClientInstance@@AEAVLevel@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4GameType@@_NAEBVNetworkIdentifier@@EVUUID@mce@@22V?$unique_ptr@VCertificate@@U?$default_delete@VCertificate@@@std@@@4@AEAVEntityContext@@@Z",        \
     "?ctor@LocalPlayer@@QEAAPEAV1@AEAVIClientInstance@@AEAVLevel@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4GameType@@_NAEBVNetworkIdentifier@@EVUUID@mce@@22V?$unique_ptr@VCertificate@@U?$default_delete@VCertificate@@@std@@@5@AEAVEntityContext@@@Z" \
 )

@@ -38,7 +38,7 @@ public:
         const Vec3                        &renderDimOffset,
         const bool                         hasWaterHole
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                  \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                  \
     "??0ActorRenderer@@QEAA@V?$shared_ptr@VModel@@@std@@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z",        \
     "?ctor@ActorRenderer@@QEAAPEAV1@V?$shared_ptr@VModel@@@std@@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z" \
 )
@@ -46,7 +46,7 @@ public:
     SDK_API ActorRenderer(
         std::shared_ptr<mce::TextureGroup> textures, const Vec2 &renderDim, const Vec3 &renderDimOffset, const bool hasWaterHole
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                      \
+#pragma SDK_LINKER_SYM_ALIAS(                                                      \
     "??0ActorRenderer@@QEAA@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z",        \
     "?ctor@ActorRenderer@@QEAAPEAV1@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z" \
 )

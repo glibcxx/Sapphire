@@ -32,8 +32,8 @@ namespace dragon::materials {
         UniformDataVector<MaterialUniform::UnknownParameter>  mUnk96;                // off+96
         uint64_t                                              mStateHash;            // off+112
 
-        MaterialUniformMap(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                \
+        SDK_API MaterialUniformMap(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                \
     "??0MaterialUniformMap@materials@dragon@@QEAA@AEBU012@AEAV?$CheckedRingBuffer@$01$0A@@Core@@@Z",          \
     "?ctor@MaterialUniformMap@materials@dragon@@QEAAPEAU123@AEBU123@AEAV?$CheckedRingBuffer@$01$0A@@Core@@@Z" \
 )

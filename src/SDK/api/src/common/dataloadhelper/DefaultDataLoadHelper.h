@@ -9,7 +9,7 @@ public:
     SDK_API static const uintptr_t __vftable[];
 
     SPHR_API DefaultDataLoadHelper();
-#pragma SPHR_LINKER_SYM_ALIAS("??0DefaultDataLoadHelper@@QEAA@XZ", "?ctor@DefaultDataLoadHelper@@QEAAPEAV1@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0DefaultDataLoadHelper@@QEAA@XZ", "?ctor@DefaultDataLoadHelper@@QEAAPEAV1@XZ")
 
     SPHR_API DefaultDataLoadHelper *ctor();
 

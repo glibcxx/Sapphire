@@ -58,7 +58,7 @@ public:
     std::weak_ptr<mce::BufferResourceService>     mBufferResourceService;         // off+184
 
     SDK_API RenderChunkInstanced();
-#pragma SPHR_LINKER_SYM_ALIAS(                 \
+#pragma SDK_LINKER_SYM_ALIAS(                 \
     "??0RenderChunkInstanced@@QEAA@XZ",        \
     "?ctor@RenderChunkInstanced@@QEAAPEAV1@XZ" \
 )

@@ -59,7 +59,7 @@ public:
     }
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
     SDK_API BinaryStream(std::string &buffer, bool copyBuffer);
-#    pragma SPHR_LINKER_SYM_ALIAS(                                                                            \
+#    pragma SDK_LINKER_SYM_ALIAS(                                                                            \
         "??0BinaryStream@@QEAA@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z",        \
         "?ctor@BinaryStream@@QEAAPEAV1@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z" \
     )

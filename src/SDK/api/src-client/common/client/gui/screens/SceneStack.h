@@ -95,7 +95,7 @@ public:
     SDK_API SceneStack(
         CachedScenes &cachedScenes, const Bedrock::NotNullNonOwnerPtr<UIEventCoordinator> &uiEventCoordinator
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                \
     "??0SceneStack@@QEAA@AEAVCachedScenes@@AEBV?$not_null@V?$NonOwnerPointer@VUIEventCoordinator@@@Bedrock@@@gsl@@@Z",        \
     "?ctor@SceneStack@@QEAAPEAV1@AEAVCachedScenes@@AEBV?$not_null@V?$NonOwnerPointer@VUIEventCoordinator@@@Bedrock@@@gsl@@@Z" \
 )

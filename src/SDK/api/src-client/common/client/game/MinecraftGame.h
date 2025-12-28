@@ -634,7 +634,7 @@ public:
     double mGameUpdateDurationInSeconds; // off+5416
 
     SDK_API MinecraftGame();
-#pragma SPHR_LINKER_SYM_ALIAS("??0MinecraftGame@@QEAA@XZ", "?ctor@MinecraftGame@@QEAAPEAV1@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0MinecraftGame@@QEAA@XZ", "?ctor@MinecraftGame@@QEAAPEAV1@XZ")
 
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xF9\x33\xF6")
     SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x89\x4C\x24\x00\x33\xED")

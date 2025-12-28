@@ -74,7 +74,7 @@ public:
         const Bedrock::NotNullNonOwnerPtr<IAdvancedGraphicsOptions> &graphicsOptions,
         OreUI::SceneProvider                                        &sceneProvider
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                                                                                                    \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                    \
     "??0SceneFactory@@QEAA@AEAVIMinecraftGame@@AEBV?$not_null@V?$NonOwnerPointer@VIClientInstance@@@Bedrock@@@gsl@@AEBV?$not_null@V?$NonOwnerPointer@VIAdvancedGraphicsOptions@@@Bedrock@@@3@AEAVSceneProvider@OreUI@@@Z",        \
     "?ctor@SceneFactory@@QEAAPEAV1@AEAVIMinecraftGame@@AEBV?$not_null@V?$NonOwnerPointer@VIClientInstance@@@Bedrock@@@gsl@@AEBV?$not_null@V?$NonOwnerPointer@VIAdvancedGraphicsOptions@@@Bedrock@@@4@AEAVSceneProvider@OreUI@@@Z" \
 )
@@ -91,7 +91,7 @@ public:
 
     // vtb+0
     SDK_API virtual ~SceneFactory();
-#pragma SPHR_LINKER_SYM_ALIAS("??1SceneFactory@@UEAA@XZ", "?dtor@SceneFactory@@QEAAXXZ")
+#pragma SDK_LINKER_SYM_ALIAS("??1SceneFactory@@UEAA@XZ", "?dtor@SceneFactory@@QEAAXXZ")
 
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x8B\x41\x00\x48\x85\xC0\x0F\x84\x00\x00\x00\x00\x48\x83\x38\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x41\x00\x48\x85\xC0\x74\x00\xF0\xFF\x40\x00\x48\x8B\x41\x00\x48\x8B\x79\x00\x48\x8B\x08")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x48\x8B\xD9\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x48\x8B\x41\x00\x48\x85\xC0\x0F\x84\x00\x00\x00\x00\x80\x38\x00\x0F\x84\x00\x00\x00\x00\x48\x8B\x41\x00\x48\x85\xC0\x74\x00\xF0\xFF\x40\x00\x48\x8B\x71\x00\x48\x8B\x49")

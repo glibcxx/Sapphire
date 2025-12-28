@@ -160,7 +160,7 @@ namespace bgfx {
             float           m_totalOccupancy;       // off+248
 
             SDK_API BufferHeapBlock();
-#pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeapBlock@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeapBlock@d3d12@bgfx@@QEAAPEAV123@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0BufferHeapBlock@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeapBlock@d3d12@bgfx@@QEAAPEAV123@XZ")
 
             SPHR_DECL_API("1.21.50", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x33\xDB\x48\x85\xDB") // 1.21.50
             SDK_API BufferHeapBlock *ctor();
@@ -202,7 +202,7 @@ namespace bgfx {
             Heaps m_heaps; // off+376
 
             SDK_API BufferHeap();
-#pragma SPHR_LINKER_SYM_ALIAS("??0BufferHeap@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeap@d3d12@bgfx@@QEAAPEAV123@XZ")
+#pragma SDK_LINKER_SYM_ALIAS("??0BufferHeap@d3d12@bgfx@@QEAA@XZ", "?ctor@BufferHeap@d3d12@bgfx@@QEAAPEAV123@XZ")
 
             SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x33\xFF\x0F\x57\xC0\x0F\x11\x01") // 1.21.50
             SDK_API BufferHeap *ctor();

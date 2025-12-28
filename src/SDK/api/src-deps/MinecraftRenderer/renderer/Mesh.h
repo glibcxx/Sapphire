@@ -35,14 +35,14 @@ namespace mce {
         SDK_API bool isValid() const;
 
         SDK_API Mesh(Mesh &&other);
-#pragma SPHR_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
+#pragma SDK_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xC8\xEB\x00\x33\xC9\x48\x89\x4C\x24")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x33\xF6\xEB\x00\x33\xF6\x8B\xC6\x48\x89\x44\x24")
         SDK_API Mesh *ctor(mce::Mesh &&c);
 
         SDK_API ~Mesh() noexcept;
-#pragma SPHR_LINKER_SYM_ALIAS("??1Mesh@mce@@QEAA@XZ", "?dtor@Mesh@mce@@QEAAXXZ")
+#pragma SDK_LINKER_SYM_ALIAS("??1Mesh@mce@@QEAA@XZ", "?dtor@Mesh@mce@@QEAAXXZ")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x83\xC3\x00\x48\x3B\xDF\x75\x00\x48\x8B\x7C\x24\x00\x48\x8B\x5C\x24\x00\xC6\x86")
         SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x8B")

@@ -71,7 +71,7 @@ public:
     dragon::RenderMetadata                             mRenderMetadata;              // off+136
 
     SDK_API RenderChunkShared(const BlockPos &p);
-#pragma SPHR_LINKER_SYM_ALIAS("??0RenderChunkShared@@QEAA@AEBVBlockPos@@@Z", "?ctor@RenderChunkShared@@QEAAPEAV1@AEBVBlockPos@@@Z")
+#pragma SDK_LINKER_SYM_ALIAS("??0RenderChunkShared@@QEAA@AEBVBlockPos@@@Z", "?ctor@RenderChunkShared@@QEAAPEAV1@AEBVBlockPos@@@Z")
 
     SPHR_DECL_API("1.21.50", "\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xFD\xC7\x44\x24")
     SDK_API RenderChunkShared *ctor(const BlockPos &p);

@@ -31,7 +31,7 @@ public:
 #endif
 
     SDK_API MovingBlockActorRenderer(std::shared_ptr<mce::TextureGroup> textures, BlockTessellator &blockTessellator);
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                  \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                  \
     "??0MovingBlockActorRenderer@@QEAA@V?$shared_ptr@VTextureGroup@mce@@@std@@AEAVBlockTessellator@@@Z",        \
     "?ctor@MovingBlockActorRenderer@@QEAAPEAV1@V?$shared_ptr@VTextureGroup@mce@@@std@@AEAVBlockTessellator@@@Z" \
 )
