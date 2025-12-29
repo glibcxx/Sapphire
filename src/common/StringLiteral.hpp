@@ -14,4 +14,9 @@ namespace util {
         constexpr std::string_view view() const { return {value, N}; }
     };
 
+    template <StringLiteral S>
+    struct StaticString {
+        static constexpr util::StringLiteral storage = S;
+    };
+
 } // namespace util
