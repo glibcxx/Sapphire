@@ -44,7 +44,7 @@ namespace sapphire::refl {
 #if defined(__clang__) || defined(__GNUC__)
             prettyName = prettyName.substr(0, prettyName.size() - 1).substr(prettyName.find_last_of('=') + 2);
 #elif defined(_MSC_VER)
-            prettyName = prettyName.substr(0, prettyName.size() - 7).substr(prettyName.find_last_of('<') + 1);
+            prettyName = prettyName.substr(0, prettyName.size() - 7).substr(prettyName.find_first_of('<') + 1);
 #else
             static_assert(false, "Unsupported compiler.");
 #endif
