@@ -36,11 +36,11 @@ public:
 // size: 16
 class CommandPosition {
 public:
-    Vec3 mOffset;    // off+0
-    bool mRelativeX; // off+12
-    bool mRelativeY; // off+13
-    bool mRelativeZ; // off+14
-    bool mLocal;     // off+15
+    Vec3 mOffset{};         // off+0
+    bool mRelativeX = true; // off+12
+    bool mRelativeY = true; // off+13
+    bool mRelativeZ = true; // off+14
+    bool mLocal = false;    // off+15
 };
 
 // size: 16
