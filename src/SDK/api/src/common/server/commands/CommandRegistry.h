@@ -46,6 +46,8 @@ enum class CommandParameterOption : uint8_t {
     EnumAsChainedCommand = 4,
 };
 
+// https://github.com/LiteLDev/LeviLamina/blob/565421538b623fef8d5cf2f96450809fb9b94613/src/mc/server/commands/CommandRegistry.h#L44
+
 // size: 912 (1.21.2), 920 (1.21.50), 928 (1.21.60)
 class CommandRegistry {
 public:

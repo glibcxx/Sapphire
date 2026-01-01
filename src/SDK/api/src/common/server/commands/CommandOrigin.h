@@ -85,7 +85,7 @@ public:
     virtual SubClientId getSourceSubId() const;
 
     // vtb+21
-    virtual CommandOrigin const &getOutputReceiver() const;
+    virtual const CommandOrigin &getOutputReceiver() const;
 
     // vtb+22
     virtual CommandOriginIdentity getIdentity() const;
@@ -120,5 +120,5 @@ public:
 #endif
 
     // vtb+32
-    virtual void _setUUID(::mce::UUID const &uuid);
+    virtual void _setUUID(const mce::UUID &uuid);
 };

@@ -1,19 +1,21 @@
 #pragma once
 
+#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src/common/server/commands/CommandRegistry.h"
 #include "common/reflection/Reflection.hpp"
 #include "CommandFactory.h"
 #include "CommandParam.h"
 #include "Command.h"
 
+class Minecraft;
+
 namespace sapphire::command {
 
     class CommandRegistryM {
-        CommandRegistry                &mRegistry;
+        CommandRegistry                *mRegistry = nullptr;
         std::unordered_set<std::string> mCommandTextStorage;
 
-        CommandRegistryM(CommandRegistry &registry) :
-            mRegistry(registry) {}
+        CommandRegistryM() = default;
 
         friend class CommandHandle;
 
@@ -36,7 +38,7 @@ namespace sapphire::command {
             for (auto [value, name] : refl::enumNames<E>) {
                 evParams.emplace_back(name, value);
             }
-            mRegistry.addEnumValues<E>(std::string{refl::typeName<E>}, evParams);
+            mRegistry->addEnumValues<E>(std::string{refl::typeName<E>}, evParams);
         }
     };
 
@@ -57,7 +59,7 @@ namespace sapphire::command {
             auto &overload = mSig.overloads.emplace_back(
                 CommandVersion{}, &TCommandFactory::factory(std::forward<Execute>(exe)...)
             );
-            mRegistry.mRegistry.registerOverloadInternal(mSig, overload);
+            mRegistry.mRegistry->registerOverloadInternal(mSig, overload);
         }
 
         template <typename... ParamStorages, typename... Execute>
@@ -82,7 +84,7 @@ namespace sapphire::command {
                             auto &ph = *mRegistry.mCommandTextStorage
                                             .emplace(std::format("sapphire.cmd.text_placeholder.{}.{}", name, idx))
                                             .first;
-                            mRegistry.mRegistry.addEnumValues<TextPlaceholder>(
+                            mRegistry.mRegistry->addEnumValues<TextPlaceholder>(
                                 ph,
                                 {
                                     {std::string{name}, TextPlaceholder{0}}
@@ -129,7 +131,7 @@ namespace sapphire::command {
                         }
                     }
                 );
-                mRegistry.mRegistry.registerOverloadInternal(mSig, overload);
+                mRegistry.mRegistry->registerOverloadInternal(mSig, overload);
             }(),
              ...);
         }
@@ -140,10 +142,10 @@ namespace sapphire::command {
         const std::string     &description,
         CommandPermissionLevel requirement
     ) {
-        auto *sig = mRegistry.findCommand(name);
+        auto *sig = mRegistry->findCommand(name);
         if (!sig) {
-            mRegistry.registerCommand(name, description.data(), requirement);
-            sig = mRegistry.findCommand(name);
+            mRegistry->registerCommand(name, description.data(), requirement);
+            sig = mRegistry->findCommand(name);
             assert(sig);
         }
         return {*sig, *this};

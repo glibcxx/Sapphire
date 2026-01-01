@@ -31,6 +31,8 @@ enum class CommandSelectionOrder : int {
 
 using CommandResultVector = std::shared_ptr<std::vector<Actor *>>;
 
+// https://github.com/LiteLDev/LeviLamina/blob/565421538b623fef8d5cf2f96450809fb9b94613/src/mc/server/commands/CommandSelector.h#L11
+
 class CommandSelectorBase {
 public:
     using FilterFunc = std::function<bool(const CommandOrigin &, const Actor &)>;
