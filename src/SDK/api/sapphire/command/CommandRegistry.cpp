@@ -1,4 +1,4 @@
-#include "Command.h"
+#include "CommandRegistry.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "SDK/api/src/common/server/commands/MinecraftCommands.h"
 
