@@ -122,6 +122,7 @@ class CachedScenes;
 class WatchdogTimer;
 class ChunkPerformanceData;
 class ScopedCPUBoost;
+struct TimePlayedNotifier;
 template <typename T>
 class DeferredTasksManager;
 namespace World {
@@ -243,8 +244,8 @@ public:
     ServiceRegistrationToken<ContentLog>          mContentLogServiceRegistrationToken; // off+304
     std::unique_ptr<GuiContentLogEndPoint>        mContentLogGuiEndPoint;              // off+312
     std::unique_ptr<__int64>                      mUnk320;                             // off+320
-    __int64                                       mUnk328;                             // off+328
-    std::unique_ptr<__int64>                      mUnk336;                             // off+336
+    double                                        mLastRealWorldTime;                  // off+328
+    std::unique_ptr<TimePlayedNotifier>           mTimePlayedNotifier;                 // off+336
     std::unique_ptr<GlobalResourcesCrashRecovery> mGlobalResourcesCrashRecovery;       // off+344
     std::unique_ptr<MinecraftGraphics>            mMinecraftGraphics;                  // off+352
     std::unique_ptr<__int64>                      mUnk360;                             // off+360
@@ -281,11 +282,11 @@ public:
     std::unique_ptr<WebSocketCommManager>                      mWebSocketCommunicatorManager;           // off+872
     std::set<SubClientId>                                      mSubclientRemovalSet;                    // off+880
 #if MC_VERSION == v1_21_2
-    __int64 mUnk904a[3]; // off+904
-    __int32 mUnk928;     // off+928
+    __int64 mUnk904[3]; // off+904
+    __int32 mUnk928;    // off+928
 #endif
     std::atomic<SuspendState>                      mSuspended;                             // off+900
-    bool                                           mUnk904;                                // off+904
+    bool                                           mRunServerWhileSuspended;               // off+904
     int                                            mUnk908;                                // off+908
     ResetCallbackObject                           *mResetCallbackObj;                      // off+912
     std::unique_ptr<PixelCalc>                     mPixelCalc;                             // off+920
@@ -297,7 +298,9 @@ public:
 #if MC_VERSION == v1_21_2
     __int64 mUnk1000[3]; // off+1000
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
-    __int64 mUnk1000[4]; // off+1000
+    __int64                               mUnk1000;        // off+1000
+    std::chrono::steady_clock::time_point mEndOfLastFrame; // off+1008
+    __int64                               mUnk1016[2];     // off+1016
 #endif
     __int8                               mUnk1032;                   // off+1032
     uint32_t                             mUIRenderClientMask;        // off+1036

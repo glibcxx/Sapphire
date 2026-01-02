@@ -12,6 +12,9 @@
 
 class WorkerPool;
 class Scheduler;
+namespace bgfx {
+    struct Init;
+}
 
 namespace dragon::task {
 
@@ -50,10 +53,10 @@ namespace dragon::task {
         };
 
         struct InitBgfx {
-            std::shared_ptr<void /*bgfx::Init*/> mInitParameters; // off+0
-            bool                                 mUnk16;          // off+16
-            ExecutionMode                        mMode;           // off+20
-            bool                                 mUnk24;          // off+24
+            std::shared_ptr<bgfx::Init> mInitParameters; // off+0
+            bool                        mUnk16;          // off+16
+            ExecutionMode               mMode;           // off+20
+            bool                        mUnk24;          // off+24
         };
 
         struct InitBegin : InitBgfx {};

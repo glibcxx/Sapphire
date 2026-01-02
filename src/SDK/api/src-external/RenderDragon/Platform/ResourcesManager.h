@@ -35,6 +35,7 @@ namespace dragon::platform {
         dragon::MaterialResourceService              mMaterialResourceService;              // off+1488
         dragon::TextureResourceService               mTextureResourceService;               // off+1616
         dragon::AccelerationStructureResourceService mAccelerationStructureResourceService; // off+1688
+        dragon::Unk1768ResourceService               mUnk1768;                              // off+1768
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x49\x8B\xDC\x48\x8B\x36")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xC4\x49\x8B\x3E")

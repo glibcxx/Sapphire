@@ -157,6 +157,8 @@ namespace bgfx {
         float   mMipmapBias; // off+12
     };
 
+    struct RayTracingConfiguration {};
+
     // size: 1
     struct RendererType {
         enum Enum : int {

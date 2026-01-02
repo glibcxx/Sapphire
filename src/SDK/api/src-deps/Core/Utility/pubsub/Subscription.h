@@ -23,4 +23,10 @@ namespace Bedrock::PubSub {
         ~ScopedSubscription() { disconnect(); }
     };
 
+    // size: 16
+    class RawSubscription : public Subscription {};
+
+    // size: 16
+    class DeferredSubscription : public Subscription {};
+
 } // namespace Bedrock::PubSub
