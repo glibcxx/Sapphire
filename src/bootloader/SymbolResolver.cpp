@@ -133,7 +133,7 @@ namespace sapphire::bootloader {
             uintptr_t foundAddress =
                 memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
             completedTasks.fetch_add(1, std::memory_order_relaxed);
-            co_return ScanResult{&entry, applyOperations(foundAddress, entry.mOperations)};
+            co_return ScanResult{&entry, foundAddress ? applyOperations(foundAddress, entry.mOperations) : 0};
         };
 
         auto mainTask = [&](coro::StaticThreadPool &pool, coro::IoContext &ioCtx) -> coro::Task<> {
