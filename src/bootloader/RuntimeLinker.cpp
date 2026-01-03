@@ -54,11 +54,12 @@ BOOL WINAPI FakeDllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 }
 
 void sapphire::bootloader::RuntimeLinker::forceDllMainToFail(RuntimeLinker *self, HMODULE hDll) {
-    PIMAGE_DOS_HEADER pDos = (PIMAGE_DOS_HEADER)hDll;
-    PIMAGE_NT_HEADERS pNt = (PIMAGE_NT_HEADERS)(hDll + pDos->e_lfanew);
+    auto pImageBase = reinterpret_cast<PBYTE>(hDll);
+    auto pDosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(pImageBase);
+    auto pNtHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(pImageBase + pDosHeader->e_lfanew);
 
-    if (pNt->OptionalHeader.AddressOfEntryPoint == 0) return;
-    LPVOID pEntryPoint = (LPVOID)(hDll + pNt->OptionalHeader.AddressOfEntryPoint);
+    if (pNtHeaders->OptionalHeader.AddressOfEntryPoint == 0) return;
+    auto pEntryPoint = reinterpret_cast<LPVOID>(pImageBase + pNtHeaders->OptionalHeader.AddressOfEntryPoint);
 
     if (MH_CreateHook(pEntryPoint, (LPVOID)&FakeDllMain, NULL) != MH_OK) {
         self->mIPCClient.send(ipc::status::Error, "Failed to create EntryPoint hook.");
