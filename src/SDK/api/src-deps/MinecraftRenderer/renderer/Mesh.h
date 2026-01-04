@@ -31,9 +31,6 @@ namespace mce {
         uint64_t                        mVertexFormat[9]; // off+464
         std::vector<byte>               mRawData;         // off+536
 
-        SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x00\x48\x8B\xD9\x48\xB8")
-        SDK_API bool isValid() const;
-
         SDK_API Mesh(Mesh &&other);
 #pragma SDK_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
 
@@ -47,6 +44,13 @@ namespace mce {
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x83\xC3\x00\x48\x3B\xDF\x75\x00\x48\x8B\x7C\x24\x00\x48\x8B\x5C\x24\x00\xC6\x86")
         SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x8B")
         SDK_API void dtor() noexcept;
+
+        SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x00\x48\x8B\xD9\x48\xB8")
+        SDK_API bool isValid() const;
+
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\xF3\x0F\x10\x45\x00\xF3\x41\x0F\x5C\xC2")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x84\xC0\x74\x00\x41\x0F\x2E\x77")
+        SDK_API bool areBuffersValid() const;
     };
 #if MC_VERSION == v1_21_2
     static_assert(sizeof(Mesh) == 536);

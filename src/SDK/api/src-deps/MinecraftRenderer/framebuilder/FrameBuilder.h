@@ -304,7 +304,7 @@ namespace mce::framebuilder {
         virtual std::shared_ptr<void> unk_virtual_62() = 0;
 
         // vtb+63
-        virtual void unk_virtual_62(__int32, bool &) = 0;
+        virtual void updateLightingModels(dragon::rendering::LightingModels model, bool &changed) = 0;
 
         // vtb+64
         virtual glm::tvec2<uint16_t> getResolution() = 0;
@@ -343,7 +343,7 @@ namespace mce::framebuilder {
         virtual void clearRenderingResourcesCache() = 0;
 
         // vtb+76
-        virtual void unk_virtual_76() = 0;
+        virtual void unk_virtual_76(void *) = 0;
 
         // vtb+77
         virtual bool unk_virtual_77(uint64_t) const = 0;

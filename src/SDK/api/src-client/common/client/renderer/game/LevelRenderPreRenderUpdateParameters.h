@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include "SDK/api/src-client/common/client/renderer/culling/FrustumCuller.h"
 
+class BlockSource;
 enum class LevelCullerType : uint8_t;
 enum class FrustumCullerType : uint8_t;
 

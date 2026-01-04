@@ -3,6 +3,7 @@
 #include "SDK/api/src/common/world/level/Tick.h"
 #include "SDK/api/src/common/util/Bounds.h"
 #include "SDK/api/src/common/world/phys/Vec3.h"
+#include "SDK/api/src-deps/Renderer/PointLight.h"
 
 class RenderChunkQuadInfo;
 class RenderChunkBuilder;
@@ -10,7 +11,6 @@ struct RenderChunkDirectVertexData;
 namespace mce {
     class Mesh;
     struct BufferResourceService;
-    struct PointLight;
 } // namespace mce
 namespace dragon {
     struct RenderMetadata;

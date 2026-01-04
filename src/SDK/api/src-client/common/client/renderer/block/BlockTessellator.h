@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDK/api/src-deps/Renderer/PointLight.h"
 #include "SDK/api/src/common/world/Flip.h"
 #include "SDK/api/src/common/world/phys/AABB.h"
 #include "SDK/api/src/common/world/level/block/BlockRenderLayer.h"
@@ -87,7 +88,7 @@ public:
     alignas(8) char mUnk273816[19288];                                                             // off+273816
     std::optional<mce::Color>            mUnk293104;                                               // off+293104
     bool                                 mForceOpaque;                                             // off+293124
-    std::vector<int /*mce::PointLight*/> mPointLights;                                             // off+293128
+    std::vector<mce::PointLight>         mPointLights;                                             // off+293128
     float                                mUnk293152[6];                                            // off+293152
     AocBlockData                         mAocBlockData;                                            // off+293176
     BlockTessellatorCustomExtraData::Map mBlockExtraDataMap;                                       // off+294328

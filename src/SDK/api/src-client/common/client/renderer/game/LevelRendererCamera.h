@@ -1,13 +1,21 @@
 #pragma once
 
+#include "SDK/api/src-deps/Core/Utility/optional_ref.h"
 #include "SDK/api/src/common/world/actor/player/PlayerListener.h"
 #include "SDK/api/src/common/world/level/LevelListener.h"
-#include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
-#include "SDK/api/src-client/common/client/renderer/BaseActorRenderContext.h"
-#include "LevelRenderPreRenderUpdateParameters.h"
+#include "SDK/api/src/common/world/level/SubChunkPos.h"
 #include "common/Memory.hpp"
 
+class BaseActorRenderContext;
+class ScreenContext;
+class IClientInstance;
+class RenderChunkInstanced;
+class TerrainMaterialVariationManager;
+class TerrainLayer;
+struct ViewRenderObject;
 struct LevelRendererCommandListInit;
+struct LevelRenderPreRenderUpdateParameters;
+struct ChunkRenderObjectCollection;
 
 class LevelRendererCamera {
 public:
@@ -40,5 +48,31 @@ public:
         const ViewRenderObject       &renderObj,
         IClientInstance              &ci,
         LevelRendererCommandListInit &levelRendererCommandListInit
+    );
+
+    SPHR_DECL_API("1.21.2,1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xC8\x48\x85\xC0\x75\x00\x48\xFF\xC3")
+    SPHR_DECL_API("1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xC8\x48\x85\xC0\x75\x00\x48\xFF\xC7")
+    SDK_API RenderChunkInstanced *getRenderChunkInstancedAt(const SubChunkPos &rcp) const;
+
+    SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x49\x8B\xCF\x49\x8D\x47")
+    SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x49\x8B\xD7\x49\x8D\x47")
+    SDK_API void queueChunk(
+        ChunkRenderObjectCollection                        &collection,
+        const RenderChunkInstanced                         &renderChunkInstanced,
+        float                                               farDistance2,
+        float                                               currentTime,
+        const TerrainMaterialVariationManager              &terrainVariationMgr,
+        optional_ref<const TerrainMaterialVariationManager> fadeVariationMgr
+    );
+
+    SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x57\x48\x83\xEC\x00\x4C\x8B\x94\x24")
+    SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x4C\x8B\x9C\x24")
+    SDK_API void _addToRenderChunkQueue(
+        ChunkRenderObjectCollection           &collection,
+        const TerrainMaterialVariationManager &terrainVariationMgr,
+        const TerrainLayer                    &layer,
+        const RenderChunkInstanced            &renderChunkInstanced,
+        size_t                                 chunkIdx,
+        const BlockPos                        &chunkPos
     );
 };

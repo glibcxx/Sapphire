@@ -41,7 +41,7 @@ public:
     std::shared_ptr<void>                        mUnk336; // off+336
 
     SDK_API RenderChunkCoordinator(Level &level, LevelRenderer &levelRenderer, AutomaticID<Dimension, int> dimensionID);
-#pragma SDK_LINKER_SYM_ALIAS(                                                                               \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                \
     "??0RenderChunkCoordinator@@QEAA@AEAVLevel@@AEAVLevelRenderer@@V?$AutomaticID@VDimension@@H@@@Z",        \
     "?ctor@RenderChunkCoordinator@@QEAAPEAV1@AEAVLevel@@AEAVLevelRenderer@@V?$AutomaticID@VDimension@@H@@@Z" \
 )
@@ -58,6 +58,8 @@ public:
     SPHR_DECL_API("1.21.50", "\x40\x53\x55\x56\x57\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x4D\x8B\xF8")
     SDK_API std::shared_ptr<RenderChunkShared> getOrCreateChunkAtPos(const SubChunkPos &pos);
 
+    SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x03\x48\x8B\xD8\x48\x3B\xC6\x75\x00\x4D\x8B\xC6")
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x03\x48\x8B\xD8\x48\x3B\xC7\x75\x00\x4D\x8B\xC5")
+    SPHR_DECL_API("1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x03\x48\x8B\xD8\x48\x3B\xC7\x75\x00\x4C\x8B\xC6")
     SDK_API void _handleVisibilityUpdates();
 };

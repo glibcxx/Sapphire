@@ -33,7 +33,7 @@ class LevelRendererProxy;
 class PlayerRenderView;
 class LocalPlayer;
 class LevelRendererShadowCamera;
-class LevelRenderPreRenderUpdateParameters;
+struct LevelRenderPreRenderUpdateParameters;
 namespace mce {
     class TextureGroup;
     class Mesh;

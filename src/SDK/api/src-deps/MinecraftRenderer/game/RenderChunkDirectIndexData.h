@@ -11,7 +11,7 @@ namespace dragon {
 struct RenderChunkDirectIndexData {
     const std::optional<dragon::RenderMetadata>                                    mRenderMetadata;  // off+0
     bool                                                                           mAllowHalfFloats; // off+72
-    std::optional<mce::ServerResourcePointer<dragon::ResolvedIndexBufferResource>> mVertexData;      // off+80
+    std::optional<mce::ServerResourcePointer<dragon::ResolvedIndexBufferResource>> mIndexData;       // off+80
     std::optional<mce::ServerResourcePointer<dragon::ResolvedIndexBufferResource>> mUnkData;         // off+112
-    size_t                                                                         mVertexCount;     // off+144
+    size_t                                                                         mIndexCount;      // off+144
 };
