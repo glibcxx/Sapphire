@@ -12,10 +12,7 @@ class ActorBlockRenderer;
 class ItemInHandRenderer;
 class ItemRenderer;
 class ParticleSystemEngine;
-
-class SortedMeshDrawList {
-    // ...
-};
+class SortedMeshDrawList;
 
 // size: 488
 struct HistoricalFrameTimes {
