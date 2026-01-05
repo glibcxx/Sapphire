@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LevelBuilder.h"
 #include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
 #include "SDK/api/src-client/common/client/renderer/debug/DebugRenderer.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
@@ -83,11 +84,11 @@ public:
 #if MC_VERSION == v1_21_2 || MC_VERSION == v1_21_50
     std::shared_ptr<LevelRendererShadowCamera> mUnk856[2]; // off+856
 #endif
-    __int64                                          mUnk888;           // off+888
-    std::aligned_storage_t<1496, 8> /*LevelBuilder*/ mLevelBuilder;     // off+896
-    std::unique_ptr<LevelRendererProxy>              mProxy;            // off+2392
-    mce::Color                                       mClearBufferColor; // off+2400
-    std::weak_ptr<PlayerRenderView>                  mPlayerView;       // off+2416
+    __int64                             mUnk888;           // off+888
+    LevelBuilder                        mLevelBuilder;     // off+896
+    std::unique_ptr<LevelRendererProxy> mProxy;            // off+2392
+    mce::Color                          mClearBufferColor; // off+2400
+    std::weak_ptr<PlayerRenderView>     mPlayerView;       // off+2416
 
     SDK_API LevelRenderer(
         IClientInstance                                                 &clientInstance,
@@ -103,7 +104,7 @@ public:
         const SoundMapping                                              &sounds,
         const Bedrock::NotNullNonOwnerPtr<ActorResourceDefinitionGroup> &entityResourceDefGroup
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            \
+#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
     "??0LevelRenderer@@QEAA@AEAVIClientInstance@@AEAVMultiPlayerLevel@@V?$shared_ptr@VOptions@@@std@@V?$shared_ptr@VTextureGroup@mce@@@4@AEBV?$not_null@V?$NonOwnerPointer@$$CBVTextureAtlas@@@Bedrock@@@gsl@@VWeakEntityRef@@AEAVHolographicPlatform@@AEAVGameRenderer@@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@7@AEBV?$not_null@V?$NonOwnerPointer@VGeometryGroup@@@Bedrock@@@7@AEBVSoundMapping@@AEBV?$not_null@V?$NonOwnerPointer@VActorResourceDefinitionGroup@@@Bedrock@@@7@@Z",        \
     "?ctor@LevelRenderer@@QEAAPEAV1@AEAVIClientInstance@@AEAVMultiPlayerLevel@@V?$shared_ptr@VOptions@@@std@@V?$shared_ptr@VTextureGroup@mce@@@5@AEBV?$not_null@V?$NonOwnerPointer@$$CBVTextureAtlas@@@Bedrock@@@gsl@@VWeakEntityRef@@AEAVHolographicPlatform@@AEAVGameRenderer@@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@8@AEBV?$not_null@V?$NonOwnerPointer@VGeometryGroup@@@Bedrock@@@8@AEBVSoundMapping@@AEBV?$not_null@V?$NonOwnerPointer@VActorResourceDefinitionGroup@@@Bedrock@@@8@@Z" \
 )
