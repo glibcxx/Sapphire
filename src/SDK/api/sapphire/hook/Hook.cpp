@@ -115,7 +115,7 @@ namespace sapphire::inline hook {
     bool HookManager::hook(
         uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline
     ) {
-        if (!this->mInitialized) return false;
+        if (!this->mInitialized || !target) return false;
         auto found = this->mHookedFunctions.find(target);
         trampoline = 0;
         if (found == this->mHookedFunctions.end()) {
@@ -141,7 +141,7 @@ namespace sapphire::inline hook {
     }
 
     void HookManager::unhook(uintptr_t target, uintptr_t detour, HookPriority priority) {
-        if (!this->mInitialized) return;
+        if (!this->mInitialized || !target) return;
         auto found = this->mHookedFunctions.find(target);
         if (found == this->mHookedFunctions.end()) return;
         PrioritizedHookFuncList &list = found->second;
