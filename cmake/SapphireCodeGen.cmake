@@ -5,7 +5,11 @@ function(sapphire_run_codegen SAPPHIRE_CODEGEN_EXE CURRENT_VERSION)
     set(OUT_DEF "${GEN_DIR}/bedrock_def+mc${CURRENT_VERSION}.def")
     set(OUT_BIN "${GEN_DIR}/bedrock_sigs+mc${CURRENT_VERSION}.sig.db")
 
-    file(GLOB_RECURSE SDK_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.hpp")
+    file(GLOB_RECURSE SDK_HEADERS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/SDK/api/*.hpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h"
+    )
 
     string(REPLACE "." "_" MC_VERSION_MACRO_FORMAT ${CURRENT_VERSION})
 

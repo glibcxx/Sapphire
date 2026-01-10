@@ -2,6 +2,7 @@
 
 #include "SDK/api/src-deps/MinecraftRenderer/Resources/IndexBufferContainer.h"
 #include "MeshData.h"
+#include "VertexLayout.h"
 
 namespace mce {
 
@@ -25,11 +26,17 @@ namespace mce {
                 mce::Buffer,
                 mce::ClientResourcePointer<dragon::ResolvedVertexBufferResource>,
                 mce::ClientResourcePointer<dragon::ResolvedIndexBufferResource>>>
-                                        mVertexBuffer;    // off+408
-        mce::ClientResourcePointer<int> mUnkBuffer;       // off+432
-        std::optional<uint32_t>         mVertexCount;     // off+456
-        uint64_t                        mVertexFormat[9]; // off+464
-        std::vector<byte>               mRawData;         // off+536
+            mVertexBuffer; // off+408
+        mce::ClientResourcePointer<
+            std::variant<
+                std::monostate,
+                mce::Buffer,
+                mce::ClientResourcePointer<dragon::ResolvedVertexBufferResource>,
+                mce::ClientResourcePointer<dragon::ResolvedIndexBufferResource>>>
+                                mAttributeBuffer; // off+432
+        std::optional<uint32_t> mVertexCount;     // off+456
+        VertexLayout            mVertexFormat;    // off+464
+        std::vector<byte>       mRawData;         // off+536
 
         SDK_API Mesh(Mesh &&other);
 #pragma SDK_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
@@ -42,7 +49,7 @@ namespace mce {
 #pragma SDK_LINKER_SYM_ALIAS("??1Mesh@mce@@QEAA@XZ", "?dtor@Mesh@mce@@QEAAXXZ")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x83\xC3\x00\x48\x3B\xDF\x75\x00\x48\x8B\x7C\x24\x00\x48\x8B\x5C\x24\x00\xC6\x86")
-        SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xD9\xE8\x00\x00\x00\x00\x48\x8B\x8B")
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x41\xFF\xC4\x45\x3B\xE5\x0F\x8C")
         SDK_API void dtor() noexcept;
 
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x00\x48\x8B\xD9\x48\xB8")

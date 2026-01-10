@@ -71,4 +71,7 @@ public:
         bool                                                     forExport,
         const mce::framebuilder::FrameLightingModelCapabilities &lightingModelCapabilities
     );
+
+    SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x86\x00\x00\x00\x00\x48\xC7\x80")
+    SDK_API void _updateFacesMetadata();
 };

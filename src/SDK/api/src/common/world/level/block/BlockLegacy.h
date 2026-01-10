@@ -27,6 +27,7 @@ class MobSpawnerData;
 class SpawnConditions;
 class Random;
 class Experiments;
+class Material;
 struct BlockAnimateTickData;
 struct UpdateEntityAfterFallOnInterface;
 struct ActorBlockSyncMessage;
@@ -113,14 +114,24 @@ public:
         HashedString mPreFlatteningName; // off+128
     };
 
-    std::string           mDescriptionId;                // off+8
-    BlockComponentStorage mComponents;                   // off+40
-    NameInfo              mNameInfo;                     // off+144
-    BlockProperty         mProperties;                   // off+320
-    bool                  mFancy;                        // off+328
-    BlockRenderLayer      mRenderLayer;                  // off+329
-    bool                  mRenderLayerCanRenderAsOpaque; // off+330
-    BlockActorType        mBlockEntityType;              // off+332
+    std::string           mDescriptionId;                      // off+8
+    BlockComponentStorage mComponents;                         // off+40
+    NameInfo              mNameInfo;                           // off+144
+    BlockProperty         mProperties;                         // off+320
+    bool                  mFancy;                              // off+328
+    BlockRenderLayer      mRenderLayer;                        // off+329
+    bool                  mRenderLayerCanRenderAsOpaque;       // off+330
+    BlockActorType        mBlockEntityType;                    // off+332
+    bool                  mAnimatedTexture;                    // off+336
+    float                 mBrightnessGamma;                    // off+340
+    float                 mThickness;                          // off+344
+    bool                  mCanSlide;                           // off+348
+    bool                  mCanReactToNeighborsDuringInstatick; // off+349
+    bool                  mIsInteraction;                      // off+350
+    float                 mGravity;                            // off+352
+    const Material       &mMaterial;                           // off+360
+    bool                  mHeavy;                              // off+368
+    float                 mParticleQuantityScalar;             // off+372
 
     // ...
 

@@ -14,14 +14,14 @@ namespace mce {
         bool                           mMeshNotFree;       // off+1
         std::vector<glm::tvec3<float>> mPositions;         // off+8
         std::vector<glm::tvec4<float>> mNormals;           // off+32
-        std::vector<glm::tvec4<float>> mUnk56;             // off+56
+        std::vector<glm::tvec4<float>> mTangents;          // off+56
         std::vector<uint32_t>          mIndices;           // off+80
         std::vector<uint32_t>          mColors;            // off+104
         std::vector<uint16_t>          mBoneId0s;          // off+128
         std::vector<glm::tvec2<float>> mTextureUVs[3];     // off+152
         std::vector<uint16_t>          mPBRTextureIndices; // off+224
 #if MC_VERSION >= v1_21_50
-        std::vector<uint32_t> mUnk248; // off+248
+        std::vector<uint32_t> mMERS; // off+248
 #endif
         std::array<bool, 14> mFieldEnabled;
 

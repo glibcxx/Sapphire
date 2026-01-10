@@ -86,7 +86,7 @@ public:
     BlockTessellatorCache                                       mBlockCache;                       // off+1720
     std::function<const Block &(const BlockPos &)>              mCachedGetBlock;                   // off+273752
     alignas(8) char mUnk273816[19288];                                                             // off+273816
-    std::optional<mce::Color>            mUnk293104;                                               // off+293104
+    std::optional<mce::Color>            mFixedColor;                                              // off+293104
     bool                                 mForceOpaque;                                             // off+293124
     std::vector<mce::PointLight>         mPointLights;                                             // off+293128
     float                                mUnk293152[6];                                            // off+293152
@@ -173,9 +173,17 @@ public:
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x41\x56\x48\x83\xEC\x00\x48\x8B\x7C\x24\x00\x49\x8B\xD8")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\x7C\x24")
     SDK_API const TextureUVCoordinateSet &_getTexture(
-        const BlockPos &pos, const Block &block, FacingID face, int forcedVariant, BlockGraphics *blockGraphics
+        const BlockPos &pos, const Block &block, FacingID face, int forcedVariant, const BlockGraphics *blockGraphics
     ) const;
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x80\xB9\x00\x00\x00\x00\x00\x48\x8B\xD9\x0F\x85")
     SDK_API const AABB &getCurrentShape();
+
+    SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x0F\x10\x05\x00\x00\x00\x00\x0F\x11\x45\x00\x48\x8D\x45\x00\x0F\x10\x00\x80\x7F")
+    SDK_API static mce::Color _getColorForBlock(
+        const Block    &block,
+        BlockSource    &region,
+        const BlockPos &blockPos,
+        void           *a5
+    );
 };

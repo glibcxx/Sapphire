@@ -63,6 +63,14 @@ public:
         return *this;
     }
 
+    constexpr const float &operator[](int idx) const {
+        return ((const float *)this)[idx];
+    }
+
+    constexpr float &operator[](int idx) {
+        return ((float *)this)[idx];
+    }
+
     constexpr operator glm::vec3() const {
         return {x, y, z};
     }
@@ -79,3 +87,6 @@ public:
         return std::format("[{:.4f}, {:.4f}, {:.4f}]", x, y, z);
     }
 };
+
+inline constexpr BlockPos::BlockPos(const Vec3 &v) :
+    x(v.x), y(v.y), z(v.z) {}

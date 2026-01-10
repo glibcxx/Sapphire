@@ -2,6 +2,8 @@
 
 #include "SDK/api/src-deps/Core/Math/Math.h"
 
+class Vec3;
+
 // size: 12
 class BlockPos {
 public:
@@ -13,6 +15,7 @@ public:
         x(n), y(n), z(n) {}
     constexpr BlockPos(int _x, int _y, int _z) :
         x(_x), y(_y), z(_z) {}
+    constexpr explicit BlockPos(const Vec3 &v);
 
     constexpr BlockPos operator+(const BlockPos &other) const {
         return BlockPos(x + other.x, y + other.y, z + other.z);

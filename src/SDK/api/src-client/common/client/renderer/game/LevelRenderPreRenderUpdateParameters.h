@@ -21,7 +21,9 @@ struct LevelRenderPreRenderUpdateParameters {
     glm::tvec3<float> cameraTargetWorldPosition; // off+28
     glm::tvec3<float> cameraForward;             // off+40
 
-    uint32_t       mUnk52[6];       // off+52
+    glm::tvec3<float> mUnk52; // off+52
+    glm::tvec3<float> mUnk64; // off+64
+
     const uint32_t viewBlockRadius; // off+76
     const float    currentTime;     // off+80
     BlockSource   *region;          // off+88
