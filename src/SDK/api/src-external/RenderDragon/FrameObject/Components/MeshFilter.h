@@ -18,17 +18,15 @@ namespace DFC /*dragon::frameobject::components*/ {
         uint64_t mUnkCount;        // off+136
         uint64_t mAllocator;       // off+144
 
-        MeshFilter(MeshFilter &&rhs) {
-            memcpy(this, &rhs, sizeof(MeshFilter));
-            memset(&rhs, 0, sizeof(MeshFilter));
+        MeshFilter(MeshFilter &&rhs) noexcept {
+            memcpy((void *)this, &rhs, sizeof(MeshFilter));
+            memset((void *)&rhs, 0, sizeof(MeshFilter));
         }
 
-        ~MeshFilter() {
-            this->dtor();
-        }
+        SDK_API ~MeshFilter();
 
         SPHR_DECL_API("1.21.50", "\x40\x53\x48\x83\xEC\x00\x48\x0F\xBE\x41\x00\x48\x8B\xD9\x48\x83\xC1\x00\x48\x83\xC0\x00\x74\x00\x48\x83\xE8\x00\x74\x00\x48\x83\xE8")
-        SDK_API void dtor() noexcept;
+        SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
     };
 
 } // namespace DFC

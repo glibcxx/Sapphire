@@ -33,18 +33,22 @@ namespace dragon::materials {
         uint64_t                                              mStateHash;            // off+112
 
         SDK_API MaterialUniformMap(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                \
-    "??0MaterialUniformMap@materials@dragon@@QEAA@AEBU012@AEAV?$CheckedRingBuffer@$01$0A@@Core@@@Z",          \
-    "?ctor@MaterialUniformMap@materials@dragon@@QEAAPEAU123@AEBU123@AEAV?$CheckedRingBuffer@$01$0A@@Core@@@Z" \
-)
+
+        SDK_API MaterialUniformMap(
+            const CompiledMaterialDefinition &definition,
+            MaterialUniformHandles           &uniformHandles,
+            Core::CheckedRingBuffer<2, 0>    &allocator
+        );
 
         SPHR_DECL_API("1.21.2", "\x40\x53\x55\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\xF2\x48\x8B\xD9")
         SPHR_DECL_API("1.21.50,1.21.60", "\x40\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x4C\x8B\xF2\x48\x8B\xF9\x45\x33\xE4")
-        SDK_API MaterialUniformMap *ctor(const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator);
+        SPHR_CTOR_ALIAS SDK_API MaterialUniformMap *ctor(
+            const MaterialUniformMap &other, Core::CheckedRingBuffer<2, 0> &allocator
+        );
 
         SPHR_DECL_API("1.21.2", "call", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xD8\x4C\x8B\xE2\x48\x89\x55")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xD8\x4C\x8B\xE2\x48\x89\x54\x24")
-        SDK_API MaterialUniformMap *ctor(
+        SPHR_CTOR_ALIAS SDK_API MaterialUniformMap *ctor(
             const CompiledMaterialDefinition &definition,
             MaterialUniformHandles           &uniformHandles,
             Core::CheckedRingBuffer<2, 0>    &allocator

@@ -17,9 +17,8 @@ public:
 
     // vtb+0
     SDK_API virtual ~FontHandle();
-#pragma SDK_LINKER_SYM_ALIAS("??1FontHandle@@UEAA@XZ", "?dtor@FontHandle@@QEAAXXZ")
 
     SPHR_DECL_API("1.21.2", "\x40\x53\x48\x83\xEC\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x15")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x15")
-    SDK_API void dtor() noexcept;
+    SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 };

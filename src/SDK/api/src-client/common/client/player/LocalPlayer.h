@@ -27,15 +27,11 @@ public:
         std::unique_ptr<Certificate> certificate,
         EntityContext               &entityContext
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                    \
-    "??0LocalPlayer@@QEAA@AEAVIClientInstance@@AEAVLevel@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4GameType@@_NAEBVNetworkIdentifier@@EVUUID@mce@@22V?$unique_ptr@VCertificate@@U?$default_delete@VCertificate@@@std@@@4@AEAVEntityContext@@@Z",        \
-    "?ctor@LocalPlayer@@QEAAPEAV1@AEAVIClientInstance@@AEAVLevel@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4GameType@@_NAEBVNetworkIdentifier@@EVUUID@mce@@22V?$unique_ptr@VCertificate@@U?$default_delete@VCertificate@@@std@@@5@AEAVEntityContext@@@Z" \
-)
 
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xF0\x48\x89\x33\x48\x8B\xC3\x48\x81\xC4\x00\x00\x00\x00\x41\x5F\x41\x5E\x41\x5D")
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xF8\x48\x89\x3B\x48\x8B\xC3\x48\x8B\x9C\x24\x00\x00\x00\x00\x48\x81\xC4\x00\x00\x00\x00\x41\x5F\x41\x5E\x41\x5D\x41\x5C\x5F\x5E\x5D\xC3")
     SPHR_DECL_API("1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\x33\xFF\xEB\x00\x33\xFF\x8B\xDF\x48\x89\x5D")
-    SDK_API LocalPlayer *ctor(
+    SPHR_CTOR_ALIAS SDK_API LocalPlayer *ctor(
         IClientInstance             &client,
         Level                       &level,
         const std::string           &displayName,

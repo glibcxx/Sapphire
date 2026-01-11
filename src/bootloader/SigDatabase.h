@@ -10,7 +10,8 @@ namespace sapphire::codegen {
         static constexpr uint32_t MAGIC_NUMBER = 0X3046FCDB; // crc32(".sig.db")
 
         enum class FormatVersion : int32_t {
-            v1_0_0
+            v1_0_0,
+            v1_1_0,
         };
 
         enum class SigOpType : int32_t {
@@ -20,12 +21,28 @@ namespace sapphire::codegen {
             Call = 3,
             Mov = 4,
             Lea = 5,
+            RipRel = 6,
+            Deref32 = 7,
             _invalid = -1,
         };
 
         struct SigOp {
             SigOpType opType;
-            ptrdiff_t data;
+            union {
+                ptrdiff_t disp;
+                struct {
+                    uint32_t offset;
+                    uint32_t insLen;
+                } ripRel;
+            } data;
+
+            SigOp(SigOpType opType_ = SigOpType::_invalid) : opType(opType_) {}
+            SigOp(SigOpType opType_, ptrdiff_t disp_) :
+                opType(opType_), data{.disp = disp_} {}
+            SigOp(SigOpType opType_, uint32_t offset, uint32_t insLen) :
+                opType(opType_), data{
+                                     .ripRel = {offset, insLen}
+            } {}
         };
 
         struct SigEntry {
@@ -49,7 +66,7 @@ namespace sapphire::codegen {
             }
         };
 
-        SigDatabase(uint64_t supportVersion, FormatVersion fmtVer = FormatVersion::v1_0_0) :
+        SigDatabase(uint64_t supportVersion, FormatVersion fmtVer = FormatVersion::v1_1_0) :
             mFormatVersion(fmtVer), mSupportVersion(supportVersion) {}
 
         bool load(std::ifstream &fs);

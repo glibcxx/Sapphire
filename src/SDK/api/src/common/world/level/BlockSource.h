@@ -23,20 +23,9 @@ public:
         bool         allowUnpopulatedChunks,
         bool         allowClientTickingChanges
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                        \
-    "??0BlockSource@@QEAA@AEAVLevel@@AEAVDimension@@AEAVChunkSource@@_N33@Z",        \
-    "?ctor@BlockSource@@QEAAPEAV1@AEAVLevel@@AEAVDimension@@AEAVChunkSource@@_N33@Z" \
-)
-
-    // vtb+0
-    SDK_API virtual ~BlockSource() override;
-#pragma SDK_LINKER_SYM_ALIAS(    \
-    "??1BlockSource@@UEAA@XZ",   \
-    "?dtor@BlockSource@@QEAAXXZ" \
-)
 
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x49\x89\x44\x24\x00\xF2\x0F\x10\x45")
-    SDK_API BlockSource *ctor(
+    SPHR_CTOR_ALIAS SDK_API BlockSource *ctor(
         Level       &level,
         Dimension   &dimension,
         ChunkSource &source,
@@ -47,8 +36,11 @@ public:
 
     BlockSource(const BlockSource &) = delete;
 
+    // vtb+0
+    SDK_API virtual ~BlockSource() override;
+
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x9D\x00\x00\x00\x00\x48\x85\xDB\x0F\x84\x00\x00\x00\x00\x48\x8B\xB5\x00\x00\x00\x00\x48\x3B\xDE\x74\x00\x0F\x1F\x44")
-    SDK_API void dtor() noexcept;
+    SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 
     // vtb+1
     virtual const Block &getBlock(const BlockPos &pos, uint32_t layer) const override;

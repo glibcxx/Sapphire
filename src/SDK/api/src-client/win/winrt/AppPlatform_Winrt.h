@@ -26,8 +26,10 @@ public:
     std::shared_ptr<std::aligned_storage_t<96, 8>> mUnk1992;             // off+1992
     uint64_t                                       mUnk2008;             // off+2008
 
+    SDK_API AppPlatform_Winrt(winrt::Windows::UI::Core::CoreWindow coreWindow);
+
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\x4C\x8B\xDC\x49\x89\x5B\x00\x49\x89\x73\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x41\x0F\x29\x73")
-    SDK_API AppPlatform_Winrt *ctor(winrt::Windows::UI::Core::CoreWindow coreWindow);
+    SPHR_CTOR_ALIAS SDK_API AppPlatform_Winrt *ctor(winrt::Windows::UI::Core::CoreWindow coreWindow);
 
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x73\x00\x0F\x1F\x40")
     SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x7B\x00\x0F\x1F\x80")

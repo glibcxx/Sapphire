@@ -168,15 +168,11 @@ public:
     __int64                                      mUnk2712[65];
 
     SDK_API LevelRendererCamera(IClientInstance &clientInstance, Level &level, LevelRenderer &levelRenderer);
-#pragma SDK_LINKER_SYM_ALIAS(                                                                    \
-    "??0LevelRendererCamera@@QEAA@AEAVIClientInstance@@AEAVLevel@@AEAVLevelRenderer@@@Z",        \
-    "?ctor@LevelRendererCamera@@QEAAPEAV1@AEAVIClientInstance@@AEAVLevel@@AEAVLevelRenderer@@@Z" \
-)
 
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x93\x00\x00\x00\x00\x48\x8D\xBB")
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x9F\x00\x00\x00\x00\x48\x89\xB7")
     SPHR_DECL_API("1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\xB7\x00\x00\x00\x00\x4C\x89\xBF")
-    SDK_API LevelRendererCamera *ctor(IClientInstance &clientInstance, Level &level, LevelRenderer &levelRenderer);
+    SPHR_CTOR_ALIAS SDK_API LevelRendererCamera *ctor(IClientInstance &clientInstance, Level &level, LevelRenderer &levelRenderer);
 
     // vtb+0
     virtual ~LevelRendererCamera();

@@ -38,22 +38,17 @@ public:
         const Vec3                        &renderDimOffset,
         const bool                         hasWaterHole
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                  \
-    "??0ActorRenderer@@QEAA@V?$shared_ptr@VModel@@@std@@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z",        \
-    "?ctor@ActorRenderer@@QEAAPEAV1@V?$shared_ptr@VModel@@@std@@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z" \
-)
 
     SDK_API ActorRenderer(
-        std::shared_ptr<mce::TextureGroup> textures, const Vec2 &renderDim, const Vec3 &renderDimOffset, const bool hasWaterHole
+        std::shared_ptr<mce::TextureGroup> textures,
+        const Vec2                        &renderDim,
+        const Vec3                        &renderDimOffset,
+        const bool                         hasWaterHole
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                      \
-    "??0ActorRenderer@@QEAA@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z",        \
-    "?ctor@ActorRenderer@@QEAAPEAV1@AEAVTextureGroup@mce@@AEBVVec2@@AEBVVec3@@_N@Z" \
-)
 
     SPHR_DECL_API("1.21.2", "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x4D\x8B\xE9")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x4C\x89\x4D")
-    SDK_API ActorRenderer *ctor(
+    SPHR_CTOR_ALIAS SDK_API ActorRenderer *ctor(
         std::shared_ptr<Model>             model,
         std::shared_ptr<mce::TextureGroup> textures,
         const Vec2                        &renderDim,
@@ -63,8 +58,11 @@ public:
 
     SPHR_DECL_API("1.21.2", "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x4D\x8B\xE1")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x8B\xC4\x48\x89\x58\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xA8\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x4D\x8B\xE9")
-    SDK_API ActorRenderer *ctor(
-        std::shared_ptr<mce::TextureGroup> textures, const Vec2 &renderDim, const Vec3 &renderDimOffset, const bool hasWaterHole
+    SPHR_CTOR_ALIAS SDK_API ActorRenderer *ctor(
+        std::shared_ptr<mce::TextureGroup> textures,
+        const Vec2                        &renderDim,
+        const Vec3                        &renderDimOffset,
+        const bool                         hasWaterHole
     );
 
     // vtb+0

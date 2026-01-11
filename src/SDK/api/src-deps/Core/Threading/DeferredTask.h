@@ -41,13 +41,14 @@ namespace Core {
         std::mutex                mExecutionMutex;   // off+80
         std::function<void(void)> mCallback;         // off+160
         const bool                mCanSkipExecution; // off+224
+
         template <typename Callback>
         DeferredTask *ctor(Callback &&callback);
 
         template <>
         SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x89\x4C\x24\x00\x48\xC7\x44\x24")
-        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xFC\x48\x8D\x47\x00\x48\x89\x83")
-        SDK_API DeferredTask *ctor(lambda_144B72F30 &&callback);
+        SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xFC\x48\x8D\x47\x00\x48\x89\x83") //
+            SDK_API DeferredTask *ctor(lambda_144B72F30 &&callback);
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x00\x85\xFF\x74\x00\xF0\xFF\x47")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x4D\x85\xFF\x74\x00\xF0\xFF\x47")

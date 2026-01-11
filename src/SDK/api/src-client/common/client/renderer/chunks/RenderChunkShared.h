@@ -71,10 +71,9 @@ public:
     dragon::RenderMetadata                             mRenderMetadata;              // off+136
 
     SDK_API RenderChunkShared(const BlockPos &p);
-#pragma SDK_LINKER_SYM_ALIAS("??0RenderChunkShared@@QEAA@AEBVBlockPos@@@Z", "?ctor@RenderChunkShared@@QEAAPEAV1@AEBVBlockPos@@@Z")
 
     SPHR_DECL_API("1.21.50", "\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xFD\xC7\x44\x24")
-    SDK_API RenderChunkShared *ctor(const BlockPos &p);
+    SPHR_CTOR_ALIAS SDK_API RenderChunkShared *ctor(const BlockPos &p);
 
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x49\x8B\x17\x8B\x42")
     SDK_API void startRebuild(RenderChunkBuilder &builder, const Vec3 &currentCameraPosition);

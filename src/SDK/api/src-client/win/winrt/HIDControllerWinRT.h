@@ -67,8 +67,10 @@ public:
     winrt::event_token mOnTextInputTextRequested;        // off+8832, 请求输入控件的文本
     winrt::event_token mOnTextInputTextUpdating;         // off+8840, 更新输入文本
 
+    SDK_API HIDControllerWinRT(AppPlatformWinRTDispatcher &dispatcher, winrt::Windows::UI::Core::CoreWindow coreWindow);
+
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x48\x83\x3F\x00\x74\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\x48\x8B\xC3\x48\x83\xC4")
     SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x83\x3F\x00\x74\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\x48\x8B\xC3\x48\x8B\x4C\x24")
-    SDK_API HIDControllerWinRT *ctor(AppPlatformWinRTDispatcher &dispatcher, winrt::Windows::UI::Core::CoreWindow coreWindow);
+    SPHR_CTOR_ALIAS SDK_API HIDControllerWinRT *ctor(AppPlatformWinRTDispatcher &dispatcher, winrt::Windows::UI::Core::CoreWindow coreWindow);
 };
 static_assert(sizeof(HIDControllerWinRT) == 8848);

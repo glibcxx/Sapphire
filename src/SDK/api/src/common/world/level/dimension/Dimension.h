@@ -155,8 +155,16 @@ public:
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1544
     bool                                                             mRunChunkGenWatchDog;        // off+1568
 
+    SDK_API Dimension(
+        ILevel              &level,
+        DimensionType        dimId,
+        DimensionHeightRange heightRange,
+        Scheduler           &callbackContext,
+        std::string          name
+    );
+
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
-    SDK_API Dimension *ctor(
+    SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
         ILevel              &level,
         DimensionType        dimId,
         DimensionHeightRange heightRange,
@@ -243,8 +251,16 @@ public:
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1680
     bool                                                             mRunChunkGenWatchDog;        // off+1704
 
+    SDK_API Dimension(
+        ILevel              &level,
+        DimensionType        dimId,
+        DimensionHeightRange heightRange,
+        Scheduler           &callbackContext,
+        std::string          name
+    );
+
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
-    SDK_API Dimension *ctor(
+    SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
         ILevel              &level,
         DimensionType        dimId,
         DimensionHeightRange heightRange,
@@ -329,8 +345,16 @@ public:
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1672
     bool                                                             mRunChunkGenWatchDog;        // off+1696
 
+    SDK_API Dimension(
+        ILevel              &level,
+        DimensionType        dimId,
+        DimensionHeightRange heightRange,
+        Scheduler           &callbackContext,
+        std::string          name
+    );
+
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
-    SDK_API Dimension *ctor(
+    SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
         ILevel              &level,
         DimensionType        dimId,
         DimensionHeightRange heightRange,

@@ -98,14 +98,10 @@ public:
     SDK_API ServerInstance(
         IMinecraftApp &app, const Bedrock::NotNullNonOwnerPtr<ServerInstanceEventCoordinator> &coordinator
     );
-#pragma SPHR_LINKER_SYM_ALIAS(                                                                                                                \
-    "??0ServerInstance@@QEAA@AEAVIMinecraftApp@@AEBV?$not_null@V?$NonOwnerPointer@VServerInstanceEventCoordinator@@@Bedrock@@@gsl@@@Z",       \
-    "?ctor@ServerInstance@@QEAAPEAV1@AEAVIMinecraftApp@@AEBV?$not_null@V?$NonOwnerPointer@VServerInstanceEventCoordinator@@@Bedrock@@@gsl@@@" \
-)
 
     SPHR_DECL_API("1.21.2", "disp:6,call", "\x4D\x8B\xC6\x48\x8B\xCB\xE8\x00\x00\x00\x00\x48\x8B\xF0\x48\x89\x37\x48\x8B\xC7\x48\x8B\x5C\x24\x00\x48\x8B\x6C\x24\x00\x48\x83\xC4\x00\x41\x5E\x5F\x5E\xC3\xCC\xCC\xCC\xCC\xCC")
     SPHR_DECL_API("1.21.50,1.21.60", "disp:6,call", "\x4C\x8B\xC6\x48\x8B\xCB\xE8\x00\x00\x00\x00\xE9\x00\x00\x00\x00\x48\x8D\x8D")
-    SDK_API ServerInstance *ctor(
+    SPHR_CTOR_ALIAS SDK_API ServerInstance *ctor(
         IMinecraftApp &app, const Bedrock::NotNullNonOwnerPtr<ServerInstanceEventCoordinator> &coordinator
     );
 };

@@ -109,14 +109,12 @@ public:
     std::unordered_map<const RenderController *, ExpressionNode> mMaterialExpressionMap; // off+744
 
     SDK_API ModelPart(int xTexOffs, int yTexOffs, int texWidth, int texHeight);
-#pragma SDK_LINKER_SYM_ALIAS("??0ModelPart@@QEAA@HHHH@Z", "?ctor@ModelPart@@QEAAPEAV1@HHHH@Z")
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x4C\x8D\x00\x00\x00\x00\x00\xC7\x44\x24\x20\x20\x00\x00\x00\x41\xB9\x40\x00\x00\x00\x45\x33\xC0\x33\xD2\x49\x8B")
-    SDK_API ModelPart *ctor(int xTexOffs, int yTexOffs, int texWidth, int texHeight);
+    SPHR_CTOR_ALIAS SDK_API ModelPart *ctor(int xTexOffs, int yTexOffs, int texWidth, int texHeight);
 
     SDK_API ~ModelPart();
-#pragma SDK_LINKER_SYM_ALIAS("??1ModelPart@@QEAA@XZ", "?dtor@ModelPart@@QEAAXXZ")
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xF3\x0F\x11\x7C\x24\x00\xC7\x44\x24")
-    SDK_API void dtor() noexcept;
+    SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 };

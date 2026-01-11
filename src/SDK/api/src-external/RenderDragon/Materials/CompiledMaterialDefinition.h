@@ -72,8 +72,10 @@ namespace dragon::materials {
 
             Variant *ctor(const Variant *other); // \x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xFA\x48\x8B\xF1\x0F\xB6\x02\x88\x01\x48\x8D\x59\x00\x48\x89\x5C\x24\x00\x8B\x42 1.21.50
 
+            SDK_API ~Variant();
+
             SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x81\xC3\x00\x00\x00\x00\x48\x3B\xDF\x75\x00\x4D\x89\x67\x00\x48\x8B\x4C\x24")
-            SDK_API void dtor() noexcept;
+            SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
         };
 
         // size: 136
@@ -84,8 +86,10 @@ namespace dragon::materials {
             std::unordered_map<std::string, std::string> mFlagDefaultValues; // off+64
             std::optional<definition::BlendMode>         mDefaultBlendMode;  // off+128
 
+            SDK_API ~Pass();
+
             SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x41\xFF\xC5\x44\x89\x6C\x24\x00\x0F\xB7\x45")
-            SDK_API void dtor() noexcept;
+            SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
         };
 
         // size: 176
@@ -123,9 +127,11 @@ namespace dragon::materials {
         std::unordered_map<std::string, definition::SamplerDefinition>     mIndexedSamplers; // off+208
         std::unordered_map<std::string, definition::CustomTypeDeclaration> mCustomTypes;     // off+272
 
+        SDK_API CompiledMaterialDefinition();
+
         SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x55\x56\x57\x48\x83\xEC\x00\x48\x8B\xF1\xE8")
         SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\x48\x89\x4C\x24\x00\x33\xF6\x89\x31\x48\x89\x71\x00\x48\x89\x71\x00\xB9\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x48\x89\x00\x48\x89\x40\x00\x48\x89\x47\x00\x48\x8D\x4F\x00\x48\x89\x31\x48\x89\x71\x00\x48\x89\x71\x00\x48\xC7\x47\x00\x00\x00\x00\x00\x48\xC7\x47\x00\x00\x00\x00\x00\xC7\x07\x00\x00\x00\x00\x4C\x8B\x47\x00\x8D\x56\x00\xE8\x00\x00\x00\x00\x90\x0F\x57\xC0")
-        SDK_API CompiledMaterialDefinition *ctor();
+        SPHR_CTOR_ALIAS SDK_API CompiledMaterialDefinition *ctor();
 
         SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x0F\xB6\xD8\xEB\x00\x48\x0F\xBE\x46")
         SDK_API void _loadFrom(std::istream &inStream, uint64_t a2, uint64_t a3, uint8_t a4);

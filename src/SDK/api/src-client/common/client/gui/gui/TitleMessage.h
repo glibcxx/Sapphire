@@ -8,13 +8,12 @@
 // size: 112 (1.21.2)
 class TitleMessage {
 public:
-    std::string                mTitle;            // off+0
-    std::string                mSubtitle;         // off+72
-    int32_t                    mFadeInTime;       // off+64
-    int32_t                    mStayTime;         // off+68
-    int32_t                    mFadeOutTime;      // off+72
-    std::string                mActionBarMessage; // off+80
-    std::optional<std::string> mUnk192;           // off+112
+    std::string mTitle;            // off+0
+    std::string mSubtitle;         // off+72
+    int32_t     mFadeInTime;       // off+64
+    int32_t     mStayTime;         // off+68
+    int32_t     mFadeOutTime;      // off+72
+    std::string mActionBarMessage; // off+80
 };
 static_assert(sizeof(TitleMessage) == 112);
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60

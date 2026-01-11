@@ -21,13 +21,9 @@ public:
         bool                              renderingGUI,
         const AirAndSimpleBlockBits      *airAndSimpleBlocks
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                             \
-    "??0BlockOccluder@@QEAA@AEAVBlockTessellatorCache@@AEBVBlock@@AEBVBlockPos@@AEBVAABB@@AEBV?$vector@EV?$allocator@E@std@@@std@@_NPEBUAirAndSimpleBlockBits@@@Z",        \
-    "?ctor@BlockOccluder@@QEAAPEAV1@AEAVBlockTessellatorCache@@AEBVBlock@@AEBVBlockPos@@AEBVAABB@@AEBV?$vector@EV?$allocator@E@std@@@std@@_NPEBUAirAndSimpleBlockBits@@@Z" \
-)
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x83\xEC\x00\x33\xC0\x4D\x8B\xF1")
-    SDK_API BlockOccluder *ctor(
+    SPHR_CTOR_ALIAS SDK_API BlockOccluder *ctor(
         BlockTessellatorCache            &cache,
         const Block                      &block,
         const BlockPos                   &blockPos,

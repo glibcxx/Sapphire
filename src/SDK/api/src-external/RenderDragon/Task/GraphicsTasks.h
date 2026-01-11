@@ -75,9 +75,11 @@ namespace dragon::task {
         // size: 72
         struct InitializationState
             : public std::variant<std::monostate, InitBegin, InitPending, InitFinalize, InitEnd> {
+            SDK_API InitializationState(const InitializationState &other);
+
             SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x8B\xD0")
             SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xC6\x45\x00\x00\xEB\x00\x49\x83\xC0")
-            InitializationState *ctor(const InitializationState &other);
+            SPHR_CTOR_ALIAS SDK_API InitializationState *ctor(const InitializationState &other);
         };
 
         std::thread::id                                   mRendererThreadId;          // off+0
@@ -119,8 +121,14 @@ namespace dragon::task {
         size_t                              mWorkersCount;              // off+320
         std::chrono::steady_clock::duration mUnk328;                    // off+328
 
+        SDK_API GraphicsTasks(
+            WorkerPool                                   &rendererPool,
+            gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
+            Scheduler                                    &clientScheduler
+        );
+
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:15,call", "\x4C\x8D\x44\x24\x00\x00\x8B\x00\x00\x8D\x00\x08\x01\x00\x00\xE8\x00\x00\x00\x00\x90\x00\x89")
-        SDK_API GraphicsTasks *ctor(
+        SPHR_CTOR_ALIAS SDK_API GraphicsTasks *ctor(
             WorkerPool                                   &rendererPool,
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &clientScheduler

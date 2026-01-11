@@ -39,18 +39,16 @@ namespace mce {
         std::vector<byte>       mRawData;         // off+536
 
         SDK_API Mesh(Mesh &&other);
-#pragma SDK_LINKER_SYM_ALIAS("??0Mesh@mce@@QEAA@$$QEAV01@@Z", "?ctor@Mesh@mce@@QEAAPEAV12@$$QEAV12@@Z")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xC8\xEB\x00\x33\xC9\x48\x89\x4C\x24")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x33\xF6\xEB\x00\x33\xF6\x8B\xC6\x48\x89\x44\x24")
-        SDK_API Mesh *ctor(mce::Mesh &&c);
+        SPHR_CTOR_ALIAS SDK_API Mesh *ctor(mce::Mesh &&c);
 
         SDK_API ~Mesh() noexcept;
-#pragma SDK_LINKER_SYM_ALIAS("??1Mesh@mce@@QEAA@XZ", "?dtor@Mesh@mce@@QEAAXXZ")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x83\xC3\x00\x48\x3B\xDF\x75\x00\x48\x8B\x7C\x24\x00\x48\x8B\x5C\x24\x00\xC6\x86")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x41\xFF\xC4\x45\x3B\xE5\x0F\x8C")
-        SDK_API void dtor() noexcept;
+        SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x00\x48\x8B\xD9\x48\xB8")
         SDK_API bool isValid() const;

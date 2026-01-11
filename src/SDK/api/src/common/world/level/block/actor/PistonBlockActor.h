@@ -31,10 +31,9 @@ public:
     std::vector<BlockPos>                mBreakBlocks;
 
     SDK_API PistonBlockActor(const BlockPos &pos, bool isSticky);
-#pragma SDK_LINKER_SYM_ALIAS("??0PistonBlockActor@@QEAA@AEBVBlockPos@@_N@Z", "?ctor@PistonBlockActor@@QEAAPEAV1@AEBVBlockPos@@_N@Z")
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x40\x53\x48\x83\xEC\x00\x45\x0F\xB6\xD0")
-    SDK_API PistonBlockActor *ctor(const BlockPos &pos, bool isSticky);
+    SPHR_CTOR_ALIAS SDK_API PistonBlockActor *ctor(const BlockPos &pos, bool isSticky);
 
     // vtb+1
     SPHR_DECL_API("1.21.2", "\x40\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x0F\x29\xB4\x24\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x4C\x89\x4D")

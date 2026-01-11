@@ -31,7 +31,7 @@ namespace sapphire::bootloader {
         for (const auto &op : ops) {
             switch (op.opType) {
             case codegen::SigDatabase::SigOpType::Disp:
-                currentAddress += op.data;
+                currentAddress += op.data.disp;
                 break;
             case codegen::SigDatabase::SigOpType::Deref:
                 currentAddress = *reinterpret_cast<uintptr_t *>(currentAddress);
@@ -45,6 +45,11 @@ namespace sapphire::bootloader {
             case codegen::SigDatabase::SigOpType::Lea:
                 currentAddress = memory::deRef(currentAddress, memory::AsmOperation::LEA);
                 break;
+            case codegen::SigDatabase::SigOpType::RipRel:
+                currentAddress = memory::ripRel(currentAddress, op.data.ripRel.offset, op.data.ripRel.insLen);
+                break;
+            case codegen::SigDatabase::SigOpType::Deref32:
+                currentAddress = *reinterpret_cast<uint32_t *>(currentAddress);
             default:
                 break;
             }

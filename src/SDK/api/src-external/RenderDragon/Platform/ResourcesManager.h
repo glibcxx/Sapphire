@@ -37,9 +37,16 @@ namespace dragon::platform {
         dragon::AccelerationStructureResourceService mAccelerationStructureResourceService; // off+1688
         dragon::Unk1768ResourceService               mUnk1768;                              // off+1768
 
+        SDK_API ResourcesManager(
+            dragon::task::GraphicsTasks                                    &graphicsTasks,
+            const ResourcesManagerConfiguration                            &configuration,
+            const dragon::materials::CompiledMaterialManager::Unk144B99FE0 &a3,
+            const std::function<uintptr_t(uintptr_t)>                      &a4
+        );
+
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xD8\xEB\x00\x49\x8B\xDC\x48\x8B\x36")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\xC4\x49\x8B\x3E")
-        ResourcesManager *ctor(
+        SPHR_CTOR_ALIAS SDK_API ResourcesManager *ctor(
             dragon::task::GraphicsTasks                                    &graphicsTasks,
             const ResourcesManagerConfiguration                            &configuration,
             const dragon::materials::CompiledMaterialManager::Unk144B99FE0 &a3,

@@ -23,17 +23,15 @@ public:
     ClientHitDetectCoordinator &mEventCoordinator;        // off+920
 
     SDK_API HitDetectSystem(ClientHitDetectCoordinator &eventCoordinator);
-#pragma SDK_LINKER_SYM_ALIAS("??0HitDetectSystem@@QEAA@AEAVClientHitDetectCoordinator@@@Z", "?ctor@HitDetectSystem@@QEAAPEAV1@AEAVClientHitDetectCoordinator@@@Z")
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\xC7\x41\x00\x00\x00\x00\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x01\x45\x33\xC0\xC7\x41")
-    SDK_API HitDetectSystem *ctor(ClientHitDetectCoordinator &eventCoordinator);
+    SPHR_CTOR_ALIAS SDK_API HitDetectSystem *ctor(ClientHitDetectCoordinator &eventCoordinator);
 
     // vtb+0
     SDK_API virtual ~HitDetectSystem();
-#pragma SDK_LINKER_SYM_ALIAS("??1HitDetectSystem@@UEAA@XZ", "?dtor@HitDetectSystem@@QEAAXXZ")
 
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x8B\xF9\x48\x89\x01\xBB")
-    SDK_API void dtor() noexcept;
+    SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 
     // vtb+1
     SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x8B\x05")

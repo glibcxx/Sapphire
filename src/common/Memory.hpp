@@ -5,6 +5,7 @@
 #include <type_traits>
 
 namespace memory {
+
     template <typename T>
     constexpr T &getField(void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
@@ -102,32 +103,51 @@ namespace memory {
         MOV = 2,  // e.g. 48 8B 05 55 66 77 88  mov   rax, cs:qword_1919810
     };
 
+    inline uintptr_t ripRel(uintptr_t instrcutionAddr, uint32_t offset, uint32_t insLen) {
+        int32_t   displacementAddr = *reinterpret_cast<int32_t *>(instrcutionAddr + offset);
+        uintptr_t nextInstructionAddr = instrcutionAddr + insLen;
+        uintptr_t targetAddr = nextInstructionAddr + displacementAddr;
+        return targetAddr;
+    }
+
     inline uintptr_t deRef(uintptr_t instrcutionAddr, AsmOperation opType) {
-        int instruction_length = 0;
-        int displacement_offset = 0;
+        int instructionLength = 0;
+        int displacementOffset = 0;
         switch (opType) {
         case AsmOperation::LEA:
         case AsmOperation::MOV:
-            instruction_length = 7;
-            displacement_offset = 3;
+            instructionLength = 7;
+            displacementOffset = 3;
             break;
         case AsmOperation::CALL:
-            instruction_length = 5;
-            displacement_offset = 1;
+            instructionLength = 5;
+            displacementOffset = 1;
             break;
         default:
             return 0;
         }
-        uint8_t  *instruction_ptr = reinterpret_cast<uint8_t *>(instrcutionAddr);
-        int32_t   displacement = *reinterpret_cast<int32_t *>(instruction_ptr + displacement_offset);
-        uintptr_t next_instruction_addr = instrcutionAddr + instruction_length;
-        uintptr_t target_addr = next_instruction_addr + displacement;
-        return target_addr;
+        return ripRel(instrcutionAddr, displacementOffset, instructionLength);
     }
 
     template <typename T>
     constexpr T deRef(T instrcutionAddr, AsmOperation opType) {
         return std::bit_cast<T>(deRef(std::bit_cast<uintptr_t>(instrcutionAddr), opType));
+    }
+
+    template <typename TField, size_t Offset>
+    struct GetField {};
+
+    template <typename TField, size_t Offset>
+    constexpr GetField<TField, Offset> field{};
+
+    template <typename T, typename TField, size_t Offset>
+    decltype(auto) operator->*(T *obj, GetField<TField, Offset>) {
+        return getField<TField>(obj, Offset);
+    }
+
+    template <typename T, typename TField, size_t Offset>
+    decltype(auto) operator->*(T &obj, GetField<TField, Offset>) {
+        return getField<TField>(&obj, Offset);
     }
 
 } // namespace memory

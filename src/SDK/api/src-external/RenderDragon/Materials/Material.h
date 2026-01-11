@@ -107,10 +107,16 @@ namespace dragon::materials {
         std::unordered_map<std::string, definition::SamplerDefinition> mIndexedSamplers; // off+888
         std::vector<std::pair<SamplerSlot, bool>>                      mSamplerSlots[3]; // off+952
 
+        SDK_API Material(
+            CompiledMaterialDefinition                              &materialDefinition,
+            const std::unordered_map<std::string, std::string>      &globalFlags,
+            const std::optional<dragon::platform::GraphicsPlatform> &platform
+        );
+
         SPHR_DECL_API("1.21.2", "\x4C\x8B\xDC\x53\x55\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x49\x8B\xF9\x49\x8B\xE8\x48\x8B\xF2")
         SPHR_DECL_API("1.21.50", "\x4C\x8B\xDC\x53\x55\x56\x57\x41\x54\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x49\x8B\xE9\x4D\x8B\xF0")
         SPHR_DECL_API("1.21.60", "\x4C\x8B\xDC\x53\x55\x56\x57\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x49\x8B\xF1\x4D\x8B\xF0\x48\x8B\xEA")
-        SDK_API Material *ctor(
+        SPHR_CTOR_ALIAS SDK_API Material *ctor(
             CompiledMaterialDefinition                              &materialDefinition,
             const std::unordered_map<std::string, std::string>      &globalFlags,
             const std::optional<dragon::platform::GraphicsPlatform> &platform

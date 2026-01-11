@@ -140,15 +140,11 @@ namespace mce::framebuilder {
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &scheduler
         );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                          \
-    "??0BgfxFrameBuilder@framebuilder@mce@@QEAA@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z",          \
-    "?ctor@BgfxFrameBuilder@framebuilder@mce@@QEAAPEAV123@AEAVWorkerPool@@V?$span@V?$reference_wrapper@VWorkerPool@@@std@@$0?0@gsl@@AEAVScheduler@@@Z" \
-)
 
         SPHR_DECL_API("1.21.2", "\x4C\x8B\xDC\x49\x89\x5B\x00\x49\x89\x4B\x00\x55\x56\x57\x41\x54")
         SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x49\x8B\xE9\x4D\x8B\xE0\x4C\x8B\xFA\x48\x8B\xF9")
         SPHR_DECL_API("1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x54\x41\x56\x41\x57\x48\x83\xEC\x00\x49\x8B\xF9\x49\x8B\xD8")
-        SDK_API BgfxFrameBuilder *ctor(
+        SPHR_CTOR_ALIAS SDK_API BgfxFrameBuilder *ctor(
             WorkerPool                                   &rendererWorkerPool,
             gsl::span<std::reference_wrapper<WorkerPool>> helperPools,
             Scheduler                                    &scheduler

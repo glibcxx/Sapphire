@@ -113,14 +113,10 @@ public:
         const Bedrock::NotNullNonOwnerPtr<const IContentTierManager> &contentTierManager,
         ServerMetrics                                                *serverMetrics
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                                                                                                                                                             \
-    "??0Minecraft@@QEAA@AEAVIMinecraftApp@@AEAVGameCallbacks@@AEAVAllowList@@PEAVPermissionsFile@@AEBV?$not_null@V?$NonOwnerPointer@VFilePathManager@Core@@@Bedrock@@@gsl@@V?$duration@_JU?$ratio@$00$00@std@@@chrono@std@@AEAVIMinecraftEventing@@VClientOrServerNetworkSystemRef@@AEAVPacketSender@@EAEAVTimer@@9AEBV?$not_null@V?$NonOwnerPointer@$$CBVIContentTierManager@@@Bedrock@@@6@PEAVServerMetrics@@@Z",        \
-    "?ctor@Minecraft@@QEAAPEAV1@AEAVIMinecraftApp@@AEAVGameCallbacks@@AEAVAllowList@@PEAVPermissionsFile@@AEBV?$not_null@V?$NonOwnerPointer@VFilePathManager@Core@@@Bedrock@@@gsl@@V?$duration@_JU?$ratio@$00$00@std@@@chrono@std@@AEAVIMinecraftEventing@@VClientOrServerNetworkSystemRef@@AEAVPacketSender@@EAEAVTimer@@9AEBV?$not_null@V?$NonOwnerPointer@$$CBVIContentTierManager@@@Bedrock@@@7@PEAVServerMetrics@@@Z" \
-)
 
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x4D\x8B\xE1\x49\x8B\xD8\x4C\x8B\xEA")
     SPHR_DECL_API("1.21.50,1.21.60", "disp:7,call", "\x48\x8B\x55\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xC3")
-    SDK_API Minecraft *ctor(
+    SPHR_CTOR_ALIAS SDK_API Minecraft *ctor(
         IMinecraftApp                                                &app,
         GameCallbacks                                                &gameCallbacks,
         AllowList                                                    &allowList,

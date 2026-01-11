@@ -97,6 +97,10 @@
 
 #ifdef SAPPHIRE_CODEGEN_PASS
 #    define SPHR_DECL_API(...) [[clang::annotate("sapphire::bind", __VA_ARGS__)]]
+#    define SPHR_CTOR_ALIAS [[clang::annotate("sapphire::alias", 0)]]
+#    define SPHR_DTOR_ALIAS [[clang::annotate("sapphire::alias", 1)]]
 #else
 #    define SPHR_DECL_API(...)
+#    define SPHR_CTOR_ALIAS
+#    define SPHR_DTOR_ALIAS
 #endif

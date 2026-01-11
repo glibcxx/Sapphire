@@ -63,9 +63,12 @@ namespace Bedrock {
         Core::HeapPathBuffer mUserDataPath;                    // off+664
         Core::HeapPathBuffer mCacheStoragePath;                // off+696
 
-        PlatformRuntimeInfo *ctor(); // \xE8\x00\x00\x00\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\x48\x89\x03\x48\x8B\xC3 (1.21.2)
-                                     // \xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xC6\x48\x8B\x4F (1.21.50)
-                                     // \xE8\x00\x00\x00\x00\x48\x8B\x8F\x00\x00\x00\x00\x48\x89\x87 (1.21.60)
+        SDK_API PlatformRuntimeInfo();
+
+        SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xCF\xE8\x00\x00\x00\x00\x48\x89\x03\x48\x8B\xC3")
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x48\x8B\xC6\x48\x8B\x4F")
+        SPHR_DECL_API("1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8B\x8F\x00\x00\x00\x00\x48\x89\x87")
+        SPHR_CTOR_ALIAS SDK_API PlatformRuntimeInfo *ctor();
 
         // vtb+0
         virtual ~PlatformRuntimeInfo();

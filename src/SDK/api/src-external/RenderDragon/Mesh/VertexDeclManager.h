@@ -40,9 +40,11 @@ namespace dragon::mesh {
                 int /* boost::container::flat_map<ValidationKey, bool> */>
                 mValidationCache; // off+144
 
+            SDK_API Impl();
+
             SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x4C\x24\x00\x57\x48\x83\xEC\x00\x48\x8B\xF9\xE8\x00\x00\x00\x00\x33\xC0")
             SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xEB\x00\x49\x8B\x00\x48\x89\x03\x48\x89\x9F")
-            SDK_API Impl *ctor();
+            SPHR_CTOR_ALIAS SDK_API Impl *ctor();
         };
 
         std::unique_ptr<Impl> mImpl; // off+0

@@ -54,18 +54,17 @@ public:
     SDK_API static const uintptr_t __vftable[];
 
 #if MC_VERSION == v1_21_2
+
     BinaryStream(std::string &buffer, bool copyBuffer) :
-        ReadOnlyBinaryStream(buffer, copyBuffer), mOwnedBuffer(copyBuffer ? buffer : ""), mBuffer(mOwnedBuffer) {
-    }
+        ReadOnlyBinaryStream(buffer, copyBuffer), mOwnedBuffer(copyBuffer ? buffer : ""), mBuffer(mOwnedBuffer) {}
+
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
+
     SDK_API BinaryStream(std::string &buffer, bool copyBuffer);
-#    pragma SDK_LINKER_SYM_ALIAS(                                                                            \
-        "??0BinaryStream@@QEAA@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z",        \
-        "?ctor@BinaryStream@@QEAAPEAV1@AEAV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@_N@Z" \
-    )
 
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x57\x48\x83\xEC\x00\x48\x89\x4C\x24\x00\x48\x8B\xFA")
-    SDK_API BinaryStream *ctor(std::string &buffer, bool copyBuffer);
+    SPHR_CTOR_ALIAS SDK_API BinaryStream *ctor(std::string &buffer, bool copyBuffer);
+
 #endif
 
     // vtb+0

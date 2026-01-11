@@ -36,9 +36,11 @@ namespace dragon::materials {
         Unk144B99FE0                                                               mUnk144;    // off+144
         std::unordered_map<uint32_t, std::unordered_map<std::string, std::string>> mUnk312;    // off+312
 
+        SDK_API CompiledMaterialManager(const Unk144B99FE0 &a1);
+
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x90\x49\x89\xAF")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x4C\x89\x00\x80\x00\x00\x00\x4D\x85")
-        SDK_API CompiledMaterialManager *ctor(const Unk144B99FE0 &a1);
+        SPHR_CTOR_ALIAS SDK_API CompiledMaterialManager *ctor(const Unk144B99FE0 &a1);
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x48\x8B\xC8\x48\x8B\x00\x48\x8B\x51\x00\x4C\x89\x39\x4C\x89\x79\x00\x48\x89\x46")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x41\x83\xCE\x00\x48\x8B\x56")

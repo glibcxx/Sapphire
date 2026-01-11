@@ -87,17 +87,15 @@ namespace Json {
         ValueType   type_;  // off+8
 
         SDK_API Value(Json::ValueType type = nullValue);
-#pragma SDK_LINKER_SYM_ALIAS("??0Value@Json@@QEAA@W4ValueType@1@@Z", "?ctor@Value@Json@@QEAAPEAV12@W4ValueType@2@@Z")
 
         SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\xC7\x44\x24\x00\x00\x00\x00\x00\x4C\x8B\x43\x00\x49\x8B\x10\x4C\x8D\x8C\x24")
         SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x48\x8D\x0D\x00\x00\x00\x00\xE8\x00\x00\x00\x00\x66\x0F\x6F\x0D")
-        SDK_API Value *ctor(Json::ValueType type = nullValue);
+        SPHR_CTOR_ALIAS SDK_API Value *ctor(Json::ValueType type = nullValue);
 
         SDK_API Value(const Value &other);
-#pragma SDK_LINKER_SYM_ALIAS("??0Value@Json@@QEAA@AEBV01@@Z", "?ctor@Value@Json@@QEAAPEAV12@AEBV12@@Z")
 
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x0F\xB6\x4F\x00\x0F\xB6\x44\x24\x00\x88\x47\x00\x48\x8B\x44\x24\x00\x88\x4C\x24\x00\x48\x8B\x4F\x00\x48\x89\x4C\x24\x00\x48\x8D\x4C\x24\x00\x48\x89\x47\x00\xE8\x00\x00\x00\x00\x48\x8B\x5C\x24")
-        SDK_API Value *ctor(const Value &other);
+        SPHR_CTOR_ALIAS SDK_API Value *ctor(const Value &other);
 
         Value(Value &&other) noexcept :
             value_(other.value_), type_(std::exchange(other.type_, nullValue)) {}

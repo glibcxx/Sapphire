@@ -104,14 +104,10 @@ public:
         const SoundMapping                                              &sounds,
         const Bedrock::NotNullNonOwnerPtr<ActorResourceDefinitionGroup> &entityResourceDefGroup
     );
-#pragma SDK_LINKER_SYM_ALIAS(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             \
-    "??0LevelRenderer@@QEAA@AEAVIClientInstance@@AEAVMultiPlayerLevel@@V?$shared_ptr@VOptions@@@std@@V?$shared_ptr@VTextureGroup@mce@@@4@AEBV?$not_null@V?$NonOwnerPointer@$$CBVTextureAtlas@@@Bedrock@@@gsl@@VWeakEntityRef@@AEAVHolographicPlatform@@AEAVGameRenderer@@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@7@AEBV?$not_null@V?$NonOwnerPointer@VGeometryGroup@@@Bedrock@@@7@AEBVSoundMapping@@AEBV?$not_null@V?$NonOwnerPointer@VActorResourceDefinitionGroup@@@Bedrock@@@7@@Z",        \
-    "?ctor@LevelRenderer@@QEAAPEAV1@AEAVIClientInstance@@AEAVMultiPlayerLevel@@V?$shared_ptr@VOptions@@@std@@V?$shared_ptr@VTextureGroup@mce@@@5@AEBV?$not_null@V?$NonOwnerPointer@$$CBVTextureAtlas@@@Bedrock@@@gsl@@VWeakEntityRef@@AEAVHolographicPlatform@@AEAVGameRenderer@@AEBV?$not_null@V?$NonOwnerPointer@VSoundPlayerInterface@@@Bedrock@@@8@AEBV?$not_null@V?$NonOwnerPointer@VGeometryGroup@@@Bedrock@@@8@AEBVSoundMapping@@AEBV?$not_null@V?$NonOwnerPointer@VActorResourceDefinitionGroup@@@Bedrock@@@8@@Z" \
-)
 
     SPHR_DECL_API("1.21.2", "\x40\x55\x53\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xC1\x48\x89\x45\x00\x4D\x8B\xF8")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\xAC\x24\x00\x00\x00\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x85\x00\x00\x00\x00\x49\x8B\xC1\x48\x89\x45")
-    SDK_API LevelRenderer *ctor(
+    SPHR_CTOR_ALIAS SDK_API LevelRenderer *ctor(
         IClientInstance                                                 &clientInstance,
         MultiPlayerLevel                                                &level,
         std::shared_ptr<Options>                                         options,
@@ -128,11 +124,10 @@ public:
 
     // vtb+0
     SDK_API virtual ~LevelRenderer() noexcept override;
-#pragma SDK_LINKER_SYM_ALIAS("??1LevelRenderer@@UEAA@XZ", "?dtor@LevelRenderer@@QEAAXXZ")
 
     SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\xD9\x48\x8D\x05")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x48\x89\x74\x24\x00\x57\x41\x54\x41\x55\x41\x56\x41\x57\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x84\x24\x00\x00\x00\x00\x48\x8B\xF1\x48\x8D\x05")
-    SDK_API void dtor() noexcept;
+    SPHR_DTOR_ALIAS SDK_API void dtor() noexcept;
 
     SPHR_DECL_API("1.21.2", "call", "\xE8\x00\x00\x00\x00\x45\x32\xE4\x48\x8B\x07")
     SPHR_DECL_API("1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\xC6\x44\x24\x00\x00\x48\x8B\x86\x00\x00\x00\x00\x48\x85\xC0")

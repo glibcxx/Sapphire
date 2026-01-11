@@ -29,8 +29,10 @@ public:
         std::mutex     mUnk280;            // off+280
         uint64_t       _fill360[3];        // off+360
 
+        SPHR_CTOR_ALIAS SDK_API WGIGamepad(winrt::Windows::Gaming::Input::Gamepad gamepad);
+
         SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:15,call", "\xFF\x15\x00\x00\x00\x00\x48\x8D\x54\x24\x00\x48\x8D\x00\x00\xE8\x00\x00\x00\x00\xEB\x00\x48")
-        WGIGamepad *ctor(winrt::Windows::Gaming::Input::Gamepad gamepad);
+        SPHR_CTOR_ALIAS SDK_API WGIGamepad *ctor(winrt::Windows::Gaming::Input::Gamepad gamepad);
     };
     static_assert(sizeof(WGIGamepad) == 384);
 
