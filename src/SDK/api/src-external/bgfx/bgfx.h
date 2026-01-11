@@ -14,7 +14,7 @@ namespace bgfx {
 
     SPHR_DECL_API("1.21.50", "mov", "\x48\x8B\x15\x00\x00\x00\x00\x45\x33\xDB")
     extern SPHR_API bgfx::Context *s_ctx;
-    SPHR_DECL_API("1.21.50", "mov", "\x48\x8B\x0D\x00\x00\x00\x00\x81\xC7")
+    SPHR_DECL_API("1.21.50,1.21.60", "disp:8,mov", "\x4C\x0F\x47\xAD\x00\x00\x00\x00\x48\x8B\x0D")
     extern SPHR_API bx::AllocatorI *g_allocator;
 
     // size: 1
@@ -361,7 +361,7 @@ namespace bgfx {
         const bgfx::Memory *_mem, const bgfx::VertexDecl &_decl, uint16_t _flags = 0x0000
     );
 
-    SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x0F\xB7\xFA") // 1.21.50
+    SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x55\x56\x57\x41\x56\x41\x57\x48\x83\xEC\x00\x0F\xB7\xFA") // 1.21.50
     SDK_API bgfx::DynamicIndexBufferHandle createDynamicIndexBuffer(const bgfx::Memory *_mem, uint16_t _flags = 0x0000);
 
     SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x48\x89\x6C\x24\x00\x56\x57\x41\x56\x48\x83\xEC\x00\x48\x8B\x35\x00\x00\x00\x00\x4C\x8B\xF1") // 1.21.50

@@ -38,6 +38,7 @@ class ChunkLoadActionList;
 class DelayActionList;
 class UpdateSubChunkBlocksChangedInfo;
 class Scheduler;
+class PlayerReplicationStructures;
 
 // https://github.com/LiteLDev/LeviLamina/blob/4d08de07ef76fb4f101aebb8b251e2652dc4cfbd/src/mc/world/level/dimension/Dimension.h#L79
 
@@ -77,11 +78,7 @@ class ActorReplication {
 
 #endif
 
-#if MC_VERSION == v1_21_2
-
-class PlayerReplicationStructures;
-
-// size: 1576
+// size: 1576 (1.21.2), 1712 (1.21.50), 1704 (1.21.60)
 class Dimension : public IDimension,
                   public LevelListener,
                   public SavedData,
@@ -89,6 +86,7 @@ class Dimension : public IDimension,
                   public EnableGetWeakRef<Dimension>,
                   public std::enable_shared_from_this<Dimension> {
 public:
+#if MC_VERSION == v1_21_2
     std::vector<ActorChunkTransferEntry> mActorChunkTransferQueue; // off+104
     std::unordered_map<ChunkKey, std::vector<ActorUnloadedChunkTransferEntry>>
         mActorUnloadedChunkTransferQueue; // off+128
@@ -154,36 +152,7 @@ public:
     std::unique_ptr<PlayerReplicationStructures>                     mReplicationStructures;      // off+1536
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1544
     bool                                                             mRunChunkGenWatchDog;        // off+1568
-
-    SDK_API Dimension(
-        ILevel              &level,
-        DimensionType        dimId,
-        DimensionHeightRange heightRange,
-        Scheduler           &callbackContext,
-        std::string          name
-    );
-
-    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
-    SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
-        ILevel              &level,
-        DimensionType        dimId,
-        DimensionHeightRange heightRange,
-        Scheduler           &callbackContext,
-        std::string          name
-    );
-};
-static_assert(sizeof(Dimension) == 1576);
-
 #elif MC_VERSION == v1_21_50
-
-// size: 1712
-class Dimension : public IDimension,
-                  public LevelListener,
-                  public SavedData,
-                  public Bedrock::EnableNonOwnerReferences,
-                  public EnableGetWeakRef<Dimension>,
-                  public std::enable_shared_from_this<Dimension> {
-public:
     std::vector<ActorChunkTransferEntry> mActorChunkTransferQueue; // off+104
     std::unordered_map<ChunkKey, std::vector<ActorUnloadedChunkTransferEntry>>
         mActorUnloadedChunkTransferQueue; // off+128
@@ -250,36 +219,7 @@ public:
     ActorReplication                                                 mActorReplication;           // off+1568
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1680
     bool                                                             mRunChunkGenWatchDog;        // off+1704
-
-    SDK_API Dimension(
-        ILevel              &level,
-        DimensionType        dimId,
-        DimensionHeightRange heightRange,
-        Scheduler           &callbackContext,
-        std::string          name
-    );
-
-    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
-    SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
-        ILevel              &level,
-        DimensionType        dimId,
-        DimensionHeightRange heightRange,
-        Scheduler           &callbackContext,
-        std::string          name
-    );
-};
-static_assert(sizeof(Dimension) == 1712);
-
 #elif MC_VERSION == v1_21_60
-
-// size: 1704
-class Dimension : public IDimension,
-                  public LevelListener,
-                  public SavedData,
-                  public Bedrock::EnableNonOwnerReferences,
-                  public EnableGetWeakRef<Dimension>,
-                  public std::enable_shared_from_this<Dimension> {
-public:
     std::vector<ActorChunkTransferEntry> mActorChunkTransferQueue; // off+104
     std::unordered_map<ChunkKey, std::vector<ActorUnloadedChunkTransferEntry>>
         mActorUnloadedChunkTransferQueue; // off+128
@@ -345,6 +285,8 @@ public:
     std::vector<WeakEntityRef>                                       mPlayersToReplicate;         // off+1672
     bool                                                             mRunChunkGenWatchDog;        // off+1696
 
+#endif
+
     SDK_API Dimension(
         ILevel              &level,
         DimensionType        dimId,
@@ -353,7 +295,8 @@ public:
         std::string          name
     );
 
-    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x06\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\x48\x8D\x05\x00\x00\x00\x00\x48\x89\x46\x00\xC6\x86")
+    SPHR_DECL_API("1.21.2", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x41\x8B\xF9\x41\x8B\xD8")
+    SPHR_DECL_API("1.21.50,1.21.60", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x48\x89\x7C\x24\x00\x55\x41\x54\x41\x55\x41\x56\x41\x57\x48\x8D\x6C\x24\x00\x48\x81\xEC\x00\x00\x00\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x45\x00\x41\x8B\xD9\x41\x8B\xF8")
     SPHR_CTOR_ALIAS SDK_API Dimension *ctor(
         ILevel              &level,
         DimensionType        dimId,
@@ -362,6 +305,3 @@ public:
         std::string          name
     );
 };
-static_assert(sizeof(Dimension) == 1704);
-
-#endif

@@ -73,7 +73,7 @@ public:
     // vtb+8
     virtual Bedrock::Result<void> _read(ReadOnlyBinaryStream &stream) = 0;
 
-    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:7,call", "\x48\x8D\x55\x00\x49\x8B\x0F\xE8\x00\x00\x00\x00\x48\x8B\xD0")
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:15,call", "\x4D\x8B\x4E\x00\x4D\x8B\x46\x00\x48\x8D\x55\x00\x49\x8B\x0F")
     SDK_API Bedrock::Result<void> readNoHeader(ReadOnlyBinaryStream &bitstream, const SubClientId &subid);
 };
 static_assert(sizeof(Packet) == 48);
