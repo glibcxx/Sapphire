@@ -6,6 +6,11 @@
 
 class LevelRendererPlayer : public LevelRendererCamera {
 public:
+    std::shared_ptr<mce::Mesh> mCloudsMesh;              // off+3320
+    bool                       mUpdatingClouds;          // off+3368
+    Vec3                       mLastCloudUpdatePosition; // off+3372
+    uint8_t                    mLastCloudSide;           // off+3384
+
     SPHR_DECL_API("1.21.2", "disp:13,call", "\x4D\x8B\xC6\x48\x8B\xD5\x48\x8B\x8F")
     SPHR_DECL_API("1.21.50,1.21.60", "\x48\x8B\xC4\x53\x55\x56\x57\x41\x56\x48\x81\xEC\xD0\x00\x00\x00\x0F\x29\x70\x00\x0F\x29\x78\x00\x44\x0F\x29\x40\x00\x48\x8B\x05")
     SDK_API /*virtual*/ void preRenderUpdate(

@@ -189,7 +189,7 @@ namespace BCM_V2 {
     }
 
     void Editor::setupHotkeys() {
-        GuiOverlay::registerHotkey(
+        sapphire::ui::GuiOverlay::registerHotkey(
             {.triggerKey = ImGuiKey_K,
              .description = "Add key frame",
              .action = [this]() {
@@ -197,7 +197,7 @@ namespace BCM_V2 {
              }}
         );
 
-        GuiOverlay::registerHotkey(
+        sapphire::ui::GuiOverlay::registerHotkey(
             {.triggerKey = ImGuiKey_Tab,
              .description = "Toggle BCM Editor focus",
              .action = [this]() {

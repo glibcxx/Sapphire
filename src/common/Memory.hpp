@@ -4,28 +4,28 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace memory {
+namespace sapphire {
 
     template <typename T>
-    constexpr T &getField(void *obj, uintptr_t offset) {
+    constexpr T &dAccess(void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
         requires(std::is_reference_v<T>)
-    constexpr T &&getField(void *obj, uintptr_t offset) {
+    constexpr T &&dAccess(void *obj, uintptr_t offset) {
         using T_ = std::remove_reference_t<T>;
         return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
-    constexpr const T &getField(const void *obj, uintptr_t offset) {
+    constexpr const T &dAccess(const void *obj, uintptr_t offset) {
         return *reinterpret_cast<T *>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
 
     template <typename T>
         requires(std::is_reference_v<T>)
-    constexpr const T &&getField(const void *obj, uintptr_t offset) {
+    constexpr const T &&dAccess(const void *obj, uintptr_t offset) {
         using T_ = std::remove_reference_t<T>;
         return **reinterpret_cast<T_ **>(reinterpret_cast<uintptr_t>(obj) + offset);
     }
@@ -42,7 +42,7 @@ namespace memory {
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == 2 * sizeof(uintptr_t))
-    constexpr uintptr_t toRawFunc(Fn addr) {
+    constexpr uintptr_t toFuncAddr(Fn addr) {
         struct member_func_ptr {
             uintptr_t addr;
             uintptr_t offset;
@@ -52,11 +52,11 @@ namespace memory {
 
     template <typename Fn>
         requires(std::is_member_function_pointer_v<Fn> && sizeof(Fn) == sizeof(uintptr_t) || std::is_function_v<std::remove_pointer_t<Fn>>)
-    constexpr uintptr_t toRawFunc(Fn addr) {
+    constexpr uintptr_t toFuncAddr(Fn addr) {
         return std::bit_cast<uintptr_t>(addr);
     }
 
-    constexpr uintptr_t toRawFunc(uintptr_t addr) {
+    constexpr uintptr_t toFuncAddr(uintptr_t addr) {
         return addr;
     }
 
@@ -97,12 +97,6 @@ namespace memory {
         )(obj, std::forward<Args>(args)...);
     }
 
-    enum class AsmOperation {
-        LEA = 0,  // e.g. 4C 8D 0D 11 22 33 44  lea   r9, sub_11451419
-        CALL = 1, // e.g. E8       11 22 33 44  call  sub_11451419
-        MOV = 2,  // e.g. 48 8B 05 55 66 77 88  mov   rax, cs:qword_1919810
-    };
-
     inline uintptr_t ripRel(uintptr_t instrcutionAddr, uint32_t offset, uint32_t insLen) {
         int32_t   displacementAddr = *reinterpret_cast<int32_t *>(instrcutionAddr + offset);
         uintptr_t nextInstructionAddr = instrcutionAddr + insLen;
@@ -110,16 +104,22 @@ namespace memory {
         return targetAddr;
     }
 
-    inline uintptr_t deRef(uintptr_t instrcutionAddr, AsmOperation opType) {
+    enum class InstType {
+        LEA = 0,  // e.g. 4C 8D 0D 11 22 33 44  lea   r9, sub_11451419
+        CALL = 1, // e.g. E8       11 22 33 44  call  sub_11451419
+        MOV = 2,  // e.g. 48 8B 05 55 66 77 88  mov   rax, cs:qword_1919810
+    };
+
+    inline uintptr_t ripRel(uintptr_t instrcutionAddr, InstType opType) {
         int instructionLength = 0;
         int displacementOffset = 0;
         switch (opType) {
-        case AsmOperation::LEA:
-        case AsmOperation::MOV:
+        case InstType::LEA:
+        case InstType::MOV:
             instructionLength = 7;
             displacementOffset = 3;
             break;
-        case AsmOperation::CALL:
+        case InstType::CALL:
             instructionLength = 5;
             displacementOffset = 1;
             break;
@@ -130,24 +130,24 @@ namespace memory {
     }
 
     template <typename T>
-    constexpr T deRef(T instrcutionAddr, AsmOperation opType) {
-        return std::bit_cast<T>(deRef(std::bit_cast<uintptr_t>(instrcutionAddr), opType));
+    constexpr T ripRel(T instrcutionAddr, InstType opType) {
+        return std::bit_cast<T>(ripRel(std::bit_cast<uintptr_t>(instrcutionAddr), opType));
     }
 
     template <typename TField, size_t Offset>
-    struct GetField {};
+    struct Field {};
 
     template <typename TField, size_t Offset>
-    constexpr GetField<TField, Offset> field{};
+    constexpr Field<TField, Offset> field{};
 
     template <typename T, typename TField, size_t Offset>
-    decltype(auto) operator->*(T *obj, GetField<TField, Offset>) {
-        return getField<TField>(obj, Offset);
+    decltype(auto) operator->*(T *obj, Field<TField, Offset>) {
+        return dAccess<TField>(obj, Offset);
     }
 
     template <typename T, typename TField, size_t Offset>
-    decltype(auto) operator->*(T &obj, GetField<TField, Offset>) {
-        return getField<TField>(&obj, Offset);
+    decltype(auto) operator->*(T &obj, Field<TField, Offset>) {
+        return dAccess<TField>(&obj, Offset);
     }
 
-} // namespace memory
+} // namespace sapphire

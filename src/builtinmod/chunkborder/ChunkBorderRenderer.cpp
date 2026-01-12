@@ -11,8 +11,8 @@
 
 static sapphire::event::AutoListener<sapphire::event::RenderLevelEvent> renderListener;
 
-static DrawUtils *drawUtils = nullptr;
-static bool       drawBorder = false;
+static sapphire::DrawUtils *drawUtils = nullptr;
+static bool                 drawBorder = false;
 
 void onRenderLevel(sapphire::event::RenderLevelEvent &event) {
     if (!drawBorder) return;
@@ -21,8 +21,8 @@ void onRenderLevel(sapphire::event::RenderLevelEvent &event) {
 
     for (int cx = -1; cx <= 2; ++cx) {
         for (int cz = -1; cz <= 2; ++cz) {
-            Vec3 vLineFrom(chunkPos.x + cx << 4, camPos.y - 128, chunkPos.z + cz << 4);
-            Vec3 vLineTo(chunkPos.x + cx << 4, camPos.y + 128, chunkPos.z + cz << 4);
+            Vec3 vLineFrom((chunkPos.x + cx) << 4, camPos.y - 128, (chunkPos.z + cz) << 4);
+            Vec3 vLineTo((chunkPos.x + cx) << 4, camPos.y + 128, (chunkPos.z + cz) << 4);
             // 绘制4区块交界处的竖线
             drawUtils->drawLine(
                 vLineFrom,
@@ -87,15 +87,15 @@ void onRenderLevel(sapphire::event::RenderLevelEvent &event) {
 }
 
 void setupSettings() {
-    GuiOverlay::registerHotkey(
+    sapphire::ui::GuiOverlay::registerHotkey(
         {.keysDown = {ImGuiKey_F3},
          .triggerKey = ImGuiKey_G,
          .action = []() {
              drawBorder = !drawBorder;
-             GuiOverlay::addToast(std::format("ChunkBorder: {}", drawBorder ? "Enabled" : "Disabled"));
+             sapphire::ui::GuiOverlay::addToast(std::format("ChunkBorder: {}", drawBorder ? "Enabled" : "Disabled"));
          }}
     );
-    GuiOverlay::registerModSettings(
+    sapphire::ui::GuiOverlay::registerModSettings(
         {
             .name = "Chunk Border",
             .description = "Display Chunk Border",
@@ -107,7 +107,7 @@ void setupSettings() {
 }
 
 void installChunkBorderRender() {
-    drawUtils = &DrawUtils::getInstance();
+    drawUtils = &sapphire::DrawUtils::getInstance();
     renderListener = sapphire::event::EventBus::getInstance()
                          .registerAutoListener<sapphire::event::RenderLevelEvent>(onRenderLevel);
     setupSettings();

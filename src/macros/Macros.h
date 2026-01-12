@@ -51,7 +51,7 @@
 
 #ifndef SPHR_FUNCDNAME
 #    define SPHR_FUNCDNAME \
-        util::StringLiteral { __FUNCDNAME__ }
+        sapphire::StringLiteral { __FUNCDNAME__ }
 #endif
 
 #ifndef SPHR_UNINIT

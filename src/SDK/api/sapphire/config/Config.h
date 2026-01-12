@@ -10,7 +10,7 @@
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "imgui.h"
 
-namespace sapphire::inline config {
+namespace sapphire {
 
     class Config : public std::enable_shared_from_this<Config> {
         nlohmann::json        mData;
@@ -97,4 +97,4 @@ namespace sapphire::inline config {
         }
     };
 
-} // namespace sapphire::inline config
+} // namespace sapphire

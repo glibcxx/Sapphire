@@ -1,6 +1,6 @@
 #pragma once
 
-namespace util {
+namespace sapphire {
 
     template <typename... Ts>
     struct Overloaded : Ts... {

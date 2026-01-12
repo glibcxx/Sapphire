@@ -171,13 +171,13 @@ void FreeCameraMod::enableFreeCamera(bool enable, bool showPlayerModel) {
 }
 
 void FreeCameraMod::_setupSettingGui() {
-    GuiOverlay::registerModSettings(
+    sapphire::ui::GuiOverlay::registerModSettings(
         {.name = "Free Camera",
          .description = "Free Camera",
          .drawSettings = [this]() { this->onDrawSetting(); }}
     );
 
-    GuiOverlay::registerHotkey(
+    sapphire::ui::GuiOverlay::registerHotkey(
         {.triggerKey = ImGuiKey_O,
          .description = "Toggle Free Camera",
          .action = [this]() {

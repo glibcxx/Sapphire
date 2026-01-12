@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <string_view>
 
-namespace util {
+namespace sapphire {
 
     template <std::size_t N>
     struct StringLiteral {
@@ -16,7 +16,7 @@ namespace util {
 
     template <StringLiteral S>
     struct StaticString {
-        static constexpr util::StringLiteral storage = S;
+        static constexpr sapphire::StringLiteral storage = S;
     };
 
-} // namespace util
+} // namespace sapphire

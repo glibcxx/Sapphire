@@ -39,7 +39,7 @@ namespace sapphire::refl {
         template <typename T, auto ptr>
         consteval auto memberNameSliced() {
             constexpr auto nameView = memberName<T, ptr>();
-            return util::StaticString<util::StringLiteral<nameView.size()>{nameView}>::storage.view();
+            return sapphire::StaticString<sapphire::StringLiteral<nameView.size()>{nameView}>::storage.view();
         }
 
         template <typename T>
@@ -151,7 +151,7 @@ namespace sapphire::refl {
         template <typename T, typename... Fn>
         constexpr void operator()(T &value, Fn &&...callback) const {
             auto memberTuple = detail::MemberInfo<T, membCount<T>>::expand(value);
-            [&, overloaded = util::Overloaded{std::forward<Fn>(callback)...}]<std::size_t... Idx>(
+            [&, overloaded = sapphire::Overloaded{std::forward<Fn>(callback)...}]<std::size_t... Idx>(
                 std::index_sequence<Idx...>
             ) {
                 (overloaded(std::get<Idx>(memberTuple), Idx, std::get<Idx>(membNames<T>)), ...);
@@ -171,7 +171,7 @@ namespace sapphire::refl {
     public:
         template <typename... Fn>
         constexpr void operator()(Fn &&...callback) const {
-            [&, overloaded = util::Overloaded{std::forward<Fn>(callback)...}]<std::size_t... Idx>(
+            [&, overloaded = sapphire::Overloaded{std::forward<Fn>(callback)...}]<std::size_t... Idx>(
                 std::index_sequence<Idx...>
             ) {
                 ([&]() {

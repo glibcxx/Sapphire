@@ -279,10 +279,10 @@ namespace bgfx {
     };
 
     struct Frame {
-       SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x40\x38\x35")
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x40\x38\x35")
         SDK_API void create();
 
-       SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
         SDK_API void destroy();
     };
 
@@ -675,8 +675,8 @@ namespace bgfx {
 
         CommandBuffer &getCommandBuffer(CommandBuffer::Enum _cmd) {
             CommandBuffer &cmdbuf = _cmd < CommandBuffer::Enum::End
-                                      ? memory::getField<CommandBuffer>(m_submit, 102553560 /*1.21.50*/)
-                                      : memory::getField<CommandBuffer>(m_submit, 1145141919810 /*FIXME*/);
+                                      ? sapphire::dAccess<CommandBuffer>(m_submit, 102553560 /*1.21.50*/)
+                                      : sapphire::dAccess<CommandBuffer>(m_submit, 1145141919810 /*FIXME*/);
             uint8_t        cmd = (uint8_t)_cmd;
             cmdbuf.write(cmd);
             return cmdbuf;
@@ -699,7 +699,7 @@ namespace bgfx {
 
         void destroyIndirectBuffer(bgfx::IndirectBufferHandle _handle); /*{
             VertexBufferHandle handle = {_handle.idx};
-            CommandBuffer     &cmdbuf = memory::getField<CommandBuffer>(m_submit, 102553560);
+            CommandBuffer     &cmdbuf = sapphire::dAccess<CommandBuffer>(m_submit, 102553560);
             cmdbuf.write((uint8_t)CommandBuffer::Enum::CreateDynamicVertexBuffer);
             cmdbuf.write(handle);
             // FIXME

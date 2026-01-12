@@ -314,7 +314,9 @@ namespace sapphire::input {
                 }
             );
         } catch (const winrt::hresult_error &ex) {
-            sapphire::error("InputManager: 订阅 CoreWindowEvents 失败: {}", util::wstringToString(ex.message().c_str()));
+            sapphire::error(
+                "InputManager: 订阅 CoreWindowEvents 失败: {}", sapphire::wstringToString(ex.message().c_str())
+            );
             return;
         }
         this->mCoreDispatcher = this->mCoreWindow.Dispatcher();
@@ -326,7 +328,9 @@ namespace sapphire::input {
                 }
             );
         } catch (const winrt::hresult_error &ex) {
-            sapphire::error("InputManager: 订阅 AcceleratorKeyActivated 失败: {}", util::wstringToString(ex.message().c_str()));
+            sapphire::error(
+                "InputManager: 订阅 AcceleratorKeyActivated 失败: {}", sapphire::wstringToString(ex.message().c_str())
+            );
             return;
         }
         instance = this;

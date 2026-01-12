@@ -36,7 +36,7 @@ namespace sapphire::refl {
         template <typename T, bool removeKeyword>
         consteval auto typeNameSliced() {
             constexpr auto nameView = removeKeyword ? removeTypeKeyword(typeName<T>()) : typeName<T>();
-            return util::StaticString<util::StringLiteral<nameView.size()>{nameView}>::storage.view();
+            return sapphire::StaticString<sapphire::StringLiteral<nameView.size()>{nameView}>::storage.view();
         }
 
     } // namespace detail

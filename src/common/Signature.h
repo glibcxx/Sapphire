@@ -3,14 +3,14 @@
 #include "StringLiteral.hpp"
 #include "macros/Macros.h"
 
-namespace sapphire::signature {
+namespace sapphire {
 
     template <std::size_t N, typename Callback>
     struct Signature;
 
     template <std::size_t N>
     struct Signature<N, nullptr_t> {
-        util::StringLiteral<N> mSig;
+        StringLiteral<N> mSig;
 
         SPHR_FORCE_INLINE constexpr uintptr_t operator()(uintptr_t addr) const { return addr; }
     };
@@ -18,8 +18,8 @@ namespace sapphire::signature {
     template <std::size_t N, typename Callback>
         requires std::is_invocable_r_v<uintptr_t, Callback, uintptr_t>
     struct Signature<N, Callback> {
-        util::StringLiteral<N> mSig;
-        Callback               mCallback;
+        StringLiteral<N> mSig;
+        Callback         mCallback;
 
         SPHR_FORCE_INLINE constexpr uintptr_t operator()(uintptr_t addr) const { return mCallback(addr); }
     };
@@ -36,9 +36,9 @@ namespace sapphire::signature {
         return Signature<N, Callback>{sig.mSig, fn};
     }
 
-} // namespace sapphire::signature
+} // namespace sapphire
 
-template <util::StringLiteral A>
+template <sapphire::StringLiteral A>
 consteval auto operator""_sig() {
-    return sapphire::signature::Signature<A.size, nullptr_t>{A};
+    return sapphire::Signature<A.size, nullptr_t>{A};
 }

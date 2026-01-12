@@ -16,87 +16,91 @@ namespace sapphire::core {
     class RenderBackend;
 }
 
-class GuiOverlay {
-public:
-    struct ModSettings {
-        std::string           name;
-        std::string           description;
-        std::function<void()> drawSettings;
+namespace sapphire::ui {
+
+    class GuiOverlay {
+    public:
+        struct ModSettings {
+            std::string           name;
+            std::string           description;
+            std::function<void()> drawSettings;
+        };
+
+        struct Hotkey {
+            std::vector<ImGuiKey> keysDown;   // [optinal] Keys that must be held down (can be ImGuiKey_xxx or ImGuiMod_xxx)
+            ImGuiKey              triggerKey; // The single key that must be tapped (ImGuiKey_xxx)
+            std::string           description;
+            std::function<void()> action;
+        };
+
+        static void init();
+        static void uninit();
+
+        SPHR_API static void registerModSettings(ModSettings &&settings);
+
+        static void registerModSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
+            return registerModSettings({name, description, drawSettings});
+        }
+
+        SPHR_API static void registerHotkey(Hotkey &&hotkey);
+
+        SPHR_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
+
+        SPHR_API static void gameTryGrabMouse();
+        SPHR_API static void gameReleaseMouse();
+
+    private:
+        friend class sapphire::core::RenderBackend;
+
+        inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
+        inline static std::chrono::steady_clock::duration   sToastShowingDuration{};
+
+        static std::vector<ModSettings> sModSettings;
+        static std::vector<Hotkey>      sRegisteredHotkeys;
+        static std::vector<std::string> sToastMessages;
+
+        static std::shared_ptr<sapphire::Config> sConfig;
+
+        inline static int sSelectedModIndex = -1;
+
+        inline static int64_t sTime = 0;
+        inline static int64_t sTicksPerSecond = 0;
+
+        inline static bool sInitialized = false;
+
+        inline static bool sShowToast = false;
+        inline static bool sShowPannel = false;
+        inline static bool sShowLogWindow = true;
+
+        // Style settings for the main panel
+        inline static ImVec2 sPanelPadding = ImVec2(15.0f, 15.0f);
+        inline static float  sPanelRounding = 10.0f;
+        inline static ImVec4 sPanelBgColor = ImVec4(0.08f, 0.08f, 0.10f, 0.92f);
+        inline static float  sPanelDefaultWidthRatio = 0.7f;
+        inline static float  sPanelDefaultHeightRatio = 0.8f;
+
+        static void initImGui(
+            HWND                  mainWindow,
+            ID3D11Device         *device,
+            ID3D11DeviceContext  *deviceContext,
+            DXGI_SWAP_CHAIN_DESC &swapChainDesc
+        );
+
+        static void shutdownImGui();
+
+        static void handleHotkey();
+
+        static void frame();
+
+        static void refreshCursorPos();
+
+        static void saveConfig();
+        static void loadConfig();
+
+        static void drawToast();
+        static void drawPanel();
+        static void drawModList();
+        static void drawModDetails();
     };
 
-    struct Hotkey {
-        std::vector<ImGuiKey> keysDown;   // [optinal] Keys that must be held down (can be ImGuiKey_xxx or ImGuiMod_xxx)
-        ImGuiKey              triggerKey; // The single key that must be tapped (ImGuiKey_xxx)
-        std::string           description;
-        std::function<void()> action;
-    };
-
-    static void init();
-    static void uninit();
-
-    SPHR_API static void registerModSettings(ModSettings &&settings);
-
-    static void registerModSettings(const std::string &name, const std::string &description, std::function<void()> drawSettings) {
-        return registerModSettings({name, description, drawSettings});
-    }
-
-    SPHR_API static void registerHotkey(Hotkey &&hotkey);
-
-    SPHR_API static void addToast(std::string message, std::chrono::steady_clock::duration duration = std::chrono::seconds(2));
-
-    SPHR_API static void gameTryGrabMouse();
-    SPHR_API static void gameReleaseMouse();
-
-private:
-    friend class sapphire::core::RenderBackend;
-
-    inline static std::chrono::steady_clock::time_point sLastShowToastTimePoint{};
-    inline static std::chrono::steady_clock::duration   sToastShowingDuration{};
-
-    static std::vector<ModSettings> sModSettings;
-    static std::vector<Hotkey>         sRegisteredHotkeys;
-    static std::vector<std::string>    sToastMessages;
-
-    static std::shared_ptr<sapphire::config::Config> sConfig;
-
-    inline static int sSelectedModIndex = -1;
-
-    inline static int64_t sTime = 0;
-    inline static int64_t sTicksPerSecond = 0;
-
-    inline static bool sInitialized = false;
-
-    inline static bool sShowToast = false;
-    inline static bool sShowPannel = false;
-    inline static bool sShowLogWindow = true;
-
-    // Style settings for the main panel
-    inline static ImVec2 sPanelPadding = ImVec2(15.0f, 15.0f);
-    inline static float  sPanelRounding = 10.0f;
-    inline static ImVec4 sPanelBgColor = ImVec4(0.08f, 0.08f, 0.10f, 0.92f);
-    inline static float  sPanelDefaultWidthRatio = 0.7f;
-    inline static float  sPanelDefaultHeightRatio = 0.8f;
-
-    static void initImGui(
-        HWND                  mainWindow,
-        ID3D11Device         *device,
-        ID3D11DeviceContext  *deviceContext,
-        DXGI_SWAP_CHAIN_DESC &swapChainDesc
-    );
-
-    static void shutdownImGui();
-
-    static void handleHotkey();
-
-    static void frame();
-
-    static void refreshCursorPos();
-
-    static void saveConfig();
-    static void loadConfig();
-
-    static void drawToast();
-    static void drawPanel();
-    static void drawModList();
-    static void drawModDetails();
-};
+} // namespace sapphire::ui

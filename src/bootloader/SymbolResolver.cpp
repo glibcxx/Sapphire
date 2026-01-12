@@ -37,16 +37,16 @@ namespace sapphire::bootloader {
                 currentAddress = *reinterpret_cast<uintptr_t *>(currentAddress);
                 break;
             case codegen::SigDatabase::SigOpType::Call:
-                currentAddress = memory::deRef(currentAddress, memory::AsmOperation::CALL);
+                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::CALL);
                 break;
             case codegen::SigDatabase::SigOpType::Mov:
-                currentAddress = memory::deRef(currentAddress, memory::AsmOperation::MOV);
+                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::MOV);
                 break;
             case codegen::SigDatabase::SigOpType::Lea:
-                currentAddress = memory::deRef(currentAddress, memory::AsmOperation::LEA);
+                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::LEA);
                 break;
             case codegen::SigDatabase::SigOpType::RipRel:
-                currentAddress = memory::ripRel(currentAddress, op.data.ripRel.offset, op.data.ripRel.insLen);
+                currentAddress = sapphire::ripRel(currentAddress, op.data.ripRel.offset, op.data.ripRel.insLen);
                 break;
             case codegen::SigDatabase::SigOpType::Deref32:
                 currentAddress = *reinterpret_cast<uint32_t *>(currentAddress);
@@ -90,7 +90,8 @@ namespace sapphire::bootloader {
 
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
         const size_t    moduleSize = moduleInfo.SizeOfImage;
-        mResolvedFunctionSymbols[util::Decorator<&SymbolResolver::get>::value.value] = (uintptr_t)&SymbolResolver::get;
+        mResolvedFunctionSymbols[sapphire::abi::Decorator<&SymbolResolver::get>::value.value] =
+            (uintptr_t)&SymbolResolver::get;
 
         struct ScanResult {
             const codegen::SigDatabase::SigEntry *entry;
@@ -136,7 +137,7 @@ namespace sapphire::bootloader {
                         ) -> coro::Task<ScanResult> {
             co_await pool.schedule();
             uintptr_t foundAddress =
-                memory::scan::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
+                sapphire::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
             completedTasks.fetch_add(1, std::memory_order_relaxed);
             co_return ScanResult{&entry, foundAddress ? applyOperations(foundAddress, entry.mOperations) : 0};
         };
@@ -165,9 +166,9 @@ namespace sapphire::bootloader {
 
         coro::IoContext ioContext;
 
-        static util::TimerToken token;
+        static sapphire::TimerToken token;
         {
-            util::ScopedTimer timer{token};
+            sapphire::ScopedTimer timer{token};
             syncWait(
                 whenAll(
                     progressTask(pool, ioContext),

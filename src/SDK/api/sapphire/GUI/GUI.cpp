@@ -134,327 +134,331 @@ namespace {
 
 } // namespace
 
-std::vector<GuiOverlay::ModSettings>      GuiOverlay::sModSettings{};
-std::vector<GuiOverlay::Hotkey>           GuiOverlay::sRegisteredHotkeys{};
-std::vector<std::string>                  GuiOverlay::sToastMessages{};
-std::shared_ptr<sapphire::config::Config> GuiOverlay::sConfig{};
+namespace sapphire::ui {
 
-void GuiOverlay::init() {
-    sapphire::LogManager::getInstance().addSink(gGuiLogSink);
-}
+    std::vector<GuiOverlay::ModSettings> GuiOverlay::sModSettings{};
+    std::vector<GuiOverlay::Hotkey>      GuiOverlay::sRegisteredHotkeys{};
+    std::vector<std::string>             GuiOverlay::sToastMessages{};
+    std::shared_ptr<sapphire::Config>    GuiOverlay::sConfig{};
 
-void GuiOverlay::uninit() {
-}
+    void GuiOverlay::init() {
+        sapphire::LogManager::getInstance().addSink(gGuiLogSink);
+    }
 
-void GuiOverlay::registerModSettings(ModSettings &&settings) {
-    sModSettings.push_back(std::move(settings));
-}
+    void GuiOverlay::uninit() {
+    }
 
-void GuiOverlay::registerHotkey(Hotkey &&hotkey) {
-    sRegisteredHotkeys.push_back(std::move(hotkey));
-}
+    void GuiOverlay::registerModSettings(ModSettings &&settings) {
+        sModSettings.push_back(std::move(settings));
+    }
 
-void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::duration duration) {
-    GuiOverlay::sShowToast = true;
-    GuiOverlay::sLastShowToastTimePoint = std::chrono::steady_clock::now();
-    if (sToastShowingDuration < duration) sToastShowingDuration = duration;
-    sToastMessages.emplace_back(std::move(message));
-}
+    void GuiOverlay::registerHotkey(Hotkey &&hotkey) {
+        sRegisteredHotkeys.push_back(std::move(hotkey));
+    }
 
-void GuiOverlay::gameTryGrabMouse() {
-    if (!ClientInstance::primaryClientInstance->isShowingMenu())
-        ClientInstance::primaryClientInstance->grabMouse();
-    ImGui::SetWindowFocus(NULL);
-}
+    void GuiOverlay::addToast(std::string message, std::chrono::steady_clock::duration duration) {
+        GuiOverlay::sShowToast = true;
+        GuiOverlay::sLastShowToastTimePoint = std::chrono::steady_clock::now();
+        if (sToastShowingDuration < duration) sToastShowingDuration = duration;
+        sToastMessages.emplace_back(std::move(message));
+    }
 
-void GuiOverlay::gameReleaseMouse() {
-    ClientInstance::primaryClientInstance->releaseMouse();
-}
+    void GuiOverlay::gameTryGrabMouse() {
+        if (!ClientInstance::primaryClientInstance->isShowingMenu())
+            ClientInstance::primaryClientInstance->grabMouse();
+        ImGui::SetWindowFocus(NULL);
+    }
 
-void GuiOverlay::initImGui(
-    HWND                  mainWindow,
-    ID3D11Device         *device,
-    ID3D11DeviceContext  *deviceContext,
-    DXGI_SWAP_CHAIN_DESC &swapChainDesc
-) {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui_ImplWin32_Init(mainWindow);
-    ImGui_ImplDX11_Init(device, deviceContext);
+    void GuiOverlay::gameReleaseMouse() {
+        ClientInstance::primaryClientInstance->releaseMouse();
+    }
 
-    ImGuiIO &io = ImGui::GetIO();
-    io.IniFilename = nullptr;
-    sConfig = sapphire::ConfigManager::getInstance()["imgui.json"].shared_from_this();
-    GuiOverlay::loadConfig();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    void GuiOverlay::initImGui(
+        HWND                  mainWindow,
+        ID3D11Device         *device,
+        ID3D11DeviceContext  *deviceContext,
+        DXGI_SWAP_CHAIN_DESC &swapChainDesc
+    ) {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGui_ImplWin32_Init(mainWindow);
+        ImGui_ImplDX11_Init(device, deviceContext);
 
-    [[maybe_unused]] ImFont *font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/msyh.ttc", 27.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
+        ImGuiIO &io = ImGui::GetIO();
+        io.IniFilename = nullptr;
+        sConfig = sapphire::ConfigManager::getInstance()["imgui.json"].shared_from_this();
+        GuiOverlay::loadConfig();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    io.DisplaySize = ImVec2((float)swapChainDesc.BufferDesc.Width, (float)swapChainDesc.BufferDesc.Height);
-    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&GuiOverlay::sTicksPerSecond))
-        GuiOverlay::sTicksPerSecond = 1000;
-    if (!QueryPerformanceCounter((LARGE_INTEGER *)&GuiOverlay::sTime))
-        GuiOverlay::sTime = GetTickCount64();
+        [[maybe_unused]] ImFont *font = io.Fonts->AddFontFromFileTTF("C:/Windows/Fonts/msyh.ttc", 27.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
 
-    GuiOverlay::registerHotkey({
-        {ImGuiMod_Alt},
-        ImGuiKey_P,
-        "Toggle Main Panel",
-        []() {
-            GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
-            if (GuiOverlay::sShowPannel)
-                GuiOverlay::gameReleaseMouse();
-            else
+        io.DisplaySize = ImVec2((float)swapChainDesc.BufferDesc.Width, (float)swapChainDesc.BufferDesc.Height);
+        if (!QueryPerformanceFrequency((LARGE_INTEGER *)&GuiOverlay::sTicksPerSecond))
+            GuiOverlay::sTicksPerSecond = 1000;
+        if (!QueryPerformanceCounter((LARGE_INTEGER *)&GuiOverlay::sTime))
+            GuiOverlay::sTime = GetTickCount64();
+
+        GuiOverlay::registerHotkey({
+            {ImGuiMod_Alt},
+            ImGuiKey_P,
+            "Toggle Main Panel",
+            []() {
+                GuiOverlay::sShowPannel = !GuiOverlay::sShowPannel;
+                if (GuiOverlay::sShowPannel)
+                    GuiOverlay::gameReleaseMouse();
+                else
+                    GuiOverlay::gameTryGrabMouse();
+            },
+        });
+
+        GuiOverlay::registerHotkey({
+            {},
+            ImGuiKey_Escape,
+            "Close Main Panel",
+            []() {
+                GuiOverlay::sShowPannel = false;
                 GuiOverlay::gameTryGrabMouse();
-        },
-    });
+            },
+        });
 
-    GuiOverlay::registerHotkey({
-        {},
-        ImGuiKey_Escape,
-        "Close Main Panel",
-        []() {
-            GuiOverlay::sShowPannel = false;
-            GuiOverlay::gameTryGrabMouse();
-        },
-    });
+        GuiOverlay::registerModSettings(
+            {"Appearance",
+             "Customize the style of the GUI.",
+             []() {
+                 ImGui::TextUnformatted("Panel Style");
+                 ImGui::SliderFloat2("Window Padding", reinterpret_cast<float *>(&GuiOverlay::sPanelPadding), 5.0f, 30.0f, "%.0f px");
+                 ImGui::SliderFloat("Window Rounding", &GuiOverlay::sPanelRounding, 0.0f, 20.0f, "%.0f px");
+                 ImGui::ColorEdit4("Background Color", reinterpret_cast<float *>(&GuiOverlay::sPanelBgColor), ImGuiColorEditFlags_AlphaBar);
 
-    GuiOverlay::registerModSettings(
-        {"Appearance",
-         "Customize the style of the GUI.",
-         []() {
-             ImGui::TextUnformatted("Panel Style");
-             ImGui::SliderFloat2("Window Padding", reinterpret_cast<float *>(&GuiOverlay::sPanelPadding), 5.0f, 30.0f, "%.0f px");
-             ImGui::SliderFloat("Window Rounding", &GuiOverlay::sPanelRounding, 0.0f, 20.0f, "%.0f px");
-             ImGui::ColorEdit4("Background Color", reinterpret_cast<float *>(&GuiOverlay::sPanelBgColor), ImGuiColorEditFlags_AlphaBar);
+                 ImGui::Separator();
+                 ImGui::TextUnformatted("Panel Size (relative to main window)");
+                 ImGui::SliderFloat("Window Width", &GuiOverlay::sPanelDefaultWidthRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+                 ImGui::SliderFloat("Window Height", &GuiOverlay::sPanelDefaultHeightRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
 
-             ImGui::Separator();
-             ImGui::TextUnformatted("Panel Size (relative to main window)");
-             ImGui::SliderFloat("Window Width", &GuiOverlay::sPanelDefaultWidthRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
-             ImGui::SliderFloat("Window Height", &GuiOverlay::sPanelDefaultHeightRatio, 0.3f, 1.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+                 ImGui::Separator();
+                 ImGui::TextUnformatted("Note: Panel size and position are remembered after the first adjustment.");
+             }}
+        );
+    }
 
-             ImGui::Separator();
-             ImGui::TextUnformatted("Note: Panel size and position are remembered after the first adjustment.");
-         }}
-    );
-}
+    void GuiOverlay::shutdownImGui() {
+        GuiOverlay::sInitialized = false;
+        ImGui_ImplDX11_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+    }
 
-void GuiOverlay::shutdownImGui() {
-    GuiOverlay::sInitialized = false;
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-}
+    void GuiOverlay::handleHotkey() {
+        ImGuiIO &io = ImGui::GetIO();
+        for (const auto &hotkey : sRegisteredHotkeys) {
+            // Check if the trigger key was just pressed (not held)
+            if (ImGui::IsKeyPressed(hotkey.triggerKey, false)) {
+                bool allRequiredDown = true;
+                // Check if all other required keys are down
+                ImGuiKeyChord mods = ImGuiMod_None;
+                for (ImGuiKey key : hotkey.keysDown) {
+                    if (key & ImGuiMod_Mask_) { // It's a modifier flag (ImGuiMod_xxx)
+                        mods |= (key & ImGuiMod_Mask_);
+                    } else if (!ImGui::IsKeyDown(key)) { // It's a key code (ImGuiKey_xxx), Check if the normal key is held down
+                        allRequiredDown = false;
+                        break;
+                    }
+                }
 
-void GuiOverlay::handleHotkey() {
-    ImGuiIO &io = ImGui::GetIO();
-    for (const auto &hotkey : sRegisteredHotkeys) {
-        // Check if the trigger key was just pressed (not held)
-        if (ImGui::IsKeyPressed(hotkey.triggerKey, false)) {
-            bool allRequiredDown = true;
-            // Check if all other required keys are down
-            ImGuiKeyChord mods = ImGuiMod_None;
-            for (ImGuiKey key : hotkey.keysDown) {
-                if (key & ImGuiMod_Mask_) { // It's a modifier flag (ImGuiMod_xxx)
-                    mods |= (key & ImGuiMod_Mask_);
-                } else if (!ImGui::IsKeyDown(key)) { // It's a key code (ImGuiKey_xxx), Check if the normal key is held down
-                    allRequiredDown = false;
-                    break;
+                if (mods == io.KeyMods && allRequiredDown) {
+                    hotkey.action();
                 }
             }
-
-            if (mods == io.KeyMods && allRequiredDown) {
-                hotkey.action();
-            }
         }
     }
-}
 
-void GuiOverlay::frame() {
-    EventBus::getInstance().dispatchEvent(
-        GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
-    );
+    void GuiOverlay::frame() {
+        EventBus::getInstance().dispatchEvent(
+            GuiOverlayFrameEvent{GuiOverlay::sShowLogWindow, GuiOverlay::sShowToast, GuiOverlay::sShowPannel}
+        );
 #ifndef NDEBUG
-    static bool show_demo = true;
-    if (show_demo)
-        ImGui::ShowDemoWindow(&show_demo);
+        static bool show_demo = true;
+        if (show_demo)
+            ImGui::ShowDemoWindow(&show_demo);
 #endif
 
-    if (GuiOverlay::sShowLogWindow)
-        gGuiLogSink->draw("Log Window", &GuiOverlay::sShowLogWindow);
+        if (GuiOverlay::sShowLogWindow)
+            gGuiLogSink->draw("Log Window", &GuiOverlay::sShowLogWindow);
 
-    if (GuiOverlay::sShowToast)
-        GuiOverlay::drawToast();
-    if (GuiOverlay::sShowPannel)
-        GuiOverlay::drawPanel();
-}
-
-void GuiOverlay::refreshCursorPos() {
-    ImGuiIO &io = ImGui::GetIO();
-    POINT    mousePos;
-    if (GetCursorPos(&mousePos)) {
-        ScreenToClient(sapphire::platform::Environment::getInstance().getMainWindow(), &mousePos);
-        io.AddMousePosEvent((float)mousePos.x, (float)mousePos.y);
+        if (GuiOverlay::sShowToast)
+            GuiOverlay::drawToast();
+        if (GuiOverlay::sShowPannel)
+            GuiOverlay::drawPanel();
     }
-    INT64 currentTime;
-    if (!QueryPerformanceCounter((LARGE_INTEGER *)&currentTime))
-        currentTime = GetTickCount64();
-    io.DeltaTime = (float)(currentTime - GuiOverlay::sTime) / GuiOverlay::sTicksPerSecond;
-    GuiOverlay::sTime = currentTime;
-    if (io.DeltaTime <= 0.0f)
-        io.DeltaTime = 0.00001f;
-}
 
-void GuiOverlay::saveConfig() {
-    if (ImGui::GetIO().WantSaveIniSettings) {
+    void GuiOverlay::refreshCursorPos() {
+        ImGuiIO &io = ImGui::GetIO();
+        POINT    mousePos;
+        if (GetCursorPos(&mousePos)) {
+            ScreenToClient(sapphire::platform::Environment::getInstance().getMainWindow(), &mousePos);
+            io.AddMousePosEvent((float)mousePos.x, (float)mousePos.y);
+        }
+        INT64 currentTime;
+        if (!QueryPerformanceCounter((LARGE_INTEGER *)&currentTime))
+            currentTime = GetTickCount64();
+        io.DeltaTime = (float)(currentTime - GuiOverlay::sTime) / GuiOverlay::sTicksPerSecond;
+        GuiOverlay::sTime = currentTime;
+        if (io.DeltaTime <= 0.0f)
+            io.DeltaTime = 0.00001f;
+    }
+
+    void GuiOverlay::saveConfig() {
+        if (ImGui::GetIO().WantSaveIniSettings) {
+            if (ImGui::GetCurrentContext() == nullptr) {
+                sapphire::warn("GuiOverlay: ImGui context not available for saveConfig.");
+                return;
+            }
+
+            size_t      imgui_ini_size = 0;
+            const char *imgui_ini_data = ImGui::SaveIniSettingsToMemory(&imgui_ini_size);
+            if (imgui_ini_data && imgui_ini_size > 0) {
+                try {
+                    sConfig->set("imgui", std::string{imgui_ini_data, imgui_ini_size});
+                    sConfig->save();
+                    sapphire::info("GuiOverlay: ImGui settings Saved.");
+                } catch (const nlohmann::json::exception &e) {
+                    sapphire::error("GuiOverlay: Error saving ImGui settings: {}", e.what());
+                }
+            } else {
+                sapphire::info("GuiOverlay: No ImGui settings to save.");
+            }
+            ImGui::GetIO().WantSaveIniSettings = false;
+        }
+    }
+
+    void GuiOverlay::loadConfig() {
         if (ImGui::GetCurrentContext() == nullptr) {
-            sapphire::warn("GuiOverlay: ImGui context not available for saveConfig.");
+            sapphire::warn("GuiOverlay: ImGui context not available for LoadImGuiSettings.");
             return;
         }
-
-        size_t      imgui_ini_size = 0;
-        const char *imgui_ini_data = ImGui::SaveIniSettingsToMemory(&imgui_ini_size);
-        if (imgui_ini_data && imgui_ini_size > 0) {
-            try {
-                sConfig->set("imgui", std::string{imgui_ini_data, imgui_ini_size});
-                sConfig->save();
-                sapphire::info("GuiOverlay: ImGui settings Saved.");
-            } catch (const nlohmann::json::exception &e) {
-                sapphire::error("GuiOverlay: Error saving ImGui settings: {}", e.what());
+        try {
+            auto imguiIni = sConfig->try_get<std::string>("imgui");
+            if (imguiIni && !imguiIni->empty()) {
+                ImGui::LoadIniSettingsFromMemory(imguiIni->c_str(), imguiIni->length());
+                sapphire::info("GuiOverlay: Loaded ImGui settings from config file.");
+            } else {
+                sapphire::info("GuiOverlay: No ImGui settings in config file.");
             }
-        } else {
-            sapphire::info("GuiOverlay: No ImGui settings to save.");
-        }
-        ImGui::GetIO().WantSaveIniSettings = false;
-    }
-}
-
-void GuiOverlay::loadConfig() {
-    if (ImGui::GetCurrentContext() == nullptr) {
-        sapphire::warn("GuiOverlay: ImGui context not available for LoadImGuiSettings.");
-        return;
-    }
-    try {
-        auto imguiIni = sConfig->try_get<std::string>("imgui");
-        if (imguiIni && !imguiIni->empty()) {
-            ImGui::LoadIniSettingsFromMemory(imguiIni->c_str(), imguiIni->length());
-            sapphire::info("GuiOverlay: Loaded ImGui settings from config file.");
-        } else {
-            sapphire::info("GuiOverlay: No ImGui settings in config file.");
-        }
-    } catch (const nlohmann::json::exception &e) {
-        sapphire::error("GuiOverlay: Error loading ImGui settings: {}", e.what());
-    }
-}
-
-void GuiOverlay::drawToast() {
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.45f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 45));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6);
-    if (ImGui::Begin(
-            "Toasts",
-            nullptr,
-            ImGuiWindowFlags_NoResize
-                | ImGuiWindowFlags_NoDocking
-                | ImGuiWindowFlags_NoNav
-                | ImGuiWindowFlags_NoTitleBar
-                | ImGuiWindowFlags_AlwaysAutoResize
-        )) {
-        for (auto &&i : sToastMessages) {
-            ImGui::Text("%s", i.c_str());
-        }
-        auto now = std::chrono::steady_clock::now();
-        if (now - sLastShowToastTimePoint >= sToastShowingDuration) {
-            GuiOverlay::sShowToast = false;
-            sToastMessages.clear();
-            sToastShowingDuration = 0s;
+        } catch (const nlohmann::json::exception &e) {
+            sapphire::error("GuiOverlay: Error loading ImGui settings: {}", e.what());
         }
     }
-    ImGui::End();
-    ImGui::PopStyleVar(2);
-    ImGui::PopStyleColor();
-}
 
-void GuiOverlay::drawPanel() {
-    ImGuiViewport *viewport = ImGui::GetMainViewport();
-
-    ImVec2 defaultPanelSize = ImVec2(viewport->WorkSize.x * sPanelDefaultWidthRatio, viewport->WorkSize.y * sPanelDefaultHeightRatio);
-    ImVec2 defaultPanelPos = ImVec2(
-        viewport->WorkPos.x + (viewport->WorkSize.x - defaultPanelSize.x) * 0.5f,
-        viewport->WorkPos.y + (viewport->WorkSize.y - defaultPanelSize.y) * 0.5f
-    );
-
-    ImGui::SetNextWindowPos(defaultPanelPos);
-    ImGui::SetNextWindowSize(defaultPanelSize);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, sPanelPadding);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, sPanelRounding);
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, sPanelBgColor);
-
-    const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse
-                                        | ImGuiWindowFlags_NoMove
-                                        | ImGuiWindowFlags_NoResize
-                                        | ImGuiWindowFlags_NoTitleBar
-                                        | ImGuiWindowFlags_NoDocking;
-
-    if (ImGui::Begin("Main Panel", &sShowPannel, window_flags)) {
-        if (ImGui::BeginTable("ModLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
-            ImGui::TableSetupColumn("ModList", ImGuiTableColumnFlags_WidthStretch, 0.25f);
-            ImGui::TableSetupColumn("ModDetails", ImGuiTableColumnFlags_WidthStretch, 0.75f);
-
-            ImGui::TableNextColumn();
-            drawModList();
-
-            ImGui::TableNextColumn();
-            drawModDetails();
-
-            ImGui::EndTable();
-        }
-    }
-    ImGui::End();
-
-    ImGui::PopStyleColor();
-    ImGui::PopStyleVar(2);
-}
-
-void GuiOverlay::drawModList() {
-    ImGui::BeginChild("Mod List", ImVec2(0, 0), true);
-
-    if (sModSettings.empty()) {
-        ImGui::Text("No mod registered.");
-    } else {
-        for (size_t i = 0; i < sModSettings.size(); ++i) {
-            const auto &mod = sModSettings[i];
-            bool        isSelected = (sSelectedModIndex == i);
-            if (ImGui::Selectable(mod.name.c_str(), isSelected)) {
-                sSelectedModIndex = (int)i;
+    void GuiOverlay::drawToast() {
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.45f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(100, 45));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 6);
+        if (ImGui::Begin(
+                "Toasts",
+                nullptr,
+                ImGuiWindowFlags_NoResize
+                    | ImGuiWindowFlags_NoDocking
+                    | ImGuiWindowFlags_NoNav
+                    | ImGuiWindowFlags_NoTitleBar
+                    | ImGuiWindowFlags_AlwaysAutoResize
+            )) {
+            for (auto &&i : sToastMessages) {
+                ImGui::Text("%s", i.c_str());
+            }
+            auto now = std::chrono::steady_clock::now();
+            if (now - sLastShowToastTimePoint >= sToastShowingDuration) {
+                GuiOverlay::sShowToast = false;
+                sToastMessages.clear();
+                sToastShowingDuration = 0s;
             }
         }
+        ImGui::End();
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor();
     }
 
-    ImGui::EndChild();
-}
+    void GuiOverlay::drawPanel() {
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
 
-void GuiOverlay::drawModDetails() {
-    ImGui::BeginChild("Mod Details", ImVec2(0, 0), true);
+        ImVec2 defaultPanelSize = ImVec2(viewport->WorkSize.x * sPanelDefaultWidthRatio, viewport->WorkSize.y * sPanelDefaultHeightRatio);
+        ImVec2 defaultPanelPos = ImVec2(
+            viewport->WorkPos.x + (viewport->WorkSize.x - defaultPanelSize.x) * 0.5f,
+            viewport->WorkPos.y + (viewport->WorkSize.y - defaultPanelSize.y) * 0.5f
+        );
 
-    if (sSelectedModIndex >= 0 && sSelectedModIndex < sModSettings.size()) {
-        const auto &mod = sModSettings[sSelectedModIndex];
+        ImGui::SetNextWindowPos(defaultPanelPos);
+        ImGui::SetNextWindowSize(defaultPanelSize);
 
-        ImGui::Text("Name: %s", mod.name.c_str());
-        ImGui::TextWrapped("Description: %s", mod.description.c_str());
-        ImGui::Separator();
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, sPanelPadding);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, sPanelRounding);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, sPanelBgColor);
 
-        if (mod.drawSettings) {
-            mod.drawSettings();
-        } else {
-            ImGui::Text("No settings available for this mod.");
+        const ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse
+                                            | ImGuiWindowFlags_NoMove
+                                            | ImGuiWindowFlags_NoResize
+                                            | ImGuiWindowFlags_NoTitleBar
+                                            | ImGuiWindowFlags_NoDocking;
+
+        if (ImGui::Begin("Main Panel", &sShowPannel, window_flags)) {
+            if (ImGui::BeginTable("ModLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
+                ImGui::TableSetupColumn("ModList", ImGuiTableColumnFlags_WidthStretch, 0.25f);
+                ImGui::TableSetupColumn("ModDetails", ImGuiTableColumnFlags_WidthStretch, 0.75f);
+
+                ImGui::TableNextColumn();
+                drawModList();
+
+                ImGui::TableNextColumn();
+                drawModDetails();
+
+                ImGui::EndTable();
+            }
         }
-    } else {
-        ImGui::Text("Select a mod from the list.");
+        ImGui::End();
+
+        ImGui::PopStyleColor();
+        ImGui::PopStyleVar(2);
     }
 
-    ImGui::EndChild();
-}
+    void GuiOverlay::drawModList() {
+        ImGui::BeginChild("Mod List", ImVec2(0, 0), true);
+
+        if (sModSettings.empty()) {
+            ImGui::Text("No mod registered.");
+        } else {
+            for (size_t i = 0; i < sModSettings.size(); ++i) {
+                const auto &mod = sModSettings[i];
+                bool        isSelected = (sSelectedModIndex == i);
+                if (ImGui::Selectable(mod.name.c_str(), isSelected)) {
+                    sSelectedModIndex = (int)i;
+                }
+            }
+        }
+
+        ImGui::EndChild();
+    }
+
+    void GuiOverlay::drawModDetails() {
+        ImGui::BeginChild("Mod Details", ImVec2(0, 0), true);
+
+        if (sSelectedModIndex >= 0 && sSelectedModIndex < sModSettings.size()) {
+            const auto &mod = sModSettings[sSelectedModIndex];
+
+            ImGui::Text("Name: %s", mod.name.c_str());
+            ImGui::TextWrapped("Description: %s", mod.description.c_str());
+            ImGui::Separator();
+
+            if (mod.drawSettings) {
+                mod.drawSettings();
+            } else {
+                ImGui::Text("No settings available for this mod.");
+            }
+        } else {
+            ImGui::Text("Select a mod from the list.");
+        }
+
+        ImGui::EndChild();
+    }
+
+} // namespace sapphire::ui

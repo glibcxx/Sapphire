@@ -3,7 +3,7 @@
 #include "macros/Macros.h"
 #include "SDK/api/src-deps/Core/Memory/IMemoryAllocator.h"
 
-namespace sapphire::inline memory {
+namespace sapphire::memory {
 
     /*
         与游戏内分配器 Bedrock::Memory::InternalHeapAllocator 实现一致
@@ -41,4 +41,4 @@ namespace sapphire::inline memory {
         }
     };
 
-} // namespace sapphire::inline memory
+} // namespace sapphire::memory

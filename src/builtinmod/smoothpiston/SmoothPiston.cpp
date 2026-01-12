@@ -54,7 +54,7 @@ public:
     void cacheSpawnMovingBlocks(BlockSource &region) {
         this->mFutureClientAttachedBlocks.reset();
         ::memset((void *)&this->mFutureClientAttachedBlocks, 0, sizeof(std::vector<const Block *>));
-        auto &cachedBlocks = memory::getField<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
+        auto &cachedBlocks = sapphire::dAccess<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
         cachedBlocks.reserve(this->mAttachedBlocks.size());
         for (auto &&pos : this->mAttachedBlocks) {
             auto actor = region.getBlockEntity(pos);
@@ -70,7 +70,7 @@ public:
 
     void spawnMovingBlocks(BlockSource &region) {
         size_t i = 0;
-        auto  &cachedBlocks = memory::getField<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
+        auto  &cachedBlocks = sapphire::dAccess<std::vector<const Block *>>(&this->mFutureClientAttachedBlocks, 0);
         auto   tagetPosOffset = this->getTargetMovingBlockPosOffset(region);
         for (auto &&pos : this->mAttachedBlocks) {
             auto blockEntity = region.getBlockEntity(pos);
@@ -116,8 +116,8 @@ HOOK_TYPE(
     const BlockPos &pos,
     bool            isSticky
 ) {
-    auto &clientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 1);
-    auto &nextClientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 2);
+    auto &clientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 1);
+    auto &nextClientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 2);
     clientPistonState = nextClientPistonState = ClientPistonState::Uninitialized;
     this->origin(pos, isSticky);
     this->mTerrainInterlockData.mRenderVisibilityState = ActorTerrainInterlockData::VisibilityState::Visible;
@@ -133,13 +133,13 @@ HOOK_TYPE(
     const CompoundTag &data,
     BlockSource       &region
 ) {
-    if (!mod->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
+    if (!mod->mEnableSmoothPiston || !sapphire::vCall<bool>(&region.mLevel, 299))
         return this->origin(data, region);
     PistonState           oldState = this->mState;
     DefaultDataLoadHelper helper{};
     this->load(region.mLevel, data, helper);
-    auto &clientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 1);
-    auto &nextClientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 2);
+    auto &clientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 1);
+    auto &nextClientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 2);
     if (oldState != this->mState) {
         if (this->mState == PistonState::Expanding) {
             nextClientPistonState = clientPistonState = ClientPistonState::ExpandingNeeded;
@@ -159,12 +159,12 @@ HOOK_TYPE(
     void,
     BlockSource &region
 ) {
-    if (!mod->mEnableSmoothPiston || !memory::vCall<bool>(&region.mLevel, 299))
+    if (!mod->mEnableSmoothPiston || !sapphire::vCall<bool>(&region.mLevel, 299))
         return this->origin(region);
     ++this->mTickCount; // BlockActor::tick
 
-    auto &clientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 1);
-    auto &nextClientPistonState = memory::getField<ClientPistonState>(&this->mSticky, 2);
+    auto &clientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 1);
+    auto &nextClientPistonState = sapphire::dAccess<ClientPistonState>(&this->mSticky, 2);
 
     if (clientPistonState == ClientPistonState::Uninitialized) {
         if (this->mState == PistonState::Expanded || this->mState == PistonState::Expanding)
@@ -178,7 +178,7 @@ HOOK_TYPE(
     this->mBB = AABB::fromPoints({this->mPosition}, {this->mPosition + facingDir});
     this->mBB.max += {1, 1, 1};
 
-    uint32_t &tickOrder = memory::getField<uint32_t>(&this->mTickCount, 4);
+    uint32_t &tickOrder = sapphire::dAccess<uint32_t>(&this->mTickCount, 4);
 
     clientPistonState = nextClientPistonState;
     switch (clientPistonState) {
@@ -325,7 +325,7 @@ HOOK_TYPE(
         float oldAlpha = alpha;
         float oldLastProgress = ownerPistonBlockActor->mLastProgress;
         float oldProgress = ownerPistonBlockActor->mProgress;
-        auto &tickOrder = memory::getField<uint32_t>(&ownerPistonBlockActor->mTickCount, 4);
+        auto &tickOrder = sapphire::dAccess<uint32_t>(&ownerPistonBlockActor->mTickCount, 4);
         float newX = (float)tickOrder / mod->mTotalTicked * (mod->mTotalTicked < 4 ? 0.45f : 0.65f); // 表示两个活塞最多不会相差0.45格或0.65格
         twoStageLerp(alpha, *ownerPistonBlockActor, newStartX, newX);
 
@@ -359,7 +359,7 @@ HOOK_TYPE(
         float oldAlpha = alpha;
         float oldLastProgress = pistonActor.mLastProgress;
         float oldProgress = pistonActor.mProgress;
-        auto &tickOrder = memory::getField<uint32_t>(&pistonActor.mTickCount, 4);
+        auto &tickOrder = sapphire::dAccess<uint32_t>(&pistonActor.mTickCount, 4);
         float newX = (float)tickOrder / mod->mTotalTicked * (mod->mTotalTicked < 4 ? 0.45f : 0.65f);
         twoStageLerp(alpha, pistonActor, newStartX, newX);
 
@@ -389,7 +389,7 @@ SmoothPistonMod::SmoothPistonMod() {
     if (!RedirectMovingBlockMeshCacheHook::hook())
         sLogger.error("RedirectMovingBlockMeshCacheHook 安装失败!");
 
-    GuiOverlay::registerModSettings(
+    sapphire::ui::GuiOverlay::registerModSettings(
         {
             .name = "Better Piston",
             .description = "Better Piston, Visualize Tick Order",

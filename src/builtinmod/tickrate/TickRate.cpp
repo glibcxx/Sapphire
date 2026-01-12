@@ -92,7 +92,7 @@ void TickRateMod::setTimeScale(float scale, bool showToast) {
         UpdateAudioSpeed(mTimeScale);
     SmoothPistonMod::getInstance().mTimeScale = mTimeScale;
     if (showToast)
-        GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", mTimeScale * 20, mTimeScale));
+        sapphire::ui::GuiOverlay::addToast(std::format("TickSpeed: {} Tps (x{})", mTimeScale * 20, mTimeScale));
 }
 
 void TickRateMod::resetTimeScale() {
@@ -191,18 +191,18 @@ void TickRateMod::_renderSettingGUI() {
 }
 
 void TickRateMod::_setupSettingGUI() {
-    GuiOverlay::ModSettings tickrateSettings{
+    sapphire::ui::GuiOverlay::ModSettings tickrateSettings{
         "Tick Rate",
         "Change game Speed!",
         [this]() {
             _renderSettingGUI();
         }
     };
-    GuiOverlay::registerModSettings(std::move(tickrateSettings));
+    sapphire::ui::GuiOverlay::registerModSettings(std::move(tickrateSettings));
 }
 
 void TickRateMod::_setupHotkeys() {
-    GuiOverlay::registerHotkey(
+    sapphire::ui::GuiOverlay::registerHotkey(
         {.keysDown = {ImGuiMod_Alt},
          .triggerKey = ImGuiKey_KeypadAdd,
          .action = [this]() {
@@ -211,7 +211,7 @@ void TickRateMod::_setupHotkeys() {
              this->setTimeScale(mTimeScaleList[mSelectedTps]);
          }}
     );
-    GuiOverlay::registerHotkey(
+    sapphire::ui::GuiOverlay::registerHotkey(
         {.keysDown = {ImGuiMod_Alt},
          .triggerKey = ImGuiKey_KeypadSubtract,
          .action = [this]() {
@@ -220,7 +220,7 @@ void TickRateMod::_setupHotkeys() {
              this->setTimeScale(mTimeScaleList[mSelectedTps]);
          }}
     );
-    GuiOverlay::registerHotkey(
+    sapphire::ui::GuiOverlay::registerHotkey(
         {.keysDown = {ImGuiMod_Alt},
          .triggerKey = ImGuiKey_KeypadDecimal,
          .action = [this]() {

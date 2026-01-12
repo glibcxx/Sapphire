@@ -185,11 +185,11 @@ public:
         */
 
 #if MC_VERSION == v1_21_2
-        return memory::getField<Vec3>(this, 1544);
+        return sapphire::dAccess<Vec3>(this, 1544);
 #elif MC_VERSION == v1_21_50
-        return memory::getField<Vec3>(this, 1560);
+        return sapphire::dAccess<Vec3>(this, 1560);
 #elif MC_VERSION == v1_21_60
-        return memory::getField<Vec3>(this, 1552);
+        return sapphire::dAccess<Vec3>(this, 1552);
 #endif
     }
 

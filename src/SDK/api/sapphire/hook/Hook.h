@@ -41,13 +41,13 @@ namespace sapphire::inline hook {
         template <typename T, typename U, typename Trampline>
         bool hook(T target, U detour, HookPriority priority, Trampline &trampoline) {
             return this->hook(
-                memory::toRawFunc(target), memory::toRawFunc(detour), priority, *(uintptr_t *)(&trampoline)
+                sapphire::toFuncAddr(target), sapphire::toFuncAddr(detour), priority, *(uintptr_t *)(&trampoline)
             );
         }
 
         template <typename T, typename U>
         void unhook(T target, U detour, HookPriority priority) {
-            this->unhook(std::bit_cast<uintptr_t>(target), memory::toRawFunc(detour), priority);
+            this->unhook(std::bit_cast<uintptr_t>(target), sapphire::toFuncAddr(detour), priority);
         }
     };
 
@@ -64,20 +64,21 @@ namespace sapphire::inline hook {
         inline static uintptr_t   sdkOriginal = 0;                                                           \
         inline static FuncPtrType trampoline = nullptr;                                                      \
                                                                                                              \
+        Static RetType detour(__VA_ARGS__) Const;                                                            \
+                                                                                                             \
+    public:                                                                                                  \
         template <typename... Args>                                                                          \
         Static RetType origin(Args &&...args) Const {                                                        \
             return Call(std::forward<Args>(args)...);                                                        \
         }                                                                                                    \
-        Static RetType detour(__VA_ARGS__) Const;                                                            \
                                                                                                              \
-    public:                                                                                                  \
         static bool hook() {                                                                                 \
             auto &hookMgr = sapphire::hook::HookManager::getInstance();                                      \
-            if constexpr (util::type_traits::is_virtual_thunk<(FuncPtrType) & targetFunc>) {                 \
+            if constexpr (sapphire::isVirtualThunk<(FuncPtrType) & targetFunc>) {                            \
                 auto &apiMgr = sapphire::SymbolResolver::getInstance();                                      \
                 sdkOriginal = apiMgr.findTarget<(FuncPtrType) & targetFunc>();                               \
             } else {                                                                                         \
-                sdkOriginal = memory::toRawFunc((FuncPtrType) & targetFunc);                                 \
+                sdkOriginal = sapphire::toFuncAddr((FuncPtrType) & targetFunc);                              \
             }                                                                                                \
             if (!sdkOriginal)                                                                                \
                 sapphire::error("[Hook] Target [" #targetFunc "] not found! The SDK might be broken.");      \

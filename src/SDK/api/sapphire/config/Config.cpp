@@ -3,7 +3,7 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/core/Runtime.h"
 
-namespace sapphire::inline config {
+namespace sapphire {
 
     ConfigManager::ConfigManager() :
         mConfigDir(sapphire::platform::Environment::getInstance().getSapphireHomePath() / "configs") {
@@ -17,4 +17,4 @@ namespace sapphire::inline config {
         return instance;
     }
 
-} // namespace sapphire::inline config
+} // namespace sapphire

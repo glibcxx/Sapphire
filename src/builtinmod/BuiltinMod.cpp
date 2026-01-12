@@ -9,7 +9,7 @@
 #include "freecamera/FreeCamera.h"
 #include "BCM_V2/BCMMod.h"
 
-namespace sapphire::example::mod {
+namespace sapphire::example {
 
     SPHR_REGISTRY_MOD(BuiltinMod, instance)
 

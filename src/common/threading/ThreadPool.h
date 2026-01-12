@@ -9,7 +9,7 @@
 #include <future>
 #include <concepts>
 
-namespace util {
+namespace sapphire {
 
     class ThreadPool {
     public:

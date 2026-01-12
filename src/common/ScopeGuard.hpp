@@ -2,7 +2,8 @@
 
 #include <bit>
 
-namespace util {
+namespace sapphire {
+
     template <typename F>
     class ScopeGuard {
         F    func;
@@ -24,4 +25,5 @@ namespace util {
 
         void dismiss() { active = false; }
     };
+
 } // namespace util

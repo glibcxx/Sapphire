@@ -3,7 +3,7 @@
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "SDK/api/sapphire/IMod.h"
 
-namespace sapphire::example::mod {
+namespace sapphire::example {
 
     class BuiltinMod : public sapphire::IMod {
         sapphire::Logger mLog{"BuiltinMod"};

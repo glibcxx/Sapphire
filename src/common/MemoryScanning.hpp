@@ -5,7 +5,7 @@
 #include "Memory.hpp"
 #include "../macros/Macros.h"
 
-namespace memory::inline scan {
+namespace sapphire {
 
     SPHR_FORCE_INLINE inline uintptr_t scanSignatureBruteForce(uintptr_t start, size_t size, const char *sig, size_t sigLength) {
         if (!sigLength || !size) return 0;
@@ -67,4 +67,4 @@ namespace memory::inline scan {
         }
     }
 
-} // namespace memory::inline scan
+} // namespace sapphire::memory

@@ -160,7 +160,7 @@ namespace BCM_V2 {
     void CameraPath::renderPath() {
         if (!mShowPath || mKeyframes.empty()) return;
 
-        DrawUtils &du = DrawUtils::getInstance();
+        sapphire::DrawUtils &du = sapphire::DrawUtils::getInstance();
 
         if (mKeyframes.size() >= 2) {
             glm::vec3 last_pos;

@@ -31,10 +31,10 @@ public:
     SDK_API /*virtual*/ void _subtick() /*override*/;
 
     /*virtual*/ ServerPlayerEventCoordinator &getServerPlayerEventCoordinator() /*override*/ {
-        return memory::vCall<ServerPlayerEventCoordinator &>(this, vCall_getServerPlayerEventCoordinator);
+        return sapphire::vCall<ServerPlayerEventCoordinator &>(this, vCall_getServerPlayerEventCoordinator);
     }
 
     /*virtual*/ ClientPlayerEventCoordinator &getClientPlayerEventCoordinator() /*override*/ {
-        return memory::vCall<ClientPlayerEventCoordinator &>(this, vCall_getServerPlayerEventCoordinator + 1);
+        return sapphire::vCall<ClientPlayerEventCoordinator &>(this, vCall_getServerPlayerEventCoordinator + 1);
     }
 };

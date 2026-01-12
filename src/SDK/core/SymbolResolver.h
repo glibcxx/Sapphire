@@ -37,7 +37,7 @@ namespace sapphire {
 
         template <auto ptr>
         uintptr_t findTarget() {
-            return findTarget(util::Decorator<ptr, true, true>::value.view());
+            return findTarget(sapphire::abi::Decorator<ptr, true, true>::value.view());
         }
     };
 

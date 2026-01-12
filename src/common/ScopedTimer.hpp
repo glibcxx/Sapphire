@@ -3,7 +3,7 @@
 #include <chrono>
 #include <source_location>
 
-namespace util {
+namespace sapphire {
 
     class TimerToken {
         friend class ScopedTimer;
@@ -72,4 +72,4 @@ namespace util {
         std::chrono::steady_clock::time_point mStartTime;
     };
 
-} // namespace util
+} // namespace sapphire

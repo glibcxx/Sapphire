@@ -279,7 +279,7 @@ int main(int argc, char **argv) {
         SetConsoleOutputCP(65001);
         SetConsoleCP(65001);
 
-        util::ScopeGuard autoTerminateOrResume{
+        sapphire::ScopeGuard autoTerminateOrResume{
             [dwProcessId, &injectionSuccessful]() {
                 disableDebugging(L"Microsoft.MinecraftUWP_8wekyb3d8bbwe");
                 HANDLE hTargetProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, dwProcessId);

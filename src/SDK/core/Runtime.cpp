@@ -51,11 +51,11 @@ namespace sapphire::core {
         event::EventBus::getInstance().registerListener<event::AppTerminateEvent>(
             [this](event::AppTerminateEvent &e) { this->shutdown(); }
         );
-        util::TimerToken token;
+        sapphire::TimerToken token;
         {
-            util::ScopedTimer timer{token};
+            sapphire::ScopedTimer timer{token};
             sapphire::info("Runtime: 正在初始化 Sapphire...");
-            GuiOverlay::init();
+            ui::GuiOverlay::init();
 
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
             HWND mainWindow = FindWindow(0, L"Minecraft");
@@ -99,7 +99,7 @@ namespace sapphire::core {
         event::impl::EventHooks::uninit();
         mRenderBackend.reset();
         HookManager::getInstance().teardown();
-        GuiOverlay::uninit();
+        ui::GuiOverlay::uninit();
         sapphire::LogManager::getInstance().flushAll();
     }
 

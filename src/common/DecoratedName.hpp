@@ -2,7 +2,7 @@
 
 #include "StringLiteral.hpp"
 
-namespace util {
+namespace sapphire::abi {
 
     namespace detail {
         template <auto Ptr>
@@ -109,4 +109,4 @@ namespace util {
         static constexpr auto value = get();
     };
 
-} // namespace util
+} // namespace sapphire::abi

@@ -55,7 +55,7 @@ namespace sapphire::core {
 
     void RenderBackend::_shutdown() {
         sapphire::debug("RenderBackend: RenderBackend::_shutdown");
-        GuiOverlay::shutdownImGui();
+        ui::GuiOverlay::shutdownImGui();
 
         this->WaitForGPU();
         this->CleanupRenderTargetResources();
@@ -94,7 +94,7 @@ namespace sapphire::core {
     HRESULT __stdcall RenderBackend::hkPresent12(IDXGISwapChain3 *pSwapChain, UINT SyncInterval, UINT Flags) {
         // 初始化阶段
         auto &env = sapphire::platform::Environment::getInstance();
-        if (!GuiOverlay::sInitialized) {
+        if (!ui::GuiOverlay::sInitialized) {
             DXGI_SWAP_CHAIN_DESC desc;
             pSwapChain->GetDesc(&desc);
             desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -142,26 +142,26 @@ namespace sapphire::core {
                 );
             }
 
-            GuiOverlay::initImGui(env.getMainWindow(), backend->mD3d11Device, backend->mD3d11DeviceContext, desc);
+            ui::GuiOverlay::initImGui(env.getMainWindow(), backend->mD3d11Device, backend->mD3d11DeviceContext, desc);
 
             if (!backend->CreateRenderTargetResources(pSwapChain))
                 return backend->mPresent12(pSwapChain, SyncInterval, Flags);
 
             oWndProc = (WNDPROC)SetWindowLongPtr(env.getMainWindow(), GWLP_WNDPROC, (LONG_PTR)hkWndProc);
 
-            GuiOverlay::sInitialized = true;
+            ui::GuiOverlay::sInitialized = true;
         }
 
-        GuiOverlay::refreshCursorPos();
-        GuiOverlay::handleHotkey();
-        GuiOverlay::saveConfig();
+        ui::GuiOverlay::refreshCursorPos();
+        ui::GuiOverlay::handleHotkey();
+        ui::GuiOverlay::saveConfig();
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
         // 绘制窗口
-        GuiOverlay::frame();
+        ui::GuiOverlay::frame();
 
         ImGui::Render();
 
@@ -274,7 +274,7 @@ namespace sapphire::core {
     ) {
         sapphire::debug("RenderBackend: hkResizeBuffers -> w: {}, h: {}", Width, Height);
 
-        if (GuiOverlay::sInitialized) {
+        if (ui::GuiOverlay::sInitialized) {
             backend->mD3d11DeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
             ImGui_ImplDX11_InvalidateDeviceObjects();
             backend->CleanupRenderTargetResources();
@@ -294,7 +294,7 @@ namespace sapphire::core {
         ImGuiIO &io = ImGui::GetIO();
         io.DisplaySize = ImVec2((float)desc.BufferDesc.Width, (float)desc.BufferDesc.Height);
         backend->CreateRenderTargetResources(pSwapChain);
-        if (GuiOverlay::sInitialized) {
+        if (ui::GuiOverlay::sInitialized) {
             ImGui_ImplDX11_CreateDeviceObjects();
         }
 

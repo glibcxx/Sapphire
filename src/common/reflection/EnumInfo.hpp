@@ -57,7 +57,7 @@ namespace sapphire::refl {
         template <typename T, T E>
         consteval auto enumNameSliced() {
             constexpr auto nameView = enumName<E>();
-            return util::StaticString<util::StringLiteral<nameView.size()>{nameView}>::storage.view();
+            return sapphire::StaticString<sapphire::StringLiteral<nameView.size()>{nameView}>::storage.view();
         }
 
         template <typename E>

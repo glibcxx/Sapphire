@@ -129,9 +129,9 @@ public:
 
     /*virtual*/ void handle(const NetworkIdentifier &source, const TextPacket &packet) {
 #if MC_VERSION == v1_21_2
-        memory::vCall(this, 21, source, packet);
+        sapphire::vCall(this, 21, source, packet);
 #elif MC_VERSION == v1_21_50
-        memory::vCall(this, 210, source, packet);
+        sapphire::vCall(this, 210, source, packet);
 #endif
     }
 };

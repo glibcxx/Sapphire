@@ -52,9 +52,9 @@ namespace sapphire::command {
 
         template <typename... Execute>
         void overloads(Execute &&...exe) {
-            using TOverloaded = util::Overloaded<Execute...>;
+            using TOverloaded = sapphire::Overloaded<Execute...>;
             using TCommand = Command<TOverloaded, void>;
-            using TCommandFactory = CommandFactory<util::Overloaded<Execute...>, TCommand>;
+            using TCommandFactory = CommandFactory<sapphire::Overloaded<Execute...>, TCommand>;
             TCommandFactory::sOverloaded.emplace(std::forward<Execute>(exe)...);
             auto &overload = mSig.overloads.emplace_back(
                 CommandVersion{}, &TCommandFactory::factory(std::forward<Execute>(exe)...)
@@ -67,7 +67,7 @@ namespace sapphire::command {
         void overloads(Execute &&...exe) {
             mSig.overloads.reserve(sizeof...(ParamStorages) + mSig.overloads.size());
             ([&]() {
-                using TOverloaded = util::Overloaded<Execute...>;
+                using TOverloaded = sapphire::Overloaded<Execute...>;
                 using TCommand = Command<TOverloaded, ParamStorages>;
                 using TCommandFactory = CommandFactory<TOverloaded, TCommand>;
                 auto &overload = mSig.overloads.emplace_back(
