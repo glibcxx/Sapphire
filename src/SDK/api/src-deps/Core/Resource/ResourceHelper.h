@@ -12,10 +12,10 @@
 // size: 56
 class ResourceLocation {
 public:
-    ResourceFileSystem   mFileSystem;
-    Core::HeapPathBuffer mPath;
-    uint64_t             mPathHash;
-    size_t               mFullHash;
+    ResourceFileSystem   mFileSystem; // off+0
+    Core::HeapPathBuffer mPath;       // off+8
+    uint64_t             mPathHash;   // off+40
+    size_t               mFullHash;   // off+48
 };
 static_assert(sizeof(ResourceLocation) == 56);
 

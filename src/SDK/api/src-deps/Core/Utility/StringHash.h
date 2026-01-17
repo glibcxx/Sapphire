@@ -42,19 +42,19 @@ public:
         return hash;
     }
 
-    constexpr bool operator==(HashType64 rhs) {
+    constexpr bool operator==(HashType64 rhs) const {
         return this->mStrHash == rhs;
     }
 
-    constexpr bool operator!=(HashType64 rhs) {
+    constexpr bool operator!=(HashType64 rhs) const {
         return this->mStrHash != rhs;
     }
 
-    constexpr bool operator==(const std::string &rhs) {
+    constexpr bool operator==(const std::string &rhs) const {
         return this->mStr == rhs;
     }
 
-    constexpr bool operator!=(const std::string &rhs) {
+    constexpr bool operator!=(const std::string &rhs) const {
         return this->mStr != rhs;
     }
 
