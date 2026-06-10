@@ -1,16 +1,17 @@
 #pragma once
 
-#include <csignal>
-#include <iterator>
-#include <Windows.h>
-#include <dbghelp.h>
+#include "pch.h" // IWYU pragma: keep
+
 #include <atomic>
 #include <array>
 #include <string_view>
 #include <filesystem>
-#include <chrono>
-#include <algorithm>
-#include <type_traits>
+
+typedef long LONG;
+struct _EXCEPTION_POINTERS;
+using EXCEPTION_POINTERS = _EXCEPTION_POINTERS;
+struct _CONTEXT;
+using CONTEXT = _CONTEXT;
 
 namespace sapphire::core {
 
@@ -65,7 +66,7 @@ namespace sapphire::core {
         static inline std::string            sUserPdbSearchPaths;
         static inline uintptr_t              sImagebase = 0;
 
-        [[noreturn]] static LONG WINAPI sehHandler(EXCEPTION_POINTERS *ep);
+        [[noreturn]] static LONG __stdcall sehHandler(EXCEPTION_POINTERS *ep);
 
         [[noreturn]] static void signalHandler(int sig);
 

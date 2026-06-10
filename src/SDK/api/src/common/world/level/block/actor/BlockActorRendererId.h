@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum BlockActorRendererId {
     TR_DEFAULT_RENDERER = 0,
     TR_CHEST_RENDERER = 1,

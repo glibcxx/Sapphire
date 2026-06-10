@@ -1,7 +1,6 @@
 #pragma once
 
-#include <optional>
-#include <unordered_set>
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::materials::definition {
 

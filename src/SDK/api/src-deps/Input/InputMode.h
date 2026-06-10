@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class InputMode : uint32_t {
     Undefined = 0,
     Mouse = 1,

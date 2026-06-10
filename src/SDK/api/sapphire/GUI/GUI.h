@@ -1,20 +1,16 @@
 #pragma once
 
-#include <chrono>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
 
-#include "macros/Macros.h"
-
-#include <imgui.h>
-#include <d3d12.h>
-#include <d3d11.h>
-#include <dxgi1_6.h>
-
+#include "common/sys/MiniWindows.h"
 #include "SDK/api/sapphire/config/Config.h"
 
 namespace sapphire::core {
     class RenderBackend;
 }
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct DXGI_SWAP_CHAIN_DESC;
 
 namespace sapphire::ui {
 
@@ -80,7 +76,7 @@ namespace sapphire::ui {
         inline static float  sPanelDefaultHeightRatio = 0.8f;
 
         static void initImGui(
-            HWND                  mainWindow,
+            sys::win::hwnd_t      mainWindow,
             ID3D11Device         *device,
             ID3D11DeviceContext  *deviceContext,
             DXGI_SWAP_CHAIN_DESC &swapChainDesc

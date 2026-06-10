@@ -28,7 +28,7 @@ function(sapphire_run_codegen SAPPHIRE_CODEGEN_EXE CURRENT_VERSION)
 
         COMMENT "[CodeGen] Scanning headers and generating def/sigs for ${CURRENT_VERSION}..."
         DEPENDS ${SDK_HEADERS} ${SAPPHIRE_CODEGEN_EXE}
-        VERBATIM
+        USES_TERMINAL
     )
 
     set(OUT_LIB "${GEN_DIR}/bedrock_sdk+mc${CURRENT_VERSION}.lib")
@@ -165,6 +165,8 @@ if(NOT SAPPHIRE_CODEGEN_EXE)
         DOC "Path to the SapphireCodeGen executable"
     )
 endif()
+
+message(NOTICE "using SapphireCodegen at ${SAPPHIRE_CODEGEN_EXE}")
 
 if(BUILD_FOR_ALL_MC_VERSIONS)
     foreach(PROCESSING_MC_VERSION ${SAPPHIRE_SUPPORTED_MC_VERSIONS})

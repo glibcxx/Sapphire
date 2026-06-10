@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Renderer/PointLight.h"
 #include "SDK/api/src/common/world/Flip.h"
 #include "SDK/api/src/common/world/phys/AABB.h"

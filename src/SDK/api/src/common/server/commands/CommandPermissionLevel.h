@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class CommandPermissionLevel : uint8_t {
     Any = 0,
     GameMasters = 1,

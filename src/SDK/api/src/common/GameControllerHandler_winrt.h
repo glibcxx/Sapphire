@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <winrt/windows.gaming.input.h>
 #include "GameControllerHandler.h"
 #include "AppPlatformListener.h"

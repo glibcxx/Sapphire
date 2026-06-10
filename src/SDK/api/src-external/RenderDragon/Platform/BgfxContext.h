@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/bgfx/bgfx.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/Mesh.h"
 

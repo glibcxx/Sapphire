@@ -1,8 +1,6 @@
 #pragma once
 
-#include <shared_mutex>
-#include <condition_variable>
-#include <atomic>
+#include "pch.h" // IWYU pragma: keep
 
 namespace Bedrock {
 

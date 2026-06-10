@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
 
 enum class ShowStoreOfferRedirectType : uint8_t {
     MarketplaceOffer = 0,

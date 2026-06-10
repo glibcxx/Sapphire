@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class BehaviorStatus : int {
     Success = 0,
     Running = 1,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 40
 class SecureStorageKey {

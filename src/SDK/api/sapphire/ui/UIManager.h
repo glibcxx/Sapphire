@@ -1,10 +1,7 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <memory>
-#include "macros/Macros.h"
-#include <imgui.h>
+#include "pch.h" // IWYU pragma: keep
+
 #include "../event/EventBus.h"
 #include "WindowViewModel.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"

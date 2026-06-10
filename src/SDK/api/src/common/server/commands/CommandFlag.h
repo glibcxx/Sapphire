@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/EnumCast.h"
 
 enum class CommandUsageFlag : uint8_t {

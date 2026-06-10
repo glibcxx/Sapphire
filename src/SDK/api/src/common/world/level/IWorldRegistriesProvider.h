@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/util/Factory.h"
 
 class BiomeRegistry;

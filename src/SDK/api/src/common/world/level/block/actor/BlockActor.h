@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/phys/AABB.h"
 #include "SDK/api/src/common/world/level/BlockPos.h"
 #include "SDK/api/src/common/world/actor/ActorTerrainInterlockData.h"

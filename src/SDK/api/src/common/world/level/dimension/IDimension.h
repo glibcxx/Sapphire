@@ -1,6 +1,7 @@
 #pragma once
 
-#include "macros/Macros.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "DimensionType.h"
 #include "SDK/api/src/common/world/level/BlockPos.h"
 #include "SDK/api/src/common/world/phys/Vec3.h"

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <optional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Memory/PartitionedAllocator.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BufferHandleType.h"
 #include "VertexFormat.h"

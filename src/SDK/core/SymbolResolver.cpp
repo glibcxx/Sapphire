@@ -1,7 +1,5 @@
 #include "SymbolResolver.h"
 
-#include "common/MemoryScanning.hpp"
-
 namespace sapphire {
 
     SymbolResolver::SymbolResolver(sapphire::bootloader::SymbolResolver &blsr) :

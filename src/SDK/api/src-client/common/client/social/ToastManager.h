@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "IToastManager.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src-deps/Core/Threading/EnableQueueForMainThread.h"

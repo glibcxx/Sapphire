@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string_view>
-#include <variant>
+#include "pch.h" // IWYU pragma: keep
 
 #include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexBufferResourceManagerTypes.h"

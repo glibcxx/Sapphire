@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include "pch.h" // IWYU pragma: keep
+
 #include "MaterialShared.h"
 
 namespace dragon::materials::definition {

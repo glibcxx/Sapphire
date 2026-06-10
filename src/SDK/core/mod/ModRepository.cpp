@@ -5,9 +5,7 @@
 #include "SDK/api/sapphire/logger/Logger.h"
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
-#include "SDK/api/src-client/common/client/game/MinecraftGame.h"
 #include "common/SemanticVersion.hpp"
-#include <ranges>
 
 namespace fs = std::filesystem;
 

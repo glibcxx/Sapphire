@@ -1,7 +1,6 @@
 #pragma once
 
-#include <memory>
-#include "macros/Macros.h"
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::memory {
 

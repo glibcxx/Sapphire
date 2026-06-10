@@ -2,7 +2,6 @@
 
 #include "../event/events/gui/GuiOverlayFrameEvent.h"
 #include "SDK/api/sapphire/input/InputManager.h"
-#include "SDK/api/sapphire/GUI/GUI.h"
 
 namespace sapphire::ui {
 

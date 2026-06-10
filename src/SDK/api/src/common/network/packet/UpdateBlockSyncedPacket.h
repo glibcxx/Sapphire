@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "UpdateBlockPacket.h"
 #include "SDK/api/src/common/world/level/ActorBlockSyncMessage.h"
 

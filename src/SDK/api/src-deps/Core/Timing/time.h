@@ -1,7 +1,6 @@
 #pragma once
 
-#include <optional>
-#include <chrono>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 56
 class Stopwatch {

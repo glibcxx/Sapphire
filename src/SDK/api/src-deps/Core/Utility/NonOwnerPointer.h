@@ -1,6 +1,7 @@
 #pragma once
 
-#include <gsl/gsl>
+#include "pch.h" // IWYU pragma: keep
+
 #include "EnableNonOwnerReferences.h"
 
 namespace Bedrock {

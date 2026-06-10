@@ -1,7 +1,8 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/PropertyBag.h"
-#include "SDK/api/src/common/world/phys/Vec3.h"
 
 // size: 32
 class CommandPropertyBag : public PropertyBag {

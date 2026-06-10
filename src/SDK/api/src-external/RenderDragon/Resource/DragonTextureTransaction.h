@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureDescription.h"
 #include "SDK/api/src-deps/Coregraphics/ImageBuffer.h"
 

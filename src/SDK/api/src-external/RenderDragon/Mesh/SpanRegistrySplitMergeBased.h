@@ -1,9 +1,7 @@
 #pragma once
 
-#include <map>
-#include <list>
-#include <vector>
-#include <mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "RegistryTraits.h"
 
 namespace dragon::mesh {

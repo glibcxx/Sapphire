@@ -1,13 +1,8 @@
 #pragma once
 
-#include <functional>
-#include <vector>
-#include <unordered_map>
-#include <typeindex>
-#include <any>
-#include <mutex>
-#include <type_traits>
+#include "pch.h" // IWYU pragma: keep
 
+#include <typeindex>
 #include "Event.h"
 
 namespace sapphire::event {

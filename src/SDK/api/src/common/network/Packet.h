@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/raknet/raknet/PacketPriority.h"
 #include "SDK/api/src/common/platform/Result.h"
 #include "NetworkPeer.h"

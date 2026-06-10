@@ -1,14 +1,14 @@
 #include "GUI.h"
 
-#include "SDK/core/Runtime.h"
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/gui/GuiOverlayFrameEvent.h"
-#include "SDK/api/sapphire/input/InputManager.h"
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "common/sys/MiniWindows.h"
 
 #include <backends/imgui_impl_dx11.h>
 #include <backends/imgui_impl_win32.h>
+#include <dxgi.h>
 
 using namespace std::chrono_literals;
 using namespace sapphire::event;
@@ -174,7 +174,7 @@ namespace sapphire::ui {
     }
 
     void GuiOverlay::initImGui(
-        HWND                  mainWindow,
+        sys::win::hwnd_t      mainWindow,
         ID3D11Device         *device,
         ID3D11DeviceContext  *deviceContext,
         DXGI_SWAP_CHAIN_DESC &swapChainDesc

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
-#include <optional>
-#include "macros/Version.h"
+#include "pch.h" // IWYU pragma: keep
 
 #if MC_VERSION == v1_21_2
 // size: 112 (1.21.2)

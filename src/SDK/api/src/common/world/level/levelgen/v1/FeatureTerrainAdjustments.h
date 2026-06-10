@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/level/ChunkPos.h"
 
 class BeardDescription;

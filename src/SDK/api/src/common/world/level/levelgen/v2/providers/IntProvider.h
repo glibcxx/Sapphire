@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #if MC_VERSION >= v1_21_50
 
-#    include <variant>
 #    include "ConstantInt.h"
 #    include "UniformInt.h"
 

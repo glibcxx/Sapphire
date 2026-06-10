@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include "Vec3.h"
+#include "pch.h" // IWYU pragma: keep
+
+#include "Vec3.h" // IWYU pragma: keep
 
 class Vec4 {
 public:

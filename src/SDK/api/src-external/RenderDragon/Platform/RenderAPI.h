@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace dragon::platform {
 
     enum class RenderAPI : uint8_t {

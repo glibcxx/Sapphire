@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../CommonPlatform.h"
 #include "SDK/api/src-deps/Core/Platform/ActivationArguments.h"
 #include "SDK/api/src-client/common/client/game/ResetCallbackObject.h"

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "MovingBlockActor.h"
+#include "pch.h" // IWYU pragma: keep
+
+#include "BlockActor.h"
 
 class BlockSource;
 class CompoundTag;

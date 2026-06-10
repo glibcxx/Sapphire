@@ -2,7 +2,6 @@
 
 #include <coroutine>
 #include <exception>
-#include <ranges>
 
 namespace sapphire::coro {
 

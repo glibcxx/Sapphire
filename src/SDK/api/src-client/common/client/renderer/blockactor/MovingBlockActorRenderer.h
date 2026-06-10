@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "BlockActorRenderer.h"
 #include "SDK/api/src-deps/MinecraftRenderer/Renderer/TexturePtr.h"
 

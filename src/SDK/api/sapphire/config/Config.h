@@ -1,14 +1,8 @@
 #pragma once
 
-#include <string>
-#include <filesystem>
-#include <fstream>
-#include <mutex>
-#include <optional>
-#include <nlohmann/json.hpp>
+#include "pch.h" // IWYU pragma: keep
 
 #include "SDK/api/sapphire/logger/Logger.h"
-#include "imgui.h"
 
 namespace sapphire {
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace mce {
 
     // https://github.com/LiteLDev/LeviLamina/blob/dad11c69b20f644ab7192d45add4e0be1d54d432/src-client/mc/deps/renderer/hal/enums/RenderFeature.h#L7

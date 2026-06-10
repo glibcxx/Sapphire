@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src-deps/MinecraftRenderer/Renderer/Mesh.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"

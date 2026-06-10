@@ -1,9 +1,6 @@
 #pragma once
 
-#include <condition_variable>
-#include <atomic>
-#include <mutex>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::rendering {
     class GraphicsTasks;

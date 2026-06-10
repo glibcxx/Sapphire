@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Version.h"
+#include "Version.h" // IWYU pragma: export
 
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__CYGWIN__)
 #    define SPHR_EXPORT __declspec(dllexport)

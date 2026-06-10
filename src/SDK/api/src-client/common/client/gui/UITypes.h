@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace ui {
 
     enum class LayoutAxisType : int {

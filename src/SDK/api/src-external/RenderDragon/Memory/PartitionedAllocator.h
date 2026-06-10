@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Endstone/Guarded.hpp"
 
 namespace dragon::memory {
@@ -15,7 +16,7 @@ namespace dragon::memory {
     template <typename Handle, typename T>
     class PartitionedFixedAllocator {
     public:
-        using Block = Block<typename Handle, T>;
+        using Block = Block<Handle, T>;
     };
 
     // size: 32

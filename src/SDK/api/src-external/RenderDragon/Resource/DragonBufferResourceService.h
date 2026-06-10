@@ -1,13 +1,16 @@
 #pragma once
 
-#include <gsl/gsl>
+
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/CheckedResourceService/CheckedResourceService.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/UncheckedHandleTracker.h"
-#include "SDK/api/src-deps/Core/CheckedResourceService/AssertResourceServiceErrorHandler.h"
+#include "SDK/api/src-deps/Core/CheckedResourceService/ResourceBlockTemplate.h"
+#include "SDK/api/src-deps/Core/CheckedResourceService/ResourcePointer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/SimpleResourceTracker.h"
-#include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexBufferResourceManagerTypes.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/IndexBufferResourceManagerTypes.h"
+#include "DragonBufferDescription.h"
 
 namespace dragon {
 

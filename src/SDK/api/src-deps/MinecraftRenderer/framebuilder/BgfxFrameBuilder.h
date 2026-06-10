@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "FrameBuilder.h"
 #include "BgfxBridge/BgfxFrameExtractor.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/FrameRenderer.h"

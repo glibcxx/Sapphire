@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 32
 class EntitlementChangeListener : public std::enable_shared_from_this<EntitlementChangeListener> {
 public:

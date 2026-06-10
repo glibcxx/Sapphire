@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class GameType : int {
     Undefined = -1,
     Survival = 0,

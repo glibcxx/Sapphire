@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 template <typename NAMESPACE, typename ID_TYPE>
 class AutomaticID {
 public:

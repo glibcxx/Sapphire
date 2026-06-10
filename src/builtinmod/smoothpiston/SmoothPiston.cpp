@@ -4,9 +4,9 @@
 #include "SDK/api/sapphire/GUI/GUI.h"
 
 #include "SDK/api/src/common/dataloadhelper/DefaultDataLoadHelper.h"
-#include "SDK/api/src/common/world/level/Level.h"
 #include "SDK/api/src/common/world/level/BlockSource.h"
 #include "SDK/api/src/common/world/level/block/Block.h"
+#include "SDK/api/src/common/world/level/block/actor/MovingBlockActor.h"
 #include "SDK/api/src/common/world/level/block/actor/PistonBlockActor.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/PistonBlockActorRenerer.h"
 #include "SDK/api/src-client/common/client/renderer/blockactor/MovingBlockActorRenderer.h"

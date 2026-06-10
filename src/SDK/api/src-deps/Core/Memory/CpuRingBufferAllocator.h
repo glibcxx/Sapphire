@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "CpuRingBuffer.h"
 #include "FencedDynamicRingBuffer.h"
 

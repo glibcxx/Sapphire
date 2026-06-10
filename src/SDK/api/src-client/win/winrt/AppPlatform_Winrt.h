@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <winrt/windows.ui.core.h>
 #include "SDK/api/src/win/AppPlatformWindows.h"
 

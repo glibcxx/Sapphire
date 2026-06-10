@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 296 (1.21.2), 456 (1.21.50), 280 (1.21.60)
 class PackDownloadManager {
 public:

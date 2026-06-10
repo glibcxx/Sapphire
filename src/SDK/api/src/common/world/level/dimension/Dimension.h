@@ -1,6 +1,7 @@
 #pragma once
 
-#include <set>
+#include "pch.h" // IWYU pragma: keep
+
 #include "IDimension.h"
 #include "SDK/api/src/common/CommonTypes.h"
 #include "SDK/api/src/common/world/level/levelgen/v1/FeatureTerrainAdjustments.h"

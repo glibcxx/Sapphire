@@ -12,7 +12,7 @@ macro(sapphire_add_sdk_target BUILDING_MC_VERSION OUT_TARGETS OUT_INSTALL_TARGET
 
     target_compile_definitions(${SAPPHIRE_TARGET_NAME} PRIVATE SPHR_DLLEXPORT)
 
-    target_precompile_headers(${SAPPHIRE_TARGET_NAME} PUBLIC
+    target_precompile_headers(${SAPPHIRE_TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"
     )
 

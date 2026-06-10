@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/bgfx/bgfx.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureDescription.h"
 #include "SDK/api/src-deps/Core/Threading/MPMCQueue.h"

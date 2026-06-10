@@ -1,6 +1,7 @@
 #pragma once
 
-#include <set>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/File/Path.h"
 #include "SDK/api/src-deps/Core/Utility/SemVersion.h"
 #include "SDK/api/src-deps/json/Value.h"

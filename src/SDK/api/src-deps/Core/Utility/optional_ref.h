@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstddef>
-#include <type_traits>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 8
 template <typename T>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <chrono>
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/network/NetEventCallback.h"
 #include "SDK/api/src/common/world/level/ChunkPos.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"

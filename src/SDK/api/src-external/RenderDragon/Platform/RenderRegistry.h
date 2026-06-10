@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <bitset>
-#include <array>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Threading/InstancedThreadLocal.h"
 #include "SDK/api/src-deps/Core/Memory/RingAllocatorContainer.h"
 

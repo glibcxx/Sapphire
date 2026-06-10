@@ -1,9 +1,10 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Threading/TaskGroup.h"
 #include "SDK/api/src/common/network/LocalAuthentication.h"
 #include "SDK/api/src-deps/Core/Utility/pubsub/Subscription.h"
-#include "macros/Macros.h"
 
 class IClientInstance;
 class Options;

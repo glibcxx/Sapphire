@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "IAdvancedGraphicsOptions.h"
 #include "SDK/api/src/common/resources/ResourcePackListener.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"

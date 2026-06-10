@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include "pch.h" // IWYU pragma: keep
 
 #include "BufferHandleType.h"
 

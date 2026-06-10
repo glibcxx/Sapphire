@@ -1,6 +1,7 @@
 #pragma once
 
-#include <imgui.h>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/phys/Vec2.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
 

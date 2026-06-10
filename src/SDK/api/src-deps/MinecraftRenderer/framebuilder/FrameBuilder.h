@@ -1,6 +1,9 @@
 #pragma once
 
-#include <winrt/impl/Windows.UI.Core.2.h>
+#include "pch.h" // IWYU pragma: keep
+
+#include <winrt/base.h>
+#include <winrt/Windows.ApplicationModel.Core.h>
 #include "FrameLightingModelCapabilities.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/IndexSize.h"
@@ -28,6 +31,10 @@ namespace dragon {
     class MaterialResourceManager;
     struct RenderMetadata;
 } // namespace dragon
+namespace winrt::Windows::UI::Core {
+    struct CoreWindow;
+}
+
 enum class LevelCullerType : uint8_t;
 enum class FrustumCullerType : uint8_t;
 
@@ -47,7 +54,13 @@ namespace mce::framebuilder {
     class FrameBuilderContext;
     struct CameraDescriptionOrthographic;
     struct CameraDescriptionPerspective;
+    struct RenderMeshFallbackDescription;
+    struct RenderChunkGeometryDescription;
     struct BufferClearDescription;
+    struct RenderCrackDescription;
+    struct RenderItemInHandDescription;
+    struct RenderSkinnedMeshDescription;
+    struct RenderBlockSelectionOverlayBlockEntityDescription;
 
     enum class AsyncLoadResult : int32_t {
         Pending = 0,
@@ -221,14 +234,14 @@ namespace mce::framebuilder {
 
         // vtb+37
         virtual void debugDeclareSceneCamera(
-            const mce::framebuilder::CameraDescriptionOrthographic &cameraDescription,
-            const mce::framebuilder::BufferClearDescription        &bufferClearDescription
+            const CameraDescriptionOrthographic &cameraDescription,
+            const BufferClearDescription        &bufferClearDescription
         ) = 0;
 
         // vtb+38
         virtual void debugDeclareSceneCamera(
-            const mce::framebuilder::CameraDescriptionPerspective &cameraDescription,
-            const mce::framebuilder::BufferClearDescription       &bufferClearDescription
+            const CameraDescriptionPerspective &cameraDescription,
+            const BufferClearDescription       &bufferClearDescription
         ) = 0;
 
         // vtb+39
@@ -356,10 +369,10 @@ namespace mce::framebuilder {
 
         // vtb+80
         virtual void registerWindowHandle(
-            class std::variant<
-                struct winrt::agile_ref<struct winrt::Windows::UI::Core::CoreWindow>,
-                struct WinRtOpenXrSurfaceParameters,
-                struct std::monostate> const &,
+            const std::variant<
+                winrt::agile_ref<winrt::Windows::UI::Core::CoreWindow>,
+                WinRtOpenXrSurfaceParameters,
+                std::monostate> &,
             uint16_t handle,
             int,
             int
@@ -387,7 +400,15 @@ namespace mce::framebuilder {
         virtual void _insert_4(void *description) = 0;
 
         // vtb+88
-        virtual void _insert_5(void *description) = 0;
+        virtual void _insert(
+            std::variant<
+                std::reference_wrapper<const RenderMeshFallbackDescription>,
+                std::reference_wrapper<const RenderChunkGeometryDescription>,
+                std::reference_wrapper<const RenderCrackDescription>,
+                std::reference_wrapper<const RenderItemInHandDescription>,
+                std::reference_wrapper<const RenderSkinnedMeshDescription>,
+                std::reference_wrapper<const RenderBlockSelectionOverlayBlockEntityDescription>> description
+        ) = 0;
 
         // vtb+89
         virtual void _insert_6(void *description) = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "macros/Macros.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Memory/IMemoryAllocator.h"
 
 namespace sapphire::memory {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #if MC_VERSION == v1_21_2
 enum class BlockRenderLayer : uint64_t {
 #elif MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60

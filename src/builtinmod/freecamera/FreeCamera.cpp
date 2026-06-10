@@ -12,7 +12,6 @@
 #include "SDK/api/src/common/network/packet/TextPacket.h"
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src/common/world/GameSession.h"
-#include "SDK/api/sapphire/input/InputManager.h"
 
 FreeCameraMod *freeCam = nullptr;
 

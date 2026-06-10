@@ -1,10 +1,11 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <optional>
 #include <variant>
 
 #include "SDK/api/src-external/RenderDragon/Rendering/BufferResourceManager.h"
-#include "SDK/api/src-external/RenderDragon/Memory/BufferSource.h"
 #include "SDK/api/src-external/bgfx/bgfx.h"
 #include "IndexBufferResourceManagerTypes.h"
 

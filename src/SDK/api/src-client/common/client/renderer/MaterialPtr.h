@@ -1,8 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
 
-#include "SDK/api/src-deps/Coregraphics/RenderMaterialGroupBase.h"
 #include "SDK/api/src-deps/Coregraphics/RenderMaterial.h"
 
 namespace mce {

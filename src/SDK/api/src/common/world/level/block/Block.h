@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SDK/api/src-deps/Core/Utility/StringHash.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "components/BlockComponentStorage.h"
-#include "BlockSerializationId.h"
 #include "BlockLegacy.h"
 
 class Block {

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <mutex>
+#include "pch.h" // IWYU pragma: keep
 
 namespace Bedrock::Intrusive {
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "BlockShape.h"
 #include "SDK/api/src-client/common/client/renderer/texture/IsotropicFaceData.h"
 #include "SDK/api/src-client/common/client/renderer/texture/TextureUVCoordinateSet.h"

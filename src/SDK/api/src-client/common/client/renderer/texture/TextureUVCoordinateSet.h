@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "IsotropicFaceData.h"
 #include "SDK/api/src-deps/Core/Resource/ResourceHelper.h"
 

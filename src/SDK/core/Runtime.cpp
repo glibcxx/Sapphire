@@ -1,25 +1,18 @@
 #include "Runtime.h"
 
-#include <memory>
-#include <stdexcept>
-#include <unordered_map>
-#include <thread>
+#include <winrt/base.h>
 
 #include "CrashLog.h"
 #include "RenderBackend.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/sapphire/hook/Hook.h"
 #include "SDK/api/sapphire/logger/Logger.h"
-#include "SDK/api/sapphire/util/DrawUtils.h"
-#include "SDK/api/sapphire/config/Config.h"
 #include "SDK/api/sapphire/event/events/eventImpls/EventHooks.h"
 #include "SDK/api/sapphire/event/events/AppTerminateEvent.h"
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/service/Service.h"
 
-#include "common/IPC/Protocal.h"
-#include "common/MemoryScanning.hpp"
 #include "common/ScopedTimer.hpp"
 
 namespace sapphire::core {

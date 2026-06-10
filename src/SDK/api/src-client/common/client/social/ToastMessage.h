@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ToastIconData.h"
 #include "SDK/api/src-deps/json/Value.h"
 

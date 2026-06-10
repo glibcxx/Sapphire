@@ -1,11 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <cctype>
 #include <optional>
 #include <type_traits>
 #include <utility>
-#include "MembInfo.hpp"
 #include "common/StringLiteral.hpp"
 
 namespace sapphire::refl {

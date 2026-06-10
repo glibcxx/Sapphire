@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/UUID.h"
 #include "SDK/api/src/common/CommonTypes.h"
 #include "SDK/api/src/common/world/actor/player/Player.h"

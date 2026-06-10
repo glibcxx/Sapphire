@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "DeferredSubscriptionHubBase.h"
 #include "SDK/api/src-deps/Core/Threading/MPSCQueue.h"
 

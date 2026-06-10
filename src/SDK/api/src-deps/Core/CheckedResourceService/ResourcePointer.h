@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ResourceBlockTemplate.h"
 #include "PerFrameHandleTracker.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonBufferDescription.h"

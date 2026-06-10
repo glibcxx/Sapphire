@@ -1,16 +1,14 @@
 #pragma once
 
-#include <Windows.h>
-#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include "SigDatabase.h"
 #include "macros/Macros.h"
-#include "common/DecoratedName.hpp"
-#include "common/Signature.h"
-#include "common/threading/ThreadPool.h"
-#include "common/IPC/Client.h"
+
+namespace sapphire::ipc {
+    class Client;
+}
 
 namespace sapphire::bootloader {
 

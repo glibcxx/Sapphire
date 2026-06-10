@@ -1,6 +1,7 @@
 #include "Bootloader.h"
 #include "RuntimeLinker.h"
 #include "bootloader/SymbolResolver.h"
+#include "common/sys/MiniWindows.h"
 
 #include <Windows.h>
 #include <filesystem>
@@ -77,7 +78,7 @@ namespace {
 
 namespace sapphire::bootloader {
 
-    Bootloader::Bootloader(HMODULE hModule) : mModule(hModule) {
+    Bootloader::Bootloader(sys::win::hmodule_t hModule) : mModule(hModule) {
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
     }
 

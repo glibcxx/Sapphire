@@ -14,4 +14,4 @@ namespace sapphire {
         return strTo;
     }
 
-} // namespace util
+} // namespace sapphire

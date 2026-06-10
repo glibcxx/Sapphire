@@ -1,5 +1,7 @@
 #include "CrashLog.h"
-#include "SDK/api/sapphire/logger/Logger.h"
+#include <csignal>
+#include <Windows.h>
+#include <dbghelp.h>
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/core/Runtime.h"
 
@@ -7,7 +9,7 @@
 
 namespace fs = std::filesystem;
 
-[[noreturn]] LONG WINAPI sapphire::core::CrashLogger::sehHandler(EXCEPTION_POINTERS *ep) {
+[[noreturn]] LONG __stdcall sapphire::core::CrashLogger::sehHandler(EXCEPTION_POINTERS *ep) {
     sMessageBuffer.write("Exception Code: {:#X}", ep->ExceptionRecord->ExceptionCode);
     handleCrash(ep, sMessageBuffer.view());
 }

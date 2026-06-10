@@ -1,10 +1,16 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
+#include "common/DowncastImpl.h"
 #include "common/SemanticVersion.hpp"
+#include "common/sys/MiniWindows.h"
 
 namespace sapphire::platform {
 
-    class Environment {
+    class EnvironmentImpl;
+
+    class Environment : public DowncastImpl<Environment, EnvironmentImpl> {
     public:
         SPHR_API static Environment &getInstance();
 
@@ -18,23 +24,21 @@ namespace sapphire::platform {
         const std::filesystem::path &getSapphireCorePath() const { return mSapphireCorePath; }
         const std::filesystem::path &getSapphireBinPath() const { return mSapphireBinPath; }
 
-        HMODULE getGameModule() const { return mGameModule; }
-        HMODULE getSapphireModule() const { return mSapphireModule; }
+        sys::win::hmodule_t getGameModule() const { return mGameModule; }
+        sys::win::hmodule_t getSapphireModule() const { return mSapphireModule; }
 
-        HWND getMainWindow() const { return mMainWindow; }
+        sys::win::hwnd_t getMainWindow() const { return mMainWindow; }
 
         uintptr_t getImagebase() const { return (uintptr_t)mGameModule; }
 
-        void setMainWindow(HWND hwnd);
+        void setMainWindow(sys::win::hwnd_t hwnd);
 
-    private:
-        Environment();
-        ~Environment() = default;
-
+    protected:
+        Environment() = default;
         Environment(const Environment &) = delete;
         Environment &operator=(const Environment &) = delete;
 
-        HWND mMainWindow = nullptr;
+        sys::win::hwnd_t mMainWindow = nullptr;
 
         SemanticVersion mSapphireVersion;
         SemanticVersion mGameVersion;
@@ -44,10 +48,8 @@ namespace sapphire::platform {
         std::filesystem::path mSapphireCorePath;
         std::filesystem::path mSapphireBinPath;
 
-        HMODULE mGameModule = nullptr;
-        HMODULE mSapphireModule = nullptr;
-
-        MODULEINFO mSapphireModuleInfo;
+        sys::win::hmodule_t mGameModule = nullptr;
+        sys::win::hmodule_t mSapphireModule = nullptr;
     };
 
 } // namespace sapphire::platform

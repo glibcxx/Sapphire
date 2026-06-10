@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/entity/gamerefs_entity/EntityContext.h"
 
 // size: 24

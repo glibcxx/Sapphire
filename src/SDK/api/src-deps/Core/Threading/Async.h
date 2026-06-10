@@ -1,4 +1,7 @@
 #pragma once
+
+#include "pch.h" // IWYU pragma: keep
+
 namespace Bedrock::Threading {
 
     enum AsyncStatus {

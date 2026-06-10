@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "atomicops.h"
 
 template <typename T, size_t MAX_BLOCK_SIZE>

@@ -4,7 +4,6 @@
 #include <atomic>
 #include <functional>
 #include <string>
-#include <vector>
 
 #include "Channel.h"
 #include "Pipe.h"

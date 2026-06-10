@@ -1,14 +1,16 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Container/IntrusiveList.h"
-#include <type_traits>
-#include <memory>
 
 #if defined(_WIN32)
 typedef unsigned long DWORD;
+typedef void         *PVOID;
+typedef int           BOOL;
 extern "C" {
 __declspec(dllimport) PVOID __stdcall FlsGetValue(DWORD dwFlsIndex);
-__declspec(dllimport) BOOL __stdcall FlsSetValue(DWORD dwFlsIndex, PVOID lpFlsData);
+__declspec(dllimport) BOOL __stdcall  FlsSetValue(DWORD dwFlsIndex, PVOID lpFlsData);
 }
 #else
 #    error "InstancedThreadLocal currently supports Windows TLS only"

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "LevelBuilder.h"
 #include "SDK/api/src-client/common/client/gui/screens/ScreenContext.h"
 #include "SDK/api/src-client/common/client/renderer/debug/DebugRenderer.h"

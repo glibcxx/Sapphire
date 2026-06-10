@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ActorCategory.h"
 #include "ActorTypes.h"
 #include "SDK/api/src/common/ActorUniqueID.h"

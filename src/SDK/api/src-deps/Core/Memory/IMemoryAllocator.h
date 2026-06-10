@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gsl/gsl>
+#include "pch.h" // IWYU pragma: keep
 
 namespace Bedrock::Memory {
 

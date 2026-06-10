@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "RenderChunkGeometry.h"
 #include "SDK/api/src/common/world/phys/AABB.h"
-#include <memory>
 
 class Block;
 class ChunkViewSource;

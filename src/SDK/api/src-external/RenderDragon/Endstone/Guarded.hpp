@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mutex>
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::guarded {
 

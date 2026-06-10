@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 136
 template <typename T>
 class PolygonOperatorPool {

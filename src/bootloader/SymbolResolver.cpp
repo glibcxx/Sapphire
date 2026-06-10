@@ -1,14 +1,16 @@
 #include "SymbolResolver.h"
 #include <Windows.h>
+#include <Psapi.h>
 #include <cassert>
 #include <fstream>
 #include <filesystem>
-#include <Psapi.h>
 
 #include "common/DecoratedName.hpp"
+#include "common/Memory.hpp"
 #include "common/MemoryScanning.hpp"
 #include "common/ScopedTimer.hpp"
 #include "common/coroutine/Coroutine.hpp"
+#include "common/IPC/Client.h"
 
 namespace sapphire::bootloader {
 

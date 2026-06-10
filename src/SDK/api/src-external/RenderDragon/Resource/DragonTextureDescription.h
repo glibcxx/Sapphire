@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
-#include <bitset>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Coregraphics/TextureDescription.h"
 
 namespace dragon {

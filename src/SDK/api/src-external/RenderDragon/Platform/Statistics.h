@@ -1,6 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "RenderAPI.h"
+
 namespace dragon::platform {
 
     // size: 208 (1.21.50)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 
 namespace MFC /*mce::framebuilder::gamecomponents*/ {

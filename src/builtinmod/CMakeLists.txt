@@ -22,7 +22,7 @@ function(sapphire_builtin_mod_add_target BUILDING_MC_VERSION)
 
     sapphire_enable_release_pdb(${MOD_TARGET_NAME})
 
-    target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core+mc${BUILDING_MC_VERSION})
+    target_link_libraries(${MOD_TARGET_NAME} PRIVATE sapphire_core+mc${BUILDING_MC_VERSION} bedrock_sdk+mc${BUILDING_MC_VERSION})
 
     target_precompile_headers(${MOD_TARGET_NAME} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/../pch.h"

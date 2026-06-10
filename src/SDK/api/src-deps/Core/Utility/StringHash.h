@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
+#include "pch.h" // IWYU pragma: keep
 
 typedef uint64_t HashType64;
 

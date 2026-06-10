@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "Enums/TextureFormat.h"
 #include "Enums/ColorSpace.h"
 

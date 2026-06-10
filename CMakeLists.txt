@@ -120,6 +120,7 @@ add_subdirectory(src/SDK)
 
 add_subdirectory(src/test)
 
+
 # --- Installation Rules ---
 install(TARGETS SapphireCommon
     EXPORT SapphireTargets

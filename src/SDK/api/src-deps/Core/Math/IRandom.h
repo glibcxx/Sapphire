@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
 
 class IPositionalRandomFactory;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/MinecraftRenderer/Resources/IndexBufferContainer.h"
 #include "MeshData.h"
 #include "VertexLayout.h"

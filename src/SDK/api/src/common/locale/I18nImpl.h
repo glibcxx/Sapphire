@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <memory>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/Subject.h"
 #include "I18n.h"
 

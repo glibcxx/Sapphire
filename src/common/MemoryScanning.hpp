@@ -2,7 +2,6 @@
 
 #include <immintrin.h>
 #include <array>
-#include "Memory.hpp"
 #include "../macros/Macros.h"
 
 namespace sapphire {
@@ -67,4 +66,4 @@ namespace sapphire {
         }
     }
 
-} // namespace sapphire::memory
+} // namespace sapphire

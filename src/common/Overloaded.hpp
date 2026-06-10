@@ -7,4 +7,4 @@ namespace sapphire {
         using Ts::operator()...;
     };
 
-} // namespace sapphire::util
+} // namespace sapphire

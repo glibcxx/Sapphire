@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
 
 #define BGFX_BUFFER_NONE UINT16_C(0x0000)
 #define BGFX_BUFFER_COMPUTE_READ UINT16_C(0x0100)  //!< Buffer will be read by shader.

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/brstd/flat_map.h"
 #include "SDK/api/src-deps/Core/Utility/brstd/flat_set.h"
 #include "SDK/api/src-deps/Core/Utility/TypeId.h"

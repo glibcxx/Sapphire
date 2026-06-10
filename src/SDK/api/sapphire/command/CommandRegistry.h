@@ -1,6 +1,7 @@
 #pragma once
 
-#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/server/commands/CommandRegistry.h"
 #include "common/reflection/Reflection.hpp"
 #include "CommandFactory.h"

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <map>
-#include <atomic>
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "FencedRingBuffer.h"
 
 namespace bgfx {

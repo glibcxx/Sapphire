@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "ITransactionContainer.h"
 
 namespace mce {

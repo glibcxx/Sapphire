@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class ActorCategory : uint32_t {
     None = 0,
     Player = 1,

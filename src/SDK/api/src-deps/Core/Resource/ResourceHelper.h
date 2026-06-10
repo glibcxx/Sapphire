@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
 
 #include "ResourceUtil.h"
 #include "SDK/api/src-deps/Core/File/Path.h"

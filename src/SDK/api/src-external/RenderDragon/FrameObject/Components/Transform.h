@@ -1,8 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <variant>
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
 
 namespace DFC /*dragon::frameobject::components*/ {
 

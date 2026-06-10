@@ -3,8 +3,6 @@
 #include <atomic>
 #include <coroutine>
 #include <exception>
-#include <format>
-#include <iostream>
 #include <ranges>
 #include <utility>
 #include <variant>
@@ -108,7 +106,7 @@ namespace sapphire::coro {
             WhenAllTask(WhenAllTask &&other) noexcept :
                 mHandle(std::exchange(other.mHandle, {})) {}
 
-            WhenAllTask operator=(WhenAllTask &&other) noexcept {
+            WhenAllTask &operator=(WhenAllTask &&other) noexcept {
                 if (std::addressof(other) != this) {
                     if (mHandle) mHandle.destroy();
                     mHandle = std::exchange(other.mHandle, {});

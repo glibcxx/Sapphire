@@ -1,6 +1,7 @@
 #pragma once
 
-#include <atomic>
+#include "pch.h" // IWYU pragma: keep
+
 #include "BufferHandleType.h"
 #include "SDK/api/src-deps/Core/Threading/MPMCQueue.h"
 #include "SDK/api/src-deps/Core/Container/Cache.h"

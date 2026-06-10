@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
-#include <string>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Platform/PlatformTypes.h"
 
 namespace Bedrock {

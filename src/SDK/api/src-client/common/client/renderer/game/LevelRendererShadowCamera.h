@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/renderer/game/LevelRendererCamera.h"
 
 class LevelRendererShadowCamera : public LevelRendererCamera {

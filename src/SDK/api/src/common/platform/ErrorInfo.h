@@ -1,8 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <optional>
-#include <system_error>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Debug/BedrockEventLoggerAreas.h"
 
 namespace Bedrock {

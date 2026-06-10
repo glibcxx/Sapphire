@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Coregraphics/BufferDescription.h"
 
 namespace dragon {

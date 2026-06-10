@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "EventResult.h"
 #include "SDK/api/src/common/world/phys/HitResult.h"
 

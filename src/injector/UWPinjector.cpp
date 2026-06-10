@@ -1,14 +1,11 @@
 #include <iostream>
 #include <filesystem>
 #include <mutex>
-#include <regex>
-#include <map>
 
 #include "common/ScopeGuard.hpp"
 #include "common/IPC/Server.h"
 
 #include <thread>
-#include <tuple>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.ApplicationModel.h>

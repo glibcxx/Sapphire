@@ -9,6 +9,7 @@
 #include "SDK/api/src/common/world/Minecraft.h"
 #include "SDK/api/src/common/network/NetEventCallback.h"
 #include "SDK/api/src/common/world/events/ServerInstanceEventCoordinator.h"
+#include "SDK/api/src/common/world/level/Level.h"
 
 namespace {
 

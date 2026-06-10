@@ -1,9 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "CompiledMaterialDefinition.h"
 #include "Definition/EncryptionVariants.h"
-
-#include <unordered_set>
 
 namespace dragon::materials {
 

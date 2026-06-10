@@ -1,12 +1,13 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "LevelRenderPreRenderUpdateParameters.h"
 #include "PolygonOperatorPool.h"
 #include "SDK/api/src-deps/Core/Threading/Async.h"
 #include "SDK/api/src/common/world/level/SubChunkPos.h"
 #include "SDK/api/src-deps/Core/Threading/MPMCQueue.h"
 #include "SDK/api/src-deps/Platform/Threading/SpinLock.h"
-#include <memory>
 
 class RenderChunkInstanced;
 class ChunkVisibilityCache;

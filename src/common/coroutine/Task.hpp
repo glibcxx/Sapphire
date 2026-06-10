@@ -1,11 +1,8 @@
 #pragma once
 
-#include <atomic>
 #include <cassert>
 #include <coroutine>
 #include <exception>
-#include <format>
-#include <iostream>
 #include <type_traits>
 #include <variant>
 
@@ -24,8 +21,7 @@ namespace sapphire::coro {
                 constexpr bool await_ready() const noexcept { return false; }
                 template <typename TPromise>
                 auto await_suspend(std::coroutine_handle<TPromise> h) const noexcept {
-                    std::coroutine_handle<> continuation = h.promise().mContinuation;
-                    return continuation ? continuation : std::noop_coroutine();
+                    return h.promise().mContinuation;
                 }
                 constexpr void await_resume() const noexcept {}
             };

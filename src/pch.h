@@ -4,6 +4,7 @@
 
 // C++ Standard Library
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <utility>
 #include <algorithm>
@@ -13,6 +14,8 @@
 #include <filesystem>
 #include <ranges>
 #include <random>
+#include <cassert>
+#include <system_error>
 
 #include <string>
 #include <sstream>
@@ -24,19 +27,13 @@
 #include <unordered_set>
 #include <bitset>
 #include <queue>
+#include <stack>
 
 #include <chrono>
 #include <thread>
 #include <mutex>
 #include <shared_mutex>
 #include <atomic>
-
-// Windows API & WinRT
-#include <Windows.h>
-#include <minwindef.h>
-#include <winnt.h>
-#include <winrt/base.h>
-#include <Psapi.h>
 
 // Third-party Libraries
 #include <glm/glm.hpp>

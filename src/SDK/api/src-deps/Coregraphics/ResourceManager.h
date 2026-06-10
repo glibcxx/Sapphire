@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace cg {
 
     template <typename Res, typename Loc, typename Tracker, typename Handle, template <typename K, typename V> class Container>

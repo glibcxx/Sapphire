@@ -1,7 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
 
 #include "SDK/api/src-deps/Platform/Threading/Mutex.h"
 

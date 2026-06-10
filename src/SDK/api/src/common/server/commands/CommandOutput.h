@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "CommandPropertyBag.h"
 
 enum class CommandOutputType : int {

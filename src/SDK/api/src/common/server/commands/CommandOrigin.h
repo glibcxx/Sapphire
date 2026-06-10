@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "CommandPermissionLevel.h"
 #include "CommandOriginData.h"
 #include "SDK/api/src/common/CommonTypes.h"

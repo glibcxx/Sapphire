@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 128
 struct ClientInputHandlerProxyCallbacks {
     std::function<uint32_t(const std::string &)> mGetNameId;              // off+0

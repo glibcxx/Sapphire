@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Math/Color.h"
 #include "SDK/api/src-deps/Core/Utility/StringHash.h"
 #include "SDK/api/src-deps/Renderer/Matrix.h"

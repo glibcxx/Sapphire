@@ -1,8 +1,8 @@
 #include "RuntimeLinker.h"
 #include "MinHook.h"
-#include <Windows.h>
 #include <winnt.h>
 #include <winternl.h>
+#include "common/IPC/Client.h"
 
 #define LDR_DLL_NOTIFICATION_REASON_LOADED 1
 #define LDR_DLL_NOTIFICATION_REASON_UNLOADED 2
@@ -53,7 +53,7 @@ BOOL WINAPI FakeDllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
     return FALSE;
 }
 
-void sapphire::bootloader::RuntimeLinker::forceDllMainToFail(RuntimeLinker *self, HMODULE hDll) {
+void sapphire::bootloader::RuntimeLinker::forceDllMainToFail(RuntimeLinker *self, sys::win::hmodule_t hDll) {
     auto pImageBase = reinterpret_cast<PBYTE>(hDll);
     auto pDosHeader = reinterpret_cast<PIMAGE_DOS_HEADER>(pImageBase);
     auto pNtHeaders = reinterpret_cast<PIMAGE_NT_HEADERS>(pImageBase + pDosHeader->e_lfanew);

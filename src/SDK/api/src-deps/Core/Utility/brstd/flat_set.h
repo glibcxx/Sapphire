@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include "pch.h" // IWYU pragma: keep
 
 namespace brstd {
 

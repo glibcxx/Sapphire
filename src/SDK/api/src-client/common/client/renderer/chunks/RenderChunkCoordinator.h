@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/level/LevelListener.h"
 #include "SDK/api/src/common/world/level/SubChunkPos.h"
 #include "SDK/api/src/common/world/level/dimension/DimensionType.h"

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <WinSock2.h>
-#include <unordered_map>
 #include "SDK/api/src-deps/raknet/raknet/RakNetTypes.h"
 
 class NetworkIdentifier {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ILevel.h"
 #include "common/Memory.hpp"
 #include "SDK/api/src/common/world/level/BlockSourceListener.h"

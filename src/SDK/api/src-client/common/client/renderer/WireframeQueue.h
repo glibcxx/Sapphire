@@ -1,6 +1,7 @@
 #pragma once
 
-#include <unordered_map>
+#include "pch.h" // IWYU pragma: keep
+
 #include "Wireframe.h"
 
 class WireframeQueue

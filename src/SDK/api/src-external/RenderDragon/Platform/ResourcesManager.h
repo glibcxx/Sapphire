@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Rendering/TextureResourceManager.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexDeclManager.h"
 #include "SDK/api/src-external/RenderDragon/Mesh/VertexBufferResourceManager.h"

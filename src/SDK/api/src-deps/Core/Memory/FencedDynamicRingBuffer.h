@@ -1,8 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <optional>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/brstd/flat_map.h"
 
 // size: 192 (1.21.50)

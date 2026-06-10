@@ -1,9 +1,10 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/phys/Vec2.h"
 #include "SDK/api/src-client/common/client/input/enums/DirectionId.h"
 #include "SDK/api/src-client/common/client/input/enums/FocusImpact.h"
-#include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src-deps/Input/InputMode.h"
 
 class ScreenContext;

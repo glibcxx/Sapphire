@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
-#include <mutex>
 #include "bgfx.h"
 #include "bgfx_p.h"
 

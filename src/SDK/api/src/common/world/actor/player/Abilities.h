@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class AbilitiesIndex : int8_t {
     Invalid = -1,
     Build = 0,

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <gsl/gsl>
+#include "pch.h" // IWYU pragma: keep
+
 #include "UniformDataVector.h"
 #include "MaterialUniform.h"
 #include "MaterialUniformName.h"

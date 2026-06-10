@@ -1,6 +1,6 @@
 #pragma once
 
-#include "macros/Macros.h"
+#include "pch.h" // IWYU pragma: keep
 
 class MinecraftGame;
 class IClientInstance;

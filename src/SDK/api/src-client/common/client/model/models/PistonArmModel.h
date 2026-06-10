@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "Model.h"
 #include "SDK/api/src-client/common/client/model/geom/ModelPart.h"
 

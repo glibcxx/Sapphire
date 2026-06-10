@@ -1,6 +1,7 @@
 #pragma once
 
-#include <optional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/FrameObject/Components/MeshFilter.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/Components/MaterialFilter.h"
 #include "SDK/api/src-deps/MinecraftRenderer/FrameBuilder/BgfxBridge/BgfxFrameExtractor.h"

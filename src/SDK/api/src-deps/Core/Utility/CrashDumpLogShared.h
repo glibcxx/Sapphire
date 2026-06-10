@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
 
 enum class CrashDumpLogStringID : uint16_t {
     None = 0,

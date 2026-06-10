@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "TaskStartInfo.h"
 #include "TaskGroupState.h"
 #include "SDK/api/src-deps/Core/Utility/brstd/move_only_function.h"

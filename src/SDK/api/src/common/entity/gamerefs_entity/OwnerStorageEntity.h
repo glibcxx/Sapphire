@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #ifndef SPHRINCLUDE_ENTITYCONTEXT_H
 #    error "Do not include WeakStorageEntity.h directly, please include EntityContext.h"
 #endif

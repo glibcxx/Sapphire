@@ -1,6 +1,7 @@
 #pragma once
 
-#include <variant>
+#include "pch.h" // IWYU pragma: keep
+
 #include "DoubleTag.h"
 #include "StringTag.h"
 #include "ByteArrayTag.h"

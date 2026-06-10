@@ -1,7 +1,6 @@
 #include "Config.h"
 
 #include "SDK/api/sapphire/platform/Environment.h"
-#include "SDK/core/Runtime.h"
 
 namespace sapphire {
 

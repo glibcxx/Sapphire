@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/AppPlatformListener.h"
 #include "SDK/api/src/common/world/phys/AABB.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "File.h"
 #include "FileOpenMode.h"
 #include "FileTypes.h"

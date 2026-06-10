@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Event.h"
 #include "SDK/api/src-client/common/client/game/MinecraftGame.h"
 

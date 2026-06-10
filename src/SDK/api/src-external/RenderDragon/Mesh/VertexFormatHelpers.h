@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "VertexFormat.h"
 #include "SDK/api/src-external/bgfx/bgfx.h"
 

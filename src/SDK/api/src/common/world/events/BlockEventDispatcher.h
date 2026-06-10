@@ -1,7 +1,7 @@
 #pragma once
 
-#include <functional>
-#include <unordered_map>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 #include "SDK/api/src/common/world/phys/Vec3.h"
 

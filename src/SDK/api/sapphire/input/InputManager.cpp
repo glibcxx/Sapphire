@@ -1,18 +1,115 @@
 #include "InputManager.h"
 
+#include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.Input.h>
 #include <winrt/Windows.Foundation.h>
 
 #include "SDK/api/sapphire/hook/Hook.h"
-#include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/src-deps/Input/MouseDevice.h"
-#include "SDK/api/src-client/common/client/game/ClientInstance.h"
 #include "common/String.hpp"
 
 namespace sapphire::input {
 
     using namespace winrt::Windows::UI;
     using namespace winrt::Windows::UI::Core;
+
+    class InputManagerImpl : public InputManager {
+    public:
+        class MouseFeedHook;
+
+        SPHR_API bool _isKeyDown(KeyCode key) const;
+        SPHR_API bool _isKeyUp(KeyCode key) const;
+        SPHR_API bool _isKeyPressed(KeyCode key) const;
+
+        SPHR_API Vec2           _getMousePosition() const;
+        SPHR_API Vec2           _getMouseDelta() const;
+        SPHR_API MouseWheelData _getMouseWheelData() const;
+
+        SPHR_API bool _isLMouseDoubleClicked() const;
+        SPHR_API bool _isRMouseDoubleClicked() const;
+
+        InputManagerImpl();
+        ~InputManagerImpl();
+
+        void _init(CoreWindow &coreWindow);
+
+    private:
+        using CoreDispatcher = winrt::Windows::UI::Core::CoreDispatcher;
+        using PointerEventArgs = winrt::Windows::UI::Core::PointerEventArgs;
+        using AcceleratorKeyEventArgs = winrt::Windows::UI::Core::AcceleratorKeyEventArgs;
+        using CharacterReceivedEventArgs = winrt::Windows::UI::Core::CharacterReceivedEventArgs;
+
+        void _onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args);
+
+        void _onCharacterReceived(const CoreWindow &sender, const CharacterReceivedEventArgs &args);
+
+        void _onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args);
+
+        void _onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args);
+
+        void _onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args);
+
+        Vec2           mMousePosition{};
+        Vec2           mPreviousMousePosition{};
+        Vec2           mMouseDelta{};
+        MouseWheelData mMouseWheel{};
+
+        // --- State variables ---
+        std::map<KeyCode, bool> mCurrentKeyStates;
+        std::map<KeyCode, bool> mPreviousKeyStates;
+
+        mutable std::mutex mStateMutex;
+
+        // --- Internal API (called by hooks) ---
+        void _onRawKeyEvent(KeyCode key, bool is_down);
+        void _onRawMouseButtonEvent(KeyCode button, bool is_down, const Vec2 &pos);
+        void _onRawMouseMove(const Vec2 &pos);
+        void _onRawMouseWheel(float dx, float dy);
+
+        // Called at the end of a frame to shift states
+        void _onFrameEnd();
+
+        CoreWindow     mCoreWindow{nullptr};
+        CoreDispatcher mCoreDispatcher{nullptr};
+
+        CoreWindow::PointerPressed_revoker              mPointerPressedRevoker;
+        CoreWindow::PointerReleased_revoker             mPointerReleasedRevoker;
+        CoreWindow::PointerWheelChanged_revoker         mPointerWheelRevoker;
+        CoreDispatcher::AcceleratorKeyActivated_revoker mAcceleratorRevoker;
+        CoreWindow::CharacterReceived_revoker           mCharacterReceivedRevoker;
+    };
+
+    InputManager &InputManager::getInstance() {
+        static InputManagerImpl instance;
+        return instance;
+    }
+    bool InputManager::isKeyDown(sapphire::input::KeyCode key) const {
+        return self()->_isKeyDown(key);
+    }
+    bool InputManager::isKeyUp(sapphire::input::KeyCode key) const {
+        return self()->_isKeyUp(key);
+    }
+    bool InputManager::isKeyPressed(sapphire::input::KeyCode key) const {
+        return self()->_isKeyPressed(key);
+    }
+    Vec2 InputManager::getMousePosition() const {
+        return self()->_getMousePosition();
+    }
+    Vec2 InputManager::getMouseDelta() const {
+        return self()->_getMouseDelta();
+    }
+    MouseWheelData InputManager::getMouseWheelData() const {
+        return self()->_getMouseWheelData();
+    }
+    bool InputManager::isLMouseDoubleClicked() const {
+        return self()->_isLMouseDoubleClicked();
+    }
+    bool InputManager::isRMouseDoubleClicked() const {
+        return self()->_isLMouseDoubleClicked();
+    }
+    void InputManager::init(CoreWindow &coreWindow) {
+        self()->_init(coreWindow);
+    }
 
     static constexpr ImGuiKey KeyEventToImGuiKey(WPARAM wParam) {
         switch (wParam) {
@@ -173,10 +270,10 @@ namespace sapphire::input {
         return KeyCode::None;
     }
 
-    InputManager *instance = nullptr;
+    InputManagerImpl *instance = nullptr;
 
     HOOK_TYPE(
-        InputManager::MouseFeedHook,
+        InputManagerImpl::MouseFeedHook,
         MouseDevice,
         sapphire::hook::HookPriority::Normal,
         MouseDevice::feed,
@@ -221,7 +318,7 @@ namespace sapphire::input {
         this->origin(actionButtonId, buttonData, x, y, dx, dy, forceMotionlessPointer);
     }
 
-    bool InputManager::isKeyDown(KeyCode key) const {
+    bool InputManagerImpl::_isKeyDown(KeyCode key) const {
         std::lock_guard lock(mStateMutex);
         auto            it_curr = mCurrentKeyStates.find(key);
         bool            current_state = it_curr != mCurrentKeyStates.end() && it_curr->second;
@@ -232,7 +329,7 @@ namespace sapphire::input {
         return current_state && !prev_state;
     }
 
-    bool InputManager::isKeyUp(KeyCode key) const {
+    bool InputManagerImpl::_isKeyUp(KeyCode key) const {
         std::lock_guard lock(mStateMutex);
         auto            it_curr = mCurrentKeyStates.find(key);
         bool            current_state = it_curr != mCurrentKeyStates.end() && it_curr->second;
@@ -243,74 +340,69 @@ namespace sapphire::input {
         return !current_state && prev_state;
     }
 
-    bool InputManager::isKeyPressed(KeyCode key) const {
+    bool InputManagerImpl::_isKeyPressed(KeyCode key) const {
         std::lock_guard lock(mStateMutex);
         auto            it = mCurrentKeyStates.find(key);
         return it != mCurrentKeyStates.end() && it->second;
     }
 
-    Vec2 InputManager::getMousePosition() const {
+    Vec2 InputManagerImpl::_getMousePosition() const {
         std::lock_guard lock(mStateMutex);
         return mMousePosition;
     }
 
-    Vec2 InputManager::getMouseDelta() const {
+    Vec2 InputManagerImpl::_getMouseDelta() const {
         std::lock_guard lock(mStateMutex);
         return mMouseDelta;
     }
 
-    MouseWheelData InputManager::getMouseWheelData() const {
+    MouseWheelData InputManagerImpl::_getMouseWheelData() const {
         std::lock_guard lock(mStateMutex);
         return mMouseWheel;
     }
 
-    bool sapphire::input::InputManager::isLMouseDoubleClicked() const {
+    bool InputManagerImpl::_isLMouseDoubleClicked() const {
         return ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
     }
 
-    bool sapphire::input::InputManager::isRMouseDoubleClicked() const {
+    bool InputManagerImpl::_isRMouseDoubleClicked() const {
         return ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right);
     }
 
-    InputManager::InputManager() = default;
+    InputManagerImpl::InputManagerImpl() = default;
 
-    InputManager::~InputManager() {
+    InputManagerImpl::~InputManagerImpl() {
         MouseFeedHook::unhook();
         this->mCoreDispatcher = nullptr;
         this->mCoreWindow = nullptr;
     }
 
-    InputManager &InputManager::getInstance() {
-        static InputManager instance;
-        return instance;
-    }
-
-    void InputManager::init(CoreWindow &coreWindow) {
+    void InputManagerImpl::_init(CoreWindow &coreWindow) {
         if (this->mCoreWindow || !coreWindow) return;
         this->mCoreWindow = coreWindow;
         try {
             this->mPointerPressedRevoker = this->mCoreWindow.PointerPressed(
                 winrt::auto_revoke,
                 [this](const CoreWindow &sender, const PointerEventArgs &args) {
-                    this->onPointerPressed(sender, args);
+                    this->_onPointerPressed(sender, args);
                 }
             );
             this->mPointerReleasedRevoker = this->mCoreWindow.PointerReleased(
                 winrt::auto_revoke,
                 [this](const CoreWindow &sender, const PointerEventArgs &args) {
-                    this->onPointerReleased(sender, args);
+                    this->_onPointerReleased(sender, args);
                 }
             );
             this->mPointerWheelRevoker = this->mCoreWindow.PointerWheelChanged(
                 winrt::auto_revoke,
                 [this](const CoreWindow &sender, const PointerEventArgs &args) {
-                    this->onPointerWheelChanged(sender, args);
+                    this->_onPointerWheelChanged(sender, args);
                 }
             );
             this->mCharacterReceivedRevoker = this->mCoreWindow.CharacterReceived(
                 winrt::auto_revoke,
                 [this](const CoreWindow &sender, const CharacterReceivedEventArgs &args) {
-                    this->onCharacterReceived(sender, args);
+                    this->_onCharacterReceived(sender, args);
                 }
             );
         } catch (const winrt::hresult_error &ex) {
@@ -324,7 +416,7 @@ namespace sapphire::input {
             this->mAcceleratorRevoker = this->mCoreDispatcher.AcceleratorKeyActivated(
                 winrt::auto_revoke,
                 [this](const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
-                    this->onAcceleratorKeyActivated(sender, args);
+                    this->_onAcceleratorKeyActivated(sender, args);
                 }
             );
         } catch (const winrt::hresult_error &ex) {
@@ -337,7 +429,7 @@ namespace sapphire::input {
         MouseFeedHook::hook();
     }
 
-    void InputManager::onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
+    void InputManagerImpl::_onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args) {
         winrt::Windows::System::VirtualKey vk = args.VirtualKey();
         CoreAcceleratorKeyEventType        eventType = args.EventType();
         CorePhysicalKeyStatus              keyStatus = args.KeyStatus();
@@ -379,14 +471,14 @@ namespace sapphire::input {
         }
     }
 
-    void InputManager::onCharacterReceived(const CoreWindow &sender, const CharacterReceivedEventArgs &args) {
+    void InputManagerImpl::_onCharacterReceived(const CoreWindow &sender, const CharacterReceivedEventArgs &args) {
         ImGuiIO &io = ImGui::GetIO();
         if (io.WantTextInput) {
             io.AddInputCharacter(args.KeyCode());
         }
     }
 
-    void InputManager::onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
+    void InputManagerImpl::_onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args) {
         ImGuiIO                      &io = ImGui::GetIO();
         Input::PointerPoint           point = args.CurrentPoint();
         Input::PointerPointProperties props = point.Properties();
@@ -414,7 +506,7 @@ namespace sapphire::input {
         }
     }
 
-    void InputManager::onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args) {
+    void InputManagerImpl::_onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args) {
         ImGuiIO                      &io = ImGui::GetIO();
         Input::PointerPoint           point = args.CurrentPoint();
         Input::PointerPointProperties props = point.Properties();
@@ -441,7 +533,7 @@ namespace sapphire::input {
         }
     }
 
-    void InputManager::onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
+    void InputManagerImpl::_onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args) {
         using namespace Input;
         ImGuiIO               &io = ImGui::GetIO();
         PointerPoint           point = args.CurrentPoint();
@@ -461,29 +553,29 @@ namespace sapphire::input {
         }
     }
 
-    void InputManager::_onRawKeyEvent(KeyCode key, bool is_down) {
+    void InputManagerImpl::_onRawKeyEvent(KeyCode key, bool is_down) {
         std::lock_guard lock(mStateMutex);
         mCurrentKeyStates[key] = is_down;
     }
 
-    void InputManager::_onRawMouseButtonEvent(KeyCode button, bool is_down, const Vec2 &pos) {
+    void InputManagerImpl::_onRawMouseButtonEvent(KeyCode button, bool is_down, const Vec2 &pos) {
         std::lock_guard lock(mStateMutex);
         mCurrentKeyStates[button] = is_down;
         mMousePosition = pos;
     }
 
-    void InputManager::_onRawMouseMove(const Vec2 &pos) {
+    void InputManagerImpl::_onRawMouseMove(const Vec2 &pos) {
         std::lock_guard lock(mStateMutex);
         mMousePosition = pos;
     }
 
-    void InputManager::_onRawMouseWheel(float dx, float dy) {
+    void InputManagerImpl::_onRawMouseWheel(float dx, float dy) {
         std::lock_guard lock(mStateMutex);
         mMouseWheel.horizontal = dx;
         mMouseWheel.vertical = dy;
     }
 
-    void InputManager::_onFrameEnd() {
+    void InputManagerImpl::_onFrameEnd() {
         std::lock_guard lock(mStateMutex);
         mPreviousKeyStates = mCurrentKeyStates;
 

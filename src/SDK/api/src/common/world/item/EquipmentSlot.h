@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace SharedTypes::Legacy {
 
     enum class EquipmentSlot : int {

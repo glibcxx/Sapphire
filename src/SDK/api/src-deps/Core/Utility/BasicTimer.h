@@ -1,6 +1,6 @@
 #pragma once
 
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 80
 class BasicTimer {

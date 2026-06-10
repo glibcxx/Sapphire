@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 8
 struct Tick {
     Tick(uint64_t v) :

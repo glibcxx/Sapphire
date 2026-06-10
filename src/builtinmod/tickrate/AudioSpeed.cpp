@@ -1,6 +1,5 @@
 #include "AudioSpeed.h"
 
-#include <mutex>
 #ifdef F_API
 #    undef F_API
 #endif

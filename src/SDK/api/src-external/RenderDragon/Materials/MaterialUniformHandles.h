@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "MaterialUniform.h"
 
 namespace dragon::materials {

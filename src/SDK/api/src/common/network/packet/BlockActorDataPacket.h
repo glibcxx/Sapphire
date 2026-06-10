@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Packet.h"
 #include "NetworkBlockPosition.h"
 #include "SDK/api/src/common/nbt/CompoundTag.h"

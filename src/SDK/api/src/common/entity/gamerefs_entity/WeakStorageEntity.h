@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <optional>
 #include "SDK/api/src/common/gamerefs/WeakRef.h"
 #include "../EntityId.h"

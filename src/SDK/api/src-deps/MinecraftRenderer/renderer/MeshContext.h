@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstdint>
-#include <optional>
-#include <glm/glm.hpp>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Renderer/Color.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 

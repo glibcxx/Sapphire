@@ -1,6 +1,4 @@
 #include "Logger.h"
-#include <chrono>
-#include <fstream>
 #include "SDK/api/sapphire/platform/Environment.h"
 
 namespace {

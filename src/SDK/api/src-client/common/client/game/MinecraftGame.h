@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "IMinecraftGame.h"
 #include "SDK/api/src/common/App.h"
 #include "SDK/api/src/common/CommonTypes.h"
@@ -11,10 +13,12 @@
 #include "SDK/api/src/common/entity/gamerefs_entity/EntityContext.h"
 #include "SDK/api/src/common/world/level/dimension/DimensionType.h"
 #include "SDK/api/src-client/common/client/options/OptionsObserver.h"
-#include "SDK/api/src-client/common/client/game/IDynamicPackageConsumer.h"
 #include "SDK/api/src-client/common/client/gui/FontHandle.h"
 #include "SDK/api/src-client/common/client/resources/PackDownloadManager.h"
 #include "SDK/api/src-client/common/client/util/ScreenshotRecorder.h"
+#if MC_VERSION <= v1_21_50
+#    include "SDK/api/src-client/common/client/game/IDynamicPackageConsumer.h"
+#endif
 #include "SDK/api/src-deps/Core/Utility/ServiceRegistrationToken.h"
 #include "SDK/api/src-deps/Core/Utility/SerialWorkList.h"
 #include "SDK/api/src-deps/Core/Utility/UUID.h"

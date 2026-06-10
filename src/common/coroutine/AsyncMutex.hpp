@@ -1,5 +1,9 @@
 #pragma once
 
+#include <atomic>
+#include <coroutine>
+#include <cstdint>
+
 namespace sapphire::coro {
 
     struct AsyncScopedLock;

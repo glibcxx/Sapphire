@@ -1,7 +1,6 @@
 #pragma once
 
-#include <variant>
-#include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
+#include "pch.h" // IWYU pragma: keep
 
 namespace DFC /*dragon::frameobject::components*/ {
 

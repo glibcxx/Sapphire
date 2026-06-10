@@ -1,7 +1,8 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/CommonTypes.h"
-#include <string>
 
 class IDataOutput;
 class IDataInput;

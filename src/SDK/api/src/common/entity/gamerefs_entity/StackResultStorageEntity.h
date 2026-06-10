@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #ifndef SPHRINCLUDE_ENTITYCONTEXT_H
 #    error "do not include StackResultStorageEntity.h directly, please include EntityContext.h"
 #endif

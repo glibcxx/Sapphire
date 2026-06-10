@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonBufferResourceService.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonFrameResources.h"

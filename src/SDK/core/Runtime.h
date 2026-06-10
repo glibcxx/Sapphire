@@ -1,10 +1,7 @@
 #pragma once
 
-#include <Windows.h>
-#include <Psapi.h>
+#include "pch.h" // IWYU pragma: keep
 
-#include <string>
-#include "SymbolResolver.h"
 #include "IPCClient.h"
 #include "mod/ModRepository.h"
 

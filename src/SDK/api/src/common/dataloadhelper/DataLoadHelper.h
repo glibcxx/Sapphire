@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/phys/Vec3.h"
 #include "SDK/api/src/common/world/Direction.h"
 #include "SDK/api/src/common/util/RotationEnum.h"

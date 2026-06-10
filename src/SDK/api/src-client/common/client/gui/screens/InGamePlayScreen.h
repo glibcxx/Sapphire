@@ -1,9 +1,10 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "BaseScreen.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src/common/world/phys/Vec3.h"
-#include "macros/Macros.h"
 
 class FrameRenderObject;
 class LevelRenderer;

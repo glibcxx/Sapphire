@@ -1,8 +1,10 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/server/commands/Command.h"
 #include "SDK/api/src/common/server/commands/CommandRegistry.h"
-#include "SDK/api/src/common/server/commands/CommandPermissionLevel.h"
+#include "SDK/api/src/common/server/commands/CommandPermissionLevel.h" // IWYU pragma: keep
 
 class CommandOutput;
 class CommandOrigin;

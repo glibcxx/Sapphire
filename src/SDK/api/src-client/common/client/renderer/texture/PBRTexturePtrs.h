@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/MinecraftRenderer/renderer/TexturePtr.h"
 
 // https://github.com/LiteLDev/LeviLamina/blob/4d08de07ef76fb4f101aebb8b251e2652dc4cfbd/src/mc/deps/minecraft_renderer/resources/PBRTexturePtrs.h#L5

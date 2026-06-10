@@ -1,6 +1,8 @@
 #pragma once
 
-#include "macros/Macros.h"
+#include "common/DecoratedName.hpp"
+#include "pch.h" // IWYU pragma: keep
+
 #include "bootloader/SymbolResolver.h"
 
 namespace sapphire {

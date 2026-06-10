@@ -1,14 +1,12 @@
 #pragma once
 
-#include <array>
-#include <unordered_map>
+#include "pch.h" // IWYU pragma: keep
 
-#include "macros/Macros.h"
 #include "common/Memory.hpp"
-#include "common/TypeTraits.hpp"
-#include "SDK/core/SymbolResolver.h"
+#include "common/TypeTraits.hpp"     // IWYU pragma: keep
+#include "SDK/core/SymbolResolver.h" // IWYU pragma: keep
 #include "SDK/api/sapphire/hook/SafeHook.h"
-#include "SDK/api/sapphire/logger/Logger.h"
+#include "SDK/api/sapphire/logger/Logger.h" // IWYU pragma: keep
 
 namespace sapphire::inline hook {
 

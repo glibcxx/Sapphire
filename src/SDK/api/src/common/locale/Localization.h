@@ -1,9 +1,6 @@
 #pragma once
 
-#include <string>
-#include <map>
-#include <memory>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 112 (1.21.2), 120 (1.21.50/1.21.60)
 class Localization {

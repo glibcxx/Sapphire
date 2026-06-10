@@ -1,11 +1,12 @@
 #pragma once
 
-#include <windows.h>
 #include <string>
 #include <unordered_map>
-#include <vector>
+#include "common/sys/MiniWindows.h"
 
-#include "common/IPC/Client.h"
+namespace sapphire::ipc {
+    class Client;
+}
 
 namespace sapphire::bootloader {
 
@@ -13,7 +14,7 @@ namespace sapphire::bootloader {
     public:
         using ApiMap = std::unordered_map<std::string, uintptr_t>;
 
-        bool patchModule(HMODULE hModule, const ApiMap &apiMap, const ApiMap &dataApiMap);
+        bool patchModule(sys::win::hmodule_t hModule, const ApiMap &apiMap, const ApiMap &dataApiMap);
 
         IatPatcher(const std::string &bedrockSigSourceDllName, ipc::Client &IPCClient);
         ~IatPatcher() = default;
@@ -22,7 +23,7 @@ namespace sapphire::bootloader {
         IatPatcher &operator=(const IatPatcher &) = delete;
 
     private:
-        bool patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap);
+        bool patchModuleInternal(sys::win::hmodule_t hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap);
 
         std::string  mBedrockSigSourceDllName;
         ipc::Client &mIPCClient;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/util/NewType.h"
 
 // size: 8

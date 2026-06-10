@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class ContainerID : signed char {
     CONTAINER_ID_NONE = -1,
     CONTAINER_ID_INVENTORY = 0,

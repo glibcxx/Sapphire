@@ -1,10 +1,9 @@
 #pragma once
 
-#include <gsl/gsl>
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "ITransactionContainer.h"
 #include "AsyncExecutionPolicy.h"
-#include "ResourcePointer.h"
 
 namespace mce {
 

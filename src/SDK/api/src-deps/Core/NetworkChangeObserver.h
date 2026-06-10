@@ -1,6 +1,7 @@
 #pragma once
 
-#include <mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "Utility/Observer.h"
 
 // size: 16

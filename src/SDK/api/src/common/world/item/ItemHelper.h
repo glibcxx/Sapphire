@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class ItemUseMethod : int {
     Unknown = -1,
     EquipArmor = 0,

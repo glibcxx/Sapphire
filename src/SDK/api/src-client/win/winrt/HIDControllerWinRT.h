@@ -1,6 +1,7 @@
 #pragma once
 
-#include <set>
+#include "pch.h" // IWYU pragma: keep
+
 #include <winrt/windows.ui.core.h>
 #include <winrt/windows.ui.text.core.h>
 #include <winrt/windows.devices.input.h>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 struct RenderChunkDirectIndexData;
 struct RenderChunkDirectVertexData;
 struct ChunkLayerRenderObject;

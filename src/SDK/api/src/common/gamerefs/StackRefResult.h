@@ -1,6 +1,7 @@
 #pragma once
 
-#include <utility>
+#include "pch.h" // IWYU pragma: keep
+
 #include "GameRefs.h"
 
 template <typename Traits>

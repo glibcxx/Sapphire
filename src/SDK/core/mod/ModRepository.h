@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ModInstance.h"
 #include "ModManifest.h"
-#include <vector>
 
 namespace sapphire::core {
 

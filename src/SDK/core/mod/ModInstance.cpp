@@ -1,6 +1,7 @@
 #include "ModInstance.h"
-#include "SDK/api/sapphire/logger/Logger.h"
 #include <filesystem>
+#include <Windows.h>
+#include "SDK/api/sapphire/logger/Logger.h"
 
 sapphire::core::LibraryModule sapphire::core::LibraryModule::create(
     const std::filesystem::path &libPath

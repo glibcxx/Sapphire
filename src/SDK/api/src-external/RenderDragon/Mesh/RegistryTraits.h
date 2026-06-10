@@ -1,6 +1,7 @@
 #pragma once
 
-#include <optional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Rendering/BufferHandleType.h"
 
 namespace dragon::mesh {

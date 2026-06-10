@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // https://github.com/LiteLDev/LeviLamina/blob/08e88a0c098ce030fa5fbe35c18af45cd46fa794/src/mc/deps/input/enums/DirectionId.h#L5
 
 enum class DirectionId : int {

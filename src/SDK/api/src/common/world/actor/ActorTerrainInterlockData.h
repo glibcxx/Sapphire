@@ -1,6 +1,6 @@
 #pragma once
 
-#include <chrono>
+#include "pch.h" // IWYU pragma: keep
 
 class ActorTerrainInterlockData {
 public:

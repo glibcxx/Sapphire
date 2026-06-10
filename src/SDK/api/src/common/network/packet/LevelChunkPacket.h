@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Packet.h"
 #include "SDK/api/src/common/world/level/ChunkPos.h"
 

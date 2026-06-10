@@ -1,8 +1,7 @@
 #pragma once
 
-#include <map>
-#include <mutex>
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/pubsub/PriorityDeferredSubscriptionHub.h"
 
 namespace Bedrock {

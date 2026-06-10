@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDK/api/src-deps/Core/CheckedResourceService/TransactionContainer.h"
+#include "pch.h" // IWYU pragma: keep
 
 namespace mce {
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace brstd::detail {
 
     constexpr size_t max_small_obj_ptr_count = 8;

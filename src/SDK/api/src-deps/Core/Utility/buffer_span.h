@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 template <typename T>
 class buffer_span_mut {
 public:

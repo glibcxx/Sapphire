@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class Flip : int {
     None = 0,
     RotateCW = 1,

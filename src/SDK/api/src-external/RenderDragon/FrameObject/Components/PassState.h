@@ -1,12 +1,14 @@
 #pragma once
 
-#include "SDK/api/src-external/RenderDragon/Materials/Definition/MaterialDefinition.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Rendering/ColorWriteMask.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/CullMode.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/DepthState.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/PrimitiveType.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/ScissorTestState.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/StencilFaceDescription.h"
+#include "SDK/api/src-external/RenderDragon/Materials/Definition/MaterialShared.h"
 
 namespace DFC /*dragon::frameobject::components*/ {
 

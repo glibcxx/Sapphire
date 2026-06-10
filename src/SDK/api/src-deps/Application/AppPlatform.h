@@ -1,10 +1,11 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "IAppPlatform.h"
 #include "SDK/api/src/common/AppPlatformListener.h"
 #include "SDK/api/src-deps/Core/SecureStorage/SecureStorageKey.h"
 #include "SDK/api/src-deps/Core/Utility/ServiceLocator.h"
-#include "SDK/api/src-deps/Core/Utility/Subject.h"
 #include "SDK/api/src-deps/Core/NetworkChangeObserver.h"
 #include "SDK/api/src-deps/Core/Platform/AppLifecycleContext.h"
 #include "SDK/api/src-deps/Core/Platform/PlatformTypes.h"

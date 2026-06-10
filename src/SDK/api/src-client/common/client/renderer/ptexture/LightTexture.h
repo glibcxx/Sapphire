@@ -1,7 +1,8 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "BaseLightData.h"
-#include "macros/Macros.h"
 
 class MinecraftGameplayGraphicsResources;
 namespace mce {

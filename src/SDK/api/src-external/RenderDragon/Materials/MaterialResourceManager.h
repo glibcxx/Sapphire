@@ -1,9 +1,7 @@
 #pragma once
 
-#include <unordered_set>
-#include "SDK/api/src-deps/Coregraphics/ResourceManager.h"
-#include "CompiledMaterialDefinition.h"
-#include "Material.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Resource/DragonMaterialResourceService.h"
 
 class TaskGroup;

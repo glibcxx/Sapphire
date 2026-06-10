@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stack>
+#include "pch.h" // IWYU pragma: keep
+
 #include "Matrix.h"
 
 // size: 64

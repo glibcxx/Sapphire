@@ -1,9 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <variant>
-#include <bitset>
-#include <map>
+#include "pch.h" // IWYU pragma: keep
 
 #include "Definition/MaterialDefinition.h"
 #include "Definition/MaterialShared.h"

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class GameControllerButtonState : int32_t {
     Up = 0,
     Down = 1,

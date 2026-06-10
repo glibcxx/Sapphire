@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace bx {
 
     constexpr uint16_t kInvalidHandle = UINT16_MAX;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class MaterialType : uint32_t {
     Air = 0,
     Dirt = 1,

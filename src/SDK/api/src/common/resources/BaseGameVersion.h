@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/SemVersion.h"
 
 // size: 112 (1.21.2/1.21.50), 32 (1.21.60)

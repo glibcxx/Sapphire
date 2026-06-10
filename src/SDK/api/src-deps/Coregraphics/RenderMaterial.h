@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "RenderMaterialBase.h"
 #include "SDK/api/src-deps/Core/Utility/StringHash.h"
 

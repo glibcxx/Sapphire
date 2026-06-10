@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/renderer/BaseActorRenderContext.h"
 #include "SDK/api/src-client/common/client/renderer/MaterialPtr.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
@@ -8,13 +10,12 @@
 #include "SDK/api/src-deps/MinecraftRenderer/resources/TextureResourceService.h"
 #include "SDK/api/src-client/common/client/renderer/game/TerrainMaterialVariationManager.h"
 #include "SDK/api/src-deps/Renderer/Camera.h"
-#include "SDK/api/src/common/world/actor/player/PlayerListener.h"
-#include "SDK/api/src/common/world/level/LevelListener.h"
 #include "SDK/api/src/common/world/level/SubChunkPos.h"
 #include "SDK/api/src-client/common/client/particlesystem/particle/ParticleRenderData.h"
 #include "common/Memory.hpp"
 
 class BaseActorRenderContext;
+class BlockSource;
 class ScreenContext;
 class IClientInstance;
 class RenderChunkInstanced;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Mob.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src/common/world/level/ChunkPos.h"

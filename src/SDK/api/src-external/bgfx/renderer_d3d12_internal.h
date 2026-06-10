@@ -1,11 +1,12 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "bgfx_p.h"
 #include "dxgi.h"
 #include "NvApi.h"
 #include "ringbuffer.h"
 #include "renderer_d3d12.h"
-#include "SDK/api/src-external/bx/ringbuffer.h"
 
 namespace bgfx {
     struct RayTracingConfiguration;

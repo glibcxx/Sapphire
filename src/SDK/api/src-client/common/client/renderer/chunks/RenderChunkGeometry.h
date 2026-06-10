@@ -1,8 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/level/Tick.h"
 #include "SDK/api/src/common/util/Bounds.h"
-#include "SDK/api/src/common/world/phys/Vec3.h"
 #include "SDK/api/src-deps/Renderer/PointLight.h"
 
 class RenderChunkQuadInfo;

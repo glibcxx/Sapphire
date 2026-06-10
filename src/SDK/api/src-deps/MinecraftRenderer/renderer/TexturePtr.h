@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Resource/ResourceHelper.h"
 
 class BedrockTextureData;

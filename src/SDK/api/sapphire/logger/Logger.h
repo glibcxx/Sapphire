@@ -1,9 +1,6 @@
 #pragma once
 
-#include <chrono>
-#include <memory>
-#include <mutex>
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
 
 namespace sapphire {
 
@@ -154,7 +151,7 @@ namespace sapphire {
     }
     template <typename... Args>
     void alert(std::wformat_string<Args...> fmt, Args &&...args) {
-        MessageBox(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Alert", MB_ICONWARNING);
+        MessageBoxW(nullptr, std::format(fmt, std::forward<Args>(args)...).data(), L"Alert", 0x00000030L);
     }
 
 } // namespace sapphire

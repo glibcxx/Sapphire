@@ -1,6 +1,7 @@
 #pragma once
 
-#include <optional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/game/IClientInstance.h"
 #include "SDK/api/src/common/world/phys/AABB.h"
 

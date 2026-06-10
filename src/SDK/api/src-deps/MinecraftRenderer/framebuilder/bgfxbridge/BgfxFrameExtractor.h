@@ -1,12 +1,13 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/RenderDragon/Rendering/ClipSpaceOrigin.h"
 #include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/BgfxPrimitiveIndexBuffer.h"
 #include "SDK/api/src-external/RenderDragon/Rendering/LightingModels.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialResourceManager.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/Frame.h"
-#include "SDK/api/src-deps/MinecraftRenderer/Resources/TextureResourceService.h"
 
 namespace mce::framebuilder {
 

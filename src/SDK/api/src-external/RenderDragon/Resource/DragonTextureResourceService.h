@@ -1,10 +1,12 @@
 #pragma once
 
-#include "SDK/api/src-external/RenderDragon/Resource/DragonTextureDescription.h"
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/CheckedResourceService/ClientResourcePointer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/CheckedResourceService.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/ServerResourcePointer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/SimpleResourceTracker.h"
+#include "SDK/api/src-deps/Core/CheckedResourceService/TransactionContainer.h"
 #include "SDK/api/src-deps/Core/CheckedResourceService/UncheckedHandleTracker.h"
 #include "SDK/api/src-deps/Core/Threading/MPMCQueue.h"
 #include "ResolvedTextureResource.h"

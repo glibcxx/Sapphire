@@ -1,8 +1,10 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/game/ClientInstance.h"
+#include "SDK/api/src-client/common/client/player/LocalPlayer.h"
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
-#include "SDK/api/src/common/server/ServerLevel.h"
 
 class ServerInstance;
 

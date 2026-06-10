@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <winrt/windows.applicationmodel.core.h>
 #include "SDK/api/src-deps/Core/Platform/ActivationArguments.h"
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
 #include "SDK/api/src-deps/Platform/Threading/PrioritizeSharedOwnership.h"
 

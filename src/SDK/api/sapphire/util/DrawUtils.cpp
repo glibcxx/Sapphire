@@ -4,7 +4,6 @@
 #include "SDK/api/src-client/common/client/renderer/MeshHelpers.h"
 #include "SDK/api/src-client/common/client/renderer/game/LevelRendererPlayer.h"
 #include "SDK/api/src-deps/Coregraphics/RenderMaterialGroup.h"
-#include "common/ScopeGuard.hpp"
 
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/RenderLevelEvent.h"

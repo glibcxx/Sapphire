@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum LogAreaID {
     LOG_AREA_ALL = 0,
     LOG_AREA_PLATFORM = 1,

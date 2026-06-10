@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Utility/buffer_span.h"
 
 namespace Core {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/platform/Result.h"
 
 // size: 64 (1.21.2), 72 (1.21.50/1.21.60)

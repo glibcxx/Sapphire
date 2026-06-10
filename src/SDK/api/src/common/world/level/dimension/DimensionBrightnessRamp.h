@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 // size: 72
 class DimensionBrightnessRamp {
     float mBrightnessRamp[16]; // off+8

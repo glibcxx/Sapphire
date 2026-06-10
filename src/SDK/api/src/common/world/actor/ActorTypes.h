@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class ActorType : int {
     Undefined = 1,
     ItemEntity = 64,

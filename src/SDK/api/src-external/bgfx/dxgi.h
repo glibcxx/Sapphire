@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <dxgi1_6.h>
 #include <d3dcommon.h>
 

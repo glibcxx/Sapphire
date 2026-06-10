@@ -4,6 +4,7 @@
 
 #include "IatPatcher.h"
 #include "SymbolResolver.h"
+#include "common/sys/MiniWindows.h"
 
 namespace sapphire::bootloader {
 
@@ -18,7 +19,7 @@ namespace sapphire::bootloader {
         const SymbolResolver &getSymbolResolver() const { return mResolver; }
         IatPatcher           &getIatPatcher() const { return *mIatPatcher; }
 
-        static void forceDllMainToFail(RuntimeLinker *self, HMODULE hDll);
+        static void forceDllMainToFail(RuntimeLinker *self, sys::win::hmodule_t hDll);
 
     private:
         ipc::Client                &mIPCClient;

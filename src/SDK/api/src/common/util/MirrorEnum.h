@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
 
-enum class Mirror : uint8_t // decl_line: 7
-{
+enum class Mirror : uint8_t {
     None = 0,
     X = 1,
     Z = 2,

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "pch.h" // IWYU pragma: keep
 
 typedef uint8_t byte;
 

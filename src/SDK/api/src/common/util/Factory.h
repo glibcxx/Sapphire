@@ -1,8 +1,6 @@
 #pragma once
 
-#include <functional>
-#include <string>
-#include "SDK/api/src/common/gamerefs/OwnerPtr.h"
+#include "pch.h" // IWYU pragma: keep
 
 template <typename Type, typename... Args>
 class OwnerPtrFactory {

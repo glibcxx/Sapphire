@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Concept.hpp"
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include "Concept.hpp"
 
 namespace sapphire::refl {
 

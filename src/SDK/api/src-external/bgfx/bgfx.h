@@ -1,8 +1,8 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-external/bx/allocator.h"
-#include "defines.h"
-#include "config.h"
 
 namespace bgfx {
 

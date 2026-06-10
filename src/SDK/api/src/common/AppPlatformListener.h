@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/platform/PushNotificationMessage.h"
 #include "SDK/api/src-deps/Core/Platform/PlatformTypes.h"
 #include "SDK/api/src-deps/Core/Utility/pubsub/Subscription.h"

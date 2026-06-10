@@ -1,6 +1,6 @@
 #pragma once
 
-#include <concurrentqueue.h>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 616
 template <typename T>

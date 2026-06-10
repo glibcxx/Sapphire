@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace dragon::materials {
 
     enum class UniformType : uint8_t {

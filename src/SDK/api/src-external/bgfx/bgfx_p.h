@@ -1,12 +1,16 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include <d3d12.h>
 #include "bgfx.h"
+#include "SDK/api/src-external/bgfx/defines.h"
 #include "SDK/api/src-external/bx/handlealloc.h"
 #include "SDK/api/src-external/bx/float4x4_t.h"
 #include "SDK/api/src-external/bx/thread.h"
 #include "SDK/api/src-external/bx/semaphore.h"
 #include "SDK/api/src-external/bx/mutex.h"
+#include "config.h"
 #include "platform.h"
 #include "common/Memory.hpp"
 

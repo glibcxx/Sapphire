@@ -1,6 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-client/common/client/renderer/culling/FrustumCuller.h"
 
 class BlockSource;

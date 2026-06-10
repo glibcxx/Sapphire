@@ -1,7 +1,10 @@
 #include "IatPatcher.h"
+#include <Windows.h>
 #include <delayimp.h>
 #include <filesystem>
 #include <format>
+#include "common/IPC/Client.h"
+#include "common/sys/MiniWindows.h"
 
 namespace sapphire::bootloader {
 
@@ -9,11 +12,11 @@ namespace sapphire::bootloader {
         mBedrockSigSourceDllName(bedrockSigSourceDllName), mIPCClient(IPCClient) {
     }
 
-    bool IatPatcher::patchModule(HMODULE hModule, const ApiMap &apiMap, const ApiMap &dataApiMap) {
+    bool IatPatcher::patchModule(sys::win::hmodule_t hModule, const ApiMap &apiMap, const ApiMap &dataApiMap) {
         return patchModuleInternal(hModule, apiMap, dataApiMap);
     }
 
-    bool IatPatcher::patchModuleInternal(HMODULE hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap) {
+    bool IatPatcher::patchModuleInternal(sys::win::hmodule_t hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap) {
         if (hModuleToPatch == nullptr || mBedrockSigSourceDllName.empty()) {
             return false;
         }
@@ -48,7 +51,7 @@ namespace sapphire::bootloader {
                     it = dataApiMap.find(importName);
                     if (it == dataApiMap.end()) {
                         wchar_t szPath[MAX_PATH];
-                        if (GetModuleFileNameW(hModuleToPatch, szPath, MAX_PATH) != 0) {
+                        if (GetModuleFileNameW((HMODULE)hModuleToPatch, szPath, MAX_PATH) != 0) {
                             std::filesystem::path path{szPath};
                             mIPCClient.send(
                                 ipc::status::Error,

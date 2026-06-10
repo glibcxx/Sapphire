@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 namespace Bedrock {
 
     template <typename T, std::size_t CacheSize = 64, typename Alloc = std::allocator<T>, int T3 = 0>

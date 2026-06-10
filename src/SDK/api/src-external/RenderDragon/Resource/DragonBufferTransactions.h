@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/CheckedResourceService/TransactionContainer.h"
 #include "../Mesh/VertexFormat.h"
 #include "DragonBufferResourceService.h"

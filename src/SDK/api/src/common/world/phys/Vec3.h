@@ -1,7 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include "Vec2.h"
+#include "pch.h" // IWYU pragma: keep
+
+#include "Vec2.h" // IWYU pragma: keep
 #include "SDK/api/src/common/world/level/BlockPos.h"
 
 class Vec3 {

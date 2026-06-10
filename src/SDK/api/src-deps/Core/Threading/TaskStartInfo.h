@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "Async.h"
 
 enum class TaskOptions : uint32_t {

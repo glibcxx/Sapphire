@@ -1,16 +1,17 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "ModManifest.h"
 #include "SDK/api/sapphire/IMod.h"
-#include <cassert>
-#include <utility>
+#include "common/sys/MiniWindows.h"
 
 namespace sapphire::core {
 
     class LibraryModule {
-        HMODULE mHandle;
+        sys::win::hmodule_t mHandle;
 
-        constexpr LibraryModule(HMODULE h) : mHandle(h) {}
+        constexpr LibraryModule(sys::win::hmodule_t h) : mHandle(h) {}
 
     public:
         [[nodiscard]] static LibraryModule create(const std::filesystem::path &libPath);
@@ -30,8 +31,8 @@ namespace sapphire::core {
         constexpr bool valid() const { return mHandle; }
         constexpr      operator bool() const { return valid(); }
 
-        constexpr HMODULE raw() const { return mHandle; }
-        constexpr         operator HMODULE() const { return raw(); }
+        constexpr sys::win::hmodule_t raw() const { return mHandle; }
+        constexpr                     operator sys::win::hmodule_t() const { return raw(); }
     };
 
     enum class ModStates {

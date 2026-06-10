@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::rendering {
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <shared_mutex>
-#include <unordered_map>
+#include "pch.h" // IWYU pragma: keep
 
 namespace Core {
 

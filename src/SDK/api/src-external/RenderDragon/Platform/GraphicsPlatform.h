@@ -1,8 +1,6 @@
 #pragma once
 
-#include <bitset>
-#include <glm/glm.hpp>
-#include "../Materials/Definition/MaterialShared.h"
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::materials {
     enum class ShaderCodePlatform : uint8_t;

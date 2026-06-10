@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "Resource.h"
 #include "SDK/api/src-deps/Core/Math/Color.h"
 

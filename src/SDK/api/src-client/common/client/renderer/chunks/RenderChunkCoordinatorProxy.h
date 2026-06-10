@@ -1,6 +1,7 @@
 #pragma once
 
-#include <functional>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Math/Color.h"
 
 // size: 192

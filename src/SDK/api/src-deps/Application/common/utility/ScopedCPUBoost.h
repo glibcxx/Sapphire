@@ -1,6 +1,9 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Utility/NonOwnerPointer.h"
+
 class AppPlatform;
 
 // size: 24 (1.21.2), 32 (1.21.50+)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Threading/BurstWorkQueue.h"
 #include "SDK/api/src-deps/Core/Threading/DeferredTask.h"
 #include "SDK/api/src-deps/Core/Threading/Scheduler.h"

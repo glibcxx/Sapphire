@@ -1,6 +1,6 @@
 #pragma once
 
-#include <entt/entt.hpp>
+#include "pch.h" // IWYU pragma: keep
 
 // size: 4
 class EntityId {

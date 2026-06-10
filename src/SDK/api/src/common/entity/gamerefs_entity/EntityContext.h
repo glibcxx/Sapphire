@@ -1,10 +1,11 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #ifndef SPHRINCLUDE_ENTITYCONTEXT_H
 #    define SPHRINCLUDE_ENTITYCONTEXT_H
 #endif
 
-#include <entt/entt.hpp>
 #include "WeakStorageEntity.h"
 
 class EntityRegistry;

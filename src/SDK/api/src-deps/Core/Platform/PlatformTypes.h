@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 enum class UIScalingRules : int {
     Desktop = 0,
     PocketApple = 1,

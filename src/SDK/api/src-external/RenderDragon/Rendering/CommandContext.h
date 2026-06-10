@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/Memory/CpuRingBufferAllocator.h"
 #include "SDK/api/src-external/RenderDragon/Materials/MaterialUniformName.h"
 #include "SDK/api/src-external/RenderDragon/Resource/DragonTextureResourceService.h"

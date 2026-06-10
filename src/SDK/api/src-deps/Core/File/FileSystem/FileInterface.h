@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "../Path.h"
 #include "SDK/api/src-deps/Core/Utility/EnableNonOwnerReferences.h"
 

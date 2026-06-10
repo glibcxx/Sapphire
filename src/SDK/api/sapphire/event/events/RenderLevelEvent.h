@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Event.h"
+#include "pch.h" // IWYU pragma: keep
 
+#include "../Event.h"
 #include "SDK/api/src-client/common/client/renderer/game/LevelRenderer.h"
 
 namespace sapphire::event {

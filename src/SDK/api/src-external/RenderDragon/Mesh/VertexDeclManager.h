@@ -1,7 +1,6 @@
 #pragma once
 
-#include <optional>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
 
 #include "SDK/api/src-external/RenderDragon/Endstone/Guarded.hpp"
 #include "SDK/api/src-deps/Core/Threading/InstancedThreadLocal.h"

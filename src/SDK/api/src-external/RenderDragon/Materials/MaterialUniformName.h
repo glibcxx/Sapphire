@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include "pch.h" // IWYU pragma: keep
 
 namespace dragon::materials {
 

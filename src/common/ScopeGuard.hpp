@@ -1,7 +1,5 @@
 #pragma once
 
-#include <bit>
-
 namespace sapphire {
 
     template <typename F>
@@ -26,4 +24,4 @@ namespace sapphire {
         void dismiss() { active = false; }
     };
 
-} // namespace util
+} // namespace sapphire

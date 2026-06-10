@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vector>
+#include "pch.h" // IWYU pragma: keep
+
 #include "TextureUVCoordinateSet.h"
 
 class TextureAtlasItem {

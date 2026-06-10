@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src-deps/Core/String/StaticOptimizedString.h"
 
 #if MC_VERSION <= v1_21_50

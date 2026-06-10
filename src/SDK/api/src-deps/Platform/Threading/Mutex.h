@@ -1,7 +1,6 @@
 #pragma once
 
-#include <mutex>
-#include <shared_mutex>
+#include "pch.h" // IWYU pragma: keep
 
 namespace Bedrock {
 

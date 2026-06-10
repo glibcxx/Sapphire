@@ -1,10 +1,13 @@
 #pragma once
 
-#include <Windows.h>
-#include <winrt/Windows.UI.Core.h>
-#include <bitset>
+#include "pch.h" // IWYU pragma: keep
 
+#include "common/DowncastImpl.h"
 #include "SDK/api/src/common/world/phys/Vec2.h"
+
+namespace winrt::Windows::UI::Core {
+    struct CoreWindow;
+}
 
 namespace sapphire::input {
 
@@ -122,10 +125,10 @@ namespace sapphire::input {
         }
     };
 
-    class InputManager {
-    public:
-        class MouseFeedHook;
+    class InputManagerImpl;
 
+    class InputManager : public DowncastImpl<InputManager, InputManagerImpl> {
+    public:
         // 按键按下的瞬间
         SPHR_API bool isKeyDown(KeyCode key) const;
         // 按键抬起的瞬间
@@ -145,58 +148,11 @@ namespace sapphire::input {
 
         using CoreWindow = winrt::Windows::UI::Core::CoreWindow;
 
-        InputManager();
-        ~InputManager();
-
         void init(CoreWindow &coreWindow);
 
         SPHR_API static InputManager &getInstance();
 
-    private:
-        using CoreDispatcher = winrt::Windows::UI::Core::CoreDispatcher;
-        using PointerEventArgs = winrt::Windows::UI::Core::PointerEventArgs;
-        using AcceleratorKeyEventArgs = winrt::Windows::UI::Core::AcceleratorKeyEventArgs;
-        using CharacterReceivedEventArgs = winrt::Windows::UI::Core::CharacterReceivedEventArgs;
-
-        void onAcceleratorKeyActivated(const CoreDispatcher &sender, const AcceleratorKeyEventArgs &args);
-
-        void onCharacterReceived(const CoreWindow &sender, const CharacterReceivedEventArgs &args);
-
-        void onPointerPressed(const CoreWindow &sender, const PointerEventArgs &args);
-
-        void onPointerReleased(const CoreWindow &sender, const PointerEventArgs &args);
-
-        void onPointerWheelChanged(const CoreWindow &sender, const PointerEventArgs &args);
-
-        Vec2           mMousePosition{};
-        Vec2           mPreviousMousePosition{};
-        Vec2           mMouseDelta{};
-        MouseWheelData mMouseWheel{};
-
-        // --- State variables ---
-        std::map<KeyCode, bool> mCurrentKeyStates;
-        std::map<KeyCode, bool> mPreviousKeyStates;
-
-        mutable std::mutex mStateMutex;
-
-        // --- Internal API (called by hooks) ---
-        void _onRawKeyEvent(KeyCode key, bool is_down);
-        void _onRawMouseButtonEvent(KeyCode button, bool is_down, const Vec2 &pos);
-        void _onRawMouseMove(const Vec2 &pos);
-        void _onRawMouseWheel(float dx, float dy);
-
-        // Called at the end of a frame to shift states
-        void _onFrameEnd();
-
-        CoreWindow     mCoreWindow{nullptr};
-        CoreDispatcher mCoreDispatcher{nullptr};
-
-        CoreWindow::PointerPressed_revoker              mPointerPressedRevoker;
-        CoreWindow::PointerReleased_revoker             mPointerReleasedRevoker;
-        CoreWindow::PointerWheelChanged_revoker         mPointerWheelRevoker;
-        CoreDispatcher::AcceleratorKeyActivated_revoker mAcceleratorRevoker;
-        CoreWindow::CharacterReceived_revoker           mCharacterReceivedRevoker;
-
+    protected:
         bool mBlockInput = false;
     };
 

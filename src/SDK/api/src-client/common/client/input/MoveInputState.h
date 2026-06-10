@@ -1,5 +1,7 @@
 #pragma once
 
+#include "pch.h" // IWYU pragma: keep
+
 #include "SDK/api/src/common/world/phys/Vec2.h"
 
 #if MC_VERSION == v1_21_50 || MC_VERSION == v1_21_60
