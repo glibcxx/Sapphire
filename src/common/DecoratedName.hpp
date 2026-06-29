@@ -4,6 +4,19 @@
 #include <type_traits>
 #include "StringLiteral.hpp"
 
+/*
+    编译期提取符号的重整名，hook需要这个工具。使用方法：
+
+    ```cpp
+    sapphire::abi::Decorator<&func>::value;
+    ```
+
+    由于没有方法获取虚函数本身的重整名，最多只能获取到 virtual thunk 的重整名，因此加入两个模板参数控制行为，
+    AllowVirtualThunk=true时，才允许传入虚函数；
+    VirtualThunkAsPtr=true时，输出 virtual thunk 的原始重整名（它本质上是一个带指针调整的函数指针）；
+    VirtualThunkAsPtr=false时，去除 virtual thunk 的指针调整部分
+*/
+
 namespace sapphire::abi {
 
     namespace detail {

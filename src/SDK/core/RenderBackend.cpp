@@ -19,6 +19,8 @@ using namespace winrt::Windows::UI::Core;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+// 看不懂，乱写的，下辈子有机会再写一个自己能看懂的
+
 namespace sapphire::core {
 
     static RenderBackend *backend;

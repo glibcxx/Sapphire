@@ -1,3 +1,10 @@
+/*
+    SymbolResolver
+
+    SymbolResolver会读取特征码数据库，扫描所有特征码。
+    IatPatcher会使用扫描后的结果完成修补。
+*/
+
 #include "SymbolResolver.h"
 #include <Windows.h>
 #include <Psapi.h>

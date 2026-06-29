@@ -1,3 +1,7 @@
+/*
+    sapphire::core::Runtime 是 SapphireCore 的中心类型，负责启动 SapphireCore 的各项功能
+*/
+
 #include "Runtime.h"
 
 #include <winrt/base.h>

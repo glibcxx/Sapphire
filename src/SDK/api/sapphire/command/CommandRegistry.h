@@ -56,9 +56,8 @@ namespace sapphire::command {
             using TOverloaded = sapphire::Overloaded<Execute...>;
             using TCommand = Command<TOverloaded, void>;
             using TCommandFactory = CommandFactory<sapphire::Overloaded<Execute...>, TCommand>;
-            TCommandFactory::sOverloaded.emplace(std::forward<Execute>(exe)...);
             auto &overload = mSig.overloads.emplace_back(
-                CommandVersion{}, &TCommandFactory::factory(std::forward<Execute>(exe)...)
+                CommandVersion{}, TCommandFactory::factory(std::forward<Execute>(exe)...)
             );
             mRegistry.mRegistry->registerOverloadInternal(mSig, overload);
         }

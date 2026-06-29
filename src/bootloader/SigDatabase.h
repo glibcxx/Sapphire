@@ -5,6 +5,9 @@
 
 namespace sapphire::codegen {
 
+    /*
+        特征码数据库，简易的二进制格式，甚至校验都没有
+    */
     class SigDatabase {
     public:
         static constexpr uint32_t MAGIC_NUMBER = 0X3046FCDB; // crc32(".sig.db")

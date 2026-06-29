@@ -1,3 +1,7 @@
+/*
+    管理 mod 的加载和卸载，解析 mod 的依赖等
+*/
+
 #include "ModRepository.h"
 #include "SDK/api/sapphire/event/EventBus.h"
 #include "SDK/api/sapphire/event/events/MinecraftGameInitFinishedEvent.h"

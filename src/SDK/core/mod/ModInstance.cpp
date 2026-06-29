@@ -1,3 +1,7 @@
+/*
+    代表一个被载入的 mod 模块，其实就是把 HMODULE 封装了两层
+*/
+
 #include "ModInstance.h"
 #include <filesystem>
 #include <Windows.h>

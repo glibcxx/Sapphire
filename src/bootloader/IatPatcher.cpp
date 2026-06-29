@@ -1,3 +1,7 @@
+/*
+    IAT表修补工具，用于把游戏的符号表注入进一个模块的IAT表
+*/
+
 #include "IatPatcher.h"
 #include <Windows.h>
 #include <delayimp.h>

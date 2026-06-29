@@ -2,6 +2,10 @@
 
 #include <type_traits>
 
+/*
+    一种 Impl 模式实现
+*/
+
 namespace sapphire {
 
     template <typename TBase, typename TImpl>

@@ -1,8 +1,13 @@
+/*
+    sapphire::core::IPCClient 用来在启动时与 Bootloader 通信，确定 SapphireCore 是否成功运行，启动后就会断开连接
+*/
+
 #include "IPCClient.h"
 #include "SDK/api/sapphire/logger/Logger.h"
 
 namespace {
 
+    // 把从 Sapphire Log 接口打印的日志传给 Bootloader
     class PipeLogSink : public sapphire::ILogSink {
         sapphire::core::IPCClient &mIPCClient;
 

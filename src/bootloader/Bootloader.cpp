@@ -1,3 +1,10 @@
+/*
+    Bootloader被注入进游戏进程后，会先使用IPC连接sapphire启动器，以便发送Bootloader的日志，
+    然后会检测游戏版本，自动选择匹配的 sapphire_core.dll 和特征码数据库，
+    再读入特征码数据库完成特征码数据库扫描，创建一个自动拦截dll修补IAT的RuntimeLinker，
+    最后注入 sapphire_core，断开IPC连接
+*/
+
 #include "Bootloader.h"
 #include "RuntimeLinker.h"
 #include "bootloader/SymbolResolver.h"

@@ -1,3 +1,11 @@
+/*
+    RuntimeLinker
+
+    RuntimeLinker拦截所有在 Bootloader 之后被加载进游戏进程的模块，也就是SapphireCore模块和所有mod模块，
+    这些模块会将链接的所有游戏符号放在 sapphire_bootloader.dll 中，即这些模块认为 sapphire_bootloader.dll 导出了它们所需的游戏 api，
+    但是实际上没有，我们需要在载入它们时就把 sapphire_bootloader.dll 中的符号全部填充好。
+*/
+
 #include "RuntimeLinker.h"
 #include "MinHook.h"
 #include <winnt.h>

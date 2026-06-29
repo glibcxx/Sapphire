@@ -1,12 +1,15 @@
 #pragma once
 
-#include "common/DecoratedName.hpp"
 #include "pch.h" // IWYU pragma: keep
 
+#include "common/DecoratedName.hpp"
 #include "bootloader/SymbolResolver.h"
 
 namespace sapphire {
 
+    /*
+        把bootloader::SymbolResolver包装成方便 Hook 组件使用的样子
+    */
     class SymbolResolver {
         using ApiMap = std::unordered_map<std::string, uintptr_t>;
 

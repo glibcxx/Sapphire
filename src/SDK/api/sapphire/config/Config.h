@@ -4,6 +4,10 @@
 
 #include "SDK/api/sapphire/logger/Logger.h"
 
+/*
+    配置库，就是对 json 库简单包了几下
+*/
+
 namespace sapphire {
 
     class Config : public std::enable_shared_from_this<Config> {

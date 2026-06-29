@@ -9,9 +9,13 @@
 #include <future>
 #include <concepts>
 
+/*
+    已弃用，请使用协程库中的线程池
+*/
+
 namespace sapphire {
 
-    class ThreadPool {
+    class [[deprecated]] ThreadPool {
     public:
         explicit ThreadPool(size_t num_threads = std::thread::hardware_concurrency()) :
             stop_(true), busy_workers_(0), num_threads_(num_threads ? num_threads : 1) {
@@ -121,4 +125,4 @@ namespace sapphire {
         std::condition_variable wait_cv_;
     };
 
-} // namespace util
+} // namespace sapphire

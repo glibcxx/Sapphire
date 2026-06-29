@@ -1,3 +1,12 @@
+/*
+    CrashLogger
+
+    字面意思的 CrashLogger，崩溃时创建崩溃日志。
+    但是好像不能稳定工作。。。
+
+    TODO
+*/
+
 #include "CrashLog.h"
 #include <csignal>
 #include <Windows.h>

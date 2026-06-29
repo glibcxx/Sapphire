@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+    本文件提供了 windows.h 中的各种类型的等价实现，用来尽量避免在头文件中引入 windows.h
+*/
+
 #include <cstdint>
 
 struct HWND__;

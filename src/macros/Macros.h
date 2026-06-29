@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+    此文件被所有其它文件包含，包含重要宏定义
+*/
+
 #include "Version.h" // IWYU pragma: export
 
 #if defined(_MSC_VER) || defined(__MINGW32__) || defined(__CYGWIN__)

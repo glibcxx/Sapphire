@@ -6,6 +6,31 @@
 #include "SDK/api/src/common/server/commands/CommandRegistry.h"
 #include "SDK/api/src/common/server/commands/CommandPermissionLevel.h" // IWYU pragma: keep
 
+/*
+    一套超级方便的命令 api。未完工。
+
+    使用方法：
+    ```cpp
+    auto cmd = command::CommandRegistryM::client().getOrCreateCommand("hello", "say hello");
+    // /hello
+    cmd.overloads([](const CommandOrigin &origin, CommandOutput &output) {
+        // do something
+    });
+
+    struct Params {
+        SPHR_CMD_TEXT(text);
+        float                f1;
+        command::opt<string> msg;
+    };
+    // hello text <f1> [msg]
+    cmd.overloads<Params>(
+        [](const CommandOrigin &origin, CommandOutput &output, const Params &args) {
+            // do something
+        }
+    );
+    ```
+*/
+
 class CommandOutput;
 class CommandOrigin;
 
