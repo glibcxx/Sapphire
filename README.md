@@ -56,6 +56,6 @@ Sapphire 包含一个用作示例的内建插件，位于 [builtinmod 文件夹]
 
 ## License
 
-src 文件夹下的所有代码按照 GPLv3 协议开源。
+src 文件夹下的所有代码按照 LGPLv3 协议开源。
 external/fmod 下的代码归 Firelight Technologies Pty Ltd 所有
 其余代码保留原始协议
