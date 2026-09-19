@@ -12,6 +12,15 @@ namespace sapphire::coro {
         static constexpr uintptr_t NOT_LOCKED = 0;
         static constexpr uintptr_t LOCKED_NO_WAITERS = 1;
 
+        struct AsyncScopedLock {
+            AsyncMutex &mMutex;
+
+            constexpr AsyncScopedLock(AsyncMutex &mutex) noexcept : mMutex(mutex) {}
+            ~AsyncScopedLock() noexcept { mMutex.unlock(); }
+
+            AsyncScopedLock &operator=(AsyncScopedLock &&) = delete;
+        };
+
         struct AsyncLockAwaiter {
             AsyncMutex             &mMutex;
             std::coroutine_handle<> mAwaitingCoroHandle;
@@ -58,7 +67,7 @@ namespace sapphire::coro {
                 }
             }
 
-            [[nodiscard]] AsyncScopedLock await_resume() noexcept;
+            [[nodiscard]] AsyncScopedLock await_resume() noexcept { return AsyncScopedLock{this->mMutex}; }
         };
 
         /*
@@ -105,18 +114,5 @@ namespace sapphire::coro {
             waitersHead->mAwaitingCoroHandle.resume();
         }
     };
-
-    struct AsyncScopedLock {
-        AsyncMutex &mMutex;
-
-        constexpr AsyncScopedLock(AsyncMutex &mutex) noexcept : mMutex(mutex) {}
-        ~AsyncScopedLock() noexcept { mMutex.unlock(); }
-
-        AsyncScopedLock &operator=(AsyncScopedLock &&) = delete;
-    };
-
-    inline AsyncScopedLock AsyncMutex::AsyncLockAwaiter::await_resume() noexcept {
-        return AsyncScopedLock{this->mMutex};
-    }
 
 } // namespace sapphire::coro
