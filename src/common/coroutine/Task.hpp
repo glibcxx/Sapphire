@@ -1,5 +1,7 @@
 #pragma once
 
+#include "macros/Macros.h"
+
 #include <cassert>
 #include <coroutine>
 #include <exception>
@@ -20,15 +22,13 @@ namespace sapphire::coro {
             struct TaskFinalAwaiter {
                 constexpr bool await_ready() const noexcept { return false; }
                 template <typename TPromise>
-                auto await_suspend(std::coroutine_handle<TPromise> h) const noexcept {
+                std::coroutine_handle<> await_suspend(std::coroutine_handle<TPromise> h) const noexcept {
                     return h.promise().mContinuation;
                 }
                 constexpr void await_resume() const noexcept {}
             };
 
-            constexpr auto final_suspend() const noexcept {
-                return TaskFinalAwaiter{};
-            }
+            constexpr TaskFinalAwaiter final_suspend() const noexcept { return {}; }
 
             std::coroutine_handle<> mContinuation{nullptr};
         };
@@ -184,5 +184,57 @@ namespace sapphire::coro {
     Task<TResult &> detail::TaskPromise<TResult &>::get_return_object() noexcept {
         return Task<TResult &>{CoroHandleType::from_promise(*this)};
     }
+
+    template <typename Result>
+    struct [[nodiscard]] CoTryTask {
+        struct promise_type;
+        using Handle = std::coroutine_handle<promise_type>;
+
+        struct promise_type : public detail::TaskPromiseBase {
+            std::optional<Result> mResult;
+
+            SPHR_FORCE_INLINE CoTryTask get_return_object() noexcept { return CoTryTask{Handle::from_promise(*this)}; }
+            SPHR_FORCE_INLINE std::suspend_always initial_suspend() noexcept { return {}; }
+            SPHR_FORCE_INLINE TaskFinalAwaiter    final_suspend() noexcept { return {}; }
+
+            template <typename U>
+                requires std::is_constructible_v<Result, U>
+            SPHR_FORCE_INLINE constexpr void return_value(U &&value) noexcept {
+                mResult.emplace(std::forward<U>(value));
+            }
+            SPHR_FORCE_INLINE constexpr void return_value(Result &&value) noexcept { mResult.emplace(std::move(value)); }
+        };
+
+        Handle mHandle;
+
+        SPHR_FORCE_INLINE explicit CoTryTask(Handle h) noexcept : mHandle(h) {}
+
+        CoTryTask(const CoTryTask &) = delete;
+        CoTryTask &operator=(const CoTryTask &) = delete;
+
+        SPHR_FORCE_INLINE CoTryTask(CoTryTask &&rhs) noexcept : mHandle(rhs.mHandle) { rhs.mHandle = nullptr; }
+
+        SPHR_FORCE_INLINE ~CoTryTask() {
+            if (mHandle) { mHandle.destroy(); }
+        }
+
+        struct Awaiter {
+            Handle mHandle;
+
+            SPHR_FORCE_INLINE constexpr bool await_ready() const noexcept { return false; }
+
+            SPHR_FORCE_INLINE void await_suspend(std::coroutine_handle<> h) const noexcept {
+                mHandle.promise().mContinuation = h;
+                mHandle.resume();
+            }
+
+            SPHR_FORCE_INLINE Result &await_resume() {
+                auto &promise = mHandle.promise();
+                return promise.mResult.value();
+            }
+        };
+
+        SPHR_FORCE_INLINE Awaiter operator co_await() & noexcept { return Awaiter{mHandle}; }
+    };
 
 } // namespace sapphire::coro

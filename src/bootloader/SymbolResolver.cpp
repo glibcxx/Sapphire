@@ -17,6 +17,7 @@
 #include "common/MemoryScanning.hpp"
 #include "common/ScopedTimer.hpp"
 #include "common/coroutine/Coroutine.hpp"
+#include "common/coroutine/AsyncScope.hpp"
 #include "common/IPC/Client.h"
 
 namespace sapphire::bootloader {
@@ -111,10 +112,8 @@ namespace sapphire::bootloader {
 
         auto progressTask = [&log, &completedTasks, totalTasks = entries.size()](
                                 coro::StaticThreadPool &pool, coro::IoContext &ioCtx
-                            ) -> coro::Task<> {
+                            ) -> coro::Task<void> {
             using namespace std::chrono_literals;
-            co_await pool.schedule();
-
             size_t lastProgress = 0;
             while (true) {
                 const size_t completed = completedTasks.load(std::memory_order_relaxed);
@@ -131,37 +130,38 @@ namespace sapphire::bootloader {
                         std::format("[Bootloader] Scanning... {}%", currentProgress)
                     );
                 }
-
-                co_await ioCtx.scheduleAfter(50ms);
-                co_await pool.schedule(); // resume on thread pool
+                co_await ioCtx.scheduleAfter(25ms);
             }
             ioCtx.stop();
         };
 
-        coro::StaticThreadPool pool;
+        coro::StaticThreadPool pool{std::thread::hardware_concurrency()};
 
         auto scanTask = [&completedTasks, moduleBase, moduleSize, this](
                             coro::StaticThreadPool               &pool,
-                            const codegen::SigDatabase::SigEntry &entry
-                        ) -> coro::Task<ScanResult> {
+                            const codegen::SigDatabase::SigEntry &entry,
+                            ScanResult                           &result
+                        ) -> coro::Task<void> {
             co_await pool.schedule();
             uintptr_t foundAddress =
                 sapphire::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
             completedTasks.fetch_add(1, std::memory_order_relaxed);
-            co_return ScanResult{&entry, foundAddress ? applyOperations(foundAddress, entry.mOperations) : 0};
+            result = ScanResult{&entry, foundAddress ? applyOperations(foundAddress, entry.mOperations) : 0};
         };
 
         auto mainTask = [&](coro::StaticThreadPool &pool, coro::IoContext &ioCtx) -> coro::Task<> {
-            co_await pool.schedule();
-            std::vector<coro::Task<ScanResult>> tasks;
-            tasks.reserve(entries.size());
-            for (const auto &entry : entries) {
-                tasks.emplace_back(scanTask(pool, entry));
-            }
-            auto results = co_await whenAll(std::move(tasks));
+            coro::AsyncScope scope;
 
-            for (auto &&res : results) {
-                auto result = res.result();
+            std::vector<ScanResult> results;
+            results.resize(entries.size());
+            for (size_t idx = 0; const auto &entry : entries) {
+                scope.spawn(scanTask(pool, entry, results[idx]));
+                ++idx;
+            }
+
+            co_await scope.join();
+
+            for (auto &&result : results) {
                 if (result.address != 0) {
                     if (result.entry->mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
                         mResolvedDataSymbols[result.entry->mSymbol] = result.address;

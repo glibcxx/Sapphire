@@ -6,10 +6,32 @@
 
 #include <cstdint>
 
+extern "C" {
 struct HWND__;
 struct HDC__;
 struct HBRUSH__;
 struct HINSTANCE__;
+
+typedef struct _RTL_SRWLOCK          RTL_SRWLOCK;
+typedef RTL_SRWLOCK                  SRWLOCK, *PSRWLOCK;
+typedef struct _SECURITY_ATTRIBUTES *LPSECURITY_ATTRIBUTES;
+
+void __stdcall                                   WakeByAddressSingle(void *Address);
+void __stdcall                                   WakeByAddressAll(void *Address);
+int __stdcall                                    WaitOnAddress(volatile void *Address, void *CompareAddress, unsigned long long AddressSize, unsigned long dwMilliseconds);
+__declspec(dllimport) void __stdcall             AcquireSRWLockExclusive(PSRWLOCK SRWLock);
+__declspec(dllimport) unsigned char __stdcall    TryAcquireSRWLockExclusive(PSRWLOCK SRWLock);
+__declspec(dllimport) void __stdcall             ReleaseSRWLockExclusive(PSRWLOCK SRWLock);
+__declspec(dllimport) void *__stdcall            GetCurrentThread();
+__declspec(dllimport) unsigned __int64 __stdcall SetThreadAffinityMask(void *hThread, unsigned __int64 dwThreadAffinityMask);
+__declspec(dllimport) long __stdcall             SetThreadDescription(void *hThread, const wchar_t *lpThreadDescription);
+__declspec(dllimport) void *__stdcall            CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, int bManualReset, int bInitialState, const wchar_t *lpName);
+__declspec(dllimport) int __stdcall              CloseHandle(void *hObject);
+__declspec(dllimport) int __stdcall              SetEvent(void *hEvent);
+__declspec(dllimport) unsigned long __stdcall    WaitForSingleObjectEx(void *hHandle, unsigned long dwMilliseconds, int bAlertable);
+__declspec(dllimport) int __stdcall              SwitchToThread();
+__declspec(dllimport) unsigned long              SleepEx(unsigned long dwMilliseconds, int bAlertable);
+}
 
 namespace sapphire::sys::win {
 
