@@ -11,6 +11,7 @@
 #include <cassert>
 #include <fstream>
 #include <filesystem>
+#include <stdexcept>
 
 #include "common/DecoratedName.hpp"
 #include "common/Memory.hpp"
@@ -173,19 +174,22 @@ namespace sapphire::bootloader {
             }
         };
 
-        coro::IoContext ioContext;
+        auto ioContext = coro::IoContext::create(1);
+        if (!ioContext) {
+            throw std::runtime_error{"Failed to create IoContext"};
+        }
 
         static sapphire::TimerToken token;
         {
             sapphire::ScopedTimer timer{token};
             syncWait(
                 whenAll(
-                    progressTask(pool, ioContext),
-                    mainTask(pool, ioContext),
+                    progressTask(pool, *ioContext),
+                    mainTask(pool, *ioContext),
                     [](coro::IoContext &ioCtx) -> coro::Task<> {
                         ioCtx.processEvents();
                         co_return;
-                    }(ioContext)
+                    }(*ioContext)
                 )
             );
         }

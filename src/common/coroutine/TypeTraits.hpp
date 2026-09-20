@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span>
 #include <type_traits>
 
 namespace sapphire::coro {
