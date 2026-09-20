@@ -45,6 +45,7 @@ namespace sapphire::coro {
             constexpr void return_value(TValue &&value) noexcept(std::is_nothrow_constructible_v<TResult, TValue &&>) {
                 mResult.template emplace<1>(std::forward<TValue>(value));
             }
+            constexpr void return_value(TResult &&value) noexcept { mResult.template emplace<1>(std::move(value)); }
 
             TResult &result() & {
                 if (mResult.index() == 2) std::rethrow_exception(std::get<2>(mResult));

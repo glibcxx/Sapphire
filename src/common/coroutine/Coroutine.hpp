@@ -7,3 +7,4 @@
 #include "WhenAll.hpp"          // IWYU pragma: export
 #include "AsyncMutex.hpp"       // IWYU pragma: export
 #include "IoContext.hpp"        // IWYU pragma: export
+#include "AsyncScope.hpp"       // IWYU pragma: export

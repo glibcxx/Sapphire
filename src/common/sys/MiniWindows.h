@@ -30,7 +30,8 @@ __declspec(dllimport) int __stdcall              CloseHandle(void *hObject);
 __declspec(dllimport) int __stdcall              SetEvent(void *hEvent);
 __declspec(dllimport) unsigned long __stdcall    WaitForSingleObjectEx(void *hHandle, unsigned long dwMilliseconds, int bAlertable);
 __declspec(dllimport) int __stdcall              SwitchToThread();
-__declspec(dllimport) unsigned long              SleepEx(unsigned long dwMilliseconds, int bAlertable);
+__declspec(dllimport) unsigned long __stdcall    SleepEx(unsigned long dwMilliseconds, int bAlertable);
+__declspec(dllimport) unsigned long __stdcall    GetLastError(void);
 }
 
 namespace sapphire::sys::win {
@@ -38,14 +39,16 @@ namespace sapphire::sys::win {
     using handle_t = void *;
     using dword_t = unsigned long;
     using long_t = long;
+    using ulong_t = unsigned long;
     using bool_t = int;
+    using winbool_t = int;
     using byte_t = unsigned char;
     using word_t = unsigned short;
     using float_t = float;
     using longlong_t = __int64;
     using ulonglong_t = unsigned __int64;
 
-    using large_integer_t = longlong_t;
+    using uchar_t = unsigned char;
 
     using long_ptr_t = intptr_t;
     using ulong_ptr_t = uintptr_t;
@@ -58,5 +61,9 @@ namespace sapphire::sys::win {
     using hmodule_t = HINSTANCE__ *;
     using hdc_t = HDC__ *;
     using hbrush_t = HBRUSH__ *;
+
+    using lstatus_t = long_t;
+
+    using lpcwstr_t = const wchar_t *;
 
 } // namespace sapphire::sys::win
