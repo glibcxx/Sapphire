@@ -8,12 +8,20 @@
 #include "Bootloader.h"
 #include "RuntimeLinker.h"
 #include "bootloader/SymbolResolver.h"
+#include "common/IPC/Pipe.h"
+#include "common/IPC/PipeChannel.h"
+#include "common/ScopeGuard.hpp"
+#include "common/coroutine/IoContext.hpp"
+#include "common/coroutine/SyncWait.hpp"
+#include "common/coroutine/WhenAll.hpp"
 #include "common/sys/MiniWindows.h"
 
 #include <Windows.h>
 #include <filesystem>
 #include <format>
+#include <memory>
 #include <regex>
+#include <system_error>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.ApplicationModel.h>
 
@@ -87,27 +95,45 @@ namespace sapphire::bootloader {
 
     Bootloader::Bootloader(sys::win::hmodule_t hModule) : mModule(hModule) {
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
+        auto expected = coro::IoContext::create(1);
+        if (!expected) {
+            throw std::system_error{expected.error()};
+        }
+        mIoCtx.emplace(std::move(expected.value()));
     }
 
     Bootloader::~Bootloader() {
         winrt::uninit_apartment();
     }
 
-    bool Bootloader::preBoot() {
-        return mIPCClient.connect(L"\\\\.\\pipe\\SapphireSignalPipe")
-            && mIPCClient.send(ipc::status::Handshake, "Bootloader");
+    int Bootloader::run() {
+        auto pipe = ipc::backend::Pipe::connect(L"\\\\.\\pipe\\SapphireSignalPipe.Bootloader", *mIoCtx);
+        if (!pipe) {
+            throw std::system_error{std::move(pipe.error()), "Bootloader connect error"};
+        }
+        mPipeConnection.emplace(std::move(pipe.value()));
+        ipc::PipeChannel channel{*mPipeConnection};
+        syncWait(
+            coro::whenAll(
+                channel.send({ipc::status::Handshake, "Bootloader"}),
+                bootSapphire(),
+                [](sapphire::coro::IoContext &ctx) -> sapphire::coro::Task<int> {
+                    ctx.processEvents();
+                    co_return 0;
+                }(*mIoCtx)
+            )
+        );
+        return true;
     }
 
-    void Bootloader::postBoot() {
-        mIPCClient.send(ipc::status::Handoff, "Bootloader");
-        mIPCClient.disconnect();
-    }
+    coro::Task<bool> Bootloader::bootSapphire() {
+        sapphire::ScopeGuard guard{[&]() { mIoCtx->stop(); }};
 
-    void Bootloader::bootSapphire() {
-        auto mcVersion = getMinecraftVersion();
+        ipc::PipeChannel channel{*mPipeConnection};
+        auto             mcVersion = getMinecraftVersion();
         if (!mcVersion) {
-            mIPCClient.send(ipc::status::Error, "[Bootloader] Failed to get game version!");
-            return;
+            co_await channel.send(ipc::status::Error, "[Bootloader] Failed to get game version!");
+            co_return false;
         }
         wchar_t pathBuffer[MAX_PATH];
         GetModuleFileNameW(mModule, pathBuffer, MAX_PATH);
@@ -116,30 +142,27 @@ namespace sapphire::bootloader {
         std::string verStr;
         auto        sapphireDllPath = getBestCompatibleVersion(*mcVersion, thisModulePath.parent_path(), verStr);
         if (sapphireDllPath.empty()) {
-            mIPCClient.send(ipc::status::Error, "[Bootloader] Failed to find a compatible sapphire core version!");
-            return;
+            co_await channel.send(ipc::status::Error, "[Bootloader] Failed to find a compatible sapphire core version!");
+            co_return false;
         }
         if (!fs::exists(sapphireDllPath)) {
-            mIPCClient.send(
-                ipc::status::Error,
-                std::format("[Bootloader] Failed to find sapphire Dll at {}!", sapphireDllPath.string())
-            );
-            return;
+            co_await channel.send({ipc::status::Error, std::format("[Bootloader] Failed to find sapphire Dll at {}!", sapphireDllPath.string())});
+            co_return false;
         }
 
         mSymbolResolver = std::make_unique<SymbolResolver>();
 
         auto sigDbPath = thisModulePath.parent_path() / std::format("bedrock_sigs+mc{}.sig.db", verStr);
-        mIPCClient.send(
+        co_await channel.send(
             ipc::status::Success, std::format("[Bootloader] Loading sig database at {}!", sigDbPath.string())
         );
         if (!mSymbolResolver->loadDatabase(sigDbPath)) {
-            mIPCClient.send(ipc::status::Error, "[Bootloader] Failed to load signature database!");
-            return;
+            co_await channel.send(ipc::status::Error, "[Bootloader] Failed to load signature database!");
+            co_return false;
         }
 
-        mSymbolResolver->resolve(mIPCClient);
-        mIPCClient.send(
+        co_await mSymbolResolver->resolve(*mIoCtx, channel);
+        co_await channel.send(
             ipc::status::Success,
             std::format(
                 "[Bootloader] {} data symbols, {} func symbols.",
@@ -148,21 +171,25 @@ namespace sapphire::bootloader {
             )
         );
 
-        mIPCClient.send(ipc::status::Success, "[Bootloader] Initializing RuntimeLinker...");
-        mRuntimeLinker = std::make_unique<RuntimeLinker>(*mSymbolResolver, mIPCClient);
-        mIPCClient.send(ipc::status::Success, "[Bootloader] Initializing RuntimeLinker. Done");
+        co_await channel.send(ipc::status::Success, "[Bootloader] Initializing RuntimeLinker...");
+        mRuntimeLinker = std::make_unique<RuntimeLinker>(*mSymbolResolver, channel);
+        co_await channel.send(ipc::status::Success, "[Bootloader] Initializing RuntimeLinker. Done");
 
-        mIPCClient.send(
+        co_await channel.send(
             ipc::status::Success, std::format("[Bootloader] Injecting sapphire Dll at {}!", sapphireDllPath.string())
         );
         HMODULE sapphireDll = LoadLibraryW(sapphireDllPath.wstring().c_str());
         if (!sapphireDll) {
-            mIPCClient.send(
+            co_await channel.send(
                 ipc::status::Error,
                 "[Bootloader] Failed to load sapphire core, some apis may be missing or incompatible."
             );
-            return;
+            co_return false;
         }
+
+        co_await channel.send({ipc::status::Handoff, "Bootloader"});
+        mPipeConnection->disconnect();
+        co_return true;
     }
 
 } // namespace sapphire::bootloader

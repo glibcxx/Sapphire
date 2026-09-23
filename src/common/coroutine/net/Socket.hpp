@@ -35,7 +35,7 @@ namespace sapphire::coro::net {
             );
             if (!socketHandle.isValid()) return {unexpected, GetLastError(), "WSASocketW"};
 
-            if (!ctx.attach((sys::win::handle_t)socketHandle.get())) return {unexpected, GetLastError(), "CreateIoCompletionPort"};
+            if (auto errc = ctx.attach((sys::win::handle_t)socketHandle.get())) return {unexpected, errc.value(), "CreateIoCompletionPort"};
 
             const unsigned char flags = 0x1 | 0x2; // FILE_SKIP_COMPLETION_PORT_ON_SUCCESS | FILE_SKIP_SET_EVENT_ON_HANDLE
             if (!SetFileCompletionNotificationModes((sys::win::handle_t)socketHandle.get(), flags))

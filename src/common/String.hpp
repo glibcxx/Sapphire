@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 extern "C" {
 __declspec(dllimport) int __stdcall WideCharToMultiByte(
@@ -13,17 +14,35 @@ __declspec(dllimport) int __stdcall WideCharToMultiByte(
     const char    *lpDefaultChar,
     int           *lpUsedDefaultChar
 );
+__declspec(dllimport) int __stdcall MultiByteToWideChar(
+    unsigned int  CodePage,
+    unsigned long dwFlags,
+    const char   *lpMultiByteStr,
+    int           cbMultiByte,
+    wchar_t      *lpWideCharStr,
+    int           cchWideChar
+);
 }
 
 namespace sapphire {
 
-    inline std::string wstringToString(const std::wstring &wstr) {
-        int sizeNeeded = WideCharToMultiByte(65001, 0, &wstr[0], (int)wstr.size(), nullptr, 0, nullptr, nullptr);
+    inline std::string wstringToString(std::wstring_view wstr) {
+        int sizeNeeded = WideCharToMultiByte(65001, 0, wstr.data(), (int)wstr.size(), nullptr, 0, nullptr, nullptr);
         if (sizeNeeded <= 0)
             return {};
         std::string strTo(sizeNeeded, 0);
-        WideCharToMultiByte(65001, 0, &wstr[0], (int)wstr.size(), &strTo[0], sizeNeeded, nullptr, nullptr);
+        WideCharToMultiByte(65001, 0, wstr.data(), (int)wstr.size(), &strTo[0], sizeNeeded, nullptr, nullptr);
         return strTo;
+    }
+
+    inline std::wstring stringToWString(std::string_view str) {
+        if (str.empty()) return {};
+        int sizeNeeded = MultiByteToWideChar(65001, 0, str.data(), (int)str.size(), nullptr, 0);
+        if (sizeNeeded <= 0)
+            return {};
+        std::wstring wstr(sizeNeeded, 0);
+        MultiByteToWideChar(65001, 0, str.data(), (int)str.size(), &wstr[0], sizeNeeded);
+        return wstr;
     }
 
     // 如果 str 以 prefix 开头，返回 true

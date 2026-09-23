@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include "common/IPC/PipeChannel.h"
 #include "common/sys/MiniWindows.h"
 
 namespace sapphire::ipc {
@@ -16,7 +17,7 @@ namespace sapphire::bootloader {
 
         bool patchModule(sys::win::hmodule_t hModule, const ApiMap &apiMap, const ApiMap &dataApiMap);
 
-        IatPatcher(const std::string &bedrockSigSourceDllName, ipc::Client &IPCClient);
+        IatPatcher(const std::string &bedrockSigSourceDllName, ipc::PipeChannel log);
         ~IatPatcher() = default;
 
         IatPatcher(const IatPatcher &) = delete;
@@ -25,8 +26,8 @@ namespace sapphire::bootloader {
     private:
         bool patchModuleInternal(sys::win::hmodule_t hModuleToPatch, const ApiMap &apiMap, const ApiMap &dataApiMap);
 
-        std::string  mBedrockSigSourceDllName;
-        ipc::Client &mIPCClient;
+        std::string      mBedrockSigSourceDllName;
+        ipc::PipeChannel mPipeLogger;
     };
 
 } // namespace sapphire::bootloader

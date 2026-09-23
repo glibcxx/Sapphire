@@ -11,15 +11,15 @@
 #include <cassert>
 #include <fstream>
 #include <filesystem>
-#include <stdexcept>
 
 #include "common/DecoratedName.hpp"
+#include "common/IPC/PipeChannel.h"
 #include "common/Memory.hpp"
 #include "common/MemoryScanning.hpp"
 #include "common/ScopedTimer.hpp"
 #include "common/coroutine/Coroutine.hpp"
 #include "common/coroutine/AsyncScope.hpp"
-#include "common/IPC/Client.h"
+#include "common/coroutine/Task.hpp"
 
 namespace sapphire::bootloader {
 
@@ -83,20 +83,20 @@ namespace sapphire::bootloader {
         return true;
     }
 
-    void SymbolResolver::resolve(ipc::Client &log) {
-        log.send(ipc::status::Success, "[Bootloader] Resolving symbols, please wait...");
+    coro::Task<void> SymbolResolver::resolve(coro::IoContext &ctx, ipc::PipeChannel &log) {
+        co_await log.send(ipc::status::Success, "[Bootloader] Resolving symbols, please wait...");
         if (!mDatabase) {
-            return;
+            co_return;
         }
 
         const auto &entries = mDatabase->getSigEntries();
 
         HMODULE hModule = GetModuleHandle(nullptr);
-        if (!hModule) return;
+        if (!hModule) co_return;
 
         MODULEINFO moduleInfo;
         if (!GetModuleInformation(GetCurrentProcess(), hModule, &moduleInfo, sizeof(moduleInfo))) {
-            return;
+            co_return;
         }
 
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
@@ -119,14 +119,14 @@ namespace sapphire::bootloader {
             while (true) {
                 const size_t completed = completedTasks.load(std::memory_order_relaxed);
                 if (completed >= totalTasks) {
-                    log.send(ipc::status::Success, "[Bootloader] Scanning 100% complete.");
+                    co_await log.send(ipc::status::Success, "[Bootloader] Scanning 100% complete.");
                     break;
                 }
 
                 size_t currentProgress = (completed * 100) / totalTasks;
                 if (currentProgress > lastProgress) {
                     lastProgress = currentProgress;
-                    log.send(
+                    co_await log.send(
                         ipc::status::Success,
                         std::format("[Bootloader] Scanning... {}%", currentProgress)
                     );
@@ -174,27 +174,16 @@ namespace sapphire::bootloader {
             }
         };
 
-        auto ioContext = coro::IoContext::create(1);
-        if (!ioContext) {
-            throw std::runtime_error{"Failed to create IoContext"};
-        }
-
         static sapphire::TimerToken token;
         {
             sapphire::ScopedTimer timer{token};
-            syncWait(
-                whenAll(
-                    progressTask(pool, *ioContext),
-                    mainTask(pool, *ioContext),
-                    [](coro::IoContext &ioCtx) -> coro::Task<> {
-                        ioCtx.processEvents();
-                        co_return;
-                    }(*ioContext)
-                )
+            co_await whenAll(
+                progressTask(pool, ctx),
+                mainTask(pool, ctx)
             );
         }
 
-        log.send(
+        co_await log.send(
             ipc::status::Success,
             std::format(
                 "[Bootloader] Resolving symbols. Done. ({})",

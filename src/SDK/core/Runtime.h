@@ -1,9 +1,11 @@
 #pragma once
 
+#include "common/coroutine/IoContext.hpp"
 #include "pch.h" // IWYU pragma: keep
 
-#include "IPCClient.h"
+#include "common/IPC/Pipe.h"
 #include "mod/ModRepository.h"
+#include <optional>
 
 namespace sapphire::core {
 
@@ -12,10 +14,11 @@ namespace sapphire::core {
 
     class Runtime {
         ModRepository mModRepo;
-        IPCClient     mIPCClient;
 
-        std::unique_ptr<RenderBackend> mRenderBackend;
-        std::unique_ptr<CrashLogger>   mCrashLogger;
+        std::unique_ptr<RenderBackend>    mRenderBackend;
+        std::unique_ptr<CrashLogger>      mCrashLogger;
+        std::optional<ipc::backend::Pipe> mPipeLogger;
+        std::optional<coro::IoContext>    mIoCtx;
 
         bool mInitialized = false;
 

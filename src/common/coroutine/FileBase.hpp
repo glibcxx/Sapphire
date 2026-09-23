@@ -58,7 +58,7 @@ namespace sapphire::coro {
                 CreateFileW(path.c_str(), dwAccess, dwShareMode, nullptr, dwCreationDisposition, dwFlags, nullptr);
 
             if (!h.isValid()) return {unexpected, (int)GetLastError(), std::system_category()};
-            if (!ctx.attach(h.get())) return {unexpected, GetLastError(), std::system_category()};
+            if (auto errc = ctx.attach(h.get())) return {unexpected, std::move(errc)};
 
             const sys::win::uchar_t flags = 0x1 | 0x2; // FILE_SKIP_COMPLETION_PORT_ON_SUCCESS | FILE_SKIP_SET_EVENT_ON_HANDLE
             if (!SetFileCompletionNotificationModes(h.get(), flags))

@@ -1,4 +1,4 @@
-add_executable(sapphire_launcher UWPinjector.cpp sapphire.rc)
+add_executable(sapphire_launcher LauncherMain.cpp LauncherApp.cpp DebuggerApp.cpp sapphire.rc)
 
 target_link_libraries(sapphire_launcher PRIVATE SapphireCommon)
 

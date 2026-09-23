@@ -24,10 +24,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         waitForDebuggerIfDebugMode();
         std::thread([hModule]() {
             gBootloader = std::make_unique<sapphire::bootloader::Bootloader>(hModule);
-            if (!gBootloader->preBoot())
+            if (!gBootloader->run())
                 return;
-            gBootloader->bootSapphire();
-            gBootloader->postBoot();
         }).detach();
     }
     return TRUE;

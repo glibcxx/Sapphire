@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include "SigDatabase.h"
+#include "common/IPC/PipeChannel.h"
 #include "macros/Macros.h"
 
 namespace sapphire::ipc {
@@ -23,7 +24,7 @@ namespace sapphire::bootloader {
 
         bool loadDatabase(const std::filesystem::path &dbPath);
 
-        void resolve(ipc::Client &log);
+        coro::Task<void> resolve(coro::IoContext &ctx, ipc::PipeChannel &log);
 
         const SymbolMap &getResolvedFunctionSymbols() const { return mResolvedFunctionSymbols; }
         SymbolMap       &getResolvedFunctionSymbols() { return mResolvedFunctionSymbols; }

@@ -11,12 +11,14 @@
 #include <queue>
 #include <stop_token>
 
+#include <system_error>
 #include <winerror.h>
 
 #include "Constant.hpp"
 #include "Handle.hpp"
 #include "IoOperation.hpp"
 #include "Sync.hpp"
+#include "common/Expected.hpp"
 #include "common/sys/MiniWindows.h"
 #include "detail/WinDefs.h"
 
@@ -98,17 +100,17 @@ namespace sapphire::coro {
     public:
         IoContext(IoContext &&other) noexcept : mIocp(std::move(other.mIocp)) {}
 
-        static std::optional<IoContext> create(int concurrentThread = 0) {
+        static Expected<IoContext, std::error_code> create(int concurrentThread = 0) {
             sys::win::handle_t h = CreateIoCompletionPort((void *)win32::Handle::INVALID_HANDLE, NULL, 0, concurrentThread);
-            if (!h) return std::nullopt;
+            if (!h) return {unexpected, GetLastError(), std::system_category()};
             return IoContext{h};
         }
 
-        bool attach(sys::win::handle_t hFile) const {
-            if (!mIocp.isValid()) return false;
+        std::error_code attach(sys::win::handle_t hFile) const {
+            if (!mIocp.isValid()) return {};
 
-            if (!CreateIoCompletionPort(hFile, mIocp.get(), 0, 0)) return false;
-            return true;
+            if (!CreateIoCompletionPort(hFile, mIocp.get(), 0, 0)) return {(int)GetLastError(), std::system_category()};
+            return {};
         }
 
         struct [[nodiscard]] Awaiter {

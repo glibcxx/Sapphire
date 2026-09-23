@@ -8,9 +8,9 @@
 
 #include "RuntimeLinker.h"
 #include "MinHook.h"
+#include "common/IPC/PipeChannel.h"
 #include <winnt.h>
 #include <winternl.h>
-#include "common/IPC/Client.h"
 
 #define LDR_DLL_NOTIFICATION_REASON_LOADED 1
 #define LDR_DLL_NOTIFICATION_REASON_UNLOADED 2
@@ -70,11 +70,11 @@ void sapphire::bootloader::RuntimeLinker::forceDllMainToFail(RuntimeLinker *self
     auto pEntryPoint = reinterpret_cast<LPVOID>(pImageBase + pNtHeaders->OptionalHeader.AddressOfEntryPoint);
 
     if (MH_CreateHook(pEntryPoint, (LPVOID)&FakeDllMain, NULL) != MH_OK) {
-        self->mIPCClient.send(ipc::status::Error, "Failed to create EntryPoint hook.");
+        self->mPipeLogger.sendSync(ipc::status::Error, "Failed to create EntryPoint hook.");
         return;
     }
     if (MH_EnableHook(pEntryPoint) != MH_OK) {
-        self->mIPCClient.send(ipc::status::Error, "Failed to enable EntryPoint hook.");
+        self->mPipeLogger.sendSync(ipc::status::Error, "Failed to enable EntryPoint hook.");
         return;
     }
 }
@@ -98,10 +98,10 @@ VOID CALLBACK LdrDllNotification(
     }
 }
 
-sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::SymbolResolver &resolver, ipc::Client &IPCClient) :
+sapphire::bootloader::RuntimeLinker::RuntimeLinker(const sapphire::bootloader::SymbolResolver &resolver, ipc::PipeChannel log) :
     mResolver(resolver),
-    mIPCClient(IPCClient),
-    mIatPatcher(std::make_unique<IatPatcher>("sapphire_bootloader.dll", IPCClient)) {
+    mPipeLogger(log),
+    mIatPatcher(std::make_unique<IatPatcher>("sapphire_bootloader.dll", log)) {
     if (MH_Initialize() != MH_OK) return;
     HMODULE hNtDll = GetModuleHandleW(L"ntdll.dll");
     auto    pLdrRegisterDllNotification =

@@ -4,6 +4,7 @@
 
 #include "Runtime.h"
 
+#include <stdexcept>
 #include <winrt/base.h>
 
 #include "CrashLog.h"
@@ -17,7 +18,28 @@
 #include "SDK/api/sapphire/platform/Environment.h"
 #include "SDK/api/sapphire/service/Service.h"
 
+#include "common/IPC/PipeChannel.h"
 #include "common/ScopedTimer.hpp"
+#include "common/String.hpp"
+
+namespace {
+
+    // 把从 Sapphire Log 接口打印的日志传给 Bootloader
+    class PipeLogSink : public sapphire::ILogSink {
+        sapphire::ipc::PipeChannel mPipe;
+
+    public:
+        PipeLogSink(sapphire::ipc::backend::Pipe &p) : mPipe(p) {}
+
+        void emit(const sapphire::LogEvent &event) override {
+            auto msg = event.toString();
+            mPipe.sendSync(sapphire::ipc::status::Success, !msg.empty() && msg.back() == '\n' ? std::string_view{msg.data(), msg.size() - 1} : msg);
+        }
+    };
+
+    std::shared_ptr<PipeLogSink> sPipeLogSink;
+
+} // namespace
 
 namespace sapphire::core {
 
@@ -35,10 +57,30 @@ namespace sapphire::core {
     }
 
     void Runtime::init() {
-        mIPCClient.connect();
+        auto ctx = coro::IoContext::create(1);
+        if (!ctx) {
+            sapphire::error("Runtime: 无法创建 IoContext, msg: {}", ctx.error().message());
+            throw std::runtime_error{"Runtime: 无法创建 IoContext"};
+        }
+        mIoCtx.emplace(std::move(*ctx));
+        auto pipe = mPipeLogger->connect(L"\\\\.\\pipe\\SapphireSignalPipe.Core", *mIoCtx);
+        if (!pipe) {
+            sapphire::error("Runtime: 无法连接管道, msg: {}", ctx.error().message());
+            sapphire::alert(L"Runtime: 无法连接管道, msg: {}", stringToWString(ctx.error().message()));
+            throw std::runtime_error{"[Sapphire Core] pipe connection error"};
+        }
+        sPipeLogSink = std::make_shared<PipeLogSink>(*pipe);
+        sapphire::LogManager::getInstance().addSink(sPipeLogSink);
+        sapphire::info("IPCClient: Connecting Pipe done.");
+
+        mPipeLogger.emplace(std::move(*pipe));
+        ipc::PipeChannel channel{*mPipeLogger};
         if (!this->_init())
-            mIPCClient.requestShutdown("Fail to init Sapphire Core");
-        mIPCClient.disconnect();
+            channel.sendSync(ipc::status::Error, "Fail to init Sapphire Core");
+        channel.sendSync(ipc::status::Handoff, "Sapphire Core");
+        mPipeLogger->disconnect();
+        sapphire::LogManager::getInstance().removeSink(sPipeLogSink);
+        sPipeLogSink.reset();
         LogManager::getInstance().flushAll();
     }
 

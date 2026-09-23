@@ -114,7 +114,7 @@ target_compile_definitions(SapphireCommon INTERFACE
 )
 
 add_subdirectory(src/builtinmod)
-add_subdirectory(src/injector)
+add_subdirectory(src/launcher)
 add_subdirectory(src/bootloader)
 add_subdirectory(src/SDK)
 

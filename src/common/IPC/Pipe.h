@@ -3,44 +3,72 @@
 #include <string>
 #include <Windows.h>
 #include <sddl.h>
+#include <system_error>
+#include <utility>
+#include <winerror.h>
+
+#include "common/Expected.hpp"
+#include "common/coroutine/FileOperation.hpp"
+#include "common/coroutine/IoContext.hpp"
 
 namespace sapphire::ipc::backend {
 
     class Pipe {
+        HANDLE mHandle = INVALID_HANDLE_VALUE;
+
+        Pipe(HANDLE hPipe) : mHandle(hPipe) {}
+
+        static sys::win::handle_t getEventHandleForThisThread() noexcept {
+            static thread_local coro::win32::Handle tEvent = CreateEventW(NULL, FALSE, FALSE, NULL);
+            return tEvent.get();
+        }
+
     public:
-        ~Pipe() {
-            disconnect();
+        ~Pipe() noexcept { disconnect(); }
+
+        Pipe(const Pipe &) = delete;
+        Pipe &operator=(const Pipe &) = delete;
+
+        Pipe(Pipe &&other) noexcept : mHandle(std::exchange(other.mHandle, INVALID_HANDLE_VALUE)) {}
+        Pipe &operator=(Pipe &&other) noexcept {
+            if (this != &other) {
+                mHandle = std::exchange(other.mHandle, INVALID_HANDLE_VALUE);
+            }
+            return *this;
         }
 
-        bool isOpen() const {
-            return hPipe != INVALID_HANDLE_VALUE;
-        }
+        bool isOpen() const noexcept { return mHandle && mHandle != INVALID_HANDLE_VALUE; }
 
-        bool connect(const std::wstring &pipeName, int timeout = 20000) {
-            if (isOpen()) return true;
-
+        [[nodiscard]] static Expected<Pipe, std::error_code> connect(const std::wstring &pipeName, coro::IoContext &ctx, int timeout = 20000) noexcept {
             while (true) {
-                hPipe = CreateFileW(
-                    pipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr
+                HANDLE hPipe = CreateFileW(
+                    pipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, nullptr
                 );
 
-                if (isOpen()) return true;
+                if (hPipe != INVALID_HANDLE_VALUE) {
+                    Pipe res{hPipe};
 
-                if (GetLastError() != ERROR_PIPE_BUSY) {
-                    hPipe = INVALID_HANDLE_VALUE;
-                    return false;
+                    if (auto errc = ctx.attach(hPipe))
+                        return {unexpected, std::move(errc)};
+
+                    if (!SetFileCompletionNotificationModes(hPipe, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS))
+                        return {unexpected, GetLastError(), std::system_category()};
+
+                    return res;
+                }
+
+                int code = GetLastError();
+                if (code != ERROR_PIPE_BUSY) {
+                    return {unexpected, code, std::system_category()};
                 }
 
                 if (!WaitNamedPipeW(pipeName.c_str(), timeout)) {
-                    hPipe = INVALID_HANDLE_VALUE;
-                    return false;
+                    return {unexpected, GetLastError(), std::system_category()};
                 }
             }
         }
 
-        bool create(const std::wstring &pipeName) {
-            if (isOpen()) return true;
-
+        [[nodiscard]] static Expected<Pipe, std::error_code> create(const std::wstring &pipeName, coro::IoContext &ctx) noexcept {
             PSECURITY_DESCRIPTOR p_sd = nullptr;
             SECURITY_ATTRIBUTES  sa = {};
             sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -54,9 +82,9 @@ namespace sapphire::ipc::backend {
             sa.lpSecurityDescriptor = p_sd;
             if (p_sd) LocalFree(p_sd);
 
-            hPipe = CreateNamedPipeW(
+            HANDLE hPipe = CreateNamedPipeW(
                 pipeName.c_str(),
-                PIPE_ACCESS_DUPLEX,
+                PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
                 PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
                 PIPE_UNLIMITED_INSTANCES,
                 4096,
@@ -64,62 +92,153 @@ namespace sapphire::ipc::backend {
                 0,
                 &sa
             );
-
-            return isOpen();
-        }
-
-        bool listen() {
-            if (!isOpen()) return false;
-
-            BOOL connected = ConnectNamedPipe(hPipe, nullptr);
-            if (!connected && GetLastError() != ERROR_PIPE_CONNECTED) {
-                return false;
+            if (hPipe == INVALID_HANDLE_VALUE) {
+                return {unexpected, GetLastError(), std::system_category()};
             }
-            return true;
+
+            Pipe res{hPipe};
+
+            if (auto errc = ctx.attach(hPipe))
+                return {unexpected, std::move(errc)};
+
+            if (!SetFileCompletionNotificationModes(hPipe, FILE_SKIP_COMPLETION_PORT_ON_SUCCESS))
+                return {unexpected, GetLastError(), std::system_category()};
+
+            return res;
         }
 
-        void disconnect() {
-            if (isOpen()) {
-                DisconnectNamedPipe(hPipe);
-                CloseHandle(hPipe);
-                hPipe = INVALID_HANDLE_VALUE;
+        struct [[nodiscard]] PipeListenOperation : coro::IoOperation {
+            using IoOperation::IoOperation;
+
+            sys::win::handle_t mFileHandle;
+
+            PipeListenOperation(sys::win::handle_t h) noexcept : mFileHandle(h) {}
+
+            bool await_ready() const noexcept { return false; }
+
+            bool await_suspend(std::coroutine_handle<> h) noexcept {
+                this->mContinuation = h;
+                BOOL ok = ConnectNamedPipe(mFileHandle, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                return handleIoResult(ok);
             }
-        }
 
-        bool read(char *buffer, uint32_t bytesToRead) {
-            if (!isOpen()) return false;
-
-            DWORD totalBytesRead = 0;
-            while (totalBytesRead < bytesToRead) {
-                DWORD bytesRead = 0;
-                BOOL  result = ReadFile(
-                    hPipe, buffer + totalBytesRead, bytesToRead - totalBytesRead, &bytesRead, nullptr
-                );
-
-                if (!result || bytesRead == 0) {
-                    disconnect(); // Assume connection is lost
-                    return false;
+            std::error_code await_resume() noexcept {
+                if (mErrorCode != ERROR_SUCCESS && mErrorCode != ERROR_PIPE_CONNECTED) {
+                    return {static_cast<int>(mErrorCode), std::system_category()};
                 }
-                totalBytesRead += bytesRead;
+                return {};
             }
-            return true;
-        }
 
-        bool write(const char *buffer, uint32_t bytesToWrite) {
-            if (!isOpen()) return false;
-
-            DWORD bytesWritten = 0;
-            BOOL  result = WriteFile(hPipe, buffer, bytesToWrite, &bytesWritten, nullptr);
-
-            if (!result || bytesWritten != bytesToWrite) {
-                disconnect(); // Assume connection is lost
+            bool handleIoResult(bool ok) noexcept {
+                if (ok == 1) return false;
+                int err = GetLastError();
+                if (err == ERROR_IO_PENDING) return true;
+                mErrorCode = err;
                 return false;
             }
-            return true;
+        };
+
+        PipeListenOperation listen() noexcept {
+            return PipeListenOperation{mHandle};
         }
 
-    private:
-        HANDLE hPipe = INVALID_HANDLE_VALUE;
+        Expected<size_t, std::error_code> listenSync() noexcept {
+            auto hEvent = getEventHandleForThisThread();
+
+            OVERLAPPED ov = {0};
+            ov.hEvent = (HANDLE)((ULONG_PTR)hEvent | 1);
+
+            DWORD bytesTransferred = 0;
+            BOOL  result = ConnectNamedPipe(mHandle, &ov);
+            if (!result) {
+                if (GetLastError() == ERROR_IO_PENDING) {
+                    WaitForSingleObject(hEvent, INFINITE);
+                    GetOverlappedResult(mHandle, &ov, &bytesTransferred, FALSE);
+                } else {
+                    return {unexpected, GetLastError(), std::system_category()};
+                }
+            }
+            return bytesTransferred;
+        }
+
+        void disconnect() noexcept {
+            DisconnectNamedPipe(mHandle);
+            CloseHandle(mHandle);
+            mHandle = INVALID_HANDLE_VALUE;
+        }
+
+        struct [[nodiscard]] PipeReadOperation : coro::FileOperation {
+            using FileOperation::FileOperation;
+
+            bool await_suspend(std::coroutine_handle<> h) noexcept {
+                this->mContinuation = h;
+                bool ok = ReadFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                return handleIoResult(ok);
+            }
+
+            Expected<size_t, std::error_code> await_resume() noexcept {
+                if (mErrorCode != ERROR_SUCCESS) {
+                    return {unexpected, static_cast<int>(mErrorCode), std::system_category()};
+                }
+                return mBytesTransferred;
+            }
+        };
+
+        PipeReadOperation read(char *buffer, std::size_t bufferSize) noexcept {
+            return PipeReadOperation{mHandle, 0, buffer, bufferSize};
+        }
+
+        Expected<size_t, std::error_code> readSync(char *buffer, std::size_t bufferSize) noexcept {
+            auto hEvent = getEventHandleForThisThread();
+
+            OVERLAPPED ov = {0};
+            ov.hEvent = (HANDLE)((ULONG_PTR)hEvent | 1);
+
+            DWORD bytesTransferred = 0;
+            BOOL  result = ReadFile(mHandle, buffer, bufferSize, &bytesTransferred, &ov);
+            if (!result) {
+                if (GetLastError() == ERROR_IO_PENDING) {
+                    WaitForSingleObject(hEvent, INFINITE);
+                    GetOverlappedResult(mHandle, &ov, &bytesTransferred, FALSE);
+                } else {
+                    return {unexpected, GetLastError(), std::system_category()};
+                }
+            }
+            return bytesTransferred;
+        }
+
+        struct [[nodiscard]] PipeWriteOperation : coro::FileOperation {
+            using FileOperation::FileOperation;
+
+            bool await_suspend(std::coroutine_handle<> h) noexcept {
+                this->mContinuation = h;
+                bool ok = WriteFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                return handleIoResult(ok);
+            }
+        };
+
+        PipeWriteOperation write(const char *buffer, std::size_t bufferSize) noexcept {
+            return PipeWriteOperation{mHandle, 0, const_cast<char *>(buffer), bufferSize};
+        }
+
+        Expected<size_t, std::error_code> writeSync(const char *buffer, std::size_t bufferSize) noexcept {
+            auto hEvent = getEventHandleForThisThread();
+
+            OVERLAPPED ov = {0};
+            ov.hEvent = (HANDLE)((ULONG_PTR)hEvent | 1);
+
+            DWORD bytesTransferred = 0;
+            BOOL  result = WriteFile(mHandle, buffer, bufferSize, &bytesTransferred, &ov);
+            if (!result) {
+                if (GetLastError() == ERROR_IO_PENDING) {
+                    WaitForSingleObject(hEvent, INFINITE);
+                    GetOverlappedResult(mHandle, &ov, &bytesTransferred, FALSE);
+                } else {
+                    return {unexpected, GetLastError(), std::system_category()};
+                }
+            }
+            return bytesTransferred;
+        }
     };
 
 } // namespace sapphire::ipc::backend

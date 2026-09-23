@@ -7,13 +7,13 @@
 #include <delayimp.h>
 #include <filesystem>
 #include <format>
-#include "common/IPC/Client.h"
+#include "common/IPC/PipeChannel.h"
 #include "common/sys/MiniWindows.h"
 
 namespace sapphire::bootloader {
 
-    IatPatcher::IatPatcher(const std::string &bedrockSigSourceDllName, ipc::Client &IPCClient) :
-        mBedrockSigSourceDllName(bedrockSigSourceDllName), mIPCClient(IPCClient) {
+    IatPatcher::IatPatcher(const std::string &bedrockSigSourceDllName, ipc::PipeChannel log) :
+        mBedrockSigSourceDllName(bedrockSigSourceDllName), mPipeLogger(log) {
     }
 
     bool IatPatcher::patchModule(sys::win::hmodule_t hModule, const ApiMap &apiMap, const ApiMap &dataApiMap) {
@@ -57,12 +57,12 @@ namespace sapphire::bootloader {
                         wchar_t szPath[MAX_PATH];
                         if (GetModuleFileNameW((HMODULE)hModuleToPatch, szPath, MAX_PATH) != 0) {
                             std::filesystem::path path{szPath};
-                            mIPCClient.send(
+                            mPipeLogger.sendSync(
                                 ipc::status::Error,
                                 std::format("undefined symbol {}, referenced by {}", importName, path.stem().string())
                             );
                         } else {
-                            mIPCClient.send(
+                            mPipeLogger.sendSync(
                                 ipc::status::Error,
                                 std::format("undefined symbol {}, referenced by UNKNOWN", importName)
                             );
