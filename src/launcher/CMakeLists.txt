@@ -2,6 +2,8 @@ add_executable(sapphire_launcher LauncherMain.cpp LauncherApp.cpp DebuggerApp.cp
 
 target_link_libraries(sapphire_launcher PRIVATE SapphireCommon)
 
+sapphire_enable_release_pdb(sapphire_launcher)
+
 install(TARGETS sapphire_launcher
     DESTINATION Sapphire/
     COMPONENT sapphire_launcher

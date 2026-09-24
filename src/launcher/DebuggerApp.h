@@ -30,7 +30,7 @@ namespace sapphire::launcher {
 
         static sys::win::dword_t setPermissions(const std::wstring &wstrFilePath, sys::win::dword_t permission);
 
-        static sys::win::dword_t injectDll(sys::win::handle_t hProcess, const std::filesystem::path &dllPath);
+        static bool injectDll(sys::win::handle_t hProcess, const std::filesystem::path &dllPath);
 
         static void disableDebugging(const std::wstring &familyName);
     };

@@ -85,14 +85,13 @@ namespace sapphire::launcher {
 
         syncWait(whenAll(
             pipeServerMain(*ctx),
-            [](sapphire::sys::win::handle_t hProcess, const std::filesystem::path &dllPath) -> sapphire::coro::Task<int> {
-                DWORD code = injectDll(hProcess, dllPath);
-                if (code == 0) {
-                    ErrorBox(L"[Debugger] sapphire_bootstrap.dll 注入失败！");
+            [](sapphire::coro::IoContext &ctx, sapphire::sys::win::handle_t hProcess, const std::filesystem::path &dllPath) -> sapphire::coro::Task<int> {
+                if (!injectDll(hProcess, dllPath)) {
+                    ctx.stop();
                     co_return -1;
                 }
                 co_return 0;
-            }(mGameProcessHandle, dllPath),
+            }(*ctx, mGameProcessHandle, dllPath),
             [](sapphire::coro::IoContext &ctx) -> sapphire::coro::Task<int> {
                 ctx.processEvents();
                 co_return 0;
@@ -117,7 +116,7 @@ namespace sapphire::launcher {
         }
         auto optPipe2 = ipc::backend::Pipe::create(L"\\\\.\\pipe\\SapphireSignalPipe.Core", ctx);
         if (!optPipe2) {
-            ErrorBox(L"[Debugger] 无法创建通信管道 (\\\\.\\pipe\\SapphireSignalPipe.Core), msg: {}", stringToWString(optPipe.error().message()));
+            ErrorBox(L"[Debugger] 无法创建通信管道 (\\\\.\\pipe\\SapphireSignalPipe.Core), msg: {}", stringToWString(optPipe2.error().message()));
             co_return -1;
         }
         scope.spawn(handlePipeConnection(ctx, std::move(*optPipe)));
@@ -236,12 +235,15 @@ namespace sapphire::launcher {
         return dwResult;
     }
 
-    sapphire::sys::win::dword_t DebuggerApp::injectDll(
+    bool DebuggerApp::injectDll(
         sapphire::sys::win::handle_t hProcess,
         const std::filesystem::path &dllPath
     ) {
         using AutoCloseHandle = std::unique_ptr<std::remove_pointer_t<HANDLE>, decltype([](HANDLE h) { CloseHandle(h); })>;
-        using AutoVirtualFree = std::unique_ptr<std::remove_pointer_t<LPVOID>, decltype([](LPVOID m) { VirtualFree(m, 0, MEM_RELEASE); })>;
+        auto remoteFreeDeleter = [hProcess](LPVOID p) {
+            if (p) VirtualFreeEx(hProcess, p, 0, MEM_RELEASE);
+        };
+        using AutoVirtualFree = std::unique_ptr<std::remove_pointer_t<LPVOID>, decltype(remoteFreeDeleter)>;
 
         std::wstring dllPathStr = dllPath;
         setPermissions(dllPath);
@@ -252,31 +254,61 @@ namespace sapphire::launcher {
             setPermissions(pdbPath, GENERIC_READ);
         }
 
-        AutoVirtualFree pRemotePath{VirtualAllocEx(
-            hProcess,
-            nullptr,
-            (dllPathStr.size() + 1) * sizeof(wchar_t),
-            MEM_COMMIT | MEM_RESERVE,
-            PAGE_READWRITE
-        )};
-        if (!pRemotePath) {
+#pragma pack(push, 8)
+        struct THREAD_PARAM {
+            FARPROC pfnLoadLibraryW;     // 偏移 0x00
+            FARPROC pfnGetLastError;     // 0x08
+            wchar_t szDllPath[MAX_PATH]; // 0x10
+        };
+#pragma pack(pop)
+
+        // clang-format off
+        static const unsigned char gX64Stub[] = {
+            0x53,                               // 0x00: push   rbx
+            0x48, 0x83, 0xEC, 0x20,             // 0x01: sub    rsp, 0x20
+            0x48, 0x89, 0xCB,                   // 0x05: mov    rbx, rcx
+            0x48, 0x8D, 0x4B, 0x10,             // 0x08: lea    rcx, [rbx + 0x10]
+            0xFF, 0x13,                         // 0x0C: call   qword ptr [rbx]
+            0x48, 0x85, 0xC0,                   // 0x0E: test   rax, rax
+            0x75, 0x05,                         // 0x11: jnz    +0x05 (准确跳向 0x18: xor eax, eax)
+            0xFF, 0x53, 0x08,                   // 0x13: call   qword ptr [rbx + 0x8]
+            0xEB, 0x02,                         // 0x16: jmp    +0x02 (跳向 0x1A: add rsp, 0x20)
+            // success:
+            0x31, 0xC0,                         // 0x18: xor    eax, eax
+            // exit:
+            0x48, 0x83, 0xC4, 0x20,             // 0x1A: add    rsp, 0x20
+            0x5B,                               // 0x1E: pop    rbx
+            0xC3                                // 0x1F: ret
+        };
+        // clang-format on
+
+        THREAD_PARAM params = {};
+        HMODULE      hK32 = GetModuleHandleW(L"kernel32.dll");
+        params.pfnLoadLibraryW = GetProcAddress(hK32, "LoadLibraryW");
+        params.pfnGetLastError = GetProcAddress(hK32, "GetLastError");
+        wcsncpy_s(params.szDllPath, dllPath.c_str(), _TRUNCATE);
+
+        SIZE_T codeSize = sizeof(gX64Stub);
+        SIZE_T dataSize = sizeof(THREAD_PARAM);
+        SIZE_T totalSize = codeSize + dataSize;
+
+        AutoVirtualFree pRemoteBuf{VirtualAllocEx(hProcess, nullptr, totalSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE), remoteFreeDeleter};
+        if (!pRemoteBuf) {
             ErrorBox(L"[Debugger][{}]\n内存分配失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
             return false;
         }
 
-        if (!WriteProcessMemory(
-                hProcess,
-                pRemotePath.get(),
-                dllPathStr.c_str(),
-                (dllPathStr.size() + 1) * sizeof(wchar_t),
-                nullptr
-            )) {
+        LPVOID pRemoteCode = pRemoteBuf.get();
+        LPVOID pRemoteData = (char *)pRemoteBuf.get() + codeSize;
+
+        if (!WriteProcessMemory(hProcess, pRemoteCode, gX64Stub, codeSize, nullptr)
+            || !WriteProcessMemory(hProcess, pRemoteData, &params, dataSize, nullptr)) {
             ErrorBox(L"[Debugger][{}]\n写入内存失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
             return false;
         }
 
         AutoCloseHandle hThread{
-            CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, pRemotePath.get(), 0, nullptr),
+            CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)pRemoteCode, pRemoteData, 0, nullptr),
         };
         if (!hThread) {
             ErrorBox(L"[Debugger][{}]\n创建远程线程失败 (错误码: {})", dllPath.filename().c_str(), GetLastError());
@@ -284,12 +316,18 @@ namespace sapphire::launcher {
         }
         WaitForSingleObject(hThread.get(), INFINITE);
 
-        DWORD exitCode;
-        GetExitCodeThread(hThread.get(), &exitCode);
-        if (exitCode == STILL_ACTIVE)
-            WarnBox(L"[Debugger][{}]\n远程线程尚未退出，不能安全释放内存", dllPath.filename().c_str());
+        DWORD remoteErrorCode;
+        if (!GetExitCodeThread(hThread.get(), &remoteErrorCode)) {
+            ErrorBox(L"[Debugger][{}]\n无法获取远程线程返回值 (错误码: {})", dllPath.filename().c_str(), GetLastError());
+            return false;
+        }
 
-        return exitCode;
+        if (remoteErrorCode != ERROR_SUCCESS) {
+            ErrorBox(L"[Debugger][{}]\nDll注入失败 (错误码: {})", dllPath.filename().c_str(), remoteErrorCode);
+            return false;
+        }
+
+        return true;
     }
 
     void DebuggerApp::disableDebugging(const std::wstring &familyName) {
