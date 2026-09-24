@@ -3,8 +3,8 @@
 IDI_ICON1 ICON "assets/sapphire.ico"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION    0,1,1
- PRODUCTVERSION 0,1,1
+ FILEVERSION    0,2,3
+ PRODUCTVERSION 0,2,3
  FILEFLAGSMASK  0x3fL
 #ifdef _DEBUG
  FILEFLAGS      0x1L
@@ -20,12 +20,12 @@ BEGIN
         BLOCK "080404b0" // Chinese (Simplified, China) - Unicode
         BEGIN
             VALUE "FileDescription",  "Sapphire\0"
-            VALUE "FileVersion",      "0.1.1\0"
+            VALUE "FileVersion",      "0.2.3\0"
             VALUE "InternalName",     "sapphire_launcher.exe\0"
-            VALUE "LegalCopyright",   "Copyleft (ɔ) 2025.\0"
+            VALUE "LegalCopyright",   "Copyleft (ɔ) 2026.\0"
             VALUE "OriginalFilename", "sapphire_launcher.exe\0"
             VALUE "ProductName",      "Sapphire for Minecraft\0"
-            VALUE "ProductVersion",   "0.1.1\0"
+            VALUE "ProductVersion",   "0.2.3\0"
         END
     END
     BLOCK "VarFileInfo"

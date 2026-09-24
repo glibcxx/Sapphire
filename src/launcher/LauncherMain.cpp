@@ -4,10 +4,13 @@
 
 int main(int argc, char **argv) {
     sapphire::sys::win::dword_t dwProcessId = 0;
+    sapphire::sys::win::dword_t dwTargetTid = 0;
     for (int i = 1; i < argc; i += 2) {
-        std::string arg(argv[i]);
+        std::string_view arg(argv[i]);
         if (arg == "-p")
             dwProcessId = atoi(argv[i + 1]);
+        else if (arg == "-tid")
+            dwTargetTid = atoi(argv[i + 1]);
     }
 
     SetConsoleOutputCP(65001);
