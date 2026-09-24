@@ -8,6 +8,7 @@
 #include <winerror.h>
 
 #include "common/Expected.hpp"
+#include "common/ScopeGuard.hpp"
 #include "common/coroutine/FileOperation.hpp"
 #include "common/coroutine/IoContext.hpp"
 
@@ -79,8 +80,8 @@ namespace sapphire::ipc::backend {
                 &p_sd,
                 nullptr
             );
+            ScopeGuard sdGuard{[&] {if (p_sd) LocalFree(p_sd); }};
             sa.lpSecurityDescriptor = p_sd;
-            if (p_sd) LocalFree(p_sd);
 
             HANDLE hPipe = CreateNamedPipeW(
                 pipeName.c_str(),
