@@ -15,8 +15,8 @@ namespace sapphire::bootloader {
         sys::win::hmodule_t                         mModule;
         std::unique_ptr<bootloader::SymbolResolver> mSymbolResolver;
         std::unique_ptr<bootloader::RuntimeLinker>  mRuntimeLinker;
-        std::optional<coro::IoContext>              mIoCtx;
         std::optional<ipc::backend::Pipe>           mPipeConnection;
+        std::optional<coro::IoContext>              mIoCtx;
 
     public:
         Bootloader(sys::win::hmodule_t hModule);

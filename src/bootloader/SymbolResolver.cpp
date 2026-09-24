@@ -48,16 +48,16 @@ namespace sapphire::bootloader {
                 currentAddress = *reinterpret_cast<uintptr_t *>(currentAddress);
                 break;
             case codegen::SigDatabase::SigOpType::Call:
-                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::CALL);
+                currentAddress = ripRel(currentAddress, InstType::CALL);
                 break;
             case codegen::SigDatabase::SigOpType::Mov:
-                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::MOV);
+                currentAddress = ripRel(currentAddress, InstType::MOV);
                 break;
             case codegen::SigDatabase::SigOpType::Lea:
-                currentAddress = sapphire::ripRel(currentAddress, sapphire::InstType::LEA);
+                currentAddress = ripRel(currentAddress, InstType::LEA);
                 break;
             case codegen::SigDatabase::SigOpType::RipRel:
-                currentAddress = sapphire::ripRel(currentAddress, op.data.ripRel.offset, op.data.ripRel.insLen);
+                currentAddress = ripRel(currentAddress, op.data.ripRel.offset, op.data.ripRel.insLen);
                 break;
             case codegen::SigDatabase::SigOpType::Deref32:
                 currentAddress = *reinterpret_cast<uint32_t *>(currentAddress);
@@ -101,7 +101,7 @@ namespace sapphire::bootloader {
 
         const uintptr_t moduleBase = reinterpret_cast<uintptr_t>(moduleInfo.lpBaseOfDll);
         const size_t    moduleSize = moduleInfo.SizeOfImage;
-        mResolvedFunctionSymbols[sapphire::abi::Decorator<&SymbolResolver::get>::value.value] =
+        mResolvedFunctionSymbols[abi::Decorator<&SymbolResolver::get>::value.value] =
             (uintptr_t)&SymbolResolver::get;
 
         struct ScanResult {
@@ -138,14 +138,17 @@ namespace sapphire::bootloader {
 
         coro::StaticThreadPool pool{std::thread::hardware_concurrency()};
 
-        auto scanTask = [&completedTasks, moduleBase, moduleSize, this](
+        auto scanTask = [](
                             coro::StaticThreadPool               &pool,
                             const codegen::SigDatabase::SigEntry &entry,
+                            std::atomic<size_t>                  &completedTasks,
+                            const uintptr_t                       moduleBase,
+                            const size_t                          moduleSize,
                             ScanResult                           &result
                         ) -> coro::Task<void> {
             co_await pool.schedule();
             uintptr_t foundAddress =
-                sapphire::scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
+                scanSignature(moduleBase, moduleSize, entry.mSig.c_str(), entry.mSig.length());
             completedTasks.fetch_add(1, std::memory_order_relaxed);
             result = ScanResult{&entry, foundAddress ? applyOperations(foundAddress, entry.mOperations) : 0};
         };
@@ -156,7 +159,7 @@ namespace sapphire::bootloader {
             std::vector<ScanResult> results;
             results.resize(entries.size());
             for (size_t idx = 0; const auto &entry : entries) {
-                scope.spawn(scanTask(pool, entry, results[idx]));
+                scope.spawn(scanTask(pool, entry, completedTasks, moduleBase, moduleSize, results[idx]));
                 ++idx;
             }
 
@@ -164,7 +167,7 @@ namespace sapphire::bootloader {
 
             for (auto &&result : results) {
                 if (result.address != 0) {
-                    if (result.entry->mType == sapphire::codegen::SigDatabase::SigEntry::Type::Data)
+                    if (result.entry->mType == codegen::SigDatabase::SigEntry::Type::Data)
                         mResolvedDataSymbols[result.entry->mSymbol] = result.address;
                     else
                         mResolvedFunctionSymbols[result.entry->mSymbol] = result.address;
@@ -176,7 +179,7 @@ namespace sapphire::bootloader {
 
         static sapphire::TimerToken token;
         {
-            sapphire::ScopedTimer timer{token};
+            ScopedTimer timer{token};
             co_await whenAll(
                 progressTask(pool, ctx),
                 mainTask(pool, ctx)
