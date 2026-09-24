@@ -123,7 +123,7 @@ namespace sapphire::ipc::backend {
                 return handleIoResult(ok);
             }
 
-            std::error_code await_resume() noexcept {
+            [[nodiscard]] std::error_code await_resume() noexcept {
                 if (mErrorCode != ERROR_SUCCESS && mErrorCode != ERROR_PIPE_CONNECTED) {
                     return {static_cast<int>(mErrorCode), std::system_category()};
                 }

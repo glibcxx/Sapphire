@@ -5,6 +5,7 @@
 #include <cassert>
 #include <coroutine>
 #include <exception>
+#include <optional>
 #include <type_traits>
 #include <variant>
 
