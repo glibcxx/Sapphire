@@ -5,6 +5,7 @@ add_library(sapphire_bootloader SHARED
     SymbolResolver.cpp
     SigDatabase.cpp
     IatPatcher.cpp
+    CrashHandlerInstance.cpp
 )
 
 sapphire_enable_release_pdb(sapphire_bootloader)

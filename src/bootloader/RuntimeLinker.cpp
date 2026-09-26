@@ -9,6 +9,7 @@
 #include "RuntimeLinker.h"
 #include "MinHook.h"
 #include "common/IPC/PipeChannel.h"
+#include "common/debug/Symbolizer.hpp"
 #include <winnt.h>
 #include <winternl.h>
 
@@ -94,6 +95,15 @@ VOID CALLBACK LdrDllNotification(
             sapphire::bootloader::RuntimeLinker::forceDllMainToFail(
                 runtimeLinker, (HMODULE)NotificationData->Loaded.DllBase
             );
+        } else {
+            auto &sym = sapphire::debug::Symbolizer::instance();
+
+            std::wstring_view dllPath{NotificationData->Loaded.FullDllName->Buffer, NotificationData->Loaded.FullDllName->Length / sizeof(WCHAR)};
+            if (dllPath.starts_with(L"C:\\WINDOWS\\")) {
+                return;
+            }
+            sym.addSearchPath(dllPath.substr(0, dllPath.find_last_of(L'\\')));
+            sym.refreshModules();
         }
     }
 }

@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <winrt/base.h>
 
-#include "CrashLog.h"
 #include "RenderBackend.h"
 #include "SDK/api/sapphire/GUI/GUI.h"
 #include "SDK/api/sapphire/hook/Hook.h"
@@ -48,12 +47,10 @@ namespace sapphire::core {
         return instance;
     }
 
-    Runtime::Runtime() : mCrashLogger(std::make_unique<CrashLogger>()) {
-    }
+    Runtime::Runtime() {}
 
     Runtime::~Runtime() noexcept {
         this->shutdown();
-        mCrashLogger.reset();
     }
 
     void Runtime::init() {
@@ -69,11 +66,11 @@ namespace sapphire::core {
             sapphire::alert(L"Runtime: 无法连接管道, msg: {}", stringToWString(ctx.error().message()));
             throw std::runtime_error{"[Sapphire Core] pipe connection error"};
         }
-        sPipeLogSink = std::make_shared<PipeLogSink>(*pipe);
+        mPipeLogger.emplace(std::move(*pipe));
+        sPipeLogSink = std::make_shared<PipeLogSink>(*mPipeLogger);
         sapphire::LogManager::getInstance().addSink(sPipeLogSink);
         sapphire::info("IPCClient: Connecting Pipe done.");
 
-        mPipeLogger.emplace(std::move(*pipe));
         ipc::PipeChannel channel{*mPipeLogger};
         if (!this->_init())
             channel.sendSync(ipc::status::Error, "Fail to init Sapphire Core");

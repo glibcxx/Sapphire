@@ -38,6 +38,7 @@ namespace sapphire::sys::win {
 
     using handle_t = void *;
     using dword_t = unsigned long;
+    using dword64_t = unsigned long long;
     using long_t = long;
     using ulong_t = unsigned long;
     using bool_t = int;

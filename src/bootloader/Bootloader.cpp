@@ -28,6 +28,7 @@
 namespace fs = std::filesystem;
 
 namespace {
+
     struct VersionInfo {
         uint16_t Major;
         uint16_t Minor;
