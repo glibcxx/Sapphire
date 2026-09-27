@@ -4,6 +4,7 @@
 #include <atlcomcli.h>
 #include <filesystem>
 #include <shobjidl_core.h>
+#include <stop_token>
 #include <string>
 #include "common/Expected.hpp"
 #include "common/coroutine/IoContext.hpp"
@@ -22,9 +23,11 @@ namespace sapphire::launcher {
         std::wstring                          mAppFullName;
         std::jthread                          mLaunchThread;
 
+        std::stop_source mPipeCancelSource;
+
     public:
         bool mReconnectNeeded = false;
-        bool mInjectSuccess = false;
+        bool mSapphireInitDone = false;
 
         LauncherApp();
 

@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <sddl.h>
 #include <system_error>
+#include <type_traits>
 #include <utility>
 #include <winerror.h>
 
@@ -115,11 +116,13 @@ namespace sapphire::ipc::backend {
 
             PipeListenOperation(sys::win::handle_t h) noexcept : mFileHandle(h) {}
 
+            static void cancelOperation(PipeListenOperation &self) noexcept { CancelIoEx(self.mFileHandle, self.asOverlapped()); }
+
             bool await_ready() const noexcept { return false; }
 
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                BOOL ok = ConnectNamedPipe(mFileHandle, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                BOOL ok = ConnectNamedPipe(mFileHandle, asOverlapped());
                 return handleIoResult(ok);
             }
 
@@ -141,6 +144,10 @@ namespace sapphire::ipc::backend {
 
         PipeListenOperation listen() noexcept {
             return PipeListenOperation{mHandle};
+        }
+
+        coro::CancelableOperation<PipeListenOperation> listen(std::stop_token tk) noexcept {
+            return {std::move(tk), mHandle};
         }
 
         Expected<size_t, std::error_code> listenSync() noexcept {
@@ -173,7 +180,7 @@ namespace sapphire::ipc::backend {
 
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                bool ok = ReadFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                bool ok = ReadFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, asOverlapped());
                 return handleIoResult(ok);
             }
 
@@ -187,6 +194,10 @@ namespace sapphire::ipc::backend {
 
         PipeReadOperation read(char *buffer, std::size_t bufferSize) noexcept {
             return PipeReadOperation{mHandle, 0, buffer, bufferSize};
+        }
+
+        coro::CancelableOperation<PipeReadOperation> read(char *buffer, std::size_t bufferSize, std::stop_token tk) noexcept {
+            return {std::move(tk), mHandle, 0, buffer, bufferSize};
         }
 
         Expected<size_t, std::error_code> readSync(char *buffer, std::size_t bufferSize) noexcept {
@@ -213,13 +224,17 @@ namespace sapphire::ipc::backend {
 
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                bool ok = WriteFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                bool ok = WriteFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, asOverlapped());
                 return handleIoResult(ok);
             }
         };
 
         PipeWriteOperation write(const char *buffer, std::size_t bufferSize) noexcept {
             return PipeWriteOperation{mHandle, 0, const_cast<char *>(buffer), bufferSize};
+        }
+
+        coro::CancelableOperation<PipeWriteOperation> write(const char *buffer, std::size_t bufferSize, std::stop_token tk) noexcept {
+            return {std::move(tk), mHandle, 0, const_cast<char *>(buffer), bufferSize};
         }
 
         Expected<size_t, std::error_code> writeSync(const char *buffer, std::size_t bufferSize) noexcept {

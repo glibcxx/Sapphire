@@ -1,5 +1,4 @@
 #include "DebuggerApp.h"
-#include "LauncherApp.h"
 #include "Logger.h"
 #include "common/String.hpp"
 #include "common/coroutine/IoContext.hpp"

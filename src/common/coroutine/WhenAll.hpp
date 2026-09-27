@@ -208,7 +208,7 @@ namespace sapphire::coro {
             ) :
                 mTasks([](TAwaitable task) -> WhenAllTask<TAwaitable> {
                     co_return co_await std::move(task);
-                }(std::move(tasks))...),
+                }(std::forward<TAwaitable>(tasks))...),
                 mCounter(sizeof...(TAwaitable)) {}
 
             WhenAllAwaitableTuple(const WhenAllAwaitableTuple &) = delete;

@@ -3,13 +3,10 @@
 #include <array>
 #include <atomic>
 #include <chrono>
-#include <concepts>
 #include <coroutine>
 #include <limits>
 #include <mutex>
-#include <optional>
 #include <queue>
-#include <stop_token>
 
 #include <system_error>
 #include <winerror.h>
@@ -51,37 +48,6 @@ namespace sapphire::coro {
         using TimerQueue = std::priority_queue<TimerNode *, std::vector<TimerNode *>, TimerNodePred>;
 
     } // namespace detail
-
-    template <typename BaseOperation>
-        requires std::derived_from<BaseOperation, coro::IoOperation>
-              && requires(BaseOperation &base) { BaseOperation::cancelOperation(base); }
-    struct [[nodiscard]] CancelableOperation : BaseOperation {
-        using CancelCallbackType = void (*)(BaseOperation &self) noexcept;
-        struct TinyCancelCallback {
-            BaseOperation     *mThis;
-            CancelCallbackType mCancel;
-
-            void operator()() const noexcept { mCancel(*mThis); }
-        };
-
-        std::stop_token                                       mCancelToken;
-        std::optional<std::stop_callback<TinyCancelCallback>> mCancelCallback;
-        template <typename... Args>
-        CancelableOperation(std::stop_token &&cancelToken, Args &&...args) noexcept :
-            BaseOperation(std::forward<Args>(args)...), mCancelToken(std::move(cancelToken)) {}
-        bool await_suspend(std::coroutine_handle<> h) noexcept(noexcept(BaseOperation::await_suspend(h))) {
-            if (mCancelToken.stop_requested()) {
-                this->mErrorCode = ERROR_OPERATION_ABORTED;
-                return false;
-            }
-            mCancelCallback.emplace(mCancelToken, TinyCancelCallback{this, &BaseOperation::cancelOperation});
-            return BaseOperation::await_suspend(h);
-        }
-        decltype(auto) await_resume() noexcept(noexcept(BaseOperation::await_resume())) {
-            mCancelCallback.reset();
-            return BaseOperation::await_resume();
-        }
-    };
 
     class alignas(CacheLineSize) IoContext {
         using Clock = std::chrono::steady_clock;

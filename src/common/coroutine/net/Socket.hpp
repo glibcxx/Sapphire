@@ -142,7 +142,7 @@ namespace sapphire::coro::net {
                 }
                 );
                 if (!lpfnDisconnectEx) return false;
-                bool ok = lpfnDisconnectEx(mSocket.mHandle.get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)), 0, 0);
+                bool ok = lpfnDisconnectEx(mSocket.mHandle.get(), asOverlapped(), 0, 0);
                 return handleIoResult(ok);
             }
             NetResult<void> await_resume() noexcept {
@@ -163,7 +163,7 @@ namespace sapphire::coro::net {
 
             AcceptOperation(Socket &l, Socket &a) noexcept : mListeningSocket(l), mAcceptingSocket(a) {}
             static void cancelOperation(AcceptOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mListeningSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mListeningSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 using LPFN_ACCEPTEX = sys::win::winbool_t(__stdcall *)(unsigned __int64 sListenSocket, unsigned __int64 sAcceptSocket, void *lpOutputBuffer, sys::win::dword_t dwReceiveDataLength, sys::win::dword_t dwLocalAddressLength, sys::win::dword_t dwRemoteAddressLength, sys::win::dword_t *lpdwBytesReceived, LPOVERLAPPED lpOverlapped);
@@ -184,7 +184,7 @@ namespace sapphire::coro::net {
                     ADDR_LEN,
                     ADDR_LEN,
                     &bytesReceived,
-                    reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this))
+                    asOverlapped()
                 );
                 return handleIoResult(ok);
             }
@@ -244,7 +244,7 @@ namespace sapphire::coro::net {
 
             ConnectOperation(Socket &s, IPEndpoint remoteEp) noexcept : mSocket(s), mRemoteEp(std::move(remoteEp)) {}
             static void cancelOperation(ConnectOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 using LPFN_CONNECTEX = sys::win::winbool_t(__stdcall *)(unsigned __int64 s, const struct sockaddr *name, int namelen, void *lpSendBuffer, sys::win::dword_t dwSendDataLength, sys::win::dword_t *lpdwBytesSent, LPOVERLAPPED lpOverlapped);
@@ -261,7 +261,7 @@ namespace sapphire::coro::net {
                 coro::win::sockaddr        &sockaddr = reinterpret_cast<coro::win::sockaddr &>(remoteSockaddrStorage);
                 int                         addrLength = mRemoteEp.toSockAddr(sockaddr);
                 sys::win::dword_t           bytesSent = 0;
-                bool                        ok = lpfnConnectEx(mSocket.mHandle.get(), (const struct sockaddr *)&sockaddr, addrLength, nullptr, 0, &bytesSent, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                bool                        ok = lpfnConnectEx(mSocket.mHandle.get(), (const struct sockaddr *)&sockaddr, addrLength, nullptr, 0, &bytesSent, asOverlapped());
                 return handleIoResult(ok);
             }
             NetResult<void> await_resume() noexcept {
@@ -297,13 +297,13 @@ namespace sapphire::coro::net {
             RecvOperation(Socket &s, char *buffer, std::size_t size) noexcept :
                 mSocket(s), mBuffer((sys::win::ulong_t)size, buffer) {}
             static void cancelOperation(RecvOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
                 sys::win::dword_t flags = 0;
 
-                int result = WSARecv(mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, &flags, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)), nullptr);
+                int result = WSARecv(mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, &flags, asOverlapped(), nullptr);
                 return handleIoResult(result);
             }
             NetResult<std::size_t> await_resume() noexcept {
@@ -344,7 +344,7 @@ namespace sapphire::coro::net {
             RecvFromOperation(Socket &s, char *buffer, std::size_t size) noexcept :
                 mSocket(s), mBuffer((sys::win::ulong_t)size, buffer) {}
             static void cancelOperation(RecvFromOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
@@ -358,7 +358,7 @@ namespace sapphire::coro::net {
                     &flags,
                     reinterpret_cast<struct sockaddr *>(&mSourceSockaddrStorage),
                     &mSourceSockaddrLength,
-                    reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)),
+                    asOverlapped(),
                     nullptr
                 );
                 return handleIoResult(result);
@@ -400,11 +400,11 @@ namespace sapphire::coro::net {
             SendOperation(Socket &s, char *buffer, std::size_t size) noexcept :
                 mSocket(s), mBuffer((sys::win::ulong_t)size, buffer) {}
             static void cancelOperation(SendOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                int result = WSASend(mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, 0, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)), nullptr);
+                int result = WSASend(mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, 0, asOverlapped(), nullptr);
                 return handleIoResult(result);
             }
             NetResult<std::size_t> await_resume() noexcept {
@@ -441,7 +441,7 @@ namespace sapphire::coro::net {
             SendToOperation(Socket &s, const IPEndpoint &dest, char *buffer, std::size_t size) noexcept :
                 mSocket(s), mDest(dest), mBuffer((sys::win::ulong_t)size, buffer) {}
             static void cancelOperation(SendToOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
@@ -449,7 +449,7 @@ namespace sapphire::coro::net {
                 coro::win::sockaddr        &sockaddr = reinterpret_cast<coro::win::sockaddr &>(addrStorage);
                 const int                   addrLength = mDest.toSockAddr(sockaddr);
                 int                         result = WSASendTo(
-                    mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, 0, (const struct sockaddr *)&sockaddr, addrLength, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)), nullptr
+                    mSocket.mHandle.get(), (LPWSABUF)&mBuffer, 1, &mBytesTransferred, 0, (const struct sockaddr *)&sockaddr, addrLength, asOverlapped(), nullptr
                 );
                 return handleIoResult(result);
             }
@@ -490,12 +490,12 @@ namespace sapphire::coro::net {
                 };
             }
             static void cancelOperation(SendVOperation &self) noexcept {
-                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self)));
+                CancelIoEx((sys::win::handle_t)self.mSocket.getSocketHandle().get(), self.asOverlapped());
             }
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
                 int result = WSASend(
-                    mSocket.mHandle.get(), (LPWSABUF)mBuffers.data(), (sys::win::dword_t)mBuffers.size(), &mBytesTransferred, 0, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)), nullptr
+                    mSocket.mHandle.get(), (LPWSABUF)mBuffers.data(), (sys::win::dword_t)mBuffers.size(), &mBytesTransferred, 0, asOverlapped(), nullptr
                 );
                 return handleIoResult(result);
             }

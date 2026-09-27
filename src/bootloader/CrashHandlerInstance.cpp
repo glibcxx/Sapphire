@@ -1,4 +1,5 @@
 #include "common/debug/CrashHandler.hpp"
+#include "common/debug/Symbolizer.hpp"
 #include <filesystem>
 
 HMODULE getCurrentDllHandle() {
@@ -19,7 +20,9 @@ std::filesystem::path getCurrentModulePath() {
 
 static std::filesystem::path binDir = []() {
     auto currentPath = getCurrentModulePath();
-    return currentPath.parent_path();
+    auto bd = currentPath.parent_path();
+    sapphire::debug::Symbolizer::instance().addSearchPath(bd.wstring());
+    return bd;
 }();
 static std::filesystem::path outputDir = binDir.parent_path() / "sapphire" / "crash";
 

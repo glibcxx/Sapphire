@@ -1,5 +1,4 @@
 #include "LauncherApp.h"
-#include "DebuggerApp.h"
 #include "common/IPC/Pipe.h"
 #include "common/IPC/PipeChannel.h"
 #include "common/IPC/Protocal.h"
@@ -18,13 +17,14 @@
 #include <shobjidl.h>
 #include <processthreadsapi.h>
 #include <stdexcept>
+#include <stop_token>
 #include <winternl.h>
 
 namespace fs = std::filesystem;
 
 namespace sapphire::launcher {
 
-    LauncherApp::LauncherApp() : mLauncherAppPath(MAX_PATH, {}) {
+    LauncherApp::LauncherApp() : mLauncherAppPath(MAX_PATH, {}), mGameProcessHandle(INVALID_HANDLE_VALUE) {
         HRESULT hResult = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
         if (FAILED(hResult)) {
             std::cerr << std::format("[launcher] CoInitializeEx 失败 (code: {})\n", hResult);
@@ -40,11 +40,16 @@ namespace sapphire::launcher {
             mDebugSettings->DisableDebugging(mAppFullName.data());
 
         if (mGameProcessHandle && mGameProcessHandle != INVALID_HANDLE_VALUE) {
-            typedef NTSTATUS(NTAPI * NtResumeProcess_t)(HANDLE ProcessHandle);
-            NtResumeProcess_t NtResumeProcess = (NtResumeProcess_t)GetProcAddress(GetModuleHandle(TEXT("ntdll")), "NtResumeProcess");
-            NTSTATUS          status = NtResumeProcess(mGameProcessHandle);
-            if (!NT_SUCCESS(status)) {
-                std::cout << std::format("[launcher] fail to resume game, code: {:#X}\n", status);
+            if (mSapphireInitDone) {
+                typedef NTSTATUS(NTAPI * NtResumeProcess_t)(HANDLE ProcessHandle);
+                NtResumeProcess_t NtResumeProcess = (NtResumeProcess_t)GetProcAddress(GetModuleHandle(TEXT("ntdll")), "NtResumeProcess");
+                NTSTATUS          status = NtResumeProcess(mGameProcessHandle);
+                if (!NT_SUCCESS(status)) {
+                    std::cerr << std::format("[launcher] fail to resume game, code: 0x{:X}\n", (unsigned long)status);
+                    TerminateProcess(mGameProcessHandle, -1);
+                }
+            } else {
+                TerminateProcess(mGameProcessHandle, -1);
             }
             CloseHandle(mGameProcessHandle);
         }
@@ -65,6 +70,7 @@ namespace sapphire::launcher {
             return -1;
         }
 
+        mDebugSettings->DisableDebugging(mAppFullName.data());
         hResult = mDebugSettings->EnableDebugging(mAppFullName.data(), mLauncherAppPath.data(), NULL);
         if (hResult != S_OK) {
             std::cerr << std::format("[launcher] 无法配置调试器 (code: {})\n", hResult);
@@ -82,7 +88,7 @@ namespace sapphire::launcher {
             return -1;
         }
 
-        syncWait(whenAll(
+        auto [code, _] = syncWait(whenAll(
             launchGame(*ctx, familyName, std::move(debuggerPipe.value())),
             [](coro::IoContext &ctx) -> coro::Task<bool> {
                 ctx.processEvents();
@@ -90,7 +96,7 @@ namespace sapphire::launcher {
             }(*ctx)
         ));
 
-        return 0;
+        return code.result() ? 0 : -1;
     }
 
     coro::Task<bool> LauncherApp::launchGame(
@@ -99,6 +105,8 @@ namespace sapphire::launcher {
         ipc::backend::Pipe  debuggerPipe
     ) {
         ScopeGuard guard{[&]() { ctx.stop(); }};
+
+        std::stop_token cancelToken = mPipeCancelSource.get_token();
 
         auto launchGameTask = [&]() -> coro::Task<void> {
             mLaunchThread = std::jthread{[familyName = familyName, this]() mutable {
@@ -112,18 +120,17 @@ namespace sapphire::launcher {
                 Expected<DWORD, HRESULT> gamePid = this->launchUWP(familyName);
 
                 if (gamePid.hasError()) {
-                    std::cerr << std::format("[launcher] 无法启动游戏 (code: {:#X})\n", (unsigned long)gamePid.error());
-                } else {
-                    std::cout << std::format("[launcher] 游戏已正常运行 :)\n");
+                    mPipeCancelSource.request_stop();
+                    std::cerr << std::format("[launcher] 无法启动游戏 (code: 0x{:X})\n", (unsigned long)gamePid.error());
                 }
                 CoUninitialize();
             }};
             co_return;
         };
 
-        auto [code, _] = co_await whenAll(debuggerPipe.listen(), launchGameTask());
+        auto [code, _] = co_await whenAll(debuggerPipe.listen(cancelToken), launchGameTask());
         if (code.result()) {
-            std::cerr << std::format("[launcher] 连接管道时出现错误, msg: {}\n", code.result().message());
+            std::cerr << std::format("[launcher] 连接 debugger 时出现错误, msg: {}\n", code.result().message());
             co_return false;
         }
         std::cout << "[launcher] 已连接到 Debugger 进程\n";
@@ -154,18 +161,18 @@ namespace sapphire::launcher {
 
         co_await whenAll(
             pipeServerMain(ctx),
-            [](coro::IoContext &ctx, sys::win::handle_t hProcess, const std::filesystem::path &dllPath) -> coro::Task<int> {
+            [](coro::IoContext &ctx, sys::win::handle_t hProcess, const std::filesystem::path &dllPath, std::stop_source &stopSrc) -> coro::Task<int> {
                 if (!injectDll(hProcess, dllPath)) {
-                    ctx.stop();
+                    stopSrc.request_stop();
                     co_return -1;
                 }
                 co_return 0;
-            }(ctx, mGameProcessHandle, dllPath)
+            }(ctx, mGameProcessHandle, dllPath, mPipeCancelSource)
         );
 
         (void)co_await debuggerPipe.write("\x01", 1);
 
-        if (mInjectSuccess) {
+        if (mSapphireInitDone) {
             using namespace std::chrono_literals;
             std::cout << "[launcher] Pipe disconnected!\n";
             std::cout << "[launcher] All task done.\n";
@@ -179,8 +186,6 @@ namespace sapphire::launcher {
     }
 
     coro::Task<int> LauncherApp::pipeServerMain(coro::IoContext &ctx) {
-        ScopeGuard guard{[&]() { ctx.stop(); }};
-
         std::cout << "[launcher] Pipe connected!\n";
 
         coro::AsyncScope scope;
@@ -208,8 +213,9 @@ namespace sapphire::launcher {
     ) {
         ipc::PipeChannel channel{pipe};
         ipc::Message     msg;
+        std::stop_token  cancelToken = mPipeCancelSource.get_token();
 
-        auto code = co_await pipe.listen();
+        auto code = co_await pipe.listen(cancelToken);
         if (code) {
             std::cerr << "[launcher] Pipe connection failed!\n";
             co_return -1;
@@ -222,11 +228,12 @@ namespace sapphire::launcher {
             } else if (status == ipc::status::Handoff) {
                 std::cout << "[launcher] Pipe disconnecting from: " << msg.getData() << '\n';
                 if (msg.getData() == "Sapphire Core") {
-                    mInjectSuccess = true;
+                    mSapphireInitDone = true;
                 }
                 break;
             } else if (status == ipc::status::Error) {
                 std::cerr << "[launcher] Error msg recieved: " << msg.getData() << '\n';
+                mPipeCancelSource.request_stop();
                 co_return -1;
             } else if (status == ipc::status::Success) {
                 if (msg.getData().is_string())
@@ -399,7 +406,7 @@ namespace sapphire::launcher {
 
         AutoVirtualFree pRemoteBuf{VirtualAllocEx(hProcess, nullptr, totalSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE), remoteFreeDeleter};
         if (!pRemoteBuf) {
-            std::cerr << std::format("[launcher][{}]\n内存分配失败 (code: {})\n", dllPath.filename().string(), GetLastError());
+            std::cerr << std::format("[launcher][{}]\n  内存分配失败 (code: {})\n", dllPath.filename().string(), GetLastError());
             return false;
         }
 
@@ -408,7 +415,7 @@ namespace sapphire::launcher {
 
         if (!WriteProcessMemory(hProcess, pRemoteCode, gX64Stub, codeSize, nullptr)
             || !WriteProcessMemory(hProcess, pRemoteData, &params, dataSize, nullptr)) {
-            std::cerr << std::format("[launcher][{}]\n写入内存失败 (code: {})\n", dllPath.filename().string(), GetLastError());
+            std::cerr << std::format("[launcher][{}]\n  写入内存失败 (code: {})\n", dllPath.filename().string(), GetLastError());
             return false;
         }
 
@@ -416,19 +423,19 @@ namespace sapphire::launcher {
             CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)pRemoteCode, pRemoteData, 0, nullptr),
         };
         if (!hThread) {
-            std::cerr << std::format("[launcher][{}]\n创建远程线程失败 (code: {})\n", dllPath.filename().string(), GetLastError());
+            std::cerr << std::format("[launcher][{}]\n  创建远程线程失败 (code: {})\n", dllPath.filename().string(), GetLastError());
             return false;
         }
         WaitForSingleObject(hThread.get(), INFINITE);
 
         DWORD remoteErrorCode;
         if (!GetExitCodeThread(hThread.get(), &remoteErrorCode)) {
-            std::cerr << std::format("[launcher][{}]\n无法获取远程线程返回值 (code: {})\n", dllPath.filename().string(), GetLastError());
+            std::cerr << std::format("[launcher][{}]\n  无法获取远程线程返回值 (code: {})\n", dllPath.filename().string(), GetLastError());
             return false;
         }
 
         if (remoteErrorCode != ERROR_SUCCESS) {
-            std::cerr << std::format("[launcher][{}]\nDll注入失败 (code: {})\n", dllPath.filename().string(), remoteErrorCode);
+            std::cerr << std::format("[launcher][{}]\n  Dll注入失败 (code: {})\n", dllPath.filename().string(), remoteErrorCode);
             return false;
         }
 

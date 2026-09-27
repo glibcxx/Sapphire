@@ -18,7 +18,7 @@ namespace sapphire::coro {
             Offset = static_cast<sys::win::dword_t>(offset);
             OffsetHigh = static_cast<sys::win::dword_t>(offset >> 32);
         }
-        static void cancelOperation(FileOperation &self) noexcept { CancelIoEx((sys::win::handle_t)self.mFileHandle, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self))); }
+        static void cancelOperation(FileOperation &self) noexcept { CancelIoEx(self.mFileHandle, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(&self))); }
 
         bool await_ready() const noexcept { return false; }
 

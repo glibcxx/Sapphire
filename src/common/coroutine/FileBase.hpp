@@ -72,7 +72,7 @@ namespace sapphire::coro {
 
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                bool ok = ReadFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                bool ok = ReadFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, asOverlapped());
                 return handleIoResult(ok);
             }
 
@@ -90,7 +90,7 @@ namespace sapphire::coro {
 
             bool await_suspend(std::coroutine_handle<> h) noexcept {
                 this->mContinuation = h;
-                bool ok = WriteFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, reinterpret_cast<LPOVERLAPPED>(static_cast<coro::win::overlapped *>(this)));
+                bool ok = WriteFile(mFileHandle, mBuffer, mBufferSize, &mBytesTransferred, asOverlapped());
                 return handleIoResult(ok);
             }
         };
