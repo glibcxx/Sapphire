@@ -3,7 +3,7 @@
 #include "pch.h" // IWYU pragma: keep
 
 #include "FrameBuilder.h"
-#include "BgfxBridge/BgfxFrameExtractor.h"
+#include "bgfxbridge/BgfxFrameExtractor.h"
 #include "SDK/api/src-external/RenderDragon/FrameObject/FrameRenderer.h"
 #include "SDK/api/src-external/RenderDragon/Platform/BgfxContext.h"
 #include "SDK/api/src-external/RenderDragon/Task/GraphicsTasks.h"
@@ -12,7 +12,7 @@
 #include "SDK/api/src-client/common/client/renderer/chunks/RenderChunkGeometry.h"
 #include "SDK/api/src-deps/Core/Memory/Pool.h"
 #include "SDK/api/src-external/bgfx/bgfx.h"
-#include "BgfxBridge/UITarget.h"
+#include "bgfxbridge/UITarget.h"
 
 namespace dragon::rendering {
     class RayTracingResources;

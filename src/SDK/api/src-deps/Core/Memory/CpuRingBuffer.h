@@ -10,6 +10,11 @@ namespace Core {
     public:
         using Ptr = std::shared_ptr<CpuRingBufferAllocation_Buffer>;
         using BufferEntry = buffer_span_mut<unsigned char>;
+
+        class Buffer {
+        public:
+            std::vector<unsigned char> mBuffer;
+        };
     };
 
 } // namespace Core

@@ -15,4 +15,14 @@ namespace bgfx {
         };
     };
 
+    // size: 48 (1.21.50)
+    struct PlatformData {
+        void    *ndt;          // off+0
+        void    *nwh;          // off+8
+        void    *context;      // off+16
+        void    *backBuffer;   // off+24
+        void    *backBufferDS; // off+32
+        uint64_t flags;        // off+40
+    };
+
 } // namespace bgfx

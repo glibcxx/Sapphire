@@ -37,6 +37,12 @@ public:
     std::string                                                 mFullParentVariationName; // off+80
     std::map<TerrainVariation, TerrainMaterialVariationManager> mSubVariations;           // off+112
     TerrainLayerMaterialMap                                     terrainLayerMaterialMap;  // off+128
+
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:-5,call", "\x48\x83\xC3\x00\x48\x3B\xDF\x75\x00\x49\x8B\xC6\x48\x8B\x5C\x24")
+    void addVariation(const std::string &variationNames);
+
+    SPHR_DECL_API("1.21.2,1.21.50,1.21.60", "disp:6,call", "\x48\x89\x03\x49\x8B\xCE\xE8\x00\x00\x00\x00\x48\x8B\x7E")
+    SDK_API void populateMaterialList(const bool assertIfMaterialIsntFound);
 };
 
 inline namespace anonymous_namespace {

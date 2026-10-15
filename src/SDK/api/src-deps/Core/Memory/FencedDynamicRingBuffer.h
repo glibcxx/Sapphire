@@ -4,6 +4,10 @@
 
 #include "SDK/api/src-deps/Core/Utility/brstd/flat_map.h"
 
+namespace Core {
+    class CpuRingBufferAllocation_Buffer;
+}
+
 // size: 192 (1.21.50)
 template <typename TBuffer, size_t N>
 class FencedRingBuffer {
@@ -30,6 +34,14 @@ public:
     // using OptionalScopedAllocation = std::optional<Ring::ScopedAllocation>;
 
     using RingMap = brstd::flat_map<BufferSize, std::shared_ptr<Ring>>;
+
+    class ScopedAllocation {
+        std::shared_ptr<typename TBuffer::Buffer> mBuffer;              // off+0
+        const size_t                              mOffset;              // off+16
+        const size_t                              mSize;                // off+24
+        const size_t                              mAlignmentPrefixSize; // off+32
+        const size_t                              mFenceValue;          // off+40
+    };
 
     std::atomic<RingRawPtr *> mLastPageAllocatedFrom;        // off+0
     std::atomic<BufferSize>   mAllocationScopeCheck;         // off+8

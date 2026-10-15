@@ -7,6 +7,7 @@
 namespace bgfx {
 
     struct Context;
+    struct PlatformData;
 
     using ViewId = uint16_t;
 
@@ -16,6 +17,9 @@ namespace bgfx {
     extern SPHR_API bgfx::Context *s_ctx;
     SPHR_DECL_API("1.21.50,1.21.60", "disp:8,mov", "\x4C\x0F\x47\xAD\x00\x00\x00\x00\x48\x8B\x0D")
     extern SPHR_API bx::AllocatorI *g_allocator;
+
+    SPHR_DECL_API("1.21.50", "mov", "\x0F\x10\x1D\x00\x00\x00\x00\x0F\x11\x84\x24")
+    extern SPHR_API bgfx::PlatformData g_platformData;
 
     // size: 1
     struct Fatal {

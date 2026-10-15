@@ -53,6 +53,7 @@ namespace sapphire::launcher {
             }
             CloseHandle(mGameProcessHandle);
         }
+        mDebugSettings.Release();
         CoUninitialize();
     }
 

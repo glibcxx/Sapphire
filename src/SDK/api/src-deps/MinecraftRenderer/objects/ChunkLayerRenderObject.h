@@ -14,5 +14,7 @@ struct ChunkLayerRenderObject {
     uint32_t                mIndicesCount;             // off+20
     uint32_t                mUnsortedIndicesStart;     // off+24
     uint32_t                mUnsortedIndicesCount;     // off+28
-    bool                    mShouldFallBackToUnsorted; // off+32
+    uint32_t                mUnk32;                    // off+32
+    bool                    mShouldFallBackToUnsorted; // off+36
+    bool                    mUnk37;
 };
