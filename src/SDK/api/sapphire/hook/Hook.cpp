@@ -63,7 +63,7 @@ namespace sapphire::inline hook {
             return res;
         }
 
-        constexpr void erase(uintptr_t target, uintptr_t detour, HookPriority priority) {
+        constexpr void erase(uintptr_t target, uintptr_t detour, HookPriority priority) noexcept {
             FuncHookInfo *last = nullptr;
             for (auto &&it : this->mCallStack) {
                 for (auto jt = it.begin(); jt != it.end(); ++jt) {
@@ -140,7 +140,7 @@ namespace sapphire::inline hook {
         return true;
     }
 
-    void HookManager::unhook(uintptr_t target, uintptr_t detour, HookPriority priority) {
+    void HookManager::unhook(uintptr_t target, uintptr_t detour, HookPriority priority) noexcept {
         if (!this->mInitialized || !target) return;
         auto found = this->mHookedFunctions.find(target);
         if (found == this->mHookedFunctions.end()) return;

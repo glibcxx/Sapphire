@@ -34,7 +34,7 @@ namespace sapphire::inline hook {
         void teardown();
 
         SPHR_API bool hook(uintptr_t target, uintptr_t detour, HookPriority priority, uintptr_t &trampoline);
-        SPHR_API void unhook(uintptr_t target, uintptr_t detour, HookPriority priority);
+        SPHR_API void unhook(uintptr_t target, uintptr_t detour, HookPriority priority) noexcept;
 
         template <typename T, typename U, typename Trampline>
         bool hook(T target, U detour, HookPriority priority, Trampline &trampoline) {
@@ -44,8 +44,19 @@ namespace sapphire::inline hook {
         }
 
         template <typename T, typename U>
-        void unhook(T target, U detour, HookPriority priority) {
+        void unhook(T target, U detour, HookPriority priority) noexcept {
             this->unhook(std::bit_cast<uintptr_t>(target), sapphire::toFuncAddr(detour), priority);
+        }
+    };
+
+    template <typename... Hooks>
+    class HookGuard {
+    public:
+        HookGuard() {
+            (Hooks::hook(), ...);
+        }
+        ~HookGuard() noexcept {
+            (Hooks::unhook(), ...);
         }
     };
 
