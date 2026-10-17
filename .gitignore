@@ -18,9 +18,10 @@ CMakeUserPresets.json
 .roomodes
 .clangd
 .clang-format
+clice.toml
 
 /.vscode/
-
+/.clice/
 /.data/
 
 # Local History for Visual Studio Code

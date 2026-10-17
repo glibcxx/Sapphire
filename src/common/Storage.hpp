@@ -21,7 +21,7 @@ namespace sapphire {
 
         template <typename... Args>
         T &emplace(Args &&...args) noexcept(std::is_nothrow_constructible_v<T, Args...>) {
-            new (&mStorage) T{std::forward<Args>(args)...};
+            return *new (&mStorage) T{std::forward<Args>(args)...};
         }
 
         T       *get() noexcept { return std::launder(reinterpret_cast<T *>(&mStorage)); }
@@ -38,6 +38,8 @@ namespace sapphire {
 
         T       *operator->() noexcept { return get(); }
         const T *operator->() const noexcept { return get(); }
+
+        T *raw() noexcept { return reinterpret_cast<T *>(&mStorage); }
     };
 
 } // namespace sapphire

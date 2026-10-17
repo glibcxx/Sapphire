@@ -24,6 +24,8 @@ namespace Bedrock {
 
         std::shared_ptr<ControlBlock> mControlBlock; // off+8
 
+        EnableNonOwnerReferences() : mControlBlock(std::make_shared<ControlBlock>()) {}
+
         // vtb+0
         virtual ~EnableNonOwnerReferences() = default;
     };

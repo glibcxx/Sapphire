@@ -74,11 +74,11 @@ namespace mce::framebuilder {
         class InitializationState {
         public:
             // vtb+0
-            virtual ~InitializationState();
+            virtual ~InitializationState() = default;
         };
 
         // vtb+0
-        virtual ~FrameBuilder() override;
+        virtual ~FrameBuilder() override = default;
 
         // vtb+1
         virtual bool enabled() const = 0;
@@ -93,7 +93,7 @@ namespace mce::framebuilder {
         virtual double *unk_virtual_4(double *result) = 0;
 
         // vtb+5
-        virtual bool isDeviceRemoved();
+        virtual bool isDeviceRemoved() { return false; }
 
         // vtb+6
         virtual std::optional<std::shared_ptr<InitializationState>> init(
@@ -124,7 +124,7 @@ namespace mce::framebuilder {
         ) = 0;
 
         // vtb+11
-        virtual AsyncLoadResult loadCompiledMaterial();
+        virtual AsyncLoadResult loadCompiledMaterial() { return AsyncLoadResult::Pending; }
 
         // vtb+12
         virtual void startFrame() = 0;
@@ -142,7 +142,7 @@ namespace mce::framebuilder {
         virtual void setDefaultActorMERSUniforms(float metalness, float emissive, float roughness, float sss) = 0;
 
         // vtb+17
-        virtual void setDefaultParticleMERSUniforms(float metalness, float emissive, float roughness, float sss);
+        virtual void setDefaultParticleMERSUniforms(float metalness, float emissive, float roughness, float sss) {}
 
         // vtb+18
         virtual void updateSurfaceParameters(
@@ -341,7 +341,7 @@ namespace mce::framebuilder {
         virtual void custom(const std::function<void(const bgfxbridge::EntityCreationContext &)> &insertCallback) = 0;
 
         // vtb+71
-        virtual void queueGraphicsTask(std::function<void()> &&task);
+        virtual void queueGraphicsTask(std::function<void()> &&task) {}
 
         // vtb+72
         virtual LevelCullerType getLevelCullerType() const = 0;
@@ -379,7 +379,7 @@ namespace mce::framebuilder {
         ) = 0;
 
         // vtb+81
-        virtual void unregisterWindowHandle(uint16_t handle);
+        virtual void unregisterWindowHandle(uint16_t handle) {}
 
         // vtb+82
         virtual void unk_virtual_82(void *) = 0;
