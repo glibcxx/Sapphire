@@ -105,7 +105,7 @@ namespace sapphire::input {
         return self()->_isLMouseDoubleClicked();
     }
     bool InputManager::isRMouseDoubleClicked() const {
-        return self()->_isLMouseDoubleClicked();
+        return self()->_isRMouseDoubleClicked();
     }
     void InputManager::init(CoreWindow &coreWindow) {
         self()->_init(coreWindow);
@@ -297,11 +297,11 @@ namespace sapphire::input {
         case MouseAction::ActionType::ACTION_X2: {
             ImGuiIO &io = ImGui::GetIO();
             instance->_onRawMouseButtonEvent(
-                mouseActionToKeyCode(MouseAction::ActionType::ACTION_LEFT),
+                mouseActionToKeyCode(MouseAction::ActionType{actionButtonId}),
                 buttonData,
                 {(float)x, (float)y}
             );
-            io.AddMouseButtonEvent(mouseActionToMouseButtonId(MouseAction::ActionType::ACTION_LEFT), buttonData);
+            io.AddMouseButtonEvent(mouseActionToMouseButtonId(MouseAction::ActionType{actionButtonId}), buttonData);
             break;
         }
         case MouseAction::ActionType::ACTION_WHEEL: {

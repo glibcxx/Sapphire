@@ -7,24 +7,23 @@
 
 namespace dragon::materials {
 
+    // 1.21.50 (0x1470196B0)
     enum class ShaderCodePlatform : uint8_t {
-        Direct3D_SM30 = 0,
-        Direct3D_SM40 = 1,
-        Direct3D_SM50 = 2,
-        Direct3D_SM60 = 3,
-        Direct3D_SM65 = 4,
-        Direct3D_XB1 = 5,
-        Direct3D_XBX = 6,
-        GLSL_120 = 7,
-        GLSL_430 = 8,
-        ESSL_100 = 9,
-        ESSL_300 = 10,
-        ESSL_310 = 11,
-        Metal = 12,
-        Vulkan = 13,
-        Nvn = 14,
-        PSSL = 15,
-        Unknown = 16,
+        Direct3D_SM40 = 0,
+        Direct3D_SM50 = 1,
+        Direct3D_SM60 = 2,
+        Direct3D_SM65 = 3,
+        Direct3D_XB1 = 4,
+        Direct3D_XBX = 5,
+        GLSL_120 = 6,
+        GLSL_430 = 7,
+        ESSL_300 = 8,
+        ESSL_310 = 9,
+        Metal = 10,
+        Vulkan = 11,
+        Nvn = 12,
+        PSSL = 13,
+        Unknown = 14,
     };
 
     // size: 16

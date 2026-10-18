@@ -7,7 +7,11 @@
 namespace bgfx {
 
     struct Context;
+    struct Init;
     struct PlatformData;
+    struct RendererCreator;
+    struct RendererContextI;
+    struct Caps;
 
     using ViewId = uint16_t;
 
@@ -18,8 +22,13 @@ namespace bgfx {
     SPHR_DECL_API("1.21.50,1.21.60", "disp:8,mov", "\x4C\x0F\x47\xAD\x00\x00\x00\x00\x48\x8B\x0D")
     extern SPHR_API bx::AllocatorI *g_allocator;
 
+    extern SPHR_API bgfx::Caps g_caps;
+
     SPHR_DECL_API("1.21.50", "mov", "\x0F\x10\x1D\x00\x00\x00\x00\x0F\x11\x84\x24")
     extern SPHR_API bgfx::PlatformData g_platformData;
+
+    SPHR_DECL_API("1.21.50", "lea", "\x4C\x8D\x35\x00\x00\x00\x00\x4D\x8B\xF8")
+    extern SPHR_API bgfx::RendererCreator s_rendererCreator[];
 
     // size: 1
     struct Fatal {
@@ -121,6 +130,15 @@ namespace bgfx {
     template <is_bgfx_like_handle Handle>
     constexpr bool isValid(Handle h) { return h.idx != kInvalidHandle; }
 
+    struct RendererCreator {
+    public:
+        bgfx::RendererContextI *(*createFn)(const bgfx::Init &); // off+0
+        void (*destroyFn)();                                     // off+8
+        const char *name;                                        // off+16
+        __int64     unk24;                                       // off+24
+        bool        supported;                                   // off+32
+    };
+
     // size: 16
     struct Memory {
         uint8_t *data; // off+0
@@ -161,10 +179,60 @@ namespace bgfx {
         float   mMipmapBias; // off+12
     };
 
-    struct RayTracingConfiguration {};
+    // size: 664 (1.21.50)
+    struct RayTracingConfiguration {
+        alignas(8) uint8_t _fill[664];
+    };
+
+    struct ViewStats;
+    struct EncoderStats;
+
+    // FIXME
+    struct Stats {
+    public:
+        __int64             cpuTimeFrame;
+        __int64             cpuTimeBegin;
+        __int64             cpuTimeEnd;
+        __int64             cpuTimerFreq;
+        __int64             gpuTimeBegin;
+        __int64             gpuTimeEnd;
+        __int64             gpuTimerFreq;
+        __int64             waitRender;
+        __int64             waitSubmit;
+        unsigned            numDraw;
+        unsigned            numCompute;
+        unsigned            maxGpuLatency;
+        uint16_t            numDynamicIndexBuffers;
+        uint16_t            numDynamicVertexBuffers;
+        uint16_t            numFrameBuffers;
+        uint16_t            numIndexBuffers;
+        uint16_t            numOcclusionQueries;
+        uint16_t            numPrograms;
+        uint16_t            numShaders;
+        uint16_t            numTextures;
+        uint16_t            numUniforms;
+        uint16_t            numVertexBuffers;
+        uint16_t            numVertexDecls;
+        __int64             textureMemoryUsed;
+        __int64             rtMemoryUsed;
+        int                 transientVbUsed;
+        int                 transientIbUsed;
+        unsigned            numPrims[5];
+        size_t              gpuMemoryMax;
+        size_t              gpuMemoryUsed;
+        uint16_t            width;
+        uint16_t            height;
+        uint16_t            textWidth;
+        uint16_t            textHeight;
+        uint16_t            numViews;
+        bgfx::ViewStats    *viewStats;
+        unsigned char       numEncoders;
+        bgfx::EncoderStats *encoderStats;
+    };
 
     // size: 1
     struct RendererType {
+        // 1.21.50
         enum Enum : int {
             Noop = 0,
             Direct3D9 = 1,
@@ -172,12 +240,13 @@ namespace bgfx {
             Direct3D12 = 3,
             Direct3D12RTX = 4,
             Gnm = 5,
-            Metal = 6,
-            OpenGLES = 7,
-            OpenGL = 8,
-            Vulkan = 9,
-            Nvn = 10,
-            Count = 11,
+            Agc = 6,
+            Metal = 7,
+            OpenGLES = 8,
+            OpenGL = 9,
+            Vulkan = 10,
+            Nvn = 11,
+            Count = 12,
         };
     };
 
@@ -254,6 +323,26 @@ namespace bgfx {
         bgfx::VertexBufferHandle handle; // off+22
     };
 
+    // size: 24
+    struct TransientIndexBuffer {
+    public:
+        unsigned char          *data;       // off+0
+        unsigned                size;       // off+8
+        unsigned                startIndex; // off+12
+        bgfx::IndexBufferHandle handle;     // off+16
+    };
+
+    // size: 24
+    struct TransientVertexBuffer {
+    public:
+        unsigned char           *data;        // off+0
+        unsigned                 size;        // off+8
+        unsigned                 startVertex; // off+12
+        uint16_t                 stride;      // off+16
+        bgfx::VertexBufferHandle handle;      // off+18
+        bgfx::VertexDeclHandle   decl;        // off+20
+    };
+
     // size: 12
     struct Resolution {
         uint32_t width;  // off+0
@@ -311,7 +400,81 @@ namespace bgfx {
 
     // size: 5752 (1.21.50)
     struct alignas(8) Caps {
-        uint8_t _fill[5752];
+        bgfx::RendererType::Enum rendererType;           // off+0
+        char                     rendererVersion[32];    // off+4
+        char                     adapterVersion[512];    // off+36
+        uint64_t                 rendererFeatureVersion; // off+552
+        uint64_t                 shaderModelVersion;     // off+560
+        uint64_t                 supported;              // off+568
+        uint16_t                 vendorId;               // off+576
+        uint16_t                 deviceId;               // off+578
+        unsigned                 subSysId;               // off+580
+        unsigned                 revision;               // off+584
+        size_t                   dedicatedVideoMemory;   // off+592
+        size_t                   dedicatedSystemMemory;  // off+600
+        size_t                   sharedSystemMemory;     // off+608
+        size_t                   reservedVideoMemory;    // off+616
+        char                     chipsetName[512];       // off+624
+        bool                     homogeneousDepth;       // off+1136
+        bool                     originBottomLeft;       // off+1137
+        unsigned char            numGPUs;                // off+1138
+        unsigned                 displayWidth;           // off+1140
+        unsigned                 displayHeight;          // off+1144
+        unsigned                 mUnk1148;
+
+        // size: 1072 (1.21.50)
+        struct GPU {
+        public:
+            uint16_t vendorId;              // off+0
+            uint16_t deviceId;              // off+2
+            unsigned subSysId;              // off+4
+            unsigned revision;              // off+8
+            size_t   dedicatedVideoMemory;  // off+16
+            size_t   dedicatedSystemMemory; // off+24
+            size_t   sharedSystemMemory;    // off+32
+            size_t   reservedVideoMemory;   // off+40
+            char     chipsetName[512];      // off+48
+            char     adapterVersion[512];   // off+560
+        };
+
+        bgfx::Caps::GPU gpu[4]; // off+1152
+
+        // size: 108
+        struct Limits {
+        public:
+            unsigned maxDrawCalls;       // off+0
+            unsigned maxBlits;           // off+4
+            unsigned maxTextureSize;     // off+8
+            unsigned maxTextureLayers;   // off+12
+            unsigned maxViews;           // off+16
+            unsigned maxFrameBuffers;    // off+20
+            unsigned maxFBAttachments;   // off+24
+            unsigned maxPrograms;        // off+28
+            unsigned maxShaders;         // off+32
+            unsigned maxTextures;        // off+36
+            unsigned maxTextureSamplers; // off+40
+            unsigned mUnk44;
+            unsigned maxVertexDecls;   // off+48
+            unsigned maxVertexStreams; // off+52
+            unsigned mUnk56;
+            unsigned maxIndexBuffers;              // off+60
+            unsigned maxVertexBuffers;             // off+64
+            unsigned maxDynamicIndexBuffers;       // off+68
+            unsigned maxDynamicVertexBuffers;      // off+72
+            unsigned maxUniforms;                  // off+76
+            unsigned maxOcclusionQueries;          // off+80
+            unsigned maxEncoders;                  // off+84
+            unsigned transientVbSize;              // off+88
+            unsigned transientIbSize;              // off+92
+            unsigned maxAccelerationStructures;    // off+96
+            unsigned avgAccelerationStructureSize; // off+100
+            unsigned mUnk104;
+        };
+
+        bgfx::Caps::Limits limits;      // off+5440
+        uint16_t           formats[93]; // off+5548
+        const char        *mUnk5736;
+        const char        *mUnk5744;
     };
 
     // size: 1

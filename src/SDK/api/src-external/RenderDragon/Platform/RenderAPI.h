@@ -10,12 +10,13 @@ namespace dragon::platform {
         D3D12 = 2,
         D3D12RTX = 3,
         GNM = 4,
-        Metal = 5,
-        Noop = 6,
-        NVN = 7,
-        OpenGL = 8,
-        OpenGLES = 9,
-        Vulkan = 10,
+        AGC = 5,
+        Metal = 6,
+        Noop = 7,
+        Nvn = 8,
+        OpenGL = 9,
+        OpenGLES = 10,
+        Vulkan = 11,
     };
 
 }

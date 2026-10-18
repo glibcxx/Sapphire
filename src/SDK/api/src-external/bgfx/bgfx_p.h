@@ -23,12 +23,36 @@ namespace bgfx {
 
     struct Frame;
 
-    struct ClearQuad;
+    struct TransientVertexBuffer;
+    struct TransientIndexBuffer;
 
-    struct TextVideoMemBlitter;
+    // size: 112 (1.21.50)
+    struct ClearQuad {
+    public:
+        bgfx::TransientVertexBuffer *m_vb;         // off+0
+        bgfx::VertexDecl             m_decl;       // off+8
+        bgfx::ProgramHandle          m_program[8]; // off+92
+
+        SPHR_DECL_API("1.21.50", "disp:297,call", "\x48\x0B\xD1\x48\x09\x15")
+        SDK_API void init();
+    };
+
+    // size: 112 (1.21.50)
+    struct TextVideoMemBlitter {
+    public:
+        bgfx::TextureHandle          m_texture; // off+0
+        bgfx::TransientVertexBuffer *m_vb;      // off+8
+        bgfx::TransientIndexBuffer  *m_ib;      // off+16
+        bgfx::VertexDecl             m_decl;    // off+24
+        bgfx::ProgramHandle          m_program; // off+108
+
+        SPHR_DECL_API("1.21.50", "disp:17,call", "\x48\x0B\xD1\x48\x09\x15")
+        SDK_API void init();
+    };
 
     struct TopLevelInstanceDesc;
 
+    // size: 262152
     class CommandBuffer {
     public:
         enum class Enum : int {
@@ -116,7 +140,7 @@ namespace bgfx {
 
         uint32_t m_pos;            // off+0
         uint32_t m_size;           // off+4
-        uint8_t  m_buffer[114514]; // off+8, todo: size
+        uint8_t  m_buffer[262144]; // off+8
     };
 
     // size: 2
@@ -277,17 +301,64 @@ namespace bgfx {
         } m_un; // off+8
     };
 
-    // size: 1280
+    // size: 1344
     struct alignas(64) RenderBind {
-        bgfx::Binding m_bind[64]; // off+0
+        bgfx::Binding m_bind[65]; // off+0
     };
 
-    struct Frame {
-        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x40\x38\x35")
-        SDK_API void create();
+    struct NativeCommandListScope;
 
-        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
-        SDK_API void destroy();
+    // size: 16
+    struct Clear {
+    public:
+        uint8_t  m_index[8]; // @off: 0x0, @size: 0x8
+        float    m_depth;    // @off: 0x8, @size: 0x4
+        uint8_t  m_stencil;  // @off: 0xC, @size: 0x1
+        uint16_t m_flags;    // @off: 0xE, @size: 0x2
+    };
+
+    struct alignas(64) View {
+        bgfx::Clear             m_clear;   // @off: 0x0, @size: 0x10
+        bgfx::Rect              m_rect;    // @off: 0x10, @size: 0x8
+        bgfx::Rect              m_scissor; // @off: 0x18, @size: 0x8
+        bgfx::Matrix4           m_view;    // @off: 0x20, @size: 0x40
+        bgfx::Matrix4           m_proj[2]; // @off: 0x60, @size: 0x80
+        bgfx::Matrix4           m_prevProj[2];
+        float                   m_prevWorldPosOffset[4];
+        bgfx::FrameBufferHandle m_fbh;   // @off: 0xE0, @size: 0x2
+        uint8_t                 m_mode;  // @off: 0xE2, @size: 0x1
+        uint8_t                 m_flags; // @off: 0xE3, @size: 0x1
+        void (*m_nativeCallback)(void *, ::bgfx::NativeCommandListScope *);
+        void *m_userData;
+    };
+
+    // size: 4194320
+    struct MatrixCache {
+    public:
+        bgfx::Matrix4 m_cache[65536]; // off+0
+        uint32_t      m_num;          // off+4194304
+    };
+
+    // size: 524292
+    struct RectCache {
+    public:
+        bgfx::Rect m_cache[65536]; // off+0
+        uint32_t   m_num;          // off+524288
+    };
+
+    // size: 4718624
+    struct FrameCache {
+    public:
+        bgfx::MatrixCache m_matrixCache; // off+0
+        bgfx::RectCache   m_rectCache;   // off+4194320
+    };
+
+    // size: 268435464
+    class UniformBuffer {
+    public:
+        unsigned m_size;               // off+0
+        unsigned m_pos;                // off+4
+        char     m_buffer[0x10000000]; // off+8
     };
 
     // size: 128
@@ -345,6 +416,122 @@ namespace bgfx {
         uint8_t                    m_submitFlags;    // off+34
         uint8_t                    m_uniformIdx;     // off+35
         bool                       m_isRayTracing;   // off+36
+    };
+
+    // size: 128
+    union RenderItem {
+    public:
+        bgfx::RenderDraw    draw;
+        bgfx::RenderCompute compute;
+    };
+
+    // FIXME
+    struct ViewStats {
+    public:
+        char     name[256];
+        uint16_t view;
+        __int64  cpuTimeElapsed;
+        __int64  gpuTimeElapsed;
+    };
+
+    // size: 64
+    struct alignas(64) BlitItem {
+    public:
+        uint16_t            m_srcX;
+        uint16_t            m_srcY;
+        uint16_t            m_srcZ;
+        uint16_t            m_dstX;
+        uint16_t            m_dstY;
+        uint16_t            m_dstZ;
+        uint16_t            m_width;
+        uint16_t            m_height;
+        uint16_t            m_depth;
+        uint8_t             m_srcMip;
+        uint8_t             m_dstMip;
+        bgfx::TextureHandle m_src;
+        bgfx::TextureHandle m_dst;
+    };
+
+    // size: 103264576 (1.21.50)
+    struct Frame {
+        template <typename T, std::size_t Size>
+        struct FreeHandle {
+        public:
+            T        m_queue[Size];
+            uint16_t m_num;
+        };
+
+        template <typename T, std::size_t Size>
+        struct PagedFreeHandle {
+        public:
+            struct Page {
+                T     m_data[Size];
+                Page *m_next;
+            };
+
+            struct ListNode {
+                Page  *m_head;
+                Page  *m_tail;
+                size_t m_allocatedBytes;
+            };
+
+            T         m_inlineBuffer[Size];
+            ListNode *m_overflowList;
+            size_t    m_sizeInBytes;
+            size_t    m_capacityInBytes;
+            bool      m_fixedInlineOnly;
+        };
+
+        uint16_t                     m_viewRemap[256];        // off+0
+        float                        m_colorPalette[16][4];   // off+512
+        bgfx::View                   m_view[256];             // off+768
+        int                          m_occlusion[256];        // off+115456
+        uint64_t                     m_sortKeys[65536];       // off+116480
+        uint16_t                     m_sortValues[65536];     // off+640768
+        bgfx::RenderItem             m_renderItem[65536];     // off+771840
+        bgfx::RenderBind             m_renderItemBind[65536]; // off+9160448
+        __int64                      mUnk[65536];             // off+97240832
+        uint32_t                     m_blitKeys[1025];        // off+97765120
+        bgfx::BlitItem               m_blitItem[1025];        // off+97769280
+        bgfx::FrameCache             m_frameCache;            // off+97834880
+        bgfx::UniformBuffer        **m_uniformBuffer;         // off+102553504
+        uint32_t                     m_numRenderItems;        // off+102553512
+        uint16_t                     m_numBlitItems;          // off+102553516
+        uint32_t                     m_iboffset;              // off+102553520
+        uint32_t                     m_vboffset;              // off+102553524
+        bgfx::TransientIndexBuffer  *m_transientIb;           // off+102553528
+        bgfx::TransientVertexBuffer *m_transientVb;           // off+102553536
+        bgfx::Resolution             m_resolution;            // off+102553544
+        uint32_t                     m_debug;                 // off+102553556
+        bgfx::CommandBuffer          m_cmdPre;                // off+102553560
+        bgfx::CommandBuffer          m_cmdPost;               // off+102815712
+
+        bgfx::Frame::FreeHandle<bgfx::IndexBufferHandle, 4096>            m_freeIndexBuffer;           // off+103077864
+        bgfx::Frame::FreeHandle<bgfx::VertexDeclHandle, 64>               m_freeVertexDecl;            // off+103086058
+        bgfx::Frame::FreeHandle<bgfx::VertexBufferHandle, 4096>           m_freeVertexBuffer;          // off+103086188
+        bgfx::Frame::FreeHandle<bgfx::ShaderHandle, 4096>                 m_freeShader;                // off+103094382
+        bgfx::Frame::FreeHandle<bgfx::ProgramHandle, 2048>                m_freeProgram;               // off+103102576
+        bgfx::Frame::PagedFreeHandle<bgfx::TextureHandle, 4096>           m_freeTexture;               // off+103106680
+        bgfx::Frame::FreeHandle<bgfx::ShaderBufferHandle, 4096>           m_freeShaderBuffer;          // off+103114904
+        bgfx::Frame::FreeHandle<bgfx::FrameBufferHandle, 128>             m_freeFrameBuffer;           // off+103123098
+        bgfx::Frame::FreeHandle<bgfx::UniformHandle, 512>                 m_freeUniform;               // off+103123356
+        bgfx::Frame::FreeHandle<bgfx::AccelerationStructureHandle, 32768> m_freeAccelerationStructure; // off+103124382
+
+        bgfx::TextVideoMem *m_textVideoMem; // off+103189920
+        // bgfx::Stats                   m_perfStats;      // off+103189928
+        // bgfx::ViewStats               m_viewStats[256]; // off+??
+        char                          _fill103189928[103263856 - 103189928];
+        __int64                       m_waitSubmit; // off+103263856
+        __int64                       m_waitRender; // off+103263864
+        bgfx::RayTracingConfiguration m_rtConfig;   // off+103263872
+        bool                          m_capture;    // off+103264536
+        bool                          m_skipFlip;   // off+103264537
+
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x40\x38\x35")
+        SDK_API void create();
+
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
+        SDK_API void destroy();
     };
 
     // size: 7176
@@ -407,148 +594,148 @@ namespace bgfx {
         virtual void unk_virtual_9() = 0;
 
         // vtb+10
-        virtual void createIndexBuffer(bgfx::IndexBufferHandle, const bgfx::Memory *, uint16_t) = 0;
+        virtual void createIndexBuffer(bgfx::IndexBufferHandle _handle, const bgfx::Memory *_mem, uint16_t _flags) = 0;
 
         // vtb+11
-        virtual void destroyIndexBuffer(bgfx::IndexBufferHandle) = 0;
+        virtual void destroyIndexBuffer(bgfx::IndexBufferHandle _handle) = 0;
 
         // vtb+12
-        virtual void createVertexDecl(bgfx::VertexDeclHandle, const bgfx::VertexDecl &) = 0;
+        virtual void createVertexDecl(bgfx::VertexDeclHandle _handle, const bgfx::VertexDecl &_decl) = 0;
 
         // vtb+13
-        virtual void destroyVertexDecl(bgfx::VertexDeclHandle) = 0;
+        virtual void destroyVertexDecl(bgfx::VertexDeclHandle _handle) = 0;
 
         // vtb+14
         virtual void createVertexBuffer(
-            bgfx::VertexBufferHandle, const bgfx::Memory *, bgfx::VertexDeclHandle, uint16_t
+            bgfx::VertexBufferHandle _handle, const bgfx::Memory *_mem, bgfx::VertexDeclHandle _declHandle, uint16_t _flags
         ) = 0;
 
         // vtb+15
         virtual void destroyVertexBuffer(bgfx::VertexBufferHandle) = 0;
 
         // vtb+16
-        virtual void createDynamicIndexBuffer(bgfx::IndexBufferHandle, uint32_t, uint16_t) = 0;
+        virtual void createDynamicIndexBuffer(bgfx::IndexBufferHandle _handle, uint32_t _size, uint16_t _flags) = 0;
 
         // vtb+17
-        virtual void updateDynamicIndexBuffer(bgfx::IndexBufferHandle, uint32_t, uint32_t, const bgfx::Memory *) = 0;
+        virtual void updateDynamicIndexBuffer(bgfx::IndexBufferHandle _handle, uint32_t _offset, uint32_t _size, const bgfx::Memory *_mem) = 0;
 
         // vtb+18
-        virtual void destroyDynamicIndexBuffer(bgfx::IndexBufferHandle) = 0;
+        virtual void destroyDynamicIndexBuffer(bgfx::IndexBufferHandle _handle) = 0;
 
         // vtb+19
-        virtual void createDynamicVertexBuffer(bgfx::VertexBufferHandle, uint32_t, uint16_t) = 0;
+        virtual void createDynamicVertexBuffer(bgfx::VertexBufferHandle _handle, uint32_t _size, uint16_t _flags) = 0;
 
         // vtb+20
-        virtual void updateDynamicVertexBuffer(bgfx::VertexBufferHandle, uint32_t, uint32_t, const bgfx::Memory *) = 0;
+        virtual void updateDynamicVertexBuffer(bgfx::VertexBufferHandle _handle, uint32_t _offset, uint32_t _size, const bgfx::Memory *_mem) = 0;
 
         // vtb+21
-        virtual void destroyDynamicVertexBuffer(bgfx::VertexBufferHandle) = 0;
+        virtual void destroyDynamicVertexBuffer(bgfx::VertexBufferHandle _handle) = 0;
 
         // vtb+22
-        virtual void createShader(bgfx::ShaderHandle, const bgfx::Memory *) = 0;
+        virtual void createShader(bgfx::ShaderHandle _handle, const bgfx::Memory *_mem) = 0;
 
         // vtb+23
-        virtual void destroyShader(bgfx::ShaderHandle) = 0;
+        virtual void destroyShader(bgfx::ShaderHandle _handle) = 0;
 
         // vtb+24
-        virtual void createProgram(bgfx::ProgramHandle, bgfx::ShaderHandle, bgfx::ShaderHandle) = 0;
+        virtual void createProgram(bgfx::ProgramHandle _handle, bgfx::ShaderHandle _vsh, bgfx::ShaderHandle _fsh) = 0;
 
         // vtb+25
-        virtual void destroyProgram(bgfx::ProgramHandle) = 0;
+        virtual void destroyProgram(bgfx::ProgramHandle _handle) = 0;
 
         // vtb+26
-        virtual void *createTexture(bgfx::TextureHandle, const bgfx::Memory *, uint32_t, uint8_t) = 0;
+        virtual void *createTexture(bgfx::TextureHandle _handle, const bgfx::Memory *_mem, uint32_t _flags, uint8_t _skip) = 0;
 
         // vtb+27
-        virtual void updateTextureBegin(bgfx::TextureHandle, uint8_t, uint8_t) = 0;
+        virtual void updateTextureBegin(bgfx::TextureHandle _handle, uint8_t _side, uint8_t _mip) = 0;
 
         // vtb+28
         virtual void updateTexture(
-            bgfx::TextureHandle,
-            uint8_t,
-            uint8_t,
-            const bgfx::Rect &,
-            uint16_t,
-            uint16_t,
-            uint16_t,
-            const bgfx::Memory *
+            bgfx::TextureHandle _handle,
+            uint8_t             _side,
+            uint8_t             _mip,
+            const bgfx::Rect   &_rect,
+            uint16_t            _z,
+            uint16_t            _depth,
+            uint16_t            _pitch,
+            const bgfx::Memory *_mem
         ) = 0;
 
         // vtb+29
         virtual void updateTextureEnd() = 0;
 
         // vtb+30
-        virtual void readTexture(bgfx::TextureHandle, void *, uint8_t) = 0;
+        virtual void readTexture(bgfx::TextureHandle _handle, void *_data, uint8_t _mip) = 0;
 
         // vtb+31
-        virtual void resizeTexture(bgfx::TextureHandle, uint16_t, uint16_t, uint8_t, uint16_t) = 0;
+        virtual void resizeTexture(bgfx::TextureHandle _handle, uint16_t _width, uint16_t _height, uint8_t _numMips, uint16_t _numLayers) = 0;
 
         // vtb+32
-        virtual void overrideInternal(bgfx::TextureHandle, uint64_t, uint32_t) = 0;
+        virtual void overrideInternal(bgfx::TextureHandle _handle, uint64_t _ptr, uint32_t _flags) = 0;
 
         // vtb+33
-        virtual uint64_t getInternal(bgfx::TextureHandle) = 0;
+        virtual uint64_t getInternal(bgfx::TextureHandle _handle) = 0;
 
         // vtb+34
-        virtual void destroyTexture(bgfx::TextureHandle) = 0;
+        virtual void destroyTexture(bgfx::TextureHandle _handle) = 0;
 
         // vtb+35
         virtual void wrapExternalTexture(
-            bgfx::TextureHandle _handle, bgfx::RendererType::Enum _type, void *_texturePtr, void *ref
+            bgfx::TextureHandle _handle, bgfx::RendererType::Enum _type, void *_texturePtr, void *_deferredRef
         ) {}
 
         // vtb+36
-        virtual void createShaderBuffer(bgfx::ShaderBufferHandle, uint32_t, uint32_t) = 0;
+        virtual void createShaderBuffer(bgfx::ShaderBufferHandle _handle, uint32_t _size, uint32_t _stride) = 0;
 
         // vtb+37
-        virtual void updateShaderBuffer(bgfx::ShaderBufferHandle, const bgfx::Memory *) = 0;
+        virtual void updateShaderBuffer(bgfx::ShaderBufferHandle _handle, const bgfx::Memory *_mem) = 0;
 
         // vtb+38
         virtual void destroyShaderBuffer(bgfx::ShaderBufferHandle _handle) {}
 
         // vtb+39
         virtual void createFrameBuffer(
-            bgfx::FrameBufferHandle, void *, uint32_t, uint32_t, bgfx::TextureFormat::Enum
+            bgfx::FrameBufferHandle _handle, void *_nwh, uint32_t _width, uint32_t _height, bgfx::TextureFormat::Enum _depthFormat
         ) = 0;
 
         // vtb+40
-        virtual void createFrameBuffer(bgfx::FrameBufferHandle, uint8_t, const bgfx::Attachment *) = 0;
+        virtual void createFrameBuffer(bgfx::FrameBufferHandle _handle, uint8_t _num, const bgfx::Attachment *_attachment) = 0;
 
         // vtb+41
-        virtual void destroyFrameBuffer(bgfx::FrameBufferHandle) = 0;
+        virtual void destroyFrameBuffer(bgfx::FrameBufferHandle _handle) = 0;
 
         // vtb+42
-        virtual void createUniform(bgfx::UniformHandle, bgfx::UniformType::Enum, uint16_t, const char *) = 0;
+        virtual void createUniform(bgfx::UniformHandle _handle, bgfx::UniformType::Enum _type, uint16_t _num, const char *_name) = 0;
 
         // vtb+43
-        virtual void destroyUniform(bgfx::UniformHandle) = 0;
+        virtual void destroyUniform(bgfx::UniformHandle _handle) = 0;
 
         // vtb+44
-        virtual void requestScreenShot(bgfx::FrameBufferHandle, const char *) = 0;
+        virtual void requestScreenShot(bgfx::FrameBufferHandle _handle, const char *_filePath) = 0;
 
         // vtb+45
-        virtual void updateViewName(uint16_t, const char *) = 0;
+        virtual void updateViewName(uint16_t _id, const char *_name) = 0;
 
         // vtb+46
-        virtual void updateUniform(void *, uint16_t, const void *, uint32_t) = 0;
+        virtual void updateUniform(void *_uniformsTarget, uint16_t _loc, const void *_data, uint32_t _size) = 0;
 
         // vtb+47
-        virtual void setMarker(void *, const char *, uint32_t) = 0;
+        virtual void setMarker(void *_marker, const char *, uint32_t _size) = 0;
 
         // vtb+48
-        virtual void invalidateOcclusionQuery(bgfx::OcclusionQueryHandle) = 0;
+        virtual void invalidateOcclusionQuery(bgfx::OcclusionQueryHandle _handle) = 0;
 
         // vtb+49
-        virtual void setName(bgfx::Handle, const char *) = 0;
+        virtual void setName(bgfx::Handle _handle, const char *_name) = 0;
 
         // vtb+50
-        virtual void submit(bgfx::Frame *, bgfx::ClearQuad &, bgfx::TextVideoMemBlitter &) = 0;
+        virtual void submit(bgfx::Frame *_render, bgfx::ClearQuad &_clearQuad, bgfx::TextVideoMemBlitter &_textVideoMemBlitter) = 0;
 
         // vtb+51
-        virtual void blitSetup(bgfx::TextVideoMemBlitter &) = 0;
+        virtual void blitSetup(bgfx::TextVideoMemBlitter &_blitter) = 0;
 
         // vtb+52
-        virtual void blitRender(bgfx::TextVideoMemBlitter &, uint32_t) = 0;
+        virtual void blitRender(bgfx::TextVideoMemBlitter &_blitter, uint32_t _numIndices) = 0;
 
         // vtb+53
         virtual void unk_virtual_53() = 0;
@@ -577,6 +764,8 @@ namespace bgfx {
             bgfx::AccelerationStructureHandle _handle
         ) {}
     };
+
+    inline RendererContextI::~RendererContextI() = default;
 
     // 1.21.50
     struct Context {

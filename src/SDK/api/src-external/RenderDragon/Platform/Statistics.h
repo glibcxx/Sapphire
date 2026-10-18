@@ -2,6 +2,7 @@
 
 #include "pch.h" // IWYU pragma: keep
 
+#include "SDK/api/src-external/RenderDragon/Materials/CompiledMaterialDefinition.h"
 #include "RenderAPI.h"
 
 namespace dragon::platform {
@@ -45,7 +46,7 @@ namespace dragon::platform {
 
         static_vector_unsigned_char_16_ mSupportedMSAALevels; // off+152
         RenderAPI                       mRenderApi;           // off+176
-        __int8                          mUnk177;              // off+177
+        materials::ShaderCodePlatform   mShaderCdoePlatform;  // off+177
         std::vector<std::string>        mUnk184;              // off+184
     };
 

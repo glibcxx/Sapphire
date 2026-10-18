@@ -310,12 +310,11 @@ namespace sapphire::ui {
     }
 
     void GuiOverlay::saveConfig() {
+        if (ImGui::GetCurrentContext() == nullptr) {
+            sapphire::warn("GuiOverlay: ImGui context not available for saveConfig.");
+            return;
+        }
         if (ImGui::GetIO().WantSaveIniSettings) {
-            if (ImGui::GetCurrentContext() == nullptr) {
-                sapphire::warn("GuiOverlay: ImGui context not available for saveConfig.");
-                return;
-            }
-
             size_t      imgui_ini_size = 0;
             const char *imgui_ini_data = ImGui::SaveIniSettingsToMemory(&imgui_ini_size);
             if (imgui_ini_data && imgui_ini_size > 0) {
