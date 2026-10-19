@@ -194,7 +194,7 @@ namespace sapphire::core {
             if (FAILED(mD3d11On12Device->CreateWrappedResource(
                     mD3dMainRenderTargetResource[i],
                     &d3d11Flags,
-                    D3D12_RESOURCE_STATE_RENDER_TARGET,
+                    D3D12_RESOURCE_STATE_PRESENT,
                     D3D12_RESOURCE_STATE_PRESENT,
                     IID_PPV_ARGS(&mD3d11WrappedBackBuffer[i])
                 ))) return false;
