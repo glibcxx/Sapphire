@@ -571,13 +571,13 @@ public:
 
     // vtb+113
     virtual bool isAuxValueRelevantForPicking() const;
+
 #if MC_VERSION == v1_21_2
+    // vtb+122
+    virtual int getColor(BlockSource &region, const BlockPos &pos, const Block &block) const;
 
     // vtb+121
     virtual int getColor(const Block &block) const;
-
-    // vtb+122
-    virtual int getColor(BlockSource &region, const BlockPos &pos, const Block &block) const;
 
     // vtb+123
     virtual int getColorAtPos(BlockSource &region, const BlockPos &pos) const;

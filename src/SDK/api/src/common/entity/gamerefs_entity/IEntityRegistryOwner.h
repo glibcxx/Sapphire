@@ -13,9 +13,9 @@ public:
     // vtb+0
     virtual ~IEntityRegistryOwner() = default;
 
-    // vtb+1
-    virtual StackRefResult<const EntityRegistry> getEntityRegistry() const = 0;
-
     // vtb+2
     virtual StackRefResult<EntityRegistry> getEntityRegistry() = 0;
+
+    // vtb+1
+    virtual StackRefResult<const EntityRegistry> getEntityRegistry() const = 0;
 };

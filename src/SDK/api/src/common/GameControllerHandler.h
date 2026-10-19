@@ -42,11 +42,11 @@ public:
     // off+0
     virtual ~GameControllerHandler();
 
-    // vtb+1
-    virtual void refresh(bool isInGame, bool isSplitScreen);
-
     // vtb+2
     virtual void refresh() = 0;
+
+    // vtb+1
+    virtual void refresh(bool isInGame, bool isSplitScreen);
 
     // vtb+3
     virtual void shutdown();

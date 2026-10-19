@@ -100,20 +100,20 @@ public:
         bool               usingClassicSkin
     ) { return EventResult::KeepGoing; }
 
-    // vtb+23
-    virtual EventResult onPlayerTeleported(Player &player, float a) { return EventResult::KeepGoing; }
-
     // vtb+24
     virtual EventResult onPlayerTeleported(Player &player) { return EventResult::KeepGoing; }
+
+    // vtb+23
+    virtual EventResult onPlayerTeleported(Player &player, float a) { return EventResult::KeepGoing; }
 
     // vtb+25
     virtual EventResult onPlayerAttackedActor(Player &player, Actor &target) { return EventResult::KeepGoing; }
 
-    // vtb+26
-    virtual EventResult onPlayerDestroyedBlock(Player &player, const Block &block) { return EventResult::KeepGoing; }
-
     // vtb+27
     virtual EventResult onPlayerDestroyedBlock(Player &player, int x, int y, int z) { return EventResult::KeepGoing; }
+
+    // vtb+26
+    virtual EventResult onPlayerDestroyedBlock(Player &player, const Block &block) { return EventResult::KeepGoing; }
 
     // vtb+28
     virtual EventResult onPlayerEquippedArmor(Player &player, const ItemDescriptor &item) { return EventResult::KeepGoing; }

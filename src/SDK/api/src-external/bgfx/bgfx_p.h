@@ -279,26 +279,16 @@ namespace bgfx {
             Count = 5,
         };
 
-        uint32_t mUnk0; // off+0
-        uint32_t mUnk4; // off+4
-        uint32_t mUnk8; // off+8
-        uint16_t m_idx; // off+12
-
-        // size: 4
-        union {
-            // size: 4
-            struct {
-                uint32_t m_textureFlags; // off+0
-            } m_draw;
-
-            // size: 3
-            struct {
-                uint8_t m_format; // off+0
-                uint8_t m_access; // off+1
-                uint8_t m_mip;    // off+2
-                uint8_t m_type;   // off+3
-            } m_compute;
-        } m_un; // off+8
+        uint32_t m_textureFlags; // off+0
+        uint32_t m_offset;       // off+4
+        uint32_t m_stride;       // off+8
+        uint16_t m_idx;          // off+12
+        struct {
+            uint8_t m_format; // off+14
+            uint8_t m_access; // off+15
+            uint8_t m_mip;    // off+16
+        } m_compute;
+        uint8_t m_type; // off+17, 1->index, 2->vertex, 3->texture, 4->shaderBuffer, 5~9->?
     };
 
     // size: 1344
@@ -685,7 +675,7 @@ namespace bgfx {
         ) {}
 
         // vtb+36
-        virtual void createShaderBuffer(bgfx::ShaderBufferHandle _handle, uint32_t _size, uint32_t _stride) = 0;
+        virtual void createShaderBuffer(bgfx::ShaderBufferHandle _handle, uint32_t _size, uint32_t _stride, uint16_t _flags) = 0;
 
         // vtb+37
         virtual void updateShaderBuffer(bgfx::ShaderBufferHandle _handle, const bgfx::Memory *_mem) = 0;
@@ -693,13 +683,13 @@ namespace bgfx {
         // vtb+38
         virtual void destroyShaderBuffer(bgfx::ShaderBufferHandle _handle) {}
 
+        // vtb+40
+        virtual void createFrameBuffer(bgfx::FrameBufferHandle _handle, uint8_t _num, const bgfx::Attachment *_attachment) = 0;
+
         // vtb+39
         virtual void createFrameBuffer(
             bgfx::FrameBufferHandle _handle, void *_nwh, uint32_t _width, uint32_t _height, bgfx::TextureFormat::Enum _depthFormat
         ) = 0;
-
-        // vtb+40
-        virtual void createFrameBuffer(bgfx::FrameBufferHandle _handle, uint8_t _num, const bgfx::Attachment *_attachment) = 0;
 
         // vtb+41
         virtual void destroyFrameBuffer(bgfx::FrameBufferHandle _handle) = 0;

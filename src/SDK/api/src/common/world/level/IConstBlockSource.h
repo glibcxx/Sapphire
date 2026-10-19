@@ -27,14 +27,14 @@ public:
     // vtb+0
     virtual ~IConstBlockSource() = default;
 
-    // vtb+1
-    virtual const Block &getBlock(const BlockPos &pos, uint32_t layer) const = 0;
+    // vtb+3
+    virtual const Block &getBlock(int x, int y, int z) const = 0;
 
     // vtb+2
     virtual const Block &getBlock(const BlockPos &pos) const = 0;
 
-    // vtb+3
-    virtual const Block &getBlock(int x, int y, int z) const = 0;
+    // vtb+1
+    virtual const Block &getBlock(const BlockPos &pos, uint32_t layer) const = 0;
 
     // vtb+4
     virtual const BlockActor *getBlockEntity(const BlockPos &pos) const = 0;
@@ -71,14 +71,14 @@ public:
     // vtb+13
     virtual bool hasBorderBlock(const BlockPos pos) const = 0;
 
-    // vtb+14
-    virtual bool hasChunksAt(const AABB &bb, bool ignoreClientGenerated) const = 0;
+    // vtb+16
+    virtual bool hasChunksAt(const Bounds &bounds, bool ignoreClientGenerated) const = 0;
 
     // vtb+15
     virtual bool hasChunksAt(const BlockPos &pos, int r, bool ignoreClientGenerated) const = 0;
 
-    // vtb+16
-    virtual bool hasChunksAt(const Bounds &bounds, bool ignoreClientGenerated) const = 0;
+    // vtb+14
+    virtual bool hasChunksAt(const AABB &bb, bool ignoreClientGenerated) const = 0;
 
     // vtb+17
     virtual DimensionType getDimensionId() const = 0;
