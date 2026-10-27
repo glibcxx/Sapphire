@@ -5,6 +5,7 @@
 #include "SDK/api/src/common/world/level/Tick.h"
 #include "SDK/api/src/common/util/Bounds.h"
 #include "SDK/api/src-deps/Renderer/PointLight.h"
+#include "SDK/api/src-deps/MinecraftRenderer/game/RangeIndices.h"
 
 class RenderChunkQuadInfo;
 class RenderChunkBuilder;
@@ -16,12 +17,6 @@ namespace mce {
 namespace dragon {
     struct RenderMetadata;
 }
-
-// size: 8
-struct RangeIndices {
-    int mStart; // off+0
-    int mCount; // off+4
-};
 
 // size: 560 (1.21.50)
 class RenderChunkGeometry {

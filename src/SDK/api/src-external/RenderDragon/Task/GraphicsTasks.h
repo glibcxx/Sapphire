@@ -154,6 +154,9 @@ namespace dragon::task {
             const std::function<std::chrono::steady_clock::duration(std::chrono::steady_clock::duration)> &a2
         );
 
+        SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x90\x48\x8B\x4C\x24\x00\x48\x85\xC9\x74\x00\x48\x8B\x01\x48\x8D\x54\x24\x00\x48\x3B\xCA\x0F\x95\xC2\x48\x8B\x40\x00\xFF\x15\x00\x00\x00\x00\x48\x89\x5C\x24\x00\x48\x8B\x8C\x24")
+        SDK_API void _forCounter(const size_t count, const std::function<void(size_t)> &workerCallback, const std::function<void(uint32_t)> &resolveCallback);
+
         class _lambda_144B71107_at_continueInit {
         public:
             GraphicsTasks *__this;

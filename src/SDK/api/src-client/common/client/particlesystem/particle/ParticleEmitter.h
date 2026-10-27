@@ -22,14 +22,14 @@ namespace ParticleSystem {
         // vtb+0
         virtual ~ParticleEmitter() = 0;
 
-        // vtb+1
-        virtual void setActorBindInfo(Actor *actor, const HashedString &locator, const Vec3 &offset) = 0;
+        // vtb+3
+        virtual void setActorBindInfo(Dimension *dimension, ActorUniqueID actorId, const HashedString &locator, const Vec3 &offset) = 0;
 
         // vtb+2
         virtual void setActorBindInfo(WeakEntityRef actor, const HashedString &locator, const Vec3 &offset) = 0;
 
-        // vtb+3
-        virtual void setActorBindInfo(Dimension *dimension, ActorUniqueID actorId, const HashedString &locator, const Vec3 &offset) = 0;
+        // vtb+1
+        virtual void setActorBindInfo(Actor *actor, const HashedString &locator, const Vec3 &offset) = 0;
 
         // vtb+4
         virtual void setEnableUpdate(bool enable) = 0;

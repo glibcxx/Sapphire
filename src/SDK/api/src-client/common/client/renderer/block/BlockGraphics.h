@@ -48,11 +48,11 @@ public:
     // vtb+1
     virtual BlockRenderLayer getRenderLayer(BlockSource &region, const BlockPos &pos) const;
 
-    // vtb+2
-    virtual int getColor(int auxData) const;
-
     // vtb+3
     virtual int getColor(BlockSource &region, const BlockPos &pos) const;
+
+    // vtb+2
+    virtual int getColor(int auxData) const;
 
     // vtb+4
     virtual bool isSeasonTinted(BlockSource &region, const BlockPos &p) const;
@@ -69,17 +69,17 @@ public:
     // vtb+8
     virtual void animateTick(BlockSource &region, const BlockPos &pos, Random &random);
 
-    // vtb+9
-    virtual Vec3 randomlyModifyPosition(const BlockPos &pos) const;
-
     // vtb+10
     virtual Vec3 randomlyModifyPosition(const BlockPos &pos, int &seed) const;
 
-    // vtb+11
-    virtual void setVisualShape(const Vec3 &min, const Vec3 &max);
+    // vtb+9
+    virtual Vec3 randomlyModifyPosition(const BlockPos &pos) const;
 
     // vtb+12
     virtual void setVisualShape(const AABB &shape);
+
+    // vtb+11
+    virtual void setVisualShape(const Vec3 &min, const Vec3 &max);
 
     SPHR_DECL_API("1.21.2", "\x48\x83\xEC\x00\x48\x8B\x05\x00\x00\x00\x00\x48\x33\xC4\x48\x89\x44\x24\x00\x80\xB9\x00\x00\x00\x00\x00\x74\x00\x4C\x8D\x81")
     SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\x4C\x8B\xF0\x48\x85\xC0\x0F\x84\x00\x00\x00\x00\x48\x8B\x48\x00\x48\x2B\x48\x00\x48\xB8")

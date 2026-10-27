@@ -63,6 +63,15 @@ namespace sapphire {
             return str;
         }
 
+        template <std::same_as<std::string_view> T>
+        constexpr Expected<std::string_view, std::error_code> read(size_t len) noexcept {
+            if (mOffset + len >= mData.size())
+                return {unexpected, std::make_error_code(std::errc::result_out_of_range)};
+            std::string_view str{reinterpret_cast<const char *>(mData.data() + mOffset), len};
+            mOffset += len + 1;
+            return str;
+        }
+
         template <std::same_as<std::span<const uint8_t>> T>
         constexpr Expected<std::span<const uint8_t>, std::error_code> read(size_t len) noexcept {
             if (mOffset + len > mData.size()) return {unexpected, std::make_error_code(std::errc::result_out_of_range)};

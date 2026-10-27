@@ -165,6 +165,7 @@ namespace bgfx {
 
     // size: 8
     struct PredefinedUniform {
+        // 1.21.50 (0x1465E8DF0)
         enum class Enum : int {
             ViewRect = 0,
             ViewTexel = 1,
@@ -178,7 +179,8 @@ namespace bgfx {
             ModelView = 9,
             ModelViewProj = 10,
             AlphaRef = 11,
-            Count = 12,
+            PrevWorldPosOffset = 12,
+            Count = 13,
         };
 
         uint32_t m_loc;   // off+0
@@ -227,6 +229,69 @@ namespace bgfx {
         uint16_t m_program; // off+8
         ViewId   m_view;    // off+10
         uint8_t  m_trans;   // off+12
+
+        void reset() {
+            m_depth = 0;
+            m_seq = 0;
+            m_program = 0;
+            m_view = 0;
+            m_trans = 0;
+        }
+
+        static uint16_t decodeView(uint64_t _key) {
+            return (uint16_t)((_key >> 54) & 0xFF);
+        }
+
+        static uint64_t remapView(uint64_t _key, const uint16_t *_viewRemap) {
+            const uint16_t oldView = decodeView(_key);
+            const uint64_t newView = (_viewRemap != nullptr) ? _viewRemap[oldView] : oldView;
+            const uint64_t viewMask = 0xFFULL << 54;
+
+            return (_key & ~viewMask) | ((newView & 0xFFULL) << 54);
+        }
+
+        uint64_t encodeCompute() {
+            return (((uint64_t)this->m_program & 0x7FF) << 18)
+                 | (((uint64_t)this->m_seq & 0xFFFFF) << 31)
+                 | (((uint64_t)(uint8_t)this->m_view) << 54);
+        }
+
+        bool decode(const uint64_t _key, const uint16_t *_viewRemap) {
+            const uint16_t view = decodeView(_key);
+            this->m_view = (_viewRemap != nullptr) ? _viewRemap[view] : view;
+
+            const uint32_t type = (uint32_t)((_key >> 51) & 0x7);
+
+            if (type >= 4) {
+                switch (type) {
+                case 5: // SortDepth (4 + 1)
+                    this->m_program = (uint16_t)((_key >> 6) & 0x7FF);
+                    this->m_trans = (uint8_t)((_key >> 17) & 0x3);
+                    this->m_depth = (uint32_t)((_key >> 19) & 0xFFFFFFFF);
+                    this->m_seq = 0;
+                    break;
+                case 6: // SortSequence (4 + 2)
+                    this->m_program = (uint16_t)((_key >> 18) & 0x7FF);
+                    this->m_trans = (uint8_t)((_key >> 29) & 0x3);
+                    this->m_seq = (uint32_t)((_key >> 31) & 0xFFFFF);
+                    this->m_depth = 0;
+                    break;
+                case 4: // SortProgram (4 + 0)
+                default:
+                    this->m_depth = (uint32_t)((_key >> 6) & 0xFFFFFFFF);
+                    this->m_program = (uint16_t)((_key >> 38) & 0x7FF);
+                    this->m_trans = (uint8_t)((_key >> 49) & 0x3);
+                    this->m_seq = 0;
+                    break;
+                }
+                return true;
+            }
+            this->m_program = (uint16_t)((_key >> 18) & 0x7FF);
+            this->m_seq = (uint32_t)((_key >> 31) & 0xFFFFF);
+            this->m_trans = 0;
+            this->m_depth = 0;
+            return false;
+        }
     };
 
     // size: 4
@@ -301,25 +366,26 @@ namespace bgfx {
     // size: 16
     struct Clear {
     public:
-        uint8_t  m_index[8]; // @off: 0x0, @size: 0x8
-        float    m_depth;    // @off: 0x8, @size: 0x4
-        uint8_t  m_stencil;  // @off: 0xC, @size: 0x1
-        uint16_t m_flags;    // @off: 0xE, @size: 0x2
+        uint8_t  m_index[8]; // off+0
+        float    m_depth;    // off+8
+        uint8_t  m_stencil;  // off+12
+        uint16_t m_flags;    // off+14
     };
 
+    // size: 448 (1.21.50)
     struct alignas(64) View {
-        bgfx::Clear             m_clear;   // @off: 0x0, @size: 0x10
-        bgfx::Rect              m_rect;    // @off: 0x10, @size: 0x8
-        bgfx::Rect              m_scissor; // @off: 0x18, @size: 0x8
-        bgfx::Matrix4           m_view;    // @off: 0x20, @size: 0x40
-        bgfx::Matrix4           m_proj[2]; // @off: 0x60, @size: 0x80
-        bgfx::Matrix4           m_prevProj[2];
-        float                   m_prevWorldPosOffset[4];
-        bgfx::FrameBufferHandle m_fbh;   // @off: 0xE0, @size: 0x2
-        uint8_t                 m_mode;  // @off: 0xE2, @size: 0x1
-        uint8_t                 m_flags; // @off: 0xE3, @size: 0x1
-        void (*m_nativeCallback)(void *, ::bgfx::NativeCommandListScope *);
-        void *m_userData;
+        bgfx::Clear             m_clear;                                    // off+0
+        bgfx::Rect              m_rect;                                     // off+16
+        bgfx::Rect              m_scissor;                                  // off+24
+        bgfx::Matrix4           m_view;                                     // off+32
+        bgfx::Matrix4           m_proj[2];                                  // off+96
+        bgfx::Matrix4           m_prevProj[2];                              // off+224
+        float                   m_prevWorldPosOffset[4];                    // off+352
+        bgfx::FrameBufferHandle m_fbh;                                      // off+368
+        uint8_t                 m_mode;                                     // off+370
+        uint8_t                 m_flags;                                    // off+371
+        void (*m_nativeCallback)(void *, ::bgfx::NativeCommandListScope *); // off+376
+        void *m_userData;                                                   // off+384
     };
 
     // size: 4194320
@@ -343,12 +409,78 @@ namespace bgfx {
         bgfx::RectCache   m_rectCache;   // off+4194320
     };
 
+    constexpr uint32_t g_uniformTypeSize[6] = {4, 0, 16, 36, 64, 1};
+
     // size: 268435464
     class UniformBuffer {
     public:
-        unsigned m_size;               // off+0
-        unsigned m_pos;                // off+4
+        uint32_t m_size;               // off+0
+        uint32_t m_pos;                // off+4
         char     m_buffer[0x10000000]; // off+8
+
+        uint32_t encodeOpcode(bgfx::UniformType::Enum _type, uint16_t _loc, uint16_t _num, uint16_t _copy) {
+            return (_copy & 1)
+                 | ((_num & 0x03FF) << 1)
+                 | ((_loc & 0xFFFF) << 11)
+                 | ((_type & 0x001F) << 27);
+        }
+
+        void decodeOpcode(
+            uint32_t _opcode, bgfx::UniformType::Enum &_type, uint16_t &_loc, uint16_t &_num, uint16_t &_copy
+        ) {
+            _copy = _opcode & 0x0001;
+            _num = (_opcode >> 1) & 0x03FF;
+            _loc = (_opcode >> 11) & 0xFFFF;
+            _type = (bgfx::UniformType::Enum)(_opcode >> 27);
+        }
+
+        void write(uint32_t _value) {
+            if (m_pos + sizeof(uint32_t) < m_size) {
+                *(uint32_t *)&m_buffer[m_pos] = _value;
+                m_pos += sizeof(uint32_t);
+            }
+        }
+
+        void write(const void *_value, uint32_t _size) {
+            if (m_pos + _size < m_size) {
+                std::memcpy(&m_buffer[m_pos], _value, _size);
+                m_pos += _size;
+            }
+        }
+
+        void writeUniform(bgfx::UniformType::Enum _type, uint16_t _loc, const void *_value, uint16_t _num) {
+            const uint32_t opcode = encodeOpcode(_type, _loc, _num, 1);
+            write(opcode);
+            write(_value, _num * bgfx::g_uniformTypeSize[_type]);
+        }
+
+        void writeUniformHandle(
+            bgfx::UniformType::Enum _type, uint16_t _loc, bgfx::UniformHandle _handle, uint16_t _num
+        ) {
+            const uint32_t opcode = encodeOpcode(_type, _loc, _num, 0);
+            write(opcode);
+            write(&_handle, sizeof(bgfx::UniformHandle));
+        }
+
+        void update(bgfx::UniformBuffer **_uniformBuffer, uint32_t _threshold, uint32_t _grow) {
+            bgfx::UniformBuffer *ub = *_uniformBuffer;
+            if (ub->m_size - ub->m_pos <= _threshold) {
+                uint32_t newSize = (ub->m_size + _grow + 15) & ~15;
+                ub = (bgfx::UniformBuffer *)bgfx::g_allocator->realloc(ub, newSize + sizeof(uint32_t) * 2, 0, 0, 0);
+                ub->m_size = newSize;
+                *_uniformBuffer = ub;
+            }
+        }
+
+        bool isEmpty() const { return m_pos == 0; }
+
+        uint32_t getPos() const { return m_pos; }
+
+        void reset(uint32_t _pos = 0) { m_pos = _pos; }
+
+        UniformBuffer(uint32_t _size) : m_size(_size), m_pos(0) {}
+
+        ~UniformBuffer() noexcept = default;
     };
 
     // size: 128
@@ -522,6 +654,9 @@ namespace bgfx {
 
         SPHR_DECL_API("1.21.50", "call", "\xE8\x00\x00\x00\x00\xC7\x86\x00\x00\x00\x00\x00\x00\x00\x00\x32\xC0")
         SDK_API void destroy();
+
+        SPHR_DECL_API("1.21.50", "disp:4,call", "\x48\x8B\x4D\x00\xE8\x00\x00\x00\x00\x0F\x57\xC0\x33\xC0")
+        void sort();
     };
 
     // size: 7176

@@ -232,16 +232,16 @@ namespace mce::framebuilder {
         // vtb+36
         virtual void debugPrintToScreen(std::function<void(const char *)> printFunction) = 0;
 
-        // vtb+37
-        virtual void debugDeclareSceneCamera(
-            const CameraDescriptionOrthographic &cameraDescription,
-            const BufferClearDescription        &bufferClearDescription
-        ) = 0;
-
         // vtb+38
         virtual void debugDeclareSceneCamera(
             const CameraDescriptionPerspective &cameraDescription,
             const BufferClearDescription       &bufferClearDescription
+        ) = 0;
+
+        // vtb+37
+        virtual void debugDeclareSceneCamera(
+            const CameraDescriptionOrthographic &cameraDescription,
+            const BufferClearDescription        &bufferClearDescription
         ) = 0;
 
         // vtb+39
@@ -385,7 +385,7 @@ namespace mce::framebuilder {
         virtual void unk_virtual_82(void *) = 0;
 
         // vtb+83
-        virtual void _insert(void *description) = 0;
+        virtual void _insert_0(void *description) = 0;
 
         // vtb+84
         virtual void _insert_1(void *description) = 0;
@@ -400,7 +400,7 @@ namespace mce::framebuilder {
         virtual void _insert_4(void *description) = 0;
 
         // vtb+88
-        virtual void _insert(
+        virtual void _insert_5(
             std::variant<
                 std::reference_wrapper<const RenderMeshFallbackDescription>,
                 std::reference_wrapper<const RenderChunkGeometryDescription>,

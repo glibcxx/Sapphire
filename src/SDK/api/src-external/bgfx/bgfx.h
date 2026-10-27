@@ -313,6 +313,85 @@ namespace bgfx {
         };
     };
 
+    // size: 1
+    struct Attrib {
+    public:
+        // 1.21.50 (0x1465EC4F0)
+        enum class Enum : int {
+            Position = 0,
+            Normal = 1,
+            Tangent = 2,
+            Bitangent = 3,
+            Color0 = 4,
+            Color1 = 5,
+            Color2 = 6,
+            Color3 = 7,
+            Indices = 8,
+            Weight = 9,
+            TexCoord0 = 10,
+            TexCoord1 = 11,
+            TexCoord2 = 12,
+            TexCoord3 = 13,
+            TexCoord4 = 14,
+            TexCoord5 = 15,
+            TexCoord6 = 16,
+            TexCoord7 = 17,
+            TexCoord8 = 18,
+            Count = 19,
+        };
+    };
+
+    // size: 1
+    struct AttribType {
+    public:
+        enum class Enum : int {
+            Uint8 = 0,
+            Int8 = 1,
+            Uint10 = 2,
+            Uint16 = 3,
+            Int16 = 4,
+            Half = 5,
+            Float = 6,
+            Count = 7,
+        };
+    };
+
+    // size: 8
+    struct AttribToId {
+    public:
+        bgfx::Attrib::Enum attr; // off+0
+        uint16_t           id;   // off+4
+    };
+
+    // size: 8
+    struct AttribTypeToId {
+    public:
+        bgfx::AttribType::Enum type; // off+0
+        uint16_t               id;   // off+4
+    };
+
+    constexpr bgfx::AttribToId s_attribToId[19] = {
+        bgfx::AttribToId{bgfx::Attrib::Enum::Position,  1   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Normal,    2   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Tangent,   3   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Bitangent, 4   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Color0,    5   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Color1,    6   },
+        bgfx::AttribToId{bgfx::Attrib::Enum::Color2,    0x18},
+        bgfx::AttribToId{bgfx::Attrib::Enum::Color3,    0x19},
+        bgfx::AttribToId{bgfx::Attrib::Enum::Indices,   0x0E},
+        bgfx::AttribToId{bgfx::Attrib::Enum::Weight,    0x0F},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord0, 0x10},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord1, 0x11},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord2, 0x12},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord3, 0x13},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord4, 0x14},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord5, 0x15},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord6, 0x16},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord7, 0x17},
+        bgfx::AttribToId{bgfx::Attrib::Enum::TexCoord8, 0x1A},
+    };
+
     // size: 24
     struct InstanceDataBuffer {
         uint8_t                 *data;   // off+0
@@ -380,6 +459,60 @@ namespace bgfx {
         uint64_t           mUnk56;    // off+56
     };
 
+    constexpr uint8_t s_attribTypeSizeD3D9[7][4] = {
+        {4, 4, 4,  4 },
+        {4, 4, 4,  4 },
+        {4, 4, 4,  4 },
+        {4, 4, 8,  8 },
+        {4, 4, 8,  8 },
+        {4, 4, 8,  8 },
+        {4, 8, 12, 16}
+    };
+
+    constexpr uint8_t s_attribTypeSizeD3D1x[7][4] = {
+        {1, 2, 4,  4 },
+        {1, 2, 4,  4 },
+        {4, 4, 4,  4 },
+        {2, 4, 8,  8 },
+        {2, 4, 8,  8 },
+        {2, 4, 8,  8 },
+        {4, 8, 12, 16}
+    };
+    constexpr uint8_t s_attribTypeSizeGl[7][4] = {
+        {1, 2, 4,  4 },
+        {1, 2, 4,  4 },
+        {4, 4, 4,  4 },
+        {2, 4, 6,  8 },
+        {2, 4, 6,  8 },
+        {2, 4, 6,  8 },
+        {4, 8, 12, 16}
+    };
+    constexpr uint8_t s_attribTypeSizeNvn[7][4] = {
+        {1, 2, 4,  4 },
+        {1, 2, 4,  4 },
+        {4, 4, 4,  4 },
+        {2, 4, 8,  8 },
+        {2, 4, 8,  8 },
+        {2, 4, 8,  8 },
+        {4, 8, 12, 16}
+    };
+
+    constexpr const uint8_t (*s_attribTypeSize[12])[7][4] = {
+        &s_attribTypeSizeD3D9,
+        &s_attribTypeSizeD3D9,
+        &s_attribTypeSizeD3D1x,
+        &s_attribTypeSizeD3D1x,
+        &s_attribTypeSizeD3D1x,
+        &s_attribTypeSizeGl,
+        &s_attribTypeSizeGl,
+        &s_attribTypeSizeGl,
+        &s_attribTypeSizeD3D1x,
+        &s_attribTypeSizeNvn,
+        &s_attribTypeSizeD3D9,
+    };
+
+    constexpr uint8_t s_attribTypeIsInt[(size_t)AttribType::Enum::Count] = {1, 1, 1, 1, 1, 0, 0};
+
     // size: 84 (1.21.50)
     struct VertexDecl {
         uint32_t m_hash;           // off+0
@@ -387,8 +520,67 @@ namespace bgfx {
         uint16_t m_offset[19];     // off+6
         uint16_t m_attributes[19]; // off+44
 
+        VertexDecl() : m_hash(0), m_stride(0) {
+            std::memset(m_offset, 0, sizeof(m_offset));
+            std::memset(m_attributes, 0xFF, sizeof(m_attributes));
+        }
+
+        bgfx::VertexDecl &begin(RendererType::Enum _renderer = RendererType::Noop) {
+            m_hash = _renderer;
+            m_stride = 0;
+            std::memset(m_attributes, 0xFF, sizeof(m_attributes));
+            std::memset(m_offset, 0, sizeof(m_offset));
+            return *this;
+        }
+
+        bgfx::VertexDecl &add(
+            bgfx::Attrib::Enum     _attrib,
+            uint8_t                _num,
+            bgfx::AttribType::Enum _type,
+            bool                   _normalized = false,
+            bool                   _asInt = false
+        ) {
+            const uint16_t encodedNorm = (_normalized & 1) << 7;
+            const uint16_t encodedType = ((int)_type & 7) << 3;
+            const uint16_t encodedNum = (_num - 1) & 3;
+            const uint16_t encodeAsInt = ((uint8_t)_asInt & s_attribTypeIsInt[(int)_type]) << 8;
+
+            m_attributes[(int)_attrib] = encodedNum | encodedType | encodedNorm | encodeAsInt;
+            m_offset[(int)_attrib] = m_stride;
+            m_stride += (*s_attribTypeSize[m_hash])[(int)_type][_num - 1];
+
+            return *this;
+        }
+
+        VertexDecl &skip(uint8_t _num) {
+            m_stride += _num;
+            return *this;
+        }
+
         SPHR_DECL_API("1.21.50", "\x48\x89\x5C\x24\x00\x48\x89\x74\x24\x00\x55\x48\x8B\xEC\x48\x83\xEC\x00\x45\x33\xC9") // 1.21.50
         SDK_API void end();
+
+        void decode(
+            bgfx::Attrib::Enum      _attrib,
+            uint8_t                &_num,
+            bgfx::AttribType::Enum &_type,
+            bool                   &_normalized,
+            bool                   &_asInt
+        ) const {
+            const uint16_t val = m_attributes[(int)_attrib];
+            _num = static_cast<uint8_t>((val & 3) + 1);
+            _type = static_cast<bgfx::AttribType::Enum>((val >> 3) & 7);
+            _normalized = (val & 0x0080) != 0;
+            _asInt = (val & 0x0100) != 0;
+        }
+
+        bool has(bgfx::Attrib::Enum _attrib) const { return m_attributes[(int)_attrib] != 0xFFFF; }
+
+        uint16_t getOffset(bgfx::Attrib::Enum _attrib) const { return m_offset[(int)_attrib]; }
+
+        uint16_t getStride() const { return m_stride; }
+
+        uint32_t getSize(uint32_t _num) const { return _num * m_stride; }
     };
 
     // size: 6
