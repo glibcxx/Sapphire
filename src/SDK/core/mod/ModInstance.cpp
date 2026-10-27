@@ -22,32 +22,37 @@ sapphire::IMod *sapphire::core::ModInstance::load() {
         return nullptr;
     }
 
-    mModulehandle = LibraryModule::create(mManifest.mMainDllPath);
-
-    if (!mModulehandle) {
-        sapphire::error("ModInstance: faild to load '{}'. {}", mManifest.mId, mManifest.mMainDllPath.string());
-        return nullptr;
+    for (auto &path : mManifest.mBinPath) {
+        LibraryModule &module = mModulehandles.emplace_back(LibraryModule::create(path));
+        if (!module) {
+            mModulehandles.clear();
+            sapphire::error("ModInstance: faild to load '{}'. {}", mManifest.mId, path.string());
+            return nullptr;
+        }
     }
 
-    auto entryPoint = reinterpret_cast<IMod *(*)()>(GetProcAddress(mModulehandle, "sapphireModEntry"));
+    // 如果是SapphireMod，则第一个dll是入口dll
+    if (mManifest.mType == ModManifest::ModType::SapphireMod && mModulehandles.size()) {
+        auto entryPoint = reinterpret_cast<IMod *(*)()>(GetProcAddress(mModulehandles[0], "sapphireModEntry"));
 
-    if (!entryPoint) {
-        sapphire::warn(
-            "ModInstance: '{}' loaded but no mod entry point found. It might not be a sapphire mod. {}",
-            mManifest.mId,
-            mManifest.mMainDllPath.string()
-        );
-        return nullptr;
-    }
+        if (!entryPoint) {
+            sapphire::warn(
+                "ModInstance: '{}' loaded but no mod entry point found. It might not be a sapphire mod. {}",
+                mManifest.mId,
+                mManifest.mBinPath[0].string()
+            );
+            return nullptr;
+        }
 
-    mInstance = entryPoint();
+        mInstance = entryPoint();
 
-    if (!mInstance) {
-        sapphire::error(
-            "ModInstance: {} loaded but mod entry point returned invalid IMod ptr. {}",
-            mManifest.mId,
-            mManifest.mMainDllPath.string()
-        );
+        if (!mInstance) {
+            sapphire::error(
+                "ModInstance: {} loaded but mod entry point returned invalid IMod ptr. {}",
+                mManifest.mId,
+                mManifest.mBinPath[0].string()
+            );
+        }
     }
 
     return mInstance;

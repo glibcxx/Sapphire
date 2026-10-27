@@ -43,10 +43,10 @@ namespace sapphire::core {
     };
 
     class ModInstance {
-        ModManifest   mManifest;
-        LibraryModule mModulehandle = nullptr;
-        IMod         *mInstance = nullptr;
-        ModStates     mModState = ModStates::ManifestLoaded;
+        ModManifest                mManifest;
+        std::vector<LibraryModule> mModulehandles;
+        IMod                      *mInstance = nullptr;
+        ModStates                  mModState = ModStates::ManifestLoaded;
 
     public:
         ModInstance(ModManifest &&manifest) :
@@ -65,10 +65,7 @@ namespace sapphire::core {
 
         IMod *load();
 
-        IMod &getIMod() const {
-            assert(mInstance && "mInstance is nullptr");
-            return *mInstance;
-        }
+        IMod *getIMod() const { return mInstance; }
 
         const ModManifest &getManifest() const { return mManifest; }
     };

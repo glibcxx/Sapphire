@@ -4,17 +4,18 @@
     对应 mod 的清单文件，一个清单文件大致如下：
     ```
     {
-        "format_version": 1,
-        "id": "Sapphire:builtin_mod",
+        "format_version": 2,
+        "id": "sapphire:builtin_mod",
+        "type": "mod"
         "name": "Builtin Mod",
-        "version": "0.1.1",
+        "version": "0.2.3",
         "author": "Sapphire Project",
         "description": "The Builtin Mod in Sapphire Project.",
         "dependencies": {
-            "Sapphire:core": ">=0.2.0",
-            "minecraft": "1.21.50"
+            "sapphire:core": ">=0.2.3",
+            "minecraft:game": "1.21.50"
         },
-        "main_dll": "builtin_mod+mc1.21.50.dll"
+        "bin": ["builtin_mod+mc1.21.50.dll"]
     }
     ```
 */
@@ -31,10 +32,16 @@ namespace sapphire::core {
     };
 
     struct ModManifest {
-        std::string                mId;
-        SemanticVersion            mVersion;
-        std::filesystem::path      mMainDllPath;
-        std::vector<ModDependency> mDeps;
+        enum class ModType : uint32_t {
+            SapphireMod = 0,
+            Runtime = 1
+        };
+
+        std::string                        mId;
+        ModType                            mType;
+        SemanticVersion                    mVersion;
+        std::vector<std::filesystem::path> mBinPath;
+        std::vector<ModDependency>         mDeps;
     };
 
 } // namespace sapphire::core

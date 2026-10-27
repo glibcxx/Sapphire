@@ -17,6 +17,8 @@ namespace {
 
     using sapphire::SemanticVersion;
 
+    std::regex validId{"^[a-z0-9_-]+:[a-z0-9_-]+$"};
+
     void ltrim(std::string &s) {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
                     return !std::isspace(ch);
@@ -206,8 +208,9 @@ bool sapphire::core::ModRepository::loadMods() {
     _resolveModDependencies(env.getGameVersion(), env.getSapphireVersion());
 
     for (auto *modInst : mLoadingOrder) {
-        sapphire::debug("Loading mod {} at {}", modInst->getManifest().mId, modInst->getManifest().mMainDllPath.string());
-        if (modInst->load()) {
+        for (auto &dll : modInst->getManifest().mBinPath) {
+            sapphire::debug("Loading mod {} at {}", modInst->getManifest().mId, dll.string());
+            modInst->load();
             mLoadedMods.emplace_back(modInst);
         }
     }
@@ -236,7 +239,7 @@ bool sapphire::core::ModRepository::loadMods() {
     }
 
     for (auto *mod : mLoadedMods) {
-        mod->getIMod().onLoaded();
+        if (mod->getIMod()) mod->getIMod()->onLoaded();
         mod->markLoaded();
     }
 
@@ -246,7 +249,7 @@ bool sapphire::core::ModRepository::loadMods() {
 void sapphire::core::ModRepository::unloadMods() {
     auto &&loadedMods = std::move(mLoadedMods);
     for (auto *mod : loadedMods | std::views::reverse) {
-        mod->getIMod().onUnload();
+        if (mod->getIMod()) mod->getIMod()->onUnload();
     }
     mLoadedMods.clear();
     mLoadingOrder.clear();
@@ -261,13 +264,13 @@ void sapphire::core::ModRepository::unloadMods() {
 
 void sapphire::core::ModRepository::publishOnInitEvent(const sapphire::ModInitContext &ctx) {
     for (auto *mod : mLoadedMods) {
-        mod->getIMod().onInit(ctx);
+        if (mod->getIMod()) mod->getIMod()->onInit(ctx);
     }
 }
 
 void sapphire::core::ModRepository::publishOnUnInitEvent() {
     for (auto *mod : mLoadedMods | std::views::reverse) {
-        mod->getIMod().onUnInit();
+        if (mod->getIMod()) mod->getIMod()->onUnInit();
     }
 }
 
@@ -293,7 +296,7 @@ void sapphire::core::ModRepository::_loadManifests(const std::filesystem::path &
 
 bool sapphire::core::ModRepository::_loadManifest(
     const std::filesystem::path &modDir, sapphire::core::ModManifest &manifest
-) {
+) try {
     auto manifestPath = modDir / "manifest.json";
     if (!fs::exists(manifestPath))
         return false;
@@ -305,174 +308,618 @@ bool sapphire::core::ModRepository::_loadManifest(
     nlohmann::json manifestJson{};
     manifestFs >> manifestJson;
 
+    auto &manifestVersion = manifestJson["format_version"];
+    if (!manifestVersion.is_number() || manifestVersion != 2)
+        return false;
+
     auto &id = manifestJson["id"];
     if (!id.is_string()) return false;
     manifest.mId = id;
+    if (!std::regex_match(manifest.mId, validId)) {
+        return false;
+    }
+
+    auto &type = manifestJson["type"];
+    if (!type.is_string()) return false;
+    if (type == "mod")
+        manifest.mType = ModManifest::ModType::SapphireMod;
+    else if (type == "runtime")
+        manifest.mType = ModManifest::ModType::Runtime;
+    else
+        return false;
 
     auto &version = manifestJson["version"];
     if (!version.is_string()) return false;
 
     manifest.mVersion = SemanticVersion::fromString(version).value_or({});
 
-    auto &mainDll = manifestJson["main_dll"];
-    if (!mainDll.is_string()) return false;
-
-    manifest.mMainDllPath = (modDir / mainDll).lexically_normal();
+    auto &mainDll = manifestJson["bin"];
+    if (!mainDll.is_array()) return false;
+    for (auto &path : mainDll) {
+        if (!path.is_string()) return false;
+        manifest.mBinPath.emplace_back((modDir / path).lexically_normal());
+    }
 
     auto &deps = manifestJson["dependencies"];
-    if (!deps.is_object() || deps.empty()) return false;
-
-    if (!deps.contains("minecraft")) return false;
-
-    manifest.mDeps.reserve(deps.size());
-    for (auto &&[k, v] : deps.items()) {
-        manifest.mDeps.emplace_back(k, v);
+    if (deps.is_object() && !deps.empty()) {
+        manifest.mDeps.reserve(deps.size());
+        for (auto &&[k, v] : deps.items()) {
+            if (!std::regex_match(k, validId)) {
+                return false;
+            }
+            manifest.mDeps.emplace_back(k, v);
+        }
     }
     return true;
+} catch (std::exception &e) {
+    sapphire::error("ModRepository: error loading manifest: {}", e.what());
+    return false;
 }
+
+namespace {
+
+    using sapphire::SemanticVersion;
+    using sapphire::core::ModInstance;
+    using sapphire::core::ModManifest;
+
+    // 两个特殊依赖：游戏本体与框架自身。
+    // 它们不是 mMods 里的 mod，而是直接由传入的版本号满足。
+    constexpr std::string_view kGameDependencyId = "minecraft:game";
+    constexpr std::string_view kCoreDependencyId = "sapphire:core";
+
+    // 一条依赖需求：mRequiredBy 要求 mId 满足 mVersionConstraint
+    struct DependencyRequest {
+        std::string          mId;
+        std::string          mVersionConstraint;
+        std::string          mRequiredBy; // 发起需求的 mod id；为空表示“已安装的 mod 列表”本身
+        ModManifest::ModType mRequiredByType = ModManifest::ModType::SapphireMod;
+    };
+
+    std::string shorten(std::string text, std::size_t maxLength = 1024) {
+        if (text.size() <= maxLength) return text;
+        text.resize(maxLength);
+        text += "...";
+        return text;
+    }
+
+    std::string joinIds(const std::vector<std::string> &ids) {
+        std::string result;
+        for (auto &&id : ids) {
+            if (!result.empty()) result += ", ";
+            result += id;
+        }
+        return result;
+    }
+
+    std::string describeRequester(const DependencyRequest &request) {
+        if (request.mRequiredBy.empty()) return "the installed mod list";
+        return std::format("mod '{}'", request.mRequiredBy);
+    }
+
+    std::string formatVersions(const std::vector<ModInstance *> &candidates) {
+        std::string result;
+        for (auto *candidate : candidates) {
+            if (!result.empty()) result += ", ";
+            result += candidate->getManifest().mVersion.toString();
+        }
+        return result.empty() ? "<none>" : result;
+    }
+
+    class DependencyResolver {
+    public:
+        struct Solution {
+            std::map<std::string, ModInstance *>                                    mSelected;
+            std::map<std::string, std::vector<DependencyRequest>>                   mConstraints;
+            std::map<std::string, std::vector<std::pair<std::size_t, std::string>>> mRejectedCandidates;
+        };
+
+        DependencyResolver(
+            std::map<std::string, std::vector<ModInstance>> &mods,
+            const SemanticVersion                           &gameVersion,
+            const SemanticVersion                           &sapphireVersion
+        ) :
+            mMods(mods),
+            mGameVersion(gameVersion),
+            mSapphireVersion(sapphireVersion) {
+            for (auto &&[id, instances] : mMods) {
+                auto &candidates = mCandidates[id];
+                candidates.reserve(instances.size());
+                for (auto &&instance : instances) {
+                    candidates.push_back(&instance);
+                }
+                std::ranges::stable_sort(candidates, [](const ModInstance *lhs, const ModInstance *rhs) {
+                    return lhs->getManifest().mVersion > rhs->getManifest().mVersion;
+                });
+            }
+        }
+
+        bool solve(const std::vector<std::string> &roots, Solution &solution, std::string &failure);
+
+        [[nodiscard]] const std::vector<ModInstance *> *candidatesOf(std::string_view id) const {
+            auto it = mCandidates.find(std::string{id});
+            return it == mCandidates.end() ? nullptr : &it->second;
+        }
+
+        // mod id 的类型以它最新的版本为准（正常情况下一个 id 的所有版本类型一致）
+        [[nodiscard]] ModManifest::ModType typeOf(std::string_view id) const {
+            const auto *candidates = candidatesOf(id);
+            if (!candidates || candidates->empty()) return ModManifest::ModType::SapphireMod;
+            return candidates->front()->getManifest().mType;
+        }
+
+        // 该 id 是否被某个 mod 作为依赖请求过（无论请求方最终是否加载成功）
+        [[nodiscard]] bool wasRequiredAsDependency(std::string_view id) const {
+            return mRequiredIds.contains(std::string{id});
+        }
+
+    private:
+        struct State {
+            std::map<std::string, std::size_t>                    mChosen;      // id -> 候选版本下标
+            std::map<std::string, std::vector<DependencyRequest>> mConstraints; // id -> 已生效的需求
+            std::vector<std::string>                              mPath;        // 当前依赖链，用于环检测
+        };
+
+        bool _resolve(const std::vector<DependencyRequest> &pending, State &state, std::string &failure);
+
+        [[nodiscard]] ModInstance *_candidate(std::string_view id, std::size_t index) const;
+
+        // 版本区间只解析一次并缓存，避免回溯时重复解析与重复报错
+        const VersionConstraint &_constraint(std::string_view constraintStr);
+
+        std::map<std::string, std::vector<ModInstance>> &mMods;
+        const SemanticVersion                           &mGameVersion;
+        const SemanticVersion                           &mSapphireVersion;
+
+        std::map<std::string, std::vector<ModInstance *>>                       mCandidates;
+        std::map<std::string, VersionConstraint>                                mConstraintCache;
+        std::set<std::string>                                                   mRequiredIds;
+        std::map<std::string, std::vector<std::pair<std::size_t, std::string>>> mRejectedCandidates;
+
+        std::size_t mSteps = 0;
+
+        static constexpr std::size_t kMaxSteps = 200000;
+    };
+
+    bool DependencyResolver::solve(
+        const std::vector<std::string> &roots, Solution &solution, std::string &failure
+    ) {
+        mSteps = 0;
+        mRejectedCandidates.clear();
+        solution = Solution{};
+
+        State                          state;
+        std::vector<DependencyRequest> pending;
+        pending.reserve(roots.size());
+        for (auto &&root : roots) {
+            pending.push_back(DependencyRequest{root, "*", {}, ModManifest::ModType::SapphireMod});
+        }
+
+        if (!_resolve(pending, state, failure)) return false;
+
+        for (auto &&[id, index] : state.mChosen) {
+            solution.mSelected.emplace(id, _candidate(id, index));
+        }
+        solution.mConstraints = std::move(state.mConstraints);
+        solution.mRejectedCandidates = std::move(mRejectedCandidates);
+        return true;
+    }
+
+    bool DependencyResolver::_resolve(
+        const std::vector<DependencyRequest> &pending, State &state, std::string &failure
+    ) {
+        if (pending.empty()) return true;
+
+        if (++mSteps > kMaxSteps) {
+            failure = "dependency resolution gave up after too many steps, the dependency graph is too complex";
+            return false;
+        }
+
+        const DependencyRequest        request = pending.front();
+        std::vector<DependencyRequest> rest(pending.begin() + 1, pending.end());
+
+        const VersionConstraint &constraint = _constraint(request.mVersionConstraint);
+        if (!constraint.isValid()) {
+            failure = std::format(
+                "{} requires '{}' with an invalid version constraint '{}'",
+                describeRequester(request),
+                request.mId,
+                request.mVersionConstraint
+            );
+            return false;
+        }
+
+        const std::string_view requestId{request.mId};
+        if (requestId == kGameDependencyId || requestId == kCoreDependencyId) {
+            const bool             isGame = requestId == kGameDependencyId;
+            const SemanticVersion &provided = isGame ? mGameVersion : mSapphireVersion;
+            if (constraint.isSatisfiedBy(provided)) {
+                return _resolve(rest, state, failure);
+            }
+            failure = std::format(
+                "{} requires {} '{}', but the current {} version is {}",
+                describeRequester(request),
+                request.mId,
+                request.mVersionConstraint,
+                isGame ? "game" : "sapphire",
+                provided.toString()
+            );
+            return false;
+        }
+
+        if (std::ranges::find(state.mPath, request.mId) != state.mPath.end()) {
+            std::string chain;
+            for (auto &&id : state.mPath) {
+                chain += id;
+                chain += " -> ";
+            }
+            chain += request.mId;
+            failure = std::format("circular dependency detected: {}", chain);
+            return false;
+        }
+
+        if (auto chosenIt = state.mChosen.find(request.mId); chosenIt != state.mChosen.end()) {
+            const ModInstance *chosen = _candidate(request.mId, chosenIt->second);
+            const ModManifest &manifest = chosen->getManifest();
+
+            if (!constraint.isSatisfiedBy(manifest.mVersion)) {
+                failure = std::format(
+                    "{} requires {} '{}', but version {} has already been selected for {}",
+                    describeRequester(request),
+                    request.mId,
+                    request.mVersionConstraint,
+                    manifest.mVersion.toString(),
+                    request.mId
+                );
+                return false;
+            }
+
+            if (manifest.mType == ModManifest::ModType::SapphireMod
+                && request.mRequiredByType == ModManifest::ModType::Runtime) {
+                failure = std::format(
+                    "runtime mod '{}' is not allowed to depend on sapphire mod '{}'",
+                    request.mRequiredBy,
+                    request.mId
+                );
+                return false;
+            }
+
+            state.mConstraints[request.mId].push_back(request);
+            if (_resolve(rest, state, failure)) return true;
+            state.mConstraints[request.mId].pop_back();
+            return false;
+        }
+
+        const auto *candidates = candidatesOf(request.mId);
+        if (!candidates || candidates->empty()) {
+            failure = std::format(
+                "{} requires '{}', but no such mod is installed",
+                describeRequester(request),
+                request.mId
+            );
+            return false;
+        }
+
+        if (!request.mRequiredBy.empty()) mRequiredIds.insert(request.mId);
+
+        bool                                             anyVersionMatched = false;
+        bool                                             remainingFailed = false;
+        std::string                                      remainingFailureOfOthers;
+        std::vector<std::pair<std::size_t, std::string>> failures;
+
+        for (std::size_t i = 0; i < candidates->size(); ++i) {
+            const ModInstance *candidate = (*candidates)[i];
+            const ModManifest &manifest = candidate->getManifest();
+
+            if (!constraint.isSatisfiedBy(manifest.mVersion)) continue;
+            anyVersionMatched = true;
+
+            if (manifest.mType == ModManifest::ModType::SapphireMod
+                && request.mRequiredByType == ModManifest::ModType::Runtime) {
+                failures.emplace_back(
+                    i,
+                    std::format(
+                        "runtime mod '{}' is not allowed to depend on sapphire mod '{}'",
+                        request.mRequiredBy,
+                        request.mId
+                    )
+                );
+                continue;
+            }
+
+            const State snapshot = state;
+
+            state.mChosen[request.mId] = i;
+            state.mConstraints[request.mId].push_back(request);
+
+            std::vector<DependencyRequest> deps;
+            deps.reserve(manifest.mDeps.size());
+            for (auto &&dep : manifest.mDeps) {
+                deps.push_back(DependencyRequest{dep.mId, dep.mVersionConstraint, manifest.mId, manifest.mType});
+            }
+
+            state.mPath.push_back(request.mId);
+            std::string dependencyFailure;
+            const bool  dependenciesResolved = _resolve(deps, state, dependencyFailure);
+            state.mPath.pop_back();
+
+            bool        remainingResolved = false;
+            std::string remainingFailure;
+            if (dependenciesResolved) {
+                remainingResolved = _resolve(rest, state, remainingFailure);
+            }
+
+            if (dependenciesResolved && remainingResolved) {
+                for (auto &&[rejectedIndex, reason] : failures) {
+                    mRejectedCandidates[request.mId].emplace_back(rejectedIndex, reason);
+                }
+                return true;
+            }
+
+            state = snapshot;
+
+            if (dependenciesResolved) {
+                remainingFailed = true;
+                remainingFailureOfOthers = std::move(remainingFailure);
+            } else {
+                failures.emplace_back(i, std::move(dependencyFailure));
+            }
+        }
+
+        if (!anyVersionMatched) {
+            failure = std::format(
+                "{} requires {} '{}', but none of the installed versions ({}) satisfies it",
+                describeRequester(request),
+                request.mId,
+                request.mVersionConstraint,
+                formatVersions(*candidates)
+            );
+            return false;
+        }
+
+        if (failures.empty() && remainingFailed) {
+            failure = std::move(remainingFailureOfOthers);
+            return false;
+        }
+
+        std::string summary;
+        for (std::size_t i = 0; i < failures.size() && i < 3; ++i) {
+            if (!summary.empty()) summary += "; ";
+            summary += std::format(
+                "version {} cannot be used because {}",
+                (*candidates)[failures[i].first]->getManifest().mVersion.toString(),
+                failures[i].second
+            );
+        }
+        if (failures.size() > 3) {
+            summary += std::format("; ({} more version(s) omitted)", failures.size() - 3);
+        }
+        if (remainingFailed) {
+            if (!summary.empty()) summary += "; ";
+            summary += std::format("other requirements cannot be satisfied: {}", remainingFailureOfOthers);
+        }
+
+        failure = std::format(
+            "{} requires {}, but no installed version can be loaded ({})",
+            describeRequester(request),
+            request.mId,
+            summary
+        );
+        return false;
+    }
+
+    ModInstance *DependencyResolver::_candidate(std::string_view id, std::size_t index) const {
+        const auto *candidates = candidatesOf(id);
+        assert(candidates && index < candidates->size());
+        return (*candidates)[index];
+    }
+
+    const VersionConstraint &DependencyResolver::_constraint(std::string_view constraintStr) {
+        std::string key{constraintStr};
+        auto        it = mConstraintCache.find(key);
+        if (it == mConstraintCache.end()) {
+            it = mConstraintCache.emplace(key, VersionConstraint{key}).first;
+        }
+        return it->second;
+    }
+
+    bool topologicalOrder(
+        const std::vector<std::string>             &ids,
+        const std::map<std::string, ModInstance *> &selected,
+        std::vector<std::string>                   &order,
+        std::vector<std::string>                   &cyclic
+    ) {
+        const std::set<std::string> idSet(ids.begin(), ids.end());
+
+        std::map<std::string, std::size_t>              inDegree;
+        std::map<std::string, std::vector<std::string>> dependents;
+
+        for (auto &&id : ids) inDegree[id] = 0;
+        for (auto &&id : ids) {
+            for (auto &&dep : selected.at(id)->getManifest().mDeps) {
+                if (!idSet.contains(dep.mId)) continue;
+                ++inDegree[id];
+                dependents[dep.mId].push_back(id);
+            }
+        }
+
+        std::set<std::string> ready;
+        for (auto &&[id, degree] : inDegree) {
+            if (degree == 0) ready.insert(id);
+        }
+
+        order.clear();
+        order.reserve(ids.size());
+        while (!ready.empty()) {
+            const std::string id = *ready.begin();
+            ready.erase(ready.begin());
+            order.push_back(id);
+            for (auto &&dependent : dependents[id]) {
+                if (--inDegree[dependent] == 0) ready.insert(dependent);
+            }
+        }
+
+        cyclic.clear();
+        for (auto &&id : ids) {
+            if (std::ranges::find(order, id) == order.end()) cyclic.push_back(id);
+        }
+        return cyclic.empty();
+    }
+
+} // namespace
 
 void sapphire::core::ModRepository::_resolveModDependencies(
     const SemanticVersion &MCVersion, const SemanticVersion &sapphireVersion
 ) {
-    std::unordered_map<std::string, std::vector<ModInstance *>> compatibleMods;
-    for (auto &[modId, mods] : mMods) {
-        bool anyVersionCompatible = false;
-        for (auto &mod : mods) {
-            bool compatible = false;
-            for (const auto &dep : mod.getManifest().mDeps) {
-                if (dep.mId == "minecraft") {
-                    VersionConstraint constraint(dep.mVersionConstraint);
-                    if (constraint.isValid() && constraint.isSatisfiedBy(MCVersion)) {
-                        compatible = true;
-                        break;
-                    }
-                } else if (dep.mId == "Sapphire:core") {
-                    VersionConstraint constraint(dep.mVersionConstraint);
-                    if (!constraint.isValid() || !constraint.isSatisfiedBy(sapphireVersion)) {
-                        break;
-                    }
-                }
-            }
-            if (compatible) {
-                anyVersionCompatible = true;
-                compatibleMods[modId].push_back(&mod);
-            }
+    mLoadingOrder.clear();
+
+    if (mMods.empty()) {
+        sapphire::info("ModRepository: no mod installed");
+        return;
+    }
+
+    DependencyResolver resolver{mMods, MCVersion, sapphireVersion};
+
+    std::vector<std::string> sapphireModIds;
+    std::vector<std::string> runtimeIds;
+    for (auto &&[id, instances] : mMods) {
+        if (instances.empty()) continue;
+        if (resolver.typeOf(id) == ModManifest::ModType::Runtime) {
+            runtimeIds.push_back(id);
+        } else {
+            sapphireModIds.push_back(id);
         }
-        if (!anyVersionCompatible) {
-            sapphire::error(
-                "dependency 'minecraft' or 'Sapphire:core' of any version of Mod '{}' is not satisfied.",
-                modId
+    }
+
+    std::vector<std::string>     committed;
+    DependencyResolver::Solution solution;
+
+    for (auto &&root : sapphireModIds) {
+        std::vector<std::string>     trial = committed;
+        DependencyResolver::Solution trialSolution;
+        std::string                  failure;
+
+        trial.push_back(root);
+
+        if (resolver.solve(trial, trialSolution, failure)) {
+            committed = std::move(trial);
+            solution = std::move(trialSolution);
+            continue;
+        }
+
+        sapphire::error(
+            "ModRepository: cannot resolve dependencies for mod '{}', none of its {} installed version(s) can be loaded, it will be skipped. Reason: {}",
+            root,
+            mMods.at(root).size(),
+            shorten(std::move(failure))
+        );
+    }
+
+    std::vector<std::string> selectedRuntimes;
+    std::vector<std::string> selectedSapphireMods;
+    for (auto &&[id, instance] : solution.mSelected) {
+        if (instance->getManifest().mType == ModManifest::ModType::Runtime) {
+            selectedRuntimes.push_back(id);
+        } else {
+            selectedSapphireMods.push_back(id);
+        }
+    }
+
+    std::vector<std::string> runtimeOrder;
+    std::vector<std::string> sapphireModOrder;
+    std::vector<std::string> cyclic;
+
+    if (!topologicalOrder(selectedRuntimes, solution.mSelected, runtimeOrder, cyclic)) {
+        sapphire::error(
+            "ModRepository: circular dependency detected between runtime mods, they will be skipped: {}",
+            joinIds(cyclic)
+        );
+    }
+    if (!topologicalOrder(selectedSapphireMods, solution.mSelected, sapphireModOrder, cyclic)) {
+        sapphire::error(
+            "ModRepository: circular dependency detected between mods, they will be skipped: {}",
+            joinIds(cyclic)
+        );
+    }
+
+    mLoadingOrder.reserve(runtimeOrder.size() + sapphireModOrder.size());
+    for (auto &&id : runtimeOrder) {
+        mLoadingOrder.push_back(solution.mSelected.at(id));
+    }
+    for (auto &&id : sapphireModOrder) {
+        mLoadingOrder.push_back(solution.mSelected.at(id));
+    }
+
+    for (auto &&id : runtimeIds) {
+        if (solution.mSelected.contains(id)) continue;
+        if (resolver.wasRequiredAsDependency(id)) {
+            sapphire::warn(
+                "ModRepository: runtime mod '{}' is required by other mods but could not be loaded, the mods depending on it are skipped as well",
+                id
+            );
+        } else {
+            sapphire::warn(
+                "ModRepository: runtime mod '{}' is not depended on by any mod, it will not be loaded",
+                id
             );
         }
     }
 
-    std::unordered_map<std::string, const ModInstance *> resolvedMods;
-    std::unordered_set<std::string>                      visiting;
+    for (auto &&[id, instance] : solution.mSelected) {
+        const auto *candidates = resolver.candidatesOf(id);
+        if (!candidates || candidates->empty()) continue;
 
-    auto resolve = [&](auto &self, const std::string &modId) -> bool {
-        visiting.insert(modId);
+        const ModInstance *newest = candidates->front();
+        if (!(instance->getManifest().mVersion < newest->getManifest().mVersion)) continue;
 
-        auto it = compatibleMods.find(modId);
-        if (it == compatibleMods.end()) {
-            sapphire::error("Dependency '{}' not found.", modId);
-            visiting.erase(modId);
-            return false;
-        }
+        std::string reasons;
 
-        for (const auto *modInstance : it->second) {
-            bool dependenciesMet = true;
-            for (const auto &dep : modInstance->getManifest().mDeps) {
-                if (dep.mId == "minecraft" || dep.mId == "Sapphire:core") continue;
-
-                if (visiting.count(dep.mId)) {
-                    sapphire::error("Circular dependency detected: {} -> {}", modId, dep.mId);
-                    dependenciesMet = false;
-                    break;
-                }
-
-                auto resolvedIt = resolvedMods.find(dep.mId);
-                if (resolvedIt != resolvedMods.end()) {
-                    VersionConstraint constraint(dep.mVersionConstraint);
-                    if (!constraint.isValid()
-                        || !constraint.isSatisfiedBy(resolvedIt->second->getManifest().mVersion)) {
-                        dependenciesMet = false;
-                        break;
-                    }
-                } else {
-                    if (!self(self, dep.mId)) {
-                        dependenciesMet = false;
-                        break;
-                    }
-                    resolvedIt = resolvedMods.find(dep.mId);
-                    VersionConstraint constraint(dep.mVersionConstraint);
-                    if (resolvedIt == resolvedMods.end()
-                        || !constraint.isValid()
-                        || !constraint.isSatisfiedBy(resolvedIt->second->getManifest().mVersion)) {
-                        dependenciesMet = false;
-                        break;
-                    }
-                }
-            }
-
-            if (dependenciesMet) {
-                resolvedMods[modId] = modInstance;
-                visiting.erase(modId);
-                return true;
+        if (auto it = solution.mConstraints.find(id); it != solution.mConstraints.end()) {
+            for (auto &&constraint : it->second) {
+                if (constraint.mRequiredBy.empty()) continue;
+                if (!reasons.empty()) reasons += "; ";
+                reasons += std::format(
+                    "required by '{}' as '{}'",
+                    constraint.mRequiredBy,
+                    constraint.mVersionConstraint
+                );
             }
         }
 
-        sapphire::error("Failed to resolve dependencies for mod: {}. No compatible version found.", modId);
-        visiting.erase(modId);
-        return false;
-    };
-
-    for (const auto &[modId, _] : compatibleMods) {
-        if (resolvedMods.find(modId) == resolvedMods.end()) {
-            resolve(resolve, modId);
-        }
-    }
-
-    // Topological Sort
-    std::unordered_map<std::string, std::vector<std::string>> graph;
-    std::unordered_map<std::string, int>                      inDegree;
-
-    for (const auto &[modId, _] : resolvedMods) {
-        inDegree[modId] = 0;
-    }
-
-    for (const auto &[modId, modInstance] : resolvedMods) {
-        for (const auto &dep : modInstance->getManifest().mDeps) {
-            if (dep.mId != "minecraft" && resolvedMods.count(dep.mId)) {
-                graph[dep.mId].push_back(modId);
-                inDegree[modId]++;
+        if (auto it = solution.mRejectedCandidates.find(id); it != solution.mRejectedCandidates.end()) {
+            for (auto &&[index, reason] : it->second) {
+                if (index >= candidates->size()) continue;
+                if (!reasons.empty()) reasons += "; ";
+                reasons += std::format(
+                    "version {} rejected: {}",
+                    (*candidates)[index]->getManifest().mVersion.toString(),
+                    reason
+                );
             }
         }
-    }
 
-    std::stack<std::string> stack;
-    for (const auto &[modId, degree] : inDegree) {
-        if (degree == 0) {
-            stack.push(modId);
+        if (reasons.empty()) {
+            reasons = "the newest version conflicts with the resolved dependency graph";
         }
+
+        sapphire::warn(
+            "ModRepository: mod '{}' will be loaded at version {} instead of the newest {}, because: {}",
+            id,
+            instance->getManifest().mVersion.toString(),
+            newest->getManifest().mVersion.toString(),
+            shorten(std::move(reasons))
+        );
     }
 
-    while (!stack.empty()) {
-        std::string u = stack.top();
-        stack.pop();
-        mLoadingOrder.push_back(const_cast<ModInstance *>(resolvedMods[u]));
-
-        if (graph.count(u)) {
-            for (const auto &v : graph[u]) {
-                if (--inDegree[v] == 0) {
-                    stack.push(v);
-                }
-            }
+    if (!mLoadingOrder.empty()) {
+        std::string order;
+        for (auto *instance : mLoadingOrder) {
+            if (!order.empty()) order += " -> ";
+            order += std::format(
+                "{}@{}",
+                instance->getManifest().mId,
+                instance->getManifest().mVersion.toString()
+            );
         }
-    }
-
-    if (mLoadingOrder.size() != resolvedMods.size()) {
-        sapphire::error("Could not create a valid loading order for all mods. "
-                        "There might be a complex circular dependency.");
-        mLoadingOrder.clear();
+        sapphire::debug("ModRepository: mod loading order: {}", order);
     }
 }
